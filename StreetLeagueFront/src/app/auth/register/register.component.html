@@ -130,13 +130,13 @@
       <div class="form-row">
         <div class="form-group">
           <label for="firstName">Prénom</label>
-          <input type="text" id="firstName" formControlName="firstName" placeholder="Hamdi"
+          <input type="text" id="firstName" formControlName="firstName" placeholder=""
             [class.input-error]="f['firstName'].invalid && f['firstName'].touched" />
           <small class="field-error" *ngIf="f['firstName'].invalid && f['firstName'].touched">Prénom requis.</small>
         </div>
         <div class="form-group">
           <label for="lastName">Nom</label>
-          <input type="text" id="lastName" formControlName="lastName" placeholder="Ben Ali"
+          <input type="text" id="lastName" formControlName="lastName" placeholder=""
             [class.input-error]="f['lastName'].invalid && f['lastName'].touched" />
           <small class="field-error" *ngIf="f['lastName'].invalid && f['lastName'].touched">Nom requis.</small>
         </div>
