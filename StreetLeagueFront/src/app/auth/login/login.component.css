@@ -1,0 +1,92 @@
+
+  :root { --red: #E61920; --red-dark: #990000; }
+
+  .card {
+    background: white; border-radius: 16px; width: 100%; max-width: 440px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4); overflow: hidden; margin: auto;
+  }
+  .card-head { padding: 2rem 2rem 1.5rem; text-align: center; border-bottom: 1px solid #f0f0f0; }
+  .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; color: #000; letter-spacing: -0.02em; }
+  .logo span { color: var(--red); }
+  .card-head h2 { font-size: 1.1rem; font-weight: 700; margin-top: 0.4rem; color: #111; }
+  .card-head p  { font-size: 0.88rem; color: #888; margin-top: 0.2rem; }
+  .card-body { padding: 2rem; }
+
+  /* 5 rôles en grille */
+  .role-select {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .role-btn {
+    padding: 0.75rem 0.4rem; border: 2px solid #e5e5e5; border-radius: 10px;
+    text-align: center; cursor: pointer; transition: all 0.2s; background: white; width: 100%;
+  }
+  .role-btn:hover { border-color: var(--red); background: rgba(230,25,32,0.04); }
+  .role-btn.active { border-color: var(--red); background: rgba(230,25,32,0.08); }
+  .role-emoji { font-size: 1.4rem; display: block; margin-bottom: 0.25rem; }
+  .role-label { font-weight: 700; font-size: 0.72rem; color: #333; }
+
+  .form-group { margin-bottom: 1rem; }
+  label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.35rem; color: #333; }
+
+  input[type=email], input[type=password] {
+    width: 100%; padding: 0.65rem 0.9rem; border: 1.5px solid #ddd; border-radius: 8px;
+    font-size: 0.9rem; background: #f8f8f8; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(230,25,32,0.1); background: white; }
+  input.input-error { border-color: #dc2626; }
+  .field-error { font-size: 0.75rem; color: #dc2626; margin-top: 0.3rem; display: block; }
+
+  .error-msg {
+    background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.3);
+    color: #991b1b; border-radius: 8px; padding: 0.65rem 0.9rem;
+    font-size: 0.85rem; margin-bottom: 1rem;
+  }
+
+  .btn-submit {
+    width: 100%; padding: 0.75rem; background: var(--red); color: white; border: none;
+    border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer;
+    transition: background 0.2s; margin-top: 0.5rem;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  .btn-submit:hover:not(:disabled) { background: var(--red-dark); }
+  .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; }
+
+  .spinner-ring {
+    width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .card-footer {
+    padding: 1.25rem 2rem; text-align: center; border-top: 1px solid #f0f0f0;
+    font-size: 0.88rem; color: #888;
+  }
+  .card-footer a { color: var(--red); font-weight: 700; text-decoration: none; }
+  .card-footer a:hover { text-decoration: underline; }
+
+  :host {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #4a0000 0%, #1a0000 40%, #0d0000 70%, #000000 100%);
+}
+body, html {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #4a0000 0%, #1a0000 40%, #0d0000 70%, #000000 100%);
+}
+.login-wrapper {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #4a0000 0%, #1a0000 40%, #0d0000 70%, #000000 100%);
+}

@@ -78,7 +78,10 @@ public class IAuthServiceImp implements IAuthService {
                 .orElseThrow(() -> new IllegalStateException("No roles found"))
                 .getAuthority();
 
-        return new AuthResponse(token, userDetails.getUsername(), role);
+        User user = userRepository.findByEmail(req.email()).orElseThrow();
+
+
+        return new AuthResponse(token, userDetails.getUsername(), role, (Long) user.getIdUser());
     }
 
 

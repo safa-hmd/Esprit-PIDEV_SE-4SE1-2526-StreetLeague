@@ -58,30 +58,30 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Désactiver CSRF (application stateless, JWT protège les requêtes)
-                .csrf(AbstractHttpConfigurer::disable)
-
-                // Activer CORS pour le frontend Angular (localhost:4200)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // Session STATELESS : chaque requête doit contenir un JWT valide
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Provider d'authentification
-                .authenticationProvider(authProvider())
-
-                // Règles d'autorisation des endpoints
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // ← AJOUTE CETTE LIGNE
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints publics (login, register, forgot/reset password)
+                        // ✅ Auth publique
                         .requestMatchers("/auth/**").permitAll()
-                        // Endpoints protégés par rôle
-                        .requestMatchers("/student/**").hasRole("STUDENT")
-                        .requestMatchers("/teacher/**").hasRole("TEACHER")
-                        // Tout autre endpoint nécessite une authentification
+
+                        // ✅ CRUD équipe : PLAYER ou COACH
+                        .requestMatchers("/team/add", "/team/update", "/team/delete/**").hasAnyRole("PLAYER", "COACH")
+                        .requestMatchers("/team/showTeams", "/team/showTeamById/**").permitAll()
+                        .requestMatchers("/team/*/join", "/team/*/leave").hasRole("PLAYER")
+
+                        // ✅ CRUD match : PLAYER ou COACH (captain)
+                        .requestMatchers("/match/add", "/match/update", "/match/delete/**").hasAnyRole("PLAYER", "COACH")
+                        .requestMatchers("/match/showMatchs", "/match/showMatchById/**").permitAll()
+
+                        // ✅ CRUD training : COACH seulement
+                        .requestMatchers("/training/add", "/training/update", "/training/delete/**").hasRole("COACH")
+                        .requestMatchers("/training/showTrainings", "/training/showTrainingById/**").permitAll()
+                        .requestMatchers("/training/*/join", "/training/*/leave").hasRole("PLAYER")
+
                         .anyRequest().authenticated()
                 )
-
-                // Insérer le filtre JWT AVANT UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

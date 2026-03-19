@@ -1,0 +1,121 @@
+<div class="page-content">
+
+  <!-- Page Header -->
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1 class="page-title">Training Sessions</h1>
+      <p class="page-subtitle">Structured sessions with professional coaches</p>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMsg" class="alert alert-success" style="margin-bottom:1rem;">{{ successMsg }}</div>
+  <div *ngIf="errorMsg"   class="alert alert-danger"  style="margin-bottom:1rem;">{{ errorMsg }}</div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" style="text-align:center;padding:3rem;color:var(--gray-text);">
+    Loading sessions...
+  </div>
+
+  <!-- Training Cards Grid -->
+  <div *ngIf="!isLoading" class="grid-3">
+
+    <div *ngFor="let training of trainings" class="session-card">
+
+      <!-- Card Head -->
+      <div class="session-head">
+        <span class="badge" [ngClass]="getStatusClass(training.status)">
+          {{ training.status }}
+        </span>
+        <div class="session-title">{{ training.title }}</div>
+      </div>
+
+      <!-- Card Body -->
+      <div class="session-body">
+
+        <!-- Description -->
+        <div class="session-desc">{{ training.description || 'No description provided.' }}</div>
+
+        <!-- Team -->
+        <div class="meta-row">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          {{ training.teamName || 'No team assigned' }}
+        </div>
+
+        <!-- Date -->
+        <div class="meta-row">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          {{ training.trainingDate | date:'MMM d, y' }}
+        </div>
+
+        <!-- Duration -->
+        <div class="meta-row">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          {{ training.durationInMinutes }} min
+        </div>
+
+        <!-- Location -->
+        <div class="meta-row" *ngIf="training.location">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          {{ training.location }}
+        </div>
+
+        <!-- Participants Progress Bar -->
+        <div style="margin-top:1rem;">
+          <div class="prog-label">
+            <span>Participants</span>
+            <span>{{ training.participantCount }} / 25</span>
+          </div>
+          <div class="prog-bar">
+            <div class="prog-fill"
+                 [style.width]="getProgress(training.participantCount) + '%'">
+            </div>
+          </div>
+        </div>
+
+        <!-- Join / Leave Button -->
+        <button *ngIf="training.status === 'PLANNED'"
+                class="btn btn-primary btn-full"
+                style="margin-top:1rem;"
+                (click)="joinTraining(training.idTraining)">
+          Join the Session
+        </button>
+
+        <button *ngIf="training.status === 'COMPLETED'"
+                class="btn btn-outline btn-full"
+                style="margin-top:1rem;"
+                disabled>
+          Session Completed
+        </button>
+
+        <button *ngIf="training.status === 'CANCELLED'"
+                class="btn btn-danger btn-full"
+                style="margin-top:1rem;"
+                disabled>
+          Session Cancelled
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="trainings.length === 0" class="empty-state" style="grid-column:1/-1;">
+      No training sessions available.
+    </div>
+
+  </div>
+</div>
