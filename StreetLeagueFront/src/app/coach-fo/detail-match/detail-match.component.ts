@@ -33,7 +33,7 @@ ngOnInit(): void {
 }
 
 goBack(): void {
-  this.router.navigate(['/coach/teamCoach']);   // ← corriger
+  this.router.navigate(['/coach/teamCoach'], { queryParams: { tab: 'matches' } });   
 }
 
   getStatusClass(status: string): string {

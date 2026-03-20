@@ -42,9 +42,11 @@ getMyTeams(captainId: number): Observable<Team[]> {
   }
 
 deleteTeam(idTeam: number, email: string): Observable<void> {
+  const token = localStorage.getItem('TokenUserConnect');
+  const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
   return this.http.delete<void>(
     `${this.base}/delete/${idTeam}?email=${email}`,
-    { headers: this.getHeaders() }
+    { headers }
   );
 }
 

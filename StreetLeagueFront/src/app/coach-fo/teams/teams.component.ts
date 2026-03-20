@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TeamService } from '../../services/team.service';
 import { MatchService } from '../../services/match.service';
 import { Team } from '../../models/team.model';
@@ -20,15 +20,24 @@ export class TeamsComponent implements OnInit {
   activeTab = 'my-teams';
   isLoadingMatches = false;
 
-  constructor(
-    private router: Router,          // ← Ajouter Router
-    private teamService: TeamService,
-    private matchService: MatchService
-  ) {}
+ constructor(
+  private router: Router,
+  private route: ActivatedRoute,
+  private teamService: TeamService,
+  private matchService: MatchService
+) {}
 
-  ngOnInit(): void {
-    this.loadTeams();
-  }
+ngOnInit(): void {
+  this.loadTeams();
+  this.loadMatches();
+
+  // ← Lire le tab depuis l'URL
+  this.route.queryParams.subscribe(params => {
+    if (params['tab']) {
+      this.activeTab = params['tab'];
+    }
+  });
+}
 
   loadTeams(): void {
     this.teamService.getAllTeams().subscribe({

@@ -44,20 +44,10 @@ public class TeamController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
 
-        System.out.println("=== DELETE ===");
-        System.out.println("Email: " + email);
-        System.out.println("UserId: " + user.getIdUser());
-        System.out.println("Role: " + user.getRole());
-
-        // ✅ ADMIN → supprime directement
-        if (user.getRole() == Role.ADMIN) {
-            teamRepository.deleteById(idTeam);
-            return;
-        }
-
-        // ✅ Capitaine → passe son ID au service
+        // ✅ Déléguer au service qui gère ADMIN + capitaine + FK
         teamService.deleteTeam(idTeam, user.getIdUser());
     }
+
     // GET /team/showTeams
     @GetMapping("showTeams")
     public List<TeamResponse> showTeams() {
@@ -82,5 +72,14 @@ public class TeamController {
     public TeamResponse leaveTeam(@PathVariable Long idTeam, @RequestParam String email) {
         User player = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found: " + email));
         return teamService.leaveTeam(idTeam, player.getIdUser());
+    }
+
+
+    // GET /team/myTeams?email=captain@mail.com
+    @GetMapping("myTeams")
+    public List<TeamResponse> getMyTeams(@RequestParam String email) {
+        User captain = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        return teamService.getTeamsByCaptain(captain.getIdUser());
     }
 }

@@ -16,7 +16,9 @@ public record MatchResponse(
         String teamBName,
         String createdByEmail,
         String captainAName,    // ← Ajout
-        String captainBName     // ← Ajout
+        String captainBName, // ← Ajout
+        String captainAEmail,   // ← ajouter
+        String captainBEmail
 ) {
     public static MatchResponse fromEntity(Match match) {
         return new MatchResponse(
@@ -30,7 +32,9 @@ public record MatchResponse(
                 match.getTeamB().getName(),
                 match.getCreatedBy().getEmail(),
                 match.getTeamA().getCaptain() != null ? match.getTeamA().getCaptain().getFullName() : "N/A",  // ← Ajout
-                match.getTeamB().getCaptain() != null ? match.getTeamB().getCaptain().getFullName() : "N/A"   // ← Ajout
+                match.getTeamB().getCaptain() != null ? match.getTeamB().getCaptain().getFullName() : "N/A" ,  // ← Ajout
+                match.getTeamA().getCaptain() != null ? match.getTeamA().getCaptain().getEmail() : null,  // ← ajouter
+                match.getTeamB().getCaptain() != null ? match.getTeamB().getCaptain().getEmail() : null   // ← ajoute
         );
     }
 

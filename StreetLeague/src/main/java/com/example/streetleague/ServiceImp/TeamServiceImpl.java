@@ -98,16 +98,26 @@ public class TeamServiceImpl implements IteamService {
     }
 
     @Override
-    public void deleteTeam(Long idTeam, Long captainId) {
+    public void deleteTeam(Long idTeam, Long userId) {
         Team team = teamRepository.findById(idTeam)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + idTeam));
 
-        if (!team.getCaptain().getIdUser().equals(captainId))
-            throw new RuntimeException("Only the team captain can delete this team");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
-        // ✅ Supprimer les matchs associés avant de supprimer la team
+        // ✅ ADMIN peut supprimer n'importe quelle team, sinon seulement le capitaine
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+        if (!isAdmin && !team.getCaptain().getIdUser().equals(userId))
+            throw new RuntimeException("Only the team captain or an admin can delete this team");
+
+        // ✅ 1. Supprimer les matchs associés (teamA ou teamB)
         matchRepository.deleteByTeamAIdOrTeamBId(idTeam, idTeam);
 
+        // ✅ 2. Retirer tous les joueurs de la team (évite la contrainte FK)
+        team.getPlayers().clear();
+        teamRepository.save(team);
+
+        // ✅ 3. Supprimer la team
         teamRepository.deleteById(idTeam);
     }
 
@@ -122,6 +132,14 @@ public class TeamServiceImpl implements IteamService {
         return TeamResponse.fromEntity(
                 teamRepository.findById(idTeam)
                         .orElseThrow(() -> new RuntimeException("Team not found: " + idTeam)));
+    }
+
+    @Override
+    public List<TeamResponse> getTeamsByCaptain(Long captainId) {
+        return teamRepository.findAll().stream()
+                .filter(t -> t.getCaptain().getIdUser().equals(captainId))
+                .map(TeamResponse::fromEntity)
+                .toList();
     }
 
     @Override

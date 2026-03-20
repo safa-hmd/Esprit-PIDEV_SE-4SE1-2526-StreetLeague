@@ -106,15 +106,28 @@ public class MatchServiceImpl implements ImatchService {
     }
 
     @Override
-    public void deleteMatch(Long idMatch, Long captainId) {
+    public void deleteMatch(Long idMatch, Long userId) {
         Match match = matchRepository.findById(idMatch)
                 .orElseThrow(() -> new RuntimeException("Match not found: " + idMatch));
-        if (!match.getCreatedBy().getIdUser().equals(captainId))
-            throw new RuntimeException("Only the captain who created this match can delete it");
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+
+        // ✅ ADMIN peut supprimer n'importe quel match
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+
+        boolean isCaptainA = match.getTeamA().getCaptain().getIdUser().equals(userId);
+        boolean isCaptainB = match.getTeamB().getCaptain().getIdUser().equals(userId);
+
+        if (!isAdmin && !isCaptainA && !isCaptainB)
+            throw new RuntimeException("Only the captain of TeamA or TeamB can delete this match");
+
         if (match.getStatus() == MatchStatus.FINISHED)
             throw new RuntimeException("Cannot delete a finished match");
+
         matchRepository.deleteById(idMatch);
     }
+
 
     @Override
     public List<MatchResponse> ShowMatchs() {

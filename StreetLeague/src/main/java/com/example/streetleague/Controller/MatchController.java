@@ -44,9 +44,9 @@ public class MatchController {
     @DeleteMapping("delete/{idMatch}")
     public void deleteMatch(@PathVariable Long idMatch,
                             @RequestParam String email) {
-        User captain = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
-        imatchService.deleteMatch(idMatch, captain.getIdUser());
+        imatchService.deleteMatch(idMatch, user.getIdUser());
     }
 
     // GET /match/showMatchs

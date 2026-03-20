@@ -66,17 +66,20 @@ public class SecurityConfig {
                         // ✅ Auth publique
                         .requestMatchers("/auth/**").permitAll()
 
-                        // ✅ CRUD équipe : PLAYER ou COACH
-                        .requestMatchers("/team/add", "/team/update", "/team/delete/**").hasAnyRole("PLAYER", "COACH")
-                        .requestMatchers("/team/showTeams", "/team/showTeamById/**").permitAll()
+                        // ✅ CRUD équipe
+                        .requestMatchers("/team/add", "/team/update/**").hasAnyRole("PLAYER", "COACH")
+                        .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")  // ← ADMIN ajouté
+                        .requestMatchers("/team/showTeams", "/team/showTeamById/**", "/team/myTeams").permitAll()
                         .requestMatchers("/team/*/join", "/team/*/leave").hasRole("PLAYER")
 
-                        // ✅ CRUD match : PLAYER ou COACH (captain)
-                        .requestMatchers("/match/add", "/match/update", "/match/delete/**").hasAnyRole("PLAYER", "COACH")
+                        // ✅ CRUD match
+                        .requestMatchers("/match/add", "/match/update").hasAnyRole("PLAYER", "COACH")
+                        .requestMatchers("/match/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")  // ← ADMIN ajouté
                         .requestMatchers("/match/showMatchs", "/match/showMatchById/**").permitAll()
 
-                        // ✅ CRUD training : COACH seulement
-                        .requestMatchers("/training/add", "/training/update", "/training/delete/**").hasRole("COACH")
+                        // ✅ CRUD training
+                        .requestMatchers("/training/add", "/training/update").hasRole("COACH")
+                        .requestMatchers("/training/delete/**").hasAnyRole("COACH", "ADMIN")  // ← ADMIN ajouté
                         .requestMatchers("/training/showTrainings", "/training/showTrainingById/**").permitAll()
                         .requestMatchers("/training/*/join", "/training/*/leave").hasRole("PLAYER")
 

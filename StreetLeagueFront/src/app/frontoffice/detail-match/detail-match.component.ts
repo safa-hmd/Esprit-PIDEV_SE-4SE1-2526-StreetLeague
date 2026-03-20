@@ -38,9 +38,9 @@ export class DetailMatchComponent implements OnInit {
     }
   }
 
-  goBack() {
-    this.router.navigate(['/client/team']);
-  }
+goBack() {
+  this.router.navigate(['/client/team'], { queryParams: { tab: 'matches' } });
+}
 
   getStatusClass(status: string): string {
     switch (status) {

@@ -193,11 +193,15 @@
         <textarea class="form-control" rows="2" [(ngModel)]="newTraining.exercises"
                   placeholder="List the exercises..."></textarea>
       </div>
-      <div class="form-group" style="margin-bottom:1rem;">
-        <label class="form-label">Team ID</label>
-        <input type="number" class="form-control" placeholder="e.g. 1"
-               [(ngModel)]="selectedTeamId">
-      </div>
+  <div class="form-group" style="margin-bottom:1rem;">
+  <label class="form-label">Team *</label>
+  <select class="form-control" [(ngModel)]="selectedTeamId">
+    <option [value]="0" disabled>Select a team</option>
+    <option *ngFor="let team of teams" [value]="team.idTeam">
+      {{ team.name }}
+    </option>
+  </select>
+</div>
     </div>
 
     <div class="modal-footer" style="display:flex;gap:0.75rem;

@@ -11,6 +11,8 @@ public interface IteamService {
     void deleteTeam(Long idTeam, Long captainId);
     List<TeamResponse> ShowTeams();
     TeamResponse ShowTeam(Long idTeam);
+    List<TeamResponse> getTeamsByCaptain(Long captainId);
+
     TeamResponse joinTeam(Long teamId, Long playerId);
     TeamResponse leaveTeam(Long teamId, Long playerId);
 }

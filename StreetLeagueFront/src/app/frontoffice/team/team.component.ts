@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { TeamService } from '../../services/team.service';
 import { MatchService } from '../../services/match.service';
 import { Team } from '../../models/team.model';
+import { ActivatedRoute } from '@angular/router';
 import { MatchRequest, MatchResponse } from '../../models/match.model';
 
 @Component({
@@ -35,45 +36,74 @@ export class TeamComponent implements OnInit {
   teamAId = 0;
   teamBId = 0;
 
-  constructor(
-    private router: Router,
-    private teamService: TeamService,
-    private matchService: MatchService
-  ) {}
+ constructor(
+  private router: Router,
+  private route: ActivatedRoute,
+  private teamService: TeamService,
+  private matchService: MatchService
+) {}
 
 ngOnInit(): void {
   this.currentUserEmail = localStorage.getItem('EmailUserConnect') || '';
-  console.log('Email connecté:', this.currentUserEmail);
   this.loadTeams();
   this.loadMatches();
+
+  // ← Lire le tab depuis l'URL
+  this.route.queryParams.subscribe(params => {
+    if (params['tab']) {
+      this.activeTab = params['tab'];
+    }
+  });
 }
+
 
 isMyTeam(team: Team): boolean {
   return team.captainEmail?.toLowerCase() === this.currentUserEmail?.toLowerCase();
 }
 
-  // ── Load ──────────────────────────────────────────────────────────────
+
+myTeams: Team[]      = [];
+otherTeams: Team[]   = [];
+availableTeamsB: Team[] = [];
+isCaptain = false;
+
 loadTeams(): void {
   this.teamService.getAllTeams().subscribe({
     next: (data) => {
-      this.teams = data;
+      this.teams        = data;
       this.filteredTeams = data;
-      // ← Vérifier
-      data.forEach(t => console.log(
-        `Team: ${t.name} | captainEmail: "${t.captainEmail}" | isMyTeam: ${this.isMyTeam(t)}`
-      ));
+      this.myTeams      = data.filter(t => this.isMyTeam(t));
+      this.otherTeams   = data.filter(t => !this.isMyTeam(t));
+      this.availableTeamsB = this.otherTeams;
+      this.isCaptain    = this.myTeams.length > 0;
     },
     error: (err) => { this.errorMsg = `Error ${err.status}`; }
   });
 }
+searchMatchQuery = '';
+filteredMatches: MatchResponse[] = [];
 
-  loadMatches(): void {
-    this.isLoadingMatches = true;
-    this.matchService.getAllMatchs().subscribe({
-      next: (data) => { this.matches = data; this.isLoadingMatches = false; },
-      error: (err)  => { this.errorMsg = `Error ${err.status}`; this.isLoadingMatches = false; }
-    });
-  }
+loadMatches(): void {
+  this.isLoadingMatches = true;
+  this.matchService.getAllMatchs().subscribe({
+    next: (data) => {
+      this.matches = data;
+      this.filteredMatches = data;  // ← ajouter
+      this.isLoadingMatches = false;
+    },
+    error: (err) => { this.errorMsg = `Error ${err.status}`; this.isLoadingMatches = false; }
+  });
+}
+onSearchMatch(query: string): void {
+  this.searchMatchQuery = query;
+  const q = query.toLowerCase();
+  this.filteredMatches = this.matches.filter(m =>
+    m.teamAName.toLowerCase().includes(q) ||
+    m.teamBName.toLowerCase().includes(q) ||
+    (m.location || '').toLowerCase().includes(q) ||
+    m.status.toLowerCase().includes(q)
+  );
+}
 
   // ── Search ────────────────────────────────────────────────────────────
   onSearch(query: string): void {
@@ -190,19 +220,27 @@ createMatch(): void {
       error: (err) => { this.errorMsg = `Error: ${err.status}`; }
     });
   }
+  canDeleteMatch(match: MatchResponse): boolean {
+  const email = this.currentUserEmail.toLowerCase();
+  return (
+    match.captainAEmail?.toLowerCase() === email ||
+    match.captainBEmail?.toLowerCase() === email
+  );
+}
 
   goToDetails(match: MatchResponse): void {
     this.router.navigate(['/client/detail-match', match.idMatch]);
   }
 
-  resetMatchForm(): void {
-    this.newMatch = { matchDate: '', location: '' };
-    this.teamAId  = 0;
-    this.teamBId  = 0;
-    this.captainAName = '';   // ← ajouter
-    this.captainBName = '';   // ← ajouter
-    this.errorMsg = '';
-  }
+resetMatchForm(): void {
+  this.newMatch        = { matchDate: '', location: '' };
+  this.teamAId         = 0;
+  this.teamBId         = 0;
+  this.captainAName    = '';
+  this.captainBName    = '';
+  this.availableTeamsB = this.otherTeams;
+  this.errorMsg        = '';
+}
 
   getStatusClass(status: string): string {
     switch (status) {
@@ -228,8 +266,12 @@ captainBName = '';
 
 // ── Ajouter ces méthodes ──────────────────────────────────────────────
 onTeamAChange(): void {
-  const team = this.teams.find(t => t.idTeam === Number(this.teamAId));
-  this.captainAName = team?.captainFullName || '';
+  const team = this.myTeams.find(t => t.idTeam === Number(this.teamAId));
+  this.captainAName    = team?.captainFullName || '';
+  // Exclure la team A des options de Team B
+  this.availableTeamsB = this.teams.filter(t => t.idTeam !== Number(this.teamAId) && !this.isMyTeam(t));
+  this.teamBId = 0;
+  this.captainBName = '';
 }
 
 onTeamBChange(): void {

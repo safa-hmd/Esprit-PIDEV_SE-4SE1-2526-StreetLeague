@@ -126,17 +126,19 @@ public class TrainingServiceImpl implements ItrainingService {
 
     // ── DELETE ────────────────────────────────────────────────────────────
     @Override
-    public void deleteTraining(Long idTraining, Long coachId) {
+    public void deleteTraining(Long idTraining, Long userId) {
         Training training = trainingRepo.findById(idTraining)
                 .orElseThrow(() -> new RuntimeException("Training not found: " + idTraining));
-        User coach = userRepository.findById(coachId)
-                .orElseThrow(() -> new RuntimeException("User not found: " + coachId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
-        // ✅ Role.COACH
-        if (coach.getRole() != Role.COACH)
-            throw new RuntimeException("Only a COACH can delete a training session");
+        // ✅ ADMIN peut supprimer, sinon seulement un COACH
+        boolean isAdmin = user.getRole() == Role.ADMIN;
 
-        if (training.getStatus() == TrainingStatus.COMPLETED)
+        if (!isAdmin && user.getRole() != Role.COACH)
+            throw new RuntimeException("Only a COACH or ADMIN can delete a training session");
+
+        if (!isAdmin && training.getStatus() == TrainingStatus.COMPLETED)
             throw new RuntimeException("Cannot delete a completed training session");
 
         trainingRepo.deleteById(idTraining);

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TrainingService } from 'src/app/services/training.service';
 import { TrainingRequest, TrainingResponse, TrainingUpdateRequest } from 'src/app/models/training.model';
+import { TeamService } from 'src/app/services/team.service';   
+import { Team } from 'src/app/models/team.model'; 
 
 @Component({
   selector: 'app-trainings',
@@ -11,6 +13,7 @@ import { TrainingRequest, TrainingResponse, TrainingUpdateRequest } from 'src/ap
 export class TrainingsComponent implements OnInit {
 
   trainings: TrainingResponse[] = [];
+    teams: Team[] = []; 
   isLoading = false;
   errorMsg = '';
   successMsg = '';
@@ -31,11 +34,19 @@ export class TrainingsComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private trainingService: TrainingService
+    private trainingService: TrainingService,
+    private teamService: TeamService
   ) {}
 
   ngOnInit(): void {
     this.loadTrainings();
+      this.loadTeams(); 
+  }
+    loadTeams(): void {
+    this.teamService.getAllTeams().subscribe({
+      next: (data) => { this.teams = data; },
+      error: (err)  => { console.error('Error loading teams', err); }
+    });
   }
 
   loadTrainings(): void {

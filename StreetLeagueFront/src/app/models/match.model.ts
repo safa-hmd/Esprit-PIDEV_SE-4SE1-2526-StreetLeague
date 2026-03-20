@@ -55,4 +55,6 @@ export interface MatchResponse {
   captainAName?: string;    
   captainBName?: string;
   captainName: string;
+  captainAEmail?: string;   // ← ajouter
+  captainBEmail?: string; 
 }

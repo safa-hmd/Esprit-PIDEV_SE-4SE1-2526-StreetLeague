@@ -13,12 +13,13 @@ export class MatchService {
   constructor(private http: HttpClient) {}
 
   // ── Auth Headers ─────────────────────────────────────────
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('TokenUserConnect');
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-  }
+private getHeaders(): HttpHeaders {
+  const token = localStorage.getItem('TokenUserConnect');
+  console.log('Token:', token); // ← vérifier qu'il n'est pas null
+  return new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+}
 
  // POST /match/add?teamAId=1&teamBId=2&email=captain@mail.com
 addMatch(match: MatchRequest, teamAId: number, teamBId: number): Observable<MatchResponse> {
