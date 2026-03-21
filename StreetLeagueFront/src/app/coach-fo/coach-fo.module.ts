@@ -5,7 +5,7 @@ import { CoachFORoutingModule } from './coach-fo-routing.module';
 import { CoachFOComponent } from './coach-fo.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { FooterComponent } from './footer/footer.component';
-import { FormControl, FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TeamsComponent } from './teams/teams.component';
 import { TrainingsComponent } from './trainings/trainings.component';
 import { DetailTeamComponent } from './detail-team/detail-team.component';
@@ -29,7 +29,8 @@ import { HomeComponent } from './home/home.component';
   imports: [
     CommonModule,
     CoachFORoutingModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ]
 })
 export class CoachFOModule { }

@@ -37,35 +37,44 @@ export class TrainingComponent implements OnInit {
     });
   }
 
-  // ── Join Training ─────────────────────────────────────────
-  joinTraining(id: number): void {
-    this.trainingService.joinTraining(id).subscribe({
-      next: () => {
-        this.successMsg = 'Successfully joined the session!';
-        this.loadTrainings();
-        setTimeout(() => this.successMsg = '', 3000);
-      },
-      error: (err) => {
-        this.errorMsg = `Cannot join this session (${err.status})`;
-        console.error(err);
-      }
-    });
-  }
+// ── Ajouter cette propriété ───────────────────────────────
+joinedTrainingIds: Set<number> = new Set();
 
-  // ── Leave Training ────────────────────────────────────────
-  leaveTraining(id: number): void {
-    this.trainingService.leaveTraining(id).subscribe({
-      next: () => {
-        this.successMsg = 'You have left the session.';
-        this.loadTrainings();
-        setTimeout(() => this.successMsg = '', 3000);
-      },
-      error: (err) => {
-        this.errorMsg = `Cannot leave this session (${err.status})`;
-        console.error(err);
-      }
-    });
-  }
+joinTraining(id: number): void {
+  this.errorMsg   = '';
+  this.successMsg = '';
+  this.trainingService.joinTraining(id).subscribe({
+    next: () => {
+      this.successMsg = 'Successfully joined the session!';
+      this.joinedTrainingIds.add(id);  // ← mémoriser
+      this.loadTrainings();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (err) => {
+      this.errorMsg = err.error?.message || `Cannot join this session (${err.status})`;
+    }
+  });
+}
+
+leaveTraining(id: number): void {
+  this.errorMsg   = '';
+  this.successMsg = '';
+  this.trainingService.leaveTraining(id).subscribe({
+    next: () => {
+      this.successMsg = 'You have left the session.';
+      this.joinedTrainingIds.delete(id);  // ← retirer
+      this.loadTrainings();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (err) => {
+      this.errorMsg = err.error?.message || `Cannot leave this session (${err.status})`;
+    }
+  });
+}
+
+hasJoined(id: number): boolean {
+  return this.joinedTrainingIds.has(id);
+}
 
   // ── Status badge CSS ──────────────────────────────────────
   getStatusClass(status: string): string {

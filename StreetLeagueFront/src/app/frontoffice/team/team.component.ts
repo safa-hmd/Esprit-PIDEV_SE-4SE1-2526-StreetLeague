@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TeamService } from '../../services/team.service';
 import { MatchService } from '../../services/match.service';
 import { Team } from '../../models/team.model';
-import { ActivatedRoute } from '@angular/router';
 import { MatchRequest, MatchResponse } from '../../models/match.model';
 
 @Component({
@@ -13,99 +13,117 @@ import { MatchRequest, MatchResponse } from '../../models/match.model';
 })
 export class TeamComponent implements OnInit {
 
-  teams: Team[]         = [];
-  filteredTeams: Team[] = [];
+  teams: Team[]            = [];
+  filteredTeams: Team[]    = [];
   matches: MatchResponse[] = [];
+  filteredMatches: MatchResponse[] = [];
   isLoadingMatches = false;
 
-  errorMsg    = '';
-  successMsg  = '';
-  activeTab   = 'my-teams';
-  searchQuery = '';
+  errorMsg   = '';
+  successMsg = '';
+  activeTab  = 'my-teams';
+  searchQuery      = '';
+  searchMatchQuery = '';
 
   showCreateTeamModal  = false;
-  showEditTeamModal    = false;   // ← nouveau
+  showEditTeamModal    = false;
   showCreateMatchModal = false;
 
   currentUserEmail = '';
 
-  newTeam:  Team = { name: '', sport: 'Soccer', description: '', level: 'BEGINNER' };
-  editTeam: Team = { name: '', sport: '',       description: '', level: '' };  // ← nouveau
+  myTeams:        Team[] = [];
+  otherTeams:     Team[] = [];
+  availableTeamsB: Team[] = [];
+  isCaptain = false;
 
-  newMatch: MatchRequest = { matchDate: '', location: '' };
+  captainAName = '';
+  captainBName = '';
   teamAId = 0;
   teamBId = 0;
 
- constructor(
-  private router: Router,
-  private route: ActivatedRoute,
-  private teamService: TeamService,
-  private matchService: MatchService
-) {}
+  // ── Reactive Forms ────────────────────────────────────────
+  createTeamForm!: FormGroup;
+  editTeamForm!:   FormGroup;
+  createMatchForm!: FormGroup;
 
-ngOnInit(): void {
-  this.currentUserEmail = localStorage.getItem('EmailUserConnect') || '';
-  this.loadTeams();
-  this.loadMatches();
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
+    private teamService: TeamService,
+    private matchService: MatchService
+  ) {}
 
-  // ← Lire le tab depuis l'URL
-  this.route.queryParams.subscribe(params => {
-    if (params['tab']) {
-      this.activeTab = params['tab'];
-    }
-  });
-}
+  ngOnInit(): void {
+    this.currentUserEmail = localStorage.getItem('EmailUserConnect') || '';
+    this.loadTeams();
+    this.loadMatches();
 
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) this.activeTab = params['tab'];
+    });
 
-isMyTeam(team: Team): boolean {
-  return team.captainEmail?.toLowerCase() === this.currentUserEmail?.toLowerCase();
-}
+    // ── Init Create Team Form ──────────────────────────────
+    this.createTeamForm = this.fb.group({
+      name:        ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      sport:       ['Soccer', Validators.required],
+      level:       ['BEGINNER', Validators.required],
+      description: ['', Validators.maxLength(255)]
+    });
 
+    // ── Init Edit Team Form ────────────────────────────────
+    this.editTeamForm = this.fb.group({
+      idTeam:      [null],
+      name:        ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      sport:       ['', Validators.required],
+      level:       ['', Validators.required],
+      description: ['', Validators.maxLength(255)]
+    });
 
-myTeams: Team[]      = [];
-otherTeams: Team[]   = [];
-availableTeamsB: Team[] = [];
-isCaptain = false;
+    // ── Init Create Match Form ─────────────────────────────
+    this.createMatchForm = this.fb.group({
+      matchDate: ['', Validators.required],
+      location:  ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]]
+    });
+  }
 
-loadTeams(): void {
-  this.teamService.getAllTeams().subscribe({
-    next: (data) => {
-      this.teams        = data;
-      this.filteredTeams = data;
-      this.myTeams      = data.filter(t => this.isMyTeam(t));
-      this.otherTeams   = data.filter(t => !this.isMyTeam(t));
-      this.availableTeamsB = this.otherTeams;
-      this.isCaptain    = this.myTeams.length > 0;
-    },
-    error: (err) => { this.errorMsg = `Error ${err.status}`; }
-  });
-}
-searchMatchQuery = '';
-filteredMatches: MatchResponse[] = [];
+  // ── Helpers pour accéder aux champs ───────────────────────
+  get ctf() { return this.createTeamForm.controls; }
+  get etf() { return this.editTeamForm.controls; }
+  get cmf() { return this.createMatchForm.controls; }
 
-loadMatches(): void {
-  this.isLoadingMatches = true;
-  this.matchService.getAllMatchs().subscribe({
-    next: (data) => {
-      this.matches = data;
-      this.filteredMatches = data;  // ← ajouter
-      this.isLoadingMatches = false;
-    },
-    error: (err) => { this.errorMsg = `Error ${err.status}`; this.isLoadingMatches = false; }
-  });
-}
-onSearchMatch(query: string): void {
-  this.searchMatchQuery = query;
-  const q = query.toLowerCase();
-  this.filteredMatches = this.matches.filter(m =>
-    m.teamAName.toLowerCase().includes(q) ||
-    m.teamBName.toLowerCase().includes(q) ||
-    (m.location || '').toLowerCase().includes(q) ||
-    m.status.toLowerCase().includes(q)
-  );
-}
+  // ── Load ──────────────────────────────────────────────────
+  loadTeams(): void {
+    this.teamService.getAllTeams().subscribe({
+      next: (data) => {
+        this.teams           = data;
+        this.filteredTeams   = data;
+        this.myTeams         = data.filter(t => this.isMyTeam(t));
+        this.otherTeams      = data.filter(t => !this.isMyTeam(t));
+        this.availableTeamsB = this.otherTeams;
+        this.isCaptain       = this.myTeams.length > 0;
+      },
+      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
+    });
+  }
 
-  // ── Search ────────────────────────────────────────────────────────────
+  loadMatches(): void {
+    this.isLoadingMatches = true;
+    this.matchService.getAllMatchs().subscribe({
+      next: (data) => {
+        this.matches         = data;
+        this.filteredMatches = data;
+        this.isLoadingMatches = false;
+      },
+      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; this.isLoadingMatches = false; }
+    });
+  }
+
+  isMyTeam(team: Team): boolean {
+    return team.captainEmail?.toLowerCase() === this.currentUserEmail?.toLowerCase();
+  }
+
+  // ── Search ────────────────────────────────────────────────
   onSearch(query: string): void {
     this.searchQuery   = query;
     const q = query.toLowerCase();
@@ -116,131 +134,173 @@ onSearchMatch(query: string): void {
     );
   }
 
-  // ── Tabs ──────────────────────────────────────────────────────────────
+  onSearchMatch(query: string): void {
+    this.searchMatchQuery = query;
+    const q = query.toLowerCase();
+    this.filteredMatches  = this.matches.filter(m =>
+      m.teamAName.toLowerCase().includes(q) ||
+      m.teamBName.toLowerCase().includes(q) ||
+      (m.location || '').toLowerCase().includes(q) ||
+      m.status.toLowerCase().includes(q)
+    );
+  }
+
+  // ── Tabs ──────────────────────────────────────────────────
   switchTab(tab: string): void {
     this.activeTab = tab;
     if (tab === 'matches' && this.matches.length === 0) this.loadMatches();
   }
 
-  // ── Create Team ───────────────────────────────────────────────────────
+  // ── Create Team ───────────────────────────────────────────
   createTeam(): void {
-    if (!this.newTeam.name || !this.newTeam.sport) {
-      this.errorMsg = 'Name and sport are required.';
+    this.errorMsg = '';
+    if (this.createTeamForm.invalid) {
+      this.createTeamForm.markAllAsTouched();
       return;
     }
-    this.teamService.addTeam(this.newTeam).subscribe({
+    this.teamService.addTeam(this.createTeamForm.value).subscribe({
       next: (created) => {
-        this.successMsg = `Team "${created.name}" created! Captain: ${created.captainFullName}`;
+        this.successMsg = `Team "${created.name}" created!`;
         this.showCreateTeamModal = false;
-        this.newTeam = { name: '', sport: 'Soccer', description: '', level: 'BEGINNER' };
+        this.createTeamForm.reset({ sport: 'Soccer', level: 'BEGINNER' });
         this.loadTeams();
         setTimeout(() => this.successMsg = '', 4000);
       },
-      error: (err) => { this.errorMsg = `Error: ${err.error?.message || err.status}`; }
+      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
     });
   }
 
-  // ── Edit Team ─────────────────────────────────────────────────────────
+  // ── Edit Team ─────────────────────────────────────────────
   openEditTeamModal(team: Team): void {
-    this.editTeam = { ...team };   // copie pour ne pas modifier l'original
+    this.editTeamForm.patchValue(team);
     this.showEditTeamModal = true;
   }
 
-updateTeam(): void {
-  this.teamService.updateTeam(this.editTeam, this.currentUserEmail).subscribe({
-    next: () => {
-      this.successMsg = 'Team updated successfully!';
-      this.showEditTeamModal = false;
-      this.loadTeams();
-      setTimeout(() => this.successMsg = '', 3000);
-    },
-    error: (err) => { this.errorMsg = `Error: ${err.error?.message || err.status}`; }
-  });
-}
-
-  // ── Delete Team ───────────────────────────────────────────────────────
-deleteTeam(idTeam: number): void {
-  if (!confirm('Delete this team permanently?')) return;
-  this.teamService.deleteTeam(idTeam, this.currentUserEmail).subscribe({
-    next: () => {
-      this.successMsg = 'Team deleted.';
-      this.loadTeams();
-      setTimeout(() => this.successMsg = '', 3000);
-    },
-    error: (err) => { this.errorMsg = `Error: ${err.error?.message || err.status}`; }
-  });
-}
-
-joinTeam(idTeam: number): void {
-  const email = localStorage.getItem('EmailUserConnect');
-  this.teamService.joinTeam(idTeam, email!).subscribe({
-    next: () => {
-      this.successMsg = 'You joined the team successfully!';
-      this.loadTeams();
-      setTimeout(() => this.successMsg = '', 3000);
-    },
-    error: (err) => { this.errorMsg = `Error: ${err.error?.message || err.status}`; }
-  });
-}
-
-  // ── Match ─────────────────────────────────────────────────────────────
-createMatch(): void {
-  if (!this.newMatch.matchDate || !this.teamAId || !this.teamBId) {
-    this.errorMsg = 'Date, Team A and Team B are required.';
-    return;
-  }
-  if (this.teamAId === this.teamBId) {
-    this.errorMsg = 'Team A and Team B must be different.';
-    return;
-  }
-  this.matchService.addMatch(this.newMatch, this.teamAId, this.teamBId).subscribe({
-    next: () => {
-      this.successMsg = 'Match created successfully!';
-      this.showCreateMatchModal = false;
-      this.resetMatchForm();
-      this.loadMatches();
-      setTimeout(() => this.successMsg = '', 3000);
-    },
-    error: (err) => {
-      // ← affiche le message exact du backend
-      console.error('Backend error:', err);
-      this.errorMsg = err.error?.message || err.error || `Error ${err.status}`;
+  updateTeam(): void {
+    this.errorMsg = '';
+    if (this.editTeamForm.invalid) {
+      this.editTeamForm.markAllAsTouched();
+      return;
     }
-  });
-}
+    this.teamService.updateTeam(this.editTeamForm.value, this.currentUserEmail).subscribe({
+      next: () => {
+        this.successMsg = 'Team updated successfully!';
+        this.showEditTeamModal = false;
+        this.loadTeams();
+        setTimeout(() => this.successMsg = '', 3000);
+      },
+      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
+    });
+  }
 
+  // ── Delete Team ───────────────────────────────────────────
+  deleteTeam(idTeam: number): void {
+    if (!confirm('Delete this team permanently?')) return;
+    this.teamService.deleteTeam(idTeam, this.currentUserEmail).subscribe({
+      next: () => {
+        this.successMsg = 'Team deleted.';
+        this.loadTeams();
+        setTimeout(() => this.successMsg = '', 3000);
+      },
+      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
+    });
+  }
+
+  // ── Join Team ─────────────────────────────────────────────
+  joinTeam(idTeam: number): void {
+    const email = localStorage.getItem('EmailUserConnect');
+    this.teamService.joinTeam(idTeam, email!).subscribe({
+      next: () => {
+        this.successMsg = 'You joined the team successfully!';
+        this.loadTeams();
+        setTimeout(() => this.successMsg = '', 3000);
+      },
+      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
+    });
+  }
+
+  // ── Create Match ──────────────────────────────────────────
+  createMatch(): void {
+    this.errorMsg = '';
+
+    if (!this.teamAId || this.teamAId === 0) {
+      this.errorMsg = 'Please select Team A.'; return;
+    }
+    if (!this.teamBId || this.teamBId === 0) {
+      this.errorMsg = 'Please select Team B.'; return;
+    }
+    if (this.createMatchForm.invalid) {
+      this.createMatchForm.markAllAsTouched(); return;
+    }
+    const matchDate = this.createMatchForm.value.matchDate;
+    if (new Date(matchDate) <= new Date()) {
+      this.errorMsg = 'Match date must be in the future.'; return;
+    }
+
+    this.matchService.addMatch(this.createMatchForm.value, this.teamAId, this.teamBId).subscribe({
+      next: () => {
+        this.successMsg = 'Match created successfully!';
+        this.showCreateMatchModal = false;
+        this.resetMatchForm();
+        this.loadMatches();
+        setTimeout(() => this.successMsg = '', 3000);
+      },
+      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
+    });
+  }
+
+  // ── Delete Match ──────────────────────────────────────────
   deleteMatch(idMatch: number): void {
     if (!confirm('Delete this match?')) return;
     this.matchService.deleteMatch(idMatch).subscribe({
       next: () => {
-        this.matches = this.matches.filter(m => m.idMatch !== idMatch);
+        this.matches         = this.matches.filter(m => m.idMatch !== idMatch);
+        this.filteredMatches = this.filteredMatches.filter(m => m.idMatch !== idMatch);
         this.successMsg = 'Match deleted.';
         setTimeout(() => this.successMsg = '', 3000);
       },
-      error: (err) => { this.errorMsg = `Error: ${err.status}`; }
+      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
     });
   }
+
   canDeleteMatch(match: MatchResponse): boolean {
-  const email = this.currentUserEmail.toLowerCase();
-  return (
-    match.captainAEmail?.toLowerCase() === email ||
-    match.captainBEmail?.toLowerCase() === email
-  );
-}
+    const email = this.currentUserEmail.toLowerCase();
+    return (
+      match.captainAEmail?.toLowerCase() === email ||
+      match.captainBEmail?.toLowerCase() === email
+    );
+  }
+
+  resetMatchForm(): void {
+    this.createMatchForm.reset();
+    this.teamAId         = 0;
+    this.teamBId         = 0;
+    this.captainAName    = '';
+    this.captainBName    = '';
+    this.availableTeamsB = this.otherTeams;
+    this.errorMsg        = '';
+  }
+
+  onTeamAChange(): void {
+    const team = this.myTeams.find(t => t.idTeam === Number(this.teamAId));
+    this.captainAName    = team?.captainFullName || '';
+    this.availableTeamsB = this.teams.filter(t => t.idTeam !== Number(this.teamAId) && !this.isMyTeam(t));
+    this.teamBId      = 0;
+    this.captainBName = '';
+  }
+
+  onTeamBChange(): void {
+    const team = this.teams.find(t => t.idTeam === Number(this.teamBId));
+    this.captainBName = team?.captainFullName || '';
+  }
 
   goToDetails(match: MatchResponse): void {
     this.router.navigate(['/client/detail-match', match.idMatch]);
   }
 
-resetMatchForm(): void {
-  this.newMatch        = { matchDate: '', location: '' };
-  this.teamAId         = 0;
-  this.teamBId         = 0;
-  this.captainAName    = '';
-  this.captainBName    = '';
-  this.availableTeamsB = this.otherTeams;
-  this.errorMsg        = '';
-}
+  goToTeamDetail(idTeam: number): void {
+    this.router.navigate(['/client/detail-team', idTeam]);
+  }
 
   getStatusClass(status: string): string {
     switch (status) {
@@ -251,34 +311,4 @@ resetMatchForm(): void {
       default:          return 'badge-gray';
     }
   }
-
-  // ── Navigate to Detail page ───────────────────────────────────────────
-    goToTeamDetail(idTeam: number): void {
-  this.router.navigate(['/client/detail-team', idTeam]);
-  
-}
-
-
-
-// ── Ajouter ces propriétés ────────────────────────────────────────────
-captainAName = '';
-captainBName = '';
-
-// ── Ajouter ces méthodes ──────────────────────────────────────────────
-onTeamAChange(): void {
-  const team = this.myTeams.find(t => t.idTeam === Number(this.teamAId));
-  this.captainAName    = team?.captainFullName || '';
-  // Exclure la team A des options de Team B
-  this.availableTeamsB = this.teams.filter(t => t.idTeam !== Number(this.teamAId) && !this.isMyTeam(t));
-  this.teamBId = 0;
-  this.captainBName = '';
-}
-
-onTeamBChange(): void {
-  const team = this.teams.find(t => t.idTeam === Number(this.teamBId));
-  this.captainBName = team?.captainFullName || '';
-}
-
-
-
 }

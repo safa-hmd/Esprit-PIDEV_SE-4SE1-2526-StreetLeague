@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TrainingService } from 'src/app/services/training.service';
 import { TrainingRequest, TrainingResponse, TrainingUpdateRequest } from 'src/app/models/training.model';
-import { TeamService } from 'src/app/services/team.service';   
-import { Team } from 'src/app/models/team.model'; 
+import { TeamService } from 'src/app/services/team.service';
+import { Team } from 'src/app/models/team.model';
 
 @Component({
   selector: 'app-trainings',
@@ -13,26 +14,22 @@ import { Team } from 'src/app/models/team.model';
 export class TrainingsComponent implements OnInit {
 
   trainings: TrainingResponse[] = [];
-    teams: Team[] = []; 
-  isLoading = false;
-  errorMsg = '';
+  teams: Team[] = [];
+  isLoading  = false;
+  errorMsg   = '';
   successMsg = '';
 
-  // ── Modals ────────────────────────────────────────────────
   showCreateModal = false;
-  showEditModal   = false;   // ← Ajouter
+  showEditModal   = false;
 
-  // ── Create Form ───────────────────────────────────────────
-  newTraining: TrainingRequest = {
-    title: '', description: '', trainingDate: '',
-    durationInMinutes: 60, location: '', exercises: ''
-  };
   selectedTeamId: number = 0;
 
-  // ── Edit Form ─────────────────────────────────────────────
-  editTraining: TrainingUpdateRequest = { idTraining: 0 };  // ← Ajouter
+  // ── Reactive Forms ────────────────────────────────────────
+  createTrainingForm!: FormGroup;
+  editTrainingForm!:   FormGroup;
 
   constructor(
+    private fb: FormBuilder,
     private router: Router,
     private trainingService: TrainingService,
     private teamService: TeamService
@@ -40,9 +37,36 @@ export class TrainingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadTrainings();
-      this.loadTeams(); 
+    this.loadTeams();
+
+    // ── Init Create Form ───────────────────────────────────
+    this.createTrainingForm = this.fb.group({
+      title:             ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      description:       ['', Validators.maxLength(500)],
+      trainingDate:      ['', Validators.required],
+      durationInMinutes: [60, [Validators.required, Validators.min(15), Validators.max(480)]],
+      location:          ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      exercises:         ['']
+    });
+
+    // ── Init Edit Form ─────────────────────────────────────
+    this.editTrainingForm = this.fb.group({
+      idTraining:        [0],
+      title:             ['', [Validators.minLength(3), Validators.maxLength(100)]],
+      description:       ['', Validators.maxLength(500)],
+      trainingDate:      [''],
+      durationInMinutes: [null, [Validators.min(15), Validators.max(480)]],
+      location:          ['', [Validators.minLength(3), Validators.maxLength(100)]],
+      exercises:         [''],
+      status:            ['']
+    });
   }
-    loadTeams(): void {
+
+  // ── Helpers ───────────────────────────────────────────────
+  get cf() { return this.createTrainingForm.controls; }
+  get ef() { return this.editTrainingForm.controls; }
+
+  loadTeams(): void {
     this.teamService.getAllTeams().subscribe({
       next: (data) => { this.teams = data; },
       error: (err)  => { console.error('Error loading teams', err); }
@@ -51,19 +75,32 @@ export class TrainingsComponent implements OnInit {
 
   loadTrainings(): void {
     this.isLoading = true;
-    this.errorMsg = '';
+    this.errorMsg  = '';
     this.trainingService.getAllTrainings().subscribe({
       next: (data) => { this.trainings = data; this.isLoading = false; },
       error: (err)  => { this.errorMsg = `Error loading trainings (${err.status})`; this.isLoading = false; }
     });
   }
 
+  // ── Create ────────────────────────────────────────────────
   createTraining(): void {
-    if (!this.newTraining.title || !this.newTraining.trainingDate) {
-      this.errorMsg = 'Title and date are required.';
+    this.errorMsg = '';
+
+    if (this.createTrainingForm.invalid) {
+      this.createTrainingForm.markAllAsTouched();
       return;
     }
-    this.trainingService.addTraining(this.newTraining, this.selectedTeamId).subscribe({
+    if (!this.selectedTeamId || this.selectedTeamId === 0) {
+      this.errorMsg = 'Please select a team.';
+      return;
+    }
+    const date = this.createTrainingForm.value.trainingDate;
+    if (new Date(date) <= new Date()) {
+      this.errorMsg = 'Training date must be in the future.';
+      return;
+    }
+
+    this.trainingService.addTraining(this.createTrainingForm.value, this.selectedTeamId).subscribe({
       next: () => {
         this.successMsg = 'Training session created successfully!';
         this.showCreateModal = false;
@@ -71,16 +108,13 @@ export class TrainingsComponent implements OnInit {
         this.loadTrainings();
         setTimeout(() => this.successMsg = '', 3000);
       },
-      error: (err) => {
-        this.errorMsg = err.error?.message || `Error ${err.status}`;
-        console.error(err);
-      }
+      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
     });
   }
 
-  // ── Open Edit Modal ───────────────────────────────────────
+  // ── Edit ──────────────────────────────────────────────────
   openEditModal(training: TrainingResponse): void {
-    this.editTraining = {
+    this.editTrainingForm.patchValue({
       idTraining:        training.idTraining,
       title:             training.title,
       description:       training.description,
@@ -89,26 +123,35 @@ export class TrainingsComponent implements OnInit {
       location:          training.location,
       exercises:         training.exercises,
       status:            training.status
-    };
+    });
     this.showEditModal = true;
   }
 
-  // ── Save Edit ─────────────────────────────────────────────
   updateTraining(): void {
-    this.trainingService.updateTraining(this.editTraining).subscribe({
+    this.errorMsg = '';
+
+    if (this.editTrainingForm.invalid) {
+      this.editTrainingForm.markAllAsTouched();
+      return;
+    }
+    const date = this.editTrainingForm.value.trainingDate;
+    if (date && new Date(date) <= new Date()) {
+      this.errorMsg = 'Training date must be in the future.';
+      return;
+    }
+
+    this.trainingService.updateTraining(this.editTrainingForm.value).subscribe({
       next: () => {
         this.successMsg = 'Training updated successfully!';
         this.showEditModal = false;
         this.loadTrainings();
         setTimeout(() => this.successMsg = '', 3000);
       },
-      error: (err) => {
-        this.errorMsg = err.error?.message || `Error ${err.status}`;
-        console.error(err);
-      }
+      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
     });
   }
 
+  // ── Delete ────────────────────────────────────────────────
   deleteTraining(id: number): void {
     if (!confirm('Delete this training session?')) return;
     this.trainingService.deleteTraining(id).subscribe({
@@ -117,7 +160,7 @@ export class TrainingsComponent implements OnInit {
         this.successMsg = 'Training deleted.';
         setTimeout(() => this.successMsg = '', 3000);
       },
-      error: (err) => { this.errorMsg = `Error deleting (${err.status})`; }
+      error: (err) => { this.errorMsg = err.error?.message || `Error deleting (${err.status})`; }
     });
   }
 
@@ -139,10 +182,7 @@ export class TrainingsComponent implements OnInit {
   }
 
   resetForm(): void {
-    this.newTraining = {
-      title: '', description: '', trainingDate: '',
-      durationInMinutes: 60, location: '', exercises: ''
-    };
+    this.createTrainingForm.reset({ durationInMinutes: 60 });
     this.selectedTeamId = 0;
     this.errorMsg = '';
   }

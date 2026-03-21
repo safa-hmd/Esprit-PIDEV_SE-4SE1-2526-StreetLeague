@@ -87,27 +87,61 @@
           </div>
         </div>
 
-        <!-- Join / Leave Button -->
-        <button *ngIf="training.status === 'PLANNED'"
-                class="btn btn-primary btn-full"
-                style="margin-top:1rem;"
-                (click)="joinTraining(training.idTraining)">
-          Join the Session
-        </button>
+<ng-container *ngIf="training.status === 'PLANNED'">
 
-        <button *ngIf="training.status === 'COMPLETED'"
-                class="btn btn-outline btn-full"
-                style="margin-top:1rem;"
-                disabled>
-          Session Completed
-        </button>
+  <!-- Session pleine -->
+  <button *ngIf="training.participantCount >= 25 && !hasJoined(training.idTraining)"
+          class="btn btn-outline btn-full"
+          style="margin-top:1rem;"
+          disabled>
+    🔒 Session Full (25/25)
+  </button>
 
-        <button *ngIf="training.status === 'CANCELLED'"
-                class="btn btn-danger btn-full"
-                style="margin-top:1rem;"
-                disabled>
-          Session Cancelled
-        </button>
+  <!-- Join -->
+  <button *ngIf="training.participantCount < 25 && !hasJoined(training.idTraining)"
+          class="btn btn-primary btn-full"
+          style="margin-top:1rem;"
+          (click)="joinTraining(training.idTraining)">
+    ➕ Join the Session
+  </button>
+
+  <!-- Leave -->
+  <button *ngIf="hasJoined(training.idTraining)"
+          class="btn btn-outline btn-full"
+          style="margin-top:1rem;color:var(--red);border-color:var(--red);"
+          (click)="leaveTraining(training.idTraining)">
+    🚪 Leave the Session
+  </button>
+
+</ng-container>
+
+<button *ngIf="training.status === 'COMPLETED'"
+        class="btn btn-outline btn-full"
+        style="margin-top:1rem;"
+        disabled>
+  Session Completed
+</button>
+
+<button *ngIf="training.status === 'CANCELLED'"
+        class="btn btn-danger btn-full"
+        style="margin-top:1rem;"
+        disabled>
+  Session Cancelled
+</button>
+
+<button *ngIf="training.status === 'COMPLETED'"
+        class="btn btn-outline btn-full"
+        style="margin-top:1rem;"
+        disabled>
+  Session Completed
+</button>
+
+<button *ngIf="training.status === 'CANCELLED'"
+        class="btn btn-danger btn-full"
+        style="margin-top:1rem;"
+        disabled>
+  Session Cancelled
+</button>
 
       </div>
     </div>
