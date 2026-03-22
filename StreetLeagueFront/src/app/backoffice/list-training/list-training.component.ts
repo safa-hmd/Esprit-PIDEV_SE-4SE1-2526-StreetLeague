@@ -24,11 +24,7 @@ export class ListTrainingComponent implements OnInit {
   successMsg = '';
 
   // ── Coaches (static — replace with API if available) ─────
-  coaches: Coach[] = [
-    { name: 'Coach Mike Johnson',   specialty: 'Fitness & Conditioning', sessions: 24, rating: 4.8, status: 'Active' },
-    { name: 'Coach Sarah Williams', specialty: 'Technical Skills',       sessions: 18, rating: 4.9, status: 'Active' },
-    { name: 'Coach Tom Brown',      specialty: 'Tactical Training',      sessions: 15, rating: 4.7, status: 'Pending' },
-  ];
+  coaches: Coach[] = [];
 
   constructor(private trainingService: TrainingService) {}
 

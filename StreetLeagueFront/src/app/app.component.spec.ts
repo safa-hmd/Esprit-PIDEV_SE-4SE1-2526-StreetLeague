@@ -20,10 +20,5 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('StreetLeagueFront');
   });
 
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('StreetLeagueFront app is running!');
-  });
+  // ← test "should render title" supprimé car le HTML n'a pas de .content span
 });
