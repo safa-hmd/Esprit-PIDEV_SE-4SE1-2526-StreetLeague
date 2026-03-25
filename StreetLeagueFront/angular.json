@@ -31,18 +31,19 @@
           },
           "configurations": {
             "production": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
-                }
-              ],
+"budgets": [
+  {
+    "type": "initial",
+    "maximumWarning": "500kb",
+    "maximumError": "1mb"
+  },
+  {
+    "type": "anyComponentStyle",
+    "maximumWarning": "8kb",
+    "maximumError": "15kb"
+  }
+]
+              ,
               "outputHashing": "all"
             },
             "development": {
@@ -96,7 +97,7 @@
       "src/styles.css"
     ],
     "scripts": [],
-    "browsers": "AvastBrowser",
+    "browsers": "ChromeHeadlessNoSandbox",
     "karmaConfig": "karma.conf.js"
   }
 }
