@@ -1,5 +1,16 @@
-process.env.CHROME_BIN = process.env.CHROME_BIN || 
-  'C:\\Program Files\\AVAST Software\\Browser\\Application\\AvastBrowser.exe';module.exports = function (config) {
+module.exports = function (config) {
+
+  // Détecte l'environnement : Jenkins (Linux) ou Windows local
+  const isCI = process.env.CI || process.env.JENKINS_HOME;
+  
+  if (isCI) {
+    // Jenkins Linux — utilise chromium installé
+    process.env.CHROME_BIN = '/usr/bin/chromium';
+  } else {
+    // Windows local — utilise Avast Browser
+    process.env.CHROME_BIN = 'C:\\Program Files\\AVAST Software\\Browser\\Application\\AvastBrowser.exe';
+  }
+
   config.set({
     basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
@@ -26,15 +37,13 @@ process.env.CHROME_BIN = process.env.CHROME_BIN ||
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-customLaunchers: {
-  AvastBrowser: {
-    base: 'Chrome',
-    executablePath: 'C:\\Program Files\\AVAST Software\\Browser\\Application\\AvastBrowser.exe',
-    flags: ['--no-sandbox', '--disable-gpu', '--headless']
-  }
-},
-browsers: ['AvastBrowser'],
-    browsers: ['AvastBrowser'],
+    customLaunchers: {
+      ChromeHeadlessNoSandbox: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-gpu']
+      }
+    },
+    browsers: ['ChromeHeadlessNoSandbox'],
     singleRun: false,
     restartOnFileChange: true
   });
