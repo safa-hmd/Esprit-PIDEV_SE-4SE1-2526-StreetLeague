@@ -1,7 +1,12 @@
 package com.example.streetleague.domain;
+
+import com.example.streetleague.Entity.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -12,9 +17,11 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "users")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @Column(name = "id")
+    Long idUser;
 
     @Column(nullable = false)
     String fullName;
@@ -31,4 +38,22 @@ public class User {
 
     @Builder.Default
     boolean enabled = true;
+
+    @OneToMany(mappedBy = "captain", cascade = CascadeType.ALL)
+    @JsonIgnore
+    List<Team> captainedTeams;
+
+    @ManyToMany(mappedBy = "players")
+    @JsonIgnore
+    List<Team> teams;
+
+    @ManyToMany(mappedBy = "participants")
+    @JsonIgnore
+    List<Training> trainings;
+
+    @OneToMany(mappedBy = "createdBy")
+    @JsonIgnore
+    List<Match> createdMatches;
+
+    // getIdUser() est maintenant généré automatiquement par Lombok @Getter
 }

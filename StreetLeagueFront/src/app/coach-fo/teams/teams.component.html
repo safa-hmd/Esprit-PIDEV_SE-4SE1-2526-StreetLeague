@@ -1,0 +1,131 @@
+<div class="page-content">
+
+  <div class="page-header">
+    <h1 class="page-title">Teams & Matches</h1>
+    <p class="page-subtitle">Manage your teams and track your matches</p>
+  </div>
+
+  <div *ngIf="successMsg" class="alert alert-success">{{ successMsg }}</div>
+  <div *ngIf="errorMsg"   class="alert alert-danger">{{ errorMsg }}</div>
+
+  <div class="tabs-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'my-teams'" (click)="switchTab('my-teams')">
+      My Teams
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'matches'" (click)="switchTab('matches')">
+      Upcoming Matches
+      <span *ngIf="matches.length > 0" class="tab-count">{{ matches.length }}</span>
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- Tab: Teams                                     -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'my-teams'">
+
+    <div *ngIf="teams.length > 0; else noTeams" class="grid-3">
+      <div *ngFor="let team of teams" class="team-card">
+
+        <div class="team-header">
+          <div>
+            <div class="team-name">{{ team.name }}</div>
+            <div class="team-sport">
+              <span class="badge">{{ team.sport }}</span>
+            </div>
+          </div>
+
+          <!-- Bouton Detail -->
+           
+              <button class="btn btn-gray btn-sm" title="View Details"
+                      (click)="goToTeamDetail(team.idTeam!)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="width:14px;height:14px">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+              </button>
+        </div>
+
+        <p style="font-size:0.85rem;color:var(--gray-text);">
+          {{ team.description || 'No description.' }}
+        </p>
+
+        <div class="team-stats">
+          <div class="team-stat">
+            <div class="team-stat-val">{{ team.playerCount || 0 }}</div>
+            <div class="team-stat-label">Members</div>
+          </div>
+          <div class="team-stat">
+            <div class="team-stat-val">{{ team.victories || 0 }}</div>
+            <div class="team-stat-label">Wins</div>
+          </div>
+          <div class="team-stat">
+            <div class="team-stat-val">{{ team.defeats || 0 }}</div>
+            <div class="team-stat-label">Losses</div>
+          </div>
+          <div class="team-stat">
+            <div class="team-stat-val">{{ team.matches || 0 }}</div>
+            <div class="team-stat-label">Matches</div>
+          </div>
+        </div>
+
+        <p style="font-size:0.82rem;color:var(--gray-text);">
+          Captain: <strong>{{ team.captainFullName || 'Not defined' }}</strong>
+        </p>
+
+      </div>
+    </div>
+
+    <ng-template #noTeams>
+      <div class="empty-state">No teams found.</div>
+    </ng-template>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- Tab: Matches                                   -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'matches'">
+
+    <div *ngIf="isLoadingMatches" class="empty-state">Loading matches...</div>
+
+    <div *ngIf="!isLoadingMatches" style="display:flex;flex-direction:column;gap:0.75rem;">
+
+      <div *ngFor="let match of matches" class="match-row">
+        <div style="flex:1;">
+
+          <div class="match-teams-inline">
+            <strong>{{ match.teamAName }}</strong>
+            <span style="color:var(--gray-text);margin:0 0.5rem;">vs</span>
+            <strong>{{ match.teamBName }}</strong>
+          </div>
+
+          <div class="match-date-inline">
+            {{ match.matchDate | date:'MMM d, y · h:mm a' }}
+            <span *ngIf="match.location"> · {{ match.location }}</span>
+          </div>
+
+          <div *ngIf="match.status === 'FINISHED'"
+               style="margin-top:0.3rem;font-weight:700;">
+            {{ match.scoreTeamA }} – {{ match.scoreTeamB }}
+          </div>
+
+        </div>
+
+        <span class="badge" [ngClass]="getStatusClass(match.status)"
+              style="margin-right:1rem;white-space:nowrap;">
+          {{ match.status }}
+        </span>
+
+        <!-- Bouton Detail -->
+<button class="btn btn-outline btn-sm" (click)="goToDetails(match)">Details</button>
+
+      </div>
+
+      <div *ngIf="matches.length === 0" class="empty-state">
+        No matches found.
+      </div>
+
+    </div>
+  </div>
+
+</div>

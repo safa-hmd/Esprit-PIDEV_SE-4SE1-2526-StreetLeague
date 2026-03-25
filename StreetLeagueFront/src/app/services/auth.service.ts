@@ -20,10 +20,11 @@ export interface AuthResponse {
   token: string;
   email: string;
   role: string;
+  id: string;
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root', 
 })
 export class AuthService {
 
@@ -40,11 +41,12 @@ export class AuthService {
     return this.http.post<AuthResponse>(
       `http://localhost:8086/StreetLeague/auth/login`, req
     ).pipe(
-      // ✅ Sauvegarde automatique du token
+      //  Sauvegarde automatique du token
       tap(response => {
         localStorage.setItem('TokenUserConnect', response.token);
         localStorage.setItem('EmailUserConnect', response.email);
         localStorage.setItem('RoleUserConnect',  response.role);
+       localStorage.setItem('UserIdConnect', response.id); 
       })
     );
   }
@@ -53,6 +55,7 @@ export class AuthService {
     localStorage.removeItem('TokenUserConnect');
     localStorage.removeItem('EmailUserConnect');
     localStorage.removeItem('RoleUserConnect');
+    localStorage.removeItem('UserIdConnect');
   }
 
   isLoggedIn(): boolean {

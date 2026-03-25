@@ -1,0 +1,270 @@
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
+import { TeamService } from 'src/app/services/team.service';
+import { MatchService } from 'src/app/services/match.service';
+import { TrainingService } from 'src/app/services/training.service';
+import { Team } from 'src/app/models/team.model';
+import { MatchResponse } from 'src/app/models/match.model';
+import { TrainingResponse } from 'src/app/models/training.model';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
+})
+export class HomeComponent implements OnInit, AfterViewInit {
+
+  @ViewChild('matchStatusChart') matchStatusRef!: ElementRef;
+  @ViewChild('trainingStatusChart') trainingStatusRef!: ElementRef;
+  @ViewChild('sportChart') sportChartRef!: ElementRef;
+  @ViewChild('playerChart') playerChartRef!: ElementRef;
+
+  // ── Stats ─────────────────────────────────────────────────
+  totalTeams     = 0;
+  totalMatches   = 0;
+  totalTrainings = 0;
+  totalPlayers   = 0;
+
+  // ── Recent Data ───────────────────────────────────────────
+  recentMatches:   MatchResponse[]    = [];
+  recentTrainings: TrainingResponse[] = [];
+  topTeams:        Team[]             = [];
+
+  // ── Raw data for charts ───────────────────────────────────
+  private allMatches:   MatchResponse[]    = [];
+  private allTrainings: TrainingResponse[] = [];
+  private allTeams:     Team[]             = [];
+
+  // ── Loading ───────────────────────────────────────────────
+  isLoadingTeams     = false;
+  isLoadingMatches   = false;
+  isLoadingTrainings = false;
+
+  dataReady = false;
+  adminName = '';
+
+  private charts: Chart[] = [];
+
+  constructor(
+    private router: Router,
+    private teamService: TeamService,
+    private matchService: MatchService,
+    private trainingService: TrainingService
+  ) {}
+
+  ngOnInit(): void {
+    this.adminName = localStorage.getItem('EmailUserConnect') || 'Admin';
+    this.loadAllData();
+  }
+
+  ngAfterViewInit(): void {}
+
+  // ── Load All Data ─────────────────────────────────────────
+  loadAllData(): void {
+    this.isLoadingTeams = true;
+    this.isLoadingMatches = true;
+    this.isLoadingTrainings = true;
+
+    this.teamService.getAllTeams().subscribe({
+      next: (data) => {
+        this.allTeams     = data;
+        this.totalTeams   = data.length;
+        this.totalPlayers = data.reduce((s, t) => s + (t.playerCount || 0), 0);
+        this.topTeams     = data.slice(0, 6);
+        this.isLoadingTeams = false;
+        this.checkReady();
+      },
+      error: () => { this.isLoadingTeams = false; this.checkReady(); }
+    });
+
+    this.matchService.getAllMatchs().subscribe({
+      next: (data) => {
+        this.allMatches    = data;
+        this.totalMatches  = data.length;
+        this.recentMatches = data.slice(0, 5);
+        this.isLoadingMatches = false;
+        this.checkReady();
+      },
+      error: () => { this.isLoadingMatches = false; this.checkReady(); }
+    });
+
+    this.trainingService.getAllTrainings().subscribe({
+      next: (data) => {
+        this.allTrainings    = data;
+        this.totalTrainings  = data.length;
+        this.recentTrainings = data.slice(0, 4);
+        this.isLoadingTrainings = false;
+        this.checkReady();
+      },
+      error: () => { this.isLoadingTrainings = false; this.checkReady(); }
+    });
+  }
+
+  private checkReady(): void {
+    if (!this.isLoadingTeams && !this.isLoadingMatches && !this.isLoadingTrainings) {
+      this.dataReady = true;
+      setTimeout(() => this.buildCharts(), 100);
+    }
+  }
+
+  // ── Build All Charts ──────────────────────────────────────
+  private buildCharts(): void {
+    this.charts.forEach(c => c.destroy());
+    this.charts = [];
+    this.buildMatchStatusChart();
+    this.buildTrainingStatusChart();
+    this.buildSportChart();
+    this.buildPlayerChart();
+  }
+
+  private buildMatchStatusChart(): void {
+    const counts = {
+      SCHEDULED: this.allMatches.filter(m => m.status === 'SCHEDULED').length,
+      ONGOING:   this.allMatches.filter(m => m.status === 'ONGOING').length,
+      FINISHED:  this.allMatches.filter(m => m.status === 'FINISHED').length,
+      CANCELLED: this.allMatches.filter(m => m.status === 'CANCELLED').length,
+    };
+    const ctx = this.matchStatusRef?.nativeElement;
+    if (!ctx) return;
+    this.charts.push(new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Scheduled', 'Ongoing', 'Finished', 'Cancelled'],
+        datasets: [{
+          data: Object.values(counts),
+          backgroundColor: ['#4e8a9f', '#e87040', '#4ade80', '#f87171'],
+          borderWidth: 0,
+        }]
+      },
+      options: {
+        responsive: true,
+        cutout: '70%',
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#aaa', font: { size: 11 } } }
+        }
+      }
+    }));
+  }
+
+  private buildTrainingStatusChart(): void {
+    const counts = {
+      PLANNED:   this.allTrainings.filter(t => t.status === 'PLANNED').length,
+      COMPLETED: this.allTrainings.filter(t => t.status === 'COMPLETED').length,
+      CANCELLED: this.allTrainings.filter(t => t.status === 'CANCELLED').length,
+    };
+    const ctx = this.trainingStatusRef?.nativeElement;
+    if (!ctx) return;
+    this.charts.push(new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Planned', 'Completed', 'Cancelled'],
+        datasets: [{
+          label: 'Sessions',
+          data: Object.values(counts),
+          backgroundColor: ['#4e8a9f', '#4ade80', '#f87171'],
+          borderRadius: 8,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' } },
+          y: { ticks: { color: '#aaa', stepSize: 1 }, grid: { color: '#2a2a2a' }, beginAtZero: true }
+        }
+      }
+    }));
+  }
+
+  private buildSportChart(): void {
+    const sportMap: Record<string, number> = {};
+    this.allTeams.forEach(t => {
+      const s = t.sport || 'Unknown';
+      sportMap[s] = (sportMap[s] || 0) + 1;
+    });
+    const colors = ['#4e8a9f','#e87040','#4ade80','#f87171','#c2748a','#6b9ed2','#fbbf24'];
+    const ctx = this.sportChartRef?.nativeElement;
+    if (!ctx) return;
+    this.charts.push(new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(sportMap),
+        datasets: [{
+          data: Object.values(sportMap),
+          backgroundColor: colors.slice(0, Object.keys(sportMap).length),
+          borderWidth: 0,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#aaa', font: { size: 11 } } }
+        }
+      }
+    }));
+  }
+
+  private buildPlayerChart(): void {
+    const top = [...this.allTeams]
+      .sort((a, b) => (b.playerCount || 0) - (a.playerCount || 0))
+      .slice(0, 6);
+    const ctx = this.playerChartRef?.nativeElement;
+    if (!ctx) return;
+    this.charts.push(new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: top.map(t => t.name),
+        datasets: [{
+          label: 'Players',
+          data: top.map(t => t.playerCount || 0),
+          backgroundColor: '#4e8a9f',
+          borderRadius: 8,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#aaa', stepSize: 1 }, grid: { color: '#2a2a2a' }, beginAtZero: true },
+          y: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' } }
+        }
+      }
+    }));
+  }
+
+  // ── Navigation ────────────────────────────────────────────
+  goTo(path: string): void { this.router.navigate([path]); }
+
+  // ── Helpers ───────────────────────────────────────────────
+  getMatchStatusClass(status: string): string {
+    switch (status) {
+      case 'SCHEDULED': return 'badge-scheduled';
+      case 'ONGOING':   return 'badge-ongoing';
+      case 'FINISHED':  return 'badge-finished';
+      case 'CANCELLED': return 'badge-cancelled';
+      default:          return 'badge-default';
+    }
+  }
+
+  getTrainingStatusClass(status: string): string {
+    switch (status) {
+      case 'PLANNED':   return 'badge-scheduled';
+      case 'COMPLETED': return 'badge-finished';
+      case 'CANCELLED': return 'badge-cancelled';
+      default:          return 'badge-default';
+    }
+  }
+
+  getProgressColor(count: number): string {
+    const pct = Math.round((count / 25) * 100);
+    if (pct >= 100) return '#f87171';
+    if (pct >= 75)  return '#e87040';
+    return '#4e8a9f';
+  }
+}

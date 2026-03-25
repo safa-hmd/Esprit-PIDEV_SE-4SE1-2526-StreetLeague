@@ -1,0 +1,133 @@
+/* ============================================================
+   list-teams.component.css — Dark Theme Fix
+   ============================================================ */
+
+:host {
+  display: block;
+  background: var(--bg, #121212);
+  min-height: 100vh;
+  color: var(--text, #F0F0F0);
+}
+
+/* Force dark background on the inner container */
+.admin-main-inner {
+  background: var(--bg, #121212);
+  color: var(--text, #F0F0F0);
+}
+
+/* Page title */
+.page-title-admin {
+  color: var(--text, #F0F0F0);
+}
+
+.page-subtitle-admin {
+  color: var(--muted, #888888);
+}
+
+/* Stat cards dark */
+.a-stat {
+  background: var(--card, #1E1E1E);
+  border: 1px solid var(--border, #2A2A2A);
+  color: var(--text, #F0F0F0);
+}
+
+.a-stat-val {
+  color: var(--text, #F0F0F0);
+}
+
+.a-stat-label {
+  color: var(--muted, #888888);
+}
+
+/* Table card dark */
+.a-card {
+  background: var(--card, #1E1E1E);
+  border: 1px solid var(--border, #2A2A2A);
+}
+
+.a-card-header {
+  border-bottom: 1px solid var(--border, #2A2A2A);
+}
+
+.a-card-title {
+  color: var(--text, #F0F0F0);
+}
+
+/* Table dark */
+.a-table thead th {
+  background: #171717;
+  color: var(--muted, #888888);
+  border-bottom: 1px solid var(--border, #2A2A2A);
+}
+
+.a-table tbody td {
+  color: var(--text, #F0F0F0);
+  border-bottom: 1px solid var(--border, #2A2A2A);
+  background: var(--card, #1E1E1E);
+}
+
+.a-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Search input dark */
+.a-form-control {
+  background: #171717;
+  border: 1px solid var(--border, #2A2A2A);
+  color: var(--text, #F0F0F0);
+}
+
+.a-form-control::placeholder {
+  color: #555;
+}
+
+.a-form-control:focus {
+  border-color: var(--red, #E61920);
+  outline: none;
+}
+
+/* Action buttons */
+.btn-action-suspend {
+  color: #ff6b72;
+  border: 1.5px solid rgba(230, 25, 32, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-action-suspend:hover {
+  background: rgba(230, 25, 32, 0.1);
+  border-color: rgba(230, 25, 32, 0.6);
+}
+
+.btn-action-reactivate {
+  color: #4ade80;
+  border: 1.5px solid rgba(34, 197, 94, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-action-reactivate:hover {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.6);
+}
+
+/* Warning */
+.warning-badge {
+  color: var(--orange, #E87040);
+  font-weight: 700;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  color: var(--muted, #888888);
+  padding: 2.5rem;
+}

@@ -1,0 +1,78 @@
+<div class="page-content">
+
+     <button class="btn btn-outline btn-sm" (click)="goBack()">← Back</button>
+  <div class="page-header">
+    <h1 class="page-title">Match Details</h1>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="empty-state">Loading...</div>
+
+  <!-- Error -->
+  <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && !errorMsg && match">
+
+    <!-- Score Card -->
+    <div class="match-score-card">
+      <div class="team-side">
+        <div class="team-name-lg">{{ match.teamAName }}</div>
+        <div class="score" *ngIf="match.status === 'FINISHED'">{{ match.scoreTeamA }}</div>
+      </div>
+
+      <div class="vs-center">
+        <span class="badge" [ngClass]="getStatusClass(match.status)">{{ match.status }}</span>
+        <div class="vs-text" *ngIf="match.status !== 'FINISHED'">VS</div>
+        <div class="score-sep" *ngIf="match.status === 'FINISHED'">–</div>
+      </div>
+
+      <div class="team-side">
+        <div class="team-name-lg">{{ match.teamBName }}</div>
+        <div class="score" *ngIf="match.status === 'FINISHED'">{{ match.scoreTeamB }}</div>
+      </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="info-card">
+      <div class="info-row">
+        <span class="info-label">📅 Date</span>
+        <span class="info-value">{{ match.matchDate | date:'MMMM d, y · h:mm a' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">📍 Location</span>
+        <span class="info-value">{{ match.location || 'Not defined' }}</span>
+      </div>
+
+
+<!-- Par ceci : -->
+<div class="info-row">
+  <span class="info-label">👑 Captain A</span>
+  <span class="info-value" style="display:flex;align-items:center;gap:0.5rem;">
+    <span style="width:28px;height:28px;border-radius:50%;background:var(--red);
+                 display:inline-flex;align-items:center;justify-content:center;
+                 color:white;font-weight:800;font-size:0.8rem;">
+      {{ (match.captainAName || 'A')[0] }}
+    </span>
+    {{ match.captainAName || 'Not defined' }}
+  </span>
+</div>
+
+<div class="info-row">
+  <span class="info-label">👑 Captain B</span>
+  <span class="info-value" style="display:flex;align-items:center;gap:0.5rem;">
+    <span style="width:28px;height:28px;border-radius:50%;background:#3b82f6;
+                 display:inline-flex;align-items:center;justify-content:center;
+                 color:white;font-weight:800;font-size:0.8rem;">
+      {{ (match.captainBName || 'B')[0] }}
+    </span>
+    {{ match.captainBName || 'Not defined' }}
+  </span>
+</div>
+      <div class="info-row">
+        <span class="info-label">🏆 Status</span>
+        <span class="badge" [ngClass]="getStatusClass(match.status)">{{ match.status }}</span>
+      </div>
+    </div>
+  </div>
+</div>
