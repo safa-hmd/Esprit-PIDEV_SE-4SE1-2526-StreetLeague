@@ -102,7 +102,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of("http://localhost:4200"));
 
         // Méthodes HTTP autorisées (OPTIONS obligatoire pour les requêtes CORS preflight)
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
 
         // Autoriser tous les headers (requis pour Authorization: Bearer <token>)
         config.setAllowedHeaders(List.of("*"));

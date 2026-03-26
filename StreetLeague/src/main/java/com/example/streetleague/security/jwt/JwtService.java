@@ -138,8 +138,13 @@ public class JwtService {
 
     /**
      * Génère un JWT token après une authentification réussie.
-     * ✅ FIX : ajoute les claims "id" et "fullName"
-     *    en récupérant l'user via son email (subject = username)
+     *
+     * ✅ FIX 1 : .claims(map) doit être appelé AVANT .subject()
+     *    car dans JJWT, .claims() réinitialise tous les claims précédents
+     *    (y compris "sub" défini par .subject()).
+     *
+     * ✅ FIX 2 : ajoute les claims "id" et "fullName" depuis la DB
+     *    via UserRepository (puisque UserDetails Spring ≠ notre entité User)
      */
     public String generateToken(UserDetails userDetails) {
 
@@ -151,18 +156,21 @@ public class JwtService {
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMs);
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role);
+        // Construire les claims EXTRA (sans "sub" — il sera mis par .subject())
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("role", role);
 
-        // ✅ Récupérer l'id et fullName depuis la DB via l'email du UserDetails
+        // Récupérer id et fullName depuis la BD
         userRepository.findByEmail(userDetails.getUsername()).ifPresent(user -> {
-            claims.put("id", user.getIdUser());
-            claims.put("fullName", user.getFullName());
+            extraClaims.put("id", user.getIdUser());
+            extraClaims.put("fullName", user.getFullName());
         });
 
         return Jwts.builder()
-                .subject(userDetails.getUsername()) // email
-                .claims(claims)
+                // ✅ ORDRE CORRECT : claims() EN PREMIER, puis subject()
+                // Si on met subject() avant claims(), claims() écrase "sub"
+                .claims(extraClaims)
+                .subject(userDetails.getUsername())   // ← écrit "sub" APRÈS les extra claims
                 .issuedAt(now)
                 .expiration(exp)
                 .signWith(key, Jwts.SIG.HS256)
@@ -177,12 +185,17 @@ public class JwtService {
     }
 
     /**
-     * Vérifie si le token est valide
+     * Vérifie si le token est valide :
+     * - Signature correcte
+     * - Appartient à l'utilisateur
+     * - Non expiré
      */
     public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
             String email = extractEmail(token);
-            return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
+            return email != null
+                    && email.equals(userDetails.getUsername())
+                    && !isTokenExpired(token);
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
