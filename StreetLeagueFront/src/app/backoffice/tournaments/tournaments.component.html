@@ -1,0 +1,316 @@
+<!-- tournaments.component.html -->
+
+<!-- ── Toast ── -->
+<div *ngIf="toastMessage"
+  class="alert alert-success"
+  style="position:fixed;top:80px;right:1.5rem;z-index:3000;min-width:260px;
+         box-shadow:0 4px 16px rgba(0,0,0,0.15);">
+  {{ toastMessage }}
+</div>
+
+<div class="page-content">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Tournaments</h1>
+      <p class="page-subtitle">Manage and view competitions</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreate()">+ New Tournament</button>
+  </div>
+
+  <!-- ── Filters ── -->
+  <div class="filter-row">
+    <div class="search-bar" style="flex:1;max-width:340px;">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input class="form-control" placeholder="Search..." (input)="onSearch($event)">
+    </div>
+    <select class="form-control" style="width:160px;" (change)="onSportFilter($event)">
+      <option value="">All sports</option>
+      <option *ngFor="let s of sportOptions" [value]="s.value">{{ s.label }}</option>
+    </select>
+    <select class="form-control" style="width:180px;" (change)="onStatusFilter($event)">
+      <option value="">All statuses</option>
+      <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+    </select>
+  </div>
+
+  <!-- ── Loading / Error ── -->
+  <div *ngIf="isLoading" style="text-align:center;padding:3rem;color:var(--gray-text);">Loading...</div>
+  <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+  <!-- ── Grid ── -->
+  <div class="grid-3" *ngIf="!isLoading">
+
+    <div *ngIf="filteredTournaments.length === 0"
+      style="grid-column:1/-1;text-align:center;padding:3rem;color:#555;">
+      No tournaments found.
+    </div>
+
+    <!-- Card -->
+    <div *ngFor="let t of filteredTournaments; trackBy: trackById" class="tournament-card">
+
+      <div class="tournament-head">
+        <div class="tournament-badges">
+          <span class="badge" [ngClass]="svc.sportBadge(t.sportType)">{{ t.sportType }}</span>
+          <span class="badge" [ngClass]="svc.statusBadge(t.status!)">{{ svc.statusLabel(t.status!) }}</span>
+        </div>
+        <div class="tournament-title">{{ t.name }}</div>
+        <div *ngIf="t.description" style="font-size:0.8rem;color:#666;margin-top:0.25rem;">
+          {{ t.description }}
+        </div>
+      </div>
+
+      <div class="tournament-body">
+        <div class="tournament-meta">
+          <div class="meta-row">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            {{ svc.formatDate(t) }}
+          </div>
+          <div class="meta-row">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            {{ t.location }}
+          </div>
+          <div class="meta-row">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+            </svg>
+            {{ t.registeredCount ?? 0 }} / {{ t.maxParticipants }}
+            {{ t.tournamentType === 'TEAM' ? 'teams' : 'players' }}
+          </div>
+          <div class="meta-row" *ngIf="t.prizePool">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            Prize: ${{ t.prizePool }}
+          </div>
+          <div class="meta-row">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            Deadline: {{ t.registrationDeadline }} &nbsp;·&nbsp;
+            {{ t.tournamentType === 'TEAM' ? 'Team' : 'Individual' }}
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="svc.getProgress(t)"></div>
+        </div>
+        <div class="progress-label">
+          {{ t.registeredCount ?? 0 }}/{{ t.maxParticipants }} registered ({{ svc.getProgress(t) }}%)
+        </div>
+
+        <!-- ✅ Admin Actions only — no Register Now -->
+        <div style="margin-top:1rem;display:flex;flex-direction:column;gap:0.5rem;">
+
+          <!-- Status info buttons (disabled) -->
+          <button *ngIf="t.status === 'ONGOING'"   class="btn btn-gray btn-full" disabled>In Progress</button>
+          <button *ngIf="t.status === 'COMPLETED'"  class="btn btn-gray btn-full" disabled>Completed</button>
+          <button *ngIf="t.status === 'CANCELLED'"  class="btn btn-gray btn-full" disabled>Cancelled</button>
+
+          <!-- ✅ NEW: Requests button — only for UPCOMING tournaments -->
+          <button *ngIf="t.status === 'UPCOMING'"
+            class="btn btn-requests btn-full"
+            (click)="openRequests(t)">
+            👥 Pending Requests
+          </button>
+
+          <!-- Admin CRUD actions -->
+          <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
+            <button class="btn btn-outline btn-full"
+              (click)="openEdit(t)" aria-label="Edit">✏️ Edit</button>
+            <button *ngIf="t.status !== 'CANCELLED'"
+              class="btn btn-gray btn-full"
+              (click)="cancelTournament(t)" aria-label="Cancel">🚫</button>
+            <button class="btn btn-full btn-delete"
+              (click)="deleteTournament(t)" aria-label="Delete">🗑</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     MODAL — Pending Requests (Admin)
+══════════════════════════════════════════ -->
+<div class="modal-overlay" [class.open]="isRequestsModalOpen" (click)="closeRequests()">
+  <div class="modal" style="max-width:580px;" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div>
+        <span class="modal-title">Pending Requests</span>
+        <div *ngIf="selectedTournament" style="font-size:0.8rem;color:#666;margin-top:0.15rem;">
+          {{ selectedTournament.name }}
+        </div>
+      </div>
+      <button class="modal-close" (click)="closeRequests()" aria-label="Close">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Loading -->
+      <div *ngIf="isLoadingRequests" style="text-align:center;padding:2rem;color:#555;">
+        Loading requests...
+      </div>
+
+      <!-- Empty -->
+      <div *ngIf="!isLoadingRequests && pendingRegistrations.length === 0"
+        style="text-align:center;padding:2rem;color:#555;">
+        ✅ No pending requests for this tournament.
+      </div>
+
+      <!-- Registration list -->
+      <div *ngIf="!isLoadingRequests && pendingRegistrations.length > 0"
+        style="display:flex;flex-direction:column;gap:0.75rem;">
+
+        <div *ngFor="let reg of pendingRegistrations; trackBy: trackByRegId"
+          class="request-row">
+
+          <!-- Icon + name -->
+          <div class="request-info">
+            <div class="request-avatar">
+              {{ selectedTournament?.tournamentType === 'TEAM' ? '🏆' : '👤' }}
+            </div>
+            <div>
+              <div class="request-name">
+                {{ selectedTournament?.tournamentType === 'TEAM'
+                    ? (reg.teamName ?? 'Team #' + reg.teamId)
+                    : (reg.playerUsername ?? 'Player #' + reg.playerId) }}
+              </div>
+              <div class="request-date">
+                Registered: {{ reg.registeredAt ?? '—' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Accept / Reject -->
+          <div style="display:flex;gap:0.5rem;flex-shrink:0;">
+            <button class="btn btn-accept" (click)="acceptRegistration(reg)">
+              ✅ Accept
+            </button>
+            <button class="btn btn-reject" (click)="rejectRegistration(reg)">
+              ❌ Reject
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-gray" (click)="closeRequests()">Close</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     MODAL — Create / Edit Tournament
+══════════════════════════════════════════ -->
+<div class="modal-overlay" [class.open]="isFormModalOpen" (click)="closeForm()">
+  <div class="modal" style="max-width:620px;" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <span class="modal-title">{{ editingTournament ? 'Edit Tournament' : 'New Tournament' }}</span>
+      <button class="modal-close" (click)="closeForm()" aria-label="Close">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="tournamentForm">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label">Name *</label>
+            <input class="form-control" formControlName="name" placeholder="e.g. Summer Cup 2026">
+            <small *ngIf="tournamentForm.get('name')?.invalid && tournamentForm.get('name')?.touched"
+              style="color:#e61920;font-size:0.78rem;">Minimum 3 characters.</small>
+          </div>
+
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" formControlName="description" rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Sport *</label>
+            <select class="form-control" formControlName="sportType">
+              <option *ngFor="let s of sportOptions" [value]="s.value">{{ s.label }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Type *</label>
+            <select class="form-control" formControlName="tournamentType">
+              <option *ngFor="let t of typeOptions" [value]="t.value">{{ t.label }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Start Date *</label>
+            <input class="form-control" type="date" formControlName="startDate">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">End Date *</label>
+            <input class="form-control" type="date" formControlName="endDate">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Registration Deadline *</label>
+            <input class="form-control" type="date" formControlName="registrationDeadline">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Max Participants *</label>
+            <input class="form-control" type="number" formControlName="maxParticipants" min="2">
+          </div>
+
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label">Location *</label>
+            <input class="form-control" formControlName="location" placeholder="e.g. Central Sports Complex">
+          </div>
+
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label">Prize Pool ($)</label>
+            <input class="form-control" type="number" formControlName="prizePool">
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-gray" (click)="closeForm()">Cancel</button>
+      <button class="btn btn-primary" [disabled]="tournamentForm.invalid || isSaving" (click)="submitForm()">
+        {{ isSaving ? 'Saving...' : (editingTournament ? 'Update' : 'Create') }}
+      </button>
+    </div>
+
+  </div>
+</div>

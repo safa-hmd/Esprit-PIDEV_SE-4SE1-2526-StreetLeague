@@ -1,15 +1,16 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 
 import { BackofficeRoutingModule } from './backoffice-routing.module';
 import { BackofficeComponent } from './backoffice.component';
 import { HeaderComponent } from './header/header.component';
 import { MenuComponent } from './menu/menu.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ListTeamsComponent } from './list-teams/list-teams.component';
 import { ListTrainingComponent } from './list-training/list-training.component';
 import { HomeComponent } from './home/home.component';
-
+import { TournamentComponent } from './tournaments/tournaments.component';
 
 
 @NgModule({
@@ -19,7 +20,8 @@ import { HomeComponent } from './home/home.component';
     MenuComponent,
     ListTeamsComponent,
     ListTrainingComponent,
-    HomeComponent
+    HomeComponent,
+    TournamentComponent,
 
   
 
@@ -27,7 +29,9 @@ import { HomeComponent } from './home/home.component';
   imports: [
     CommonModule,
     BackofficeRoutingModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule
   ]
 })
 export class BackofficeModule { }

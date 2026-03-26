@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -61,4 +62,9 @@ public class Team {
     @OneToMany(mappedBy = "teamB")
     @JsonIgnore
     List<Match> matchesAsTeamB;
+
+    // Inscriptions tournoi
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<TournamentRegistration> registrations = new ArrayList<>();
 }

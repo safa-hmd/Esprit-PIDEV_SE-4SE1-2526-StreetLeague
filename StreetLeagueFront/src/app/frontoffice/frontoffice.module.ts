@@ -12,6 +12,7 @@ import { TrainingComponent } from './training/training.component';
 import { DetailMatchComponent } from './detail-match/detail-match.component';
 import { HomeComponent } from './home/home.component';
 import { DetailTeamComponent } from './detail-team/detail-team.component';
+import { TournamentsComponent } from './tournaments/tournaments.component';
 
 
 @NgModule({
@@ -24,6 +25,7 @@ import { DetailTeamComponent } from './detail-team/detail-team.component';
     DetailMatchComponent,
     HomeComponent,
     DetailTeamComponent,
+    TournamentsComponent
 
   ],
   imports: [
