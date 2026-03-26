@@ -101,4 +101,7 @@ export class LoginComponent {
         break;
     }
   }
+  loginWithGoogle(): void {
+  this.authService.loginWithGoogle();
+}
 }

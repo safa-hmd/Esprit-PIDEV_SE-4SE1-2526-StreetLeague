@@ -2,6 +2,7 @@ package com.example.streetleague.Controller;
 
 import com.example.streetleague.ServiceInterface.IAuthService;
 import com.example.streetleague.dto.AuthResponse;
+import com.example.streetleague.dto.CompleteGoogleRegisterRequest;
 import com.example.streetleague.dto.LoginRequest;
 import com.example.streetleague.dto.RegisterRequest;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin("*")
+//@CrossOrigin("*")
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
@@ -28,6 +29,10 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-
+    @PostMapping("/complete-google-register")
+    public ResponseEntity<AuthResponse> completeGoogleRegister(@RequestBody CompleteGoogleRegisterRequest req) {
+        AuthResponse response = authService.completeGoogleRegister(req);
+        return ResponseEntity.ok(response);
+    }
 }
 

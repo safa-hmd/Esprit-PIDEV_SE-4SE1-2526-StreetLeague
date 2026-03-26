@@ -1,6 +1,9 @@
 package com.example.streetleague.security;
 
+import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.security.jwt.JwtAuthFilter;
+import com.example.streetleague.security.jwt.JwtService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,10 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-
 import java.util.List;
-
 
 @Configuration
 @EnableMethodSecurity
@@ -30,12 +30,9 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthFilter jwtAuthFilter;
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
 
-    /**
-     * DaoAuthenticationProvider : définit COMMENT les utilisateurs sont authentifiés
-     * - Utilise CustomUserDetailsService pour charger l'utilisateur
-     * - Utilise PasswordEncoder pour vérifier le mot de passe
-     */
     @Bean
     public DaoAuthenticationProvider authProvider() {
         DaoAuthenticationProvider p = new DaoAuthenticationProvider();
@@ -44,74 +41,58 @@ public class SecurityConfig {
         return p;
     }
 
-    /**
-     * AuthenticationManager : requis pour l'authentification manuelle lors du login
-     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    /**
-     * SecurityFilterChain : définit toutes les règles de sécurité HTTP
-     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // ← AJOUTE CETTE LIGNE
-                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ Auth publique
-                        .requestMatchers("/auth/**").permitAll()
-
-                        // ✅ CRUD équipe
+                        .requestMatchers("/auth/**").permitAll()          // ✅ couvre /auth/complete-google-register
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/team/add", "/team/update/**").hasAnyRole("PLAYER", "COACH")
-                        .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")  // ← ADMIN ajouté
+                        .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
                         .requestMatchers("/team/showTeams", "/team/showTeamById/**", "/team/myTeams").permitAll()
                         .requestMatchers("/team/*/join", "/team/*/leave").hasRole("PLAYER")
-
-                        // ✅ CRUD match
                         .requestMatchers("/match/add", "/match/update").hasAnyRole("PLAYER", "COACH")
-                        .requestMatchers("/match/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")  // ← ADMIN ajouté
+                        .requestMatchers("/match/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
                         .requestMatchers("/match/showMatchs", "/match/showMatchById/**").permitAll()
-
-                        // ✅ CRUD training
                         .requestMatchers("/training/add", "/training/update").hasRole("COACH")
-                        .requestMatchers("/training/delete/**").hasAnyRole("COACH", "ADMIN")  // ← ADMIN ajouté
+                        .requestMatchers("/training/delete/**").hasAnyRole("COACH", "ADMIN")
                         .requestMatchers("/training/showTrainings", "/training/showTrainingById/**").permitAll()
                         .requestMatchers("/training/*/join", "/training/*/leave").hasRole("PLAYER")
-
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                // ✅ FIX PRINCIPAL : empêche Spring de rediriger les appels REST vers OAuth2/login
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                        })
+                )
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(new OAuth2AuthSuccessHandler(userRepository, jwtService))
+                );
 
         return http.build();
     }
 
-    /**
-     * Configuration CORS : permet au frontend Angular (localhost:4200)
-     * d'accéder aux APIs Spring Boot
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
-        // Autoriser uniquement le frontend Angular
         config.setAllowedOrigins(List.of("http://localhost:4200"));
-
-        // Méthodes HTTP autorisées (OPTIONS obligatoire pour les requêtes CORS preflight)
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-        // Autoriser tous les headers (requis pour Authorization: Bearer <token>)
         config.setAllowedHeaders(List.of("*"));
-
-        // Autoriser l'envoi des credentials (headers d'autorisation)
         config.setAllowCredentials(true);
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Appliquer cette configuration à tous les endpoints
         source.registerCorsConfiguration("/**", config);
         return source;
     }

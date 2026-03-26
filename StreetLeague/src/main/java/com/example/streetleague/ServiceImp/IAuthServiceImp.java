@@ -4,6 +4,7 @@ import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.IAuthService;
 import com.example.streetleague.domain.User;
 import com.example.streetleague.dto.AuthResponse;
+import com.example.streetleague.dto.CompleteGoogleRegisterRequest;
 import com.example.streetleague.dto.LoginRequest;
 import com.example.streetleague.dto.RegisterRequest;
 import com.example.streetleague.security.CustomUserDetailsService;
@@ -12,11 +13,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -82,6 +85,42 @@ public class IAuthServiceImp implements IAuthService {
 
 
         return new AuthResponse(token, userDetails.getUsername(), role, (Long) user.getIdUser());
+    }
+
+
+
+    @Override
+    public AuthResponse completeGoogleRegister(CompleteGoogleRegisterRequest req) {
+
+        // Vérifier que l'utilisateur n'existe pas déjà
+        if (userRepository.findByEmail(req.email()).isPresent()) {
+            throw new IllegalArgumentException("Email already used");
+        }
+
+        // Créer l'utilisateur avec le rôle choisi
+        User user = User.builder()
+                .email(req.email())
+                .fullName(req.fullName())
+                .password("GOOGLE_OAUTH2_NO_PASSWORD")
+                .role(req.role())
+                .enabled(true)
+                .build();
+
+        userRepository.save(user);
+
+        // Générer le JWT
+        var authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+        );
+        var userDetails = org.springframework.security.core.userdetails.User
+                .withUsername(user.getEmail())
+                .password(user.getPassword())
+                .authorities(authorities)
+                .build();
+
+        String token = jwtService.generateToken(userDetails);
+
+        return new AuthResponse(token, user.getEmail(), "ROLE_" + user.getRole().name(), user.getIdUser());
     }
 
 

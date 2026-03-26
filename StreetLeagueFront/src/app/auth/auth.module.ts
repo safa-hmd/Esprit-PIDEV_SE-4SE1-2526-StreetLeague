@@ -6,13 +6,17 @@ import { AuthComponent } from './auth.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SelectRoleComponent } from './select-role/select-role.component';
+import { OAuth2CallbackComponent } from './oauth2-callback/oauth2-callback.component';
 
 
 @NgModule({
   declarations: [
     AuthComponent,
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
+    SelectRoleComponent,
+    OAuth2CallbackComponent
   ],
   imports: [
     CommonModule,

@@ -69,4 +69,9 @@ export class AuthService {
   getToken(): string | null {
     return localStorage.getItem('TokenUserConnect');
   }
+
+  loginWithGoogle(): void {
+  window.location.href = 
+    'http://localhost:8086/StreetLeague/oauth2/authorization/google';
+}
 }
