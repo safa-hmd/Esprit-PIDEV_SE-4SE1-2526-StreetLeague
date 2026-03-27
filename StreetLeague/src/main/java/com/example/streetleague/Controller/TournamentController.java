@@ -2,6 +2,7 @@ package com.example.streetleague.Controller;
 
 import com.example.streetleague.ServiceInterface.ITournamentService;
 import com.example.streetleague.dto.TournamentDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +21,14 @@ public class TournamentController {
     // ===== ADMIN =====
 
     @PostMapping
-    public ResponseEntity<TournamentDto> create(@RequestBody TournamentDto dto) {
+    public ResponseEntity<TournamentDto> create(@Valid @RequestBody TournamentDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(tournamentService.createTournament(dto));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TournamentDto> update(@PathVariable Long id,
-                                                @RequestBody TournamentDto dto) {
+                                                @Valid @RequestBody TournamentDto dto) {
         return ResponseEntity.ok(tournamentService.updateTournament(id, dto));
     }
 
@@ -55,7 +56,7 @@ public class TournamentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TournamentDto> getById(@PathVariable Long id) {
+    public ResponseEntity<TournamentDto> getById(@Valid @PathVariable Long id) {
         return ResponseEntity.ok(tournamentService.getTournamentById(id));
     }
 

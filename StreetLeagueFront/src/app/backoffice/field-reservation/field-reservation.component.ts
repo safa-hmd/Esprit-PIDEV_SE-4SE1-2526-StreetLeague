@@ -171,16 +171,35 @@ export class FieldReservationComponent implements OnInit {
     if (this.fieldForm.invalid) return;
     this.svc.createField(this.fieldForm.value as Field).subscribe({
       next: () => { this.toast('Field created'); this.showAddFieldModal = false; this.loadFields(); },
-      error: ()  => this.toast('Failed to create field', 'error')
-    });
+      error: err => {
+      // Erreurs @Valid
+      if (err.status === 400 && typeof err.error === 'object' && !err.error.message) {
+        const messages = Object.entries(err.error)
+          .map(([field, msg]) => `• ${field}: ${msg}`)
+          .join('\n');
+        this.toast(`Validation errors:\n${messages}`, 'error');
+      } else {
+        this.toast(err?.error?.message ?? 'Failed to create field', 'error');
+      }
+    }
+  });
   }
 
   saveEditedField(): void {
     if (this.fieldForm.invalid || !this.selectedField?.id) return;
     this.svc.updateField(this.selectedField.id, this.fieldForm.value as Field).subscribe({
       next: () => { this.toast('Field updated'); this.showEditFieldModal = false; this.loadFields(); },
-      error: ()  => this.toast('Failed to update field', 'error')
-    });
+      error: err => {
+      if (err.status === 400 && typeof err.error === 'object' && !err.error.message) {
+        const messages = Object.entries(err.error)
+          .map(([field, msg]) => `• ${field}: ${msg}`)
+          .join('\n');
+        this.toast(`Validation errors:\n${messages}`, 'error');
+      } else {
+        this.toast(err?.error?.message ?? 'Failed to update field', 'error');
+      }
+    }
+  });
   }
 
   toggleField(field: Field): void {

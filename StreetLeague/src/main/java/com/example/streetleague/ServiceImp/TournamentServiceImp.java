@@ -25,7 +25,7 @@ public class TournamentServiceImp implements ITournamentService {
 
     @Override
     public TournamentDto createTournament(TournamentDto dto) {
-
+        validateDates(dto);
         if (tournamentRepository.existsByNameIgnoreCase(dto.getName())) {
             throw new IllegalArgumentException("Tournament with this name already exists");
         }
@@ -34,6 +34,7 @@ public class TournamentServiceImp implements ITournamentService {
         tournament.setStatus(computeStatus(dto.getStartDate(), dto.getEndDate()));
 
         return mapToDto(tournamentRepository.save(tournament));
+
     }
 
     // ---------------- READ ----------------
@@ -66,7 +67,7 @@ public class TournamentServiceImp implements ITournamentService {
 
     @Override
     public TournamentDto updateTournament(Long id, TournamentDto dto) {
-
+        validateDates(dto);
         Tournament tournament = findById(id);
 
         if (tournament.getStatus() == TournamentStatus.CANCELLED) {
@@ -165,6 +166,7 @@ public class TournamentServiceImp implements ITournamentService {
     // ---------------- STATUS LOGIC ----------------
 
     /**
+     * bech nkounou wadhhin
      * Computes tournament status automatically from dates:
      *
      *  startDate > today          → UPCOMING   (not started yet)
@@ -184,6 +186,14 @@ public class TournamentServiceImp implements ITournamentService {
             return TournamentStatus.ONGOING;
         } else {
             return TournamentStatus.COMPLETED;
+        }
+    }
+    private void validateDates(TournamentDto dto) {
+        if (dto.getEndDate().isBefore(dto.getStartDate())) {
+            throw new IllegalArgumentException("End date must be after start date");
+        }
+        if (dto.getRegistrationDeadline().isAfter(dto.getStartDate())) {
+            throw new IllegalArgumentException("Registration deadline must be before start date");
         }
     }
 

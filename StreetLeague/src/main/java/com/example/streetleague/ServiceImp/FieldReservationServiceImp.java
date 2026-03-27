@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -163,6 +164,20 @@ public class FieldReservationServiceImp implements IFieldReservationService {
     private User findUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+    }
+
+    // Dans FieldReservationServiceImp, avant de sauvegarder
+    private void validateReservationTimes(LocalDateTime start, LocalDateTime end) {
+        if (!end.isAfter(start)) {
+            throw new IllegalArgumentException("End time must be after start time");
+        }
+        long hours = Duration.between(start, end).toHours();
+        if (hours < 1) {
+            throw new IllegalArgumentException("Minimum reservation duration is 1 hour");
+        }
+        if (hours > 12) {
+            throw new IllegalArgumentException("Maximum reservation duration is 12 hours");
+        }
     }
 
     private FieldReservationDto mapToDto(FieldReservation r) {

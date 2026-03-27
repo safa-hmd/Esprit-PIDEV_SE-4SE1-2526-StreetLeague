@@ -4,6 +4,8 @@ package com.example.streetleague.Repository;
 import com.example.streetleague.Entity.RegistrationStatus;
 import com.example.streetleague.Entity.TournamentRegistration;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,4 +29,14 @@ public interface TournamentRegistrationRepository extends JpaRepository<Tourname
     boolean existsByTournamentIdAndPlayerIdUser(Long tournamentId, Long playerId);
 
     boolean existsByTournamentIdAndTeamIdTeam(Long tournamentId, Long teamId);
+
+    @Query("""
+    SELECT r FROM TournamentRegistration r 
+    JOIN r.team t 
+    WHERE t.captain.idUser = :playerId 
+    OR EXISTS (
+        SELECT p FROM t.players p WHERE p.idUser = :playerId
+    )
+""")
+    List<TournamentRegistration> findTeamRegistrationsByPlayerId(@Param("playerId") Long playerId);
 }

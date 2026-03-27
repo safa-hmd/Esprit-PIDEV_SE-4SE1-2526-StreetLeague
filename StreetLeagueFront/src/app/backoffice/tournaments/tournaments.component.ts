@@ -202,8 +202,24 @@ export class TournamentComponent implements OnInit, OnDestroy {
         this.closeForm();
         this.load();
       },
-      error: err => { this.isSaving = false; this.svc.showToast(`❌ ${err?.error?.message ?? 'Error saving tournament'}`); }
-    });
+       // ✅ Remplace l'ancien bloc error
+    error: err => {
+      this.isSaving = false;
+
+      // Erreurs @Valid → { name: "...", location: "..." }
+      if (err.status === 400 && typeof err.error === 'object' && !err.error.message) {
+        const messages = Object.entries(err.error)
+          .map(([field, msg]) => `• ${field}: ${msg}`)
+          .join('\n');
+        this.svc.showToast(`❌ ${messages}`);
+
+      // Erreur métier → { message: "Tournament with this name already exists" }
+      } else {
+        const msg = err?.error?.message ?? err?.error?.error ?? 'Error saving tournament';
+        this.svc.showToast(`❌ ${msg}`);
+      }
+    }
+  });
   }
 
   // ── Admin actions ─────────────────────────────────────────────────────────

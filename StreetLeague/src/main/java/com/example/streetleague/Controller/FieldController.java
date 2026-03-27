@@ -3,6 +3,7 @@ package com.example.streetleague.Controller;
 import com.example.streetleague.ServiceInterface.IFieldService;
 import com.example.streetleague.Entity.SportType;
 import com.example.streetleague.dto.FieldDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +22,13 @@ public class FieldController {
     // ===== ADMIN =====
 
     @PostMapping
-    public ResponseEntity<FieldDto> create(@RequestBody FieldDto dto) {
+    public ResponseEntity<FieldDto> create(@Valid @RequestBody FieldDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(fieldService.createField(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FieldDto> update(@PathVariable Long id,
+    public ResponseEntity<FieldDto> update(@Valid @PathVariable Long id,
                                            @RequestBody FieldDto dto) {
         return ResponseEntity.ok(fieldService.updateField(id, dto));
     }

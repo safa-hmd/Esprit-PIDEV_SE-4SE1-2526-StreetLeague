@@ -203,5 +203,18 @@ public class TournamentRegistrationServiceImp implements ITournamentRegistration
         reg.setStatus(RegistrationStatus.CANCELLED);
         return mapToDto(registrationRepository.save(reg));
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TournamentRegistrationDto> getTeamRegistrationsByPlayer(Long playerId) {
+        // Vérifie que le joueur existe
+        findUserById(playerId);
+
+        return registrationRepository
+                .findTeamRegistrationsByPlayerId(playerId)
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
 }
 

@@ -14,6 +14,7 @@ public interface ITournamentRegistrationService {
     TournamentRegistrationDto cancelRegistration(Long id);
     void deleteRegistration(Long id);
 
+    List<TournamentRegistrationDto> getTeamRegistrationsByPlayer(Long playerId);
     TournamentRegistrationDto acceptRegistration(Long id);
     TournamentRegistrationDto rejectRegistration(Long id);
 }

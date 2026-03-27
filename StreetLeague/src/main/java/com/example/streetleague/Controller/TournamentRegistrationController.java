@@ -64,6 +64,13 @@ public class TournamentRegistrationController {
             @PathVariable Long teamId) {
         return ResponseEntity.ok(registrationService.getRegistrationsByTeam(teamId));
     }
+    @GetMapping("/player/{playerId}/teams")
+    public ResponseEntity<List<TournamentRegistrationDto>> getTeamRegistrationsByPlayer(
+            @PathVariable Long playerId) {
+        return ResponseEntity.ok(
+                registrationService.getTeamRegistrationsByPlayer(playerId)
+        );
+    }
 
     // ===== ADMIN =====
 

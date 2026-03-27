@@ -8,6 +8,8 @@ import {
   SportType
 } from '../../models/field-reservation.model';
 import { AuthService } from 'src/app/services/auth.service';
+// ── Dans les imports, ajoute AbstractControl ──────────────────────────────────
+import { AbstractControl } from '@angular/forms';
 
 @Component({
   selector: 'app-field-reservation-front',
@@ -165,10 +167,11 @@ export class FieldReservationComponent implements OnInit {
     const startTime = `${date}T${startHour}:00`;
     const endTime   = `${date}T${endHour}:00`;
 
-    if (endHour <= startHour) {
-      this.toast('End time must be after start time', 'error');
-      return;
-    }
+    // SUPPRIME le bloc manuel de validation des heures, remplacé par un validator au niveau du FormGroup
+    //if (endHour <= startHour) {
+     // this.toast('End time must be after start time', 'error');
+     // return;
+    //}
 
     const dto: FieldReservation = {
       fieldId:   this.selectedField.id,
@@ -253,13 +256,20 @@ export class FieldReservationComponent implements OnInit {
   return this.authService.getUserId(); // ✅ utilise le JWT decode
 }
 
-  private buildForm(): void {
-    this.bookingForm = this.fb.group({
+
+
+
+ // ── Remplace buildForm() ──────────────────────────────────────────────────────
+private buildForm(): void {
+  this.bookingForm = this.fb.group(
+    {
       date:      ['', Validators.required],
       startHour: ['', Validators.required],
       endHour:   ['', Validators.required]
-    });
-  }
+    },
+    { validators: endAfterStartValidator }   // ← validator au niveau du groupe
+  );
+}
 
   private toast(msg: string, type: 'success' | 'error' = 'success'): void {
     this.toastMessage = msg;
@@ -269,4 +279,11 @@ export class FieldReservationComponent implements OnInit {
   }
 
   get ReservationStatus() { return ReservationStatus; }
+}
+
+function endAfterStartValidator(group: AbstractControl) {
+  const start = group.get('startHour')?.value;
+  const end   = group.get('endHour')?.value;
+  if (!start || !end) return null;
+  return parseInt(end) > parseInt(start) ? null : { endBeforeStart: true };
 }

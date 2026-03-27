@@ -83,6 +83,9 @@ export class TournamentService {
   getRegistrationsByTeam(teamId: number): Observable<TournamentRegistrationDto[]> {
     return this.http.get<TournamentRegistrationDto[]>(`${this.REG}/team/${teamId}`);
   }
+  getTeamRegistrationsByPlayer(playerId: number): Observable<TournamentRegistrationDto[]> {
+  return this.http.get<TournamentRegistrationDto[]>(`${this.REG}/player/${playerId}/teams`);
+  }
   /*// ✅ AJOUT 3 — récupérer une registration par id (utilisé dans getById)
   getRegistrationById(id: number): Observable<TournamentRegistrationDto> {
     return this.http.get<TournamentRegistrationDto>(`${this.REG}/${id}`);
@@ -170,4 +173,5 @@ export class TournamentService {
     if (!t.endDate || t.startDate === t.endDate) return t.startDate;
     return `${t.startDate} → ${t.endDate}`;
   }
+  
 }

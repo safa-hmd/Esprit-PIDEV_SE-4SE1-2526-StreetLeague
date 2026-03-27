@@ -13,8 +13,9 @@ import {
   TournamentStatus
 } from '../../backoffice/tournaments/tournament.model';
 import { Team } from '../../models/team.model';
-import { Subject } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-tournaments',
@@ -154,9 +155,19 @@ export class TournamentsComponent implements OnInit, OnDestroy {
     this.registerForm.reset({ teamId: null });
 
     // Si tournoi TEAM → charger les équipes disponibles
-    if (t.tournamentType === 'TEAM') {
-      this.loadTeams();
-    }
+    //if (t.tournamentType === 'TEAM') {
+      //this.loadTeams();
+    //}
+    // ← Ajoute / retire Validators.required selon le type de tournoi
+  const teamIdCtrl = this.registerForm.get('teamId')!;
+  if (t.tournamentType === 'TEAM') {
+    teamIdCtrl.setValidators([Validators.required]);
+    this.loadTeams();
+  } else {
+    teamIdCtrl.clearValidators();
+  }
+  teamIdCtrl.updateValueAndValidity();  // ← indispensable pour que Angular recalcule
+
 
     this.isRegisterModalOpen = true;
   }
@@ -197,13 +208,15 @@ export class TournamentsComponent implements OnInit, OnDestroy {
     if (!this.selectedTournament?.id || !this.currentUserId) return;
 
     // Validation selon le type
-    if (this.isTeamTournament()) {
-      const teamId = this.registerForm.value.teamId;
-      if (!teamId) {
-        this.showToast('❌ Please select a team.', 'error');
-        return;
-      }
-    }
+    //if (this.isTeamTournament()) {
+      //const teamId = this.registerForm.value.teamId;
+      //if (!teamId) {
+       // this.showToast('❌ Please select a team.', 'error');
+       // return;
+    // }
+    //}
+    //
+    if (this.registerForm.invalid) return;
 
     this.isSubmitting = true;
     const tid = this.selectedTournament.id!;
@@ -230,30 +243,36 @@ export class TournamentsComponent implements OnInit, OnDestroy {
   // ── My Registrations modal ────────────────────────────────────────────────
 
   openMyRegistrations(): void {
-    // FIX : vérification claire de l'userId AVANT d'ouvrir le modal
-    if (!this.currentUserId) {
-      this.showToast('❌ Unable to identify user. Please log in again.', 'error');
-      return;
-    }
-
-    this.isMyRegsModalOpen = true;
-    this.isLoadingMyRegs   = true;
-    this.myRegistrations   = [];
-
-    this.svc.getRegistrationsByPlayer(this.currentUserId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: regs => {
-          this.myRegistrations = regs;
-          this.isLoadingMyRegs = false;
-        },
-        error: () => {
-          this.showToast('❌ Failed to load your registrations.', 'error');
-          this.isLoadingMyRegs = false;
-          this.isMyRegsModalOpen = false;
-        }
-      });
+  if (!this.currentUserId) {
+    this.showToast('❌ Unable to identify user. Please log in again.', 'error');
+    return;
   }
+
+  this.isMyRegsModalOpen = true;
+  this.isLoadingMyRegs   = true;
+  this.myRegistrations   = [];
+
+  forkJoin({
+    individual: this.svc.getRegistrationsByPlayer(this.currentUserId),
+    team:       this.svc.getTeamRegistrationsByPlayer(this.currentUserId)
+  })
+  .pipe(takeUntil(this.destroy$))
+  .subscribe({
+    next: ({ individual, team }) => {
+      this.myRegistrations = [...individual, ...team]
+        .sort((a, b) =>
+          new Date(b.registeredAt ?? '').getTime() -
+          new Date(a.registeredAt ?? '').getTime()
+        );
+      this.isLoadingMyRegs = false;
+    },
+    error: () => {
+      this.showToast('❌ Failed to load your registrations.', 'error');
+      this.isLoadingMyRegs = false;
+      this.isMyRegsModalOpen = false;
+    }
+  });
+}
 
   closeMyRegistrations(): void { this.isMyRegsModalOpen = false; }
 

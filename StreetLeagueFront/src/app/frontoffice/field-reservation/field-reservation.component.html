@@ -221,6 +221,7 @@
             </option>
           </select>
         </div>
+       
         <div class="form-group">
           <label>End Time *</label>
           <select formControlName="endHour">
@@ -229,6 +230,10 @@
               {{ h < 10 ? '0'+h+':00' : h+':00' }}
             </option>
           </select>
+        </div>
+         <!-- Juste après la form-row des heures -->
+        <div class="error-msg" *ngIf="bookingForm.errors?.['endBeforeStart'] && bookingForm.get('endHour')?.dirty">
+          End time must be after start time
         </div>
       </div>
 

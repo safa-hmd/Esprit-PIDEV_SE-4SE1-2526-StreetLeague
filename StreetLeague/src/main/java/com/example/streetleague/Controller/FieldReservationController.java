@@ -2,6 +2,7 @@ package com.example.streetleague.Controller;
 
 import com.example.streetleague.ServiceInterface.IFieldReservationService;
 import com.example.streetleague.dto.FieldReservationDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class FieldReservationController {
     // ===== PLAYER =====
 
     @PostMapping
-    public ResponseEntity<FieldReservationDto> create(@RequestBody FieldReservationDto dto) {
+    public ResponseEntity<FieldReservationDto> create(@Valid @RequestBody FieldReservationDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(reservationService.createReservation(dto));
     }

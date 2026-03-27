@@ -267,7 +267,7 @@
             </option>
           </select>
 
-          <small *ngIf="registerForm.get('teamId')?.value === null && isSubmitting"
+          <small *ngIf="registerForm.get('teamId')?.invalid && registerForm.get('teamId')?.touched"
             class="form-error">Please select a team.</small>
         </div>
 
@@ -277,7 +277,7 @@
     <div class="modal-footer">
       <button class="btn-cancel" (click)="closeRegister()">Cancel</button>
       <button class="btn-confirm"
-        [disabled]="isSubmitting || (isTeamTournament() && (isLoadingTeams || availableTeams.length === 0))"
+        [disabled]="isSubmitting || registerForm.invalid || (isTeamTournament() && isLoadingTeams)"
         (click)="submitRegistration()">
         {{ isSubmitting ? 'Submitting...' : 'Submit Registration' }}
       </button>
@@ -335,9 +335,10 @@
             <span class="reg-status" [ngClass]="regStatusClass(reg.status?.toString())">
               {{ regStatusLabel(reg.status?.toString()) }}
             </span>
-            <button *ngIf="reg.status?.toString() === 'PENDING'"
+            <!-- ✅ Nouveau — fonctionne pour joueur ET équipe -->
+            <button *ngIf="reg.status?.toString() === 'PENDING' || reg.status?.toString() === 'CONFIRMED'"
               class="btn-cancel-reg" (click)="cancelMyRegistration(reg)">
-              Cancel
+                Cancel
             </button>
           </div>
 
