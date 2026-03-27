@@ -70,8 +70,26 @@ export class AuthService {
     return localStorage.getItem('TokenUserConnect');
   }
 
+  //add this without unitaire tests
+
   loginWithGoogle(): void {
   window.location.href = 
     'http://localhost:8086/StreetLeague/oauth2/authorization/google';
+}
+
+forgotPassword(email: string): Observable<string> {
+  return this.http.post(
+    `http://localhost:8086/StreetLeague/auth/forgot-password`,
+    { email },
+    { responseType: 'text' }
+  );
+}
+
+resetPassword(token: string, newPassword: string): Observable<string> {
+  return this.http.post(
+    `http://localhost:8086/StreetLeague/auth/reset-password`,
+    { token, newPassword },
+    { responseType: 'text' }
+  );
 }
 }

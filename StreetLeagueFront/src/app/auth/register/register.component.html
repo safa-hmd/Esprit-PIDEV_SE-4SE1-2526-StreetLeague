@@ -1,33 +1,23 @@
-
-
-
-
 <div class="register-wrapper">
   <div class="card">
-   
-
 
 <div class="card">
 
-  <!-- En-tête -->
+  <!-- Header -->
   <div class="card-head">
     <div class="logo">Street<span>League</span></div>
-    <h2>Créer un compte</h2>
-    <p>Rejoignez la communauté StreetLeague</p>
+    <h2>Create an account</h2>
+    <p>Join the StreetLeague community</p>
   </div>
 
-  <!-- Corps -->
+  <!-- Body -->
   <div class="card-body">
 
-    <!-- ── 5 Rôles ── -->
+    <!-- ── 4 Roles ── -->
     <div class="role-select">
       <button type="button" class="role-btn" [class.active]="selectedRole === 'PLAYER'" (click)="selectRole('PLAYER')">
         <span class="role-emoji">👤</span>
-        <span class="role-label">Joueur</span>
-      </button>
-      <button type="button" class="role-btn" [class.active]="selectedRole === 'ADMIN'" (click)="selectRole('ADMIN')">
-        <span class="role-emoji">🛡️</span>
-        <span class="role-label">Admin</span>
+        <span class="role-label">Player</span>
       </button>
       <button type="button" class="role-btn" [class.active]="selectedRole === 'COACH'" (click)="selectRole('COACH')">
         <span class="role-emoji">🎯</span>
@@ -39,12 +29,12 @@
       </button>
       <button type="button" class="role-btn" [class.active]="selectedRole === 'DELIVERY'" (click)="selectRole('DELIVERY')">
         <span class="role-emoji">🚚</span>
-        <span class="role-label">Livraison</span>
+        <span class="role-label">Delivery</span>
       </button>
     </div>
 
     <!-- Messages -->
-    <div class="error-msg"   *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="error-msg" *ngIf="errorMessage">{{ errorMessage }}</div>
     <div class="success-msg" *ngIf="successMessage">
       <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
@@ -52,22 +42,22 @@
       {{ successMessage }}
     </div>
 
-    <!-- Formulaire -->
+    <!-- Form -->
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
 
-      <!-- Prénom + Nom -->
+      <!-- First Name + Last Name -->
       <div class="form-row">
         <div class="form-group">
-          <label for="firstName">Prénom</label>
+          <label for="firstName">First Name</label>
           <input type="text" id="firstName" formControlName="firstName" placeholder=""
             [class.input-error]="f['firstName'].invalid && f['firstName'].touched" />
-          <small class="field-error" *ngIf="f['firstName'].invalid && f['firstName'].touched">Prénom requis.</small>
+          <small class="field-error" *ngIf="f['firstName'].invalid && f['firstName'].touched">First name is required.</small>
         </div>
         <div class="form-group">
-          <label for="lastName">Nom</label>
+          <label for="lastName">Last Name</label>
           <input type="text" id="lastName" formControlName="lastName" placeholder=""
             [class.input-error]="f['lastName'].invalid && f['lastName'].touched" />
-          <small class="field-error" *ngIf="f['lastName'].invalid && f['lastName'].touched">Nom requis.</small>
+          <small class="field-error" *ngIf="f['lastName'].invalid && f['lastName'].touched">Last name is required.</small>
         </div>
       </div>
 
@@ -76,12 +66,12 @@
         <label for="email">Email</label>
         <input type="email" id="email" formControlName="email" [placeholder]="emailPlaceholder"
           [class.input-error]="f['email'].invalid && f['email'].touched" />
-        <small class="field-error" *ngIf="f['email'].invalid && f['email'].touched">Adresse email invalide.</small>
+        <small class="field-error" *ngIf="f['email'].invalid && f['email'].touched">Invalid email address.</small>
       </div>
 
-      <!-- Mot de passe -->
+      <!-- Password -->
       <div class="form-group">
-        <label for="password">Mot de passe</label>
+        <label for="password">Password</label>
         <input type="password" id="password" formControlName="password" placeholder="••••••••"
           [class.input-error]="f['password'].invalid && f['password'].touched"
           (input)="checkStrength($any($event.target).value)" />
@@ -90,33 +80,33 @@
         </div>
         <small [style.color]="strengthColor" *ngIf="strengthLabel">{{ strengthLabel }}</small>
         <small class="field-error" *ngIf="f['password'].invalid && f['password'].touched">
-          Minimum 6 caractères.
+          Minimum 6 characters.
         </small>
       </div>
 
-      <!-- Confirmer mot de passe -->
+      <!-- Confirm Password -->
       <div class="form-group">
-        <label for="confirmPassword">Confirmer le mot de passe</label>
+        <label for="confirmPassword">Confirm password</label>
         <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="••••••••"
           [class.input-error]="f['confirmPassword'].touched && registerForm.hasError('passwordMismatch')" />
         <small class="field-error"
           *ngIf="f['confirmPassword'].touched && registerForm.hasError('passwordMismatch')">
-          Les mots de passe ne correspondent pas.
+          Passwords do not match.
         </small>
       </div>
 
-      <!-- CGU -->
+      <!-- Terms -->
       <div class="terms">
         <input type="checkbox" id="terms" formControlName="terms" />
         <label for="terms" class="terms-label">
-          J'accepte les <a href="#">conditions d'utilisation</a> et la <a href="#">politique de confidentialité</a>
+          I accept the <a href="#">terms of use</a> and the <a href="#">privacy policy</a>
         </label>
       </div>
 
-      <!-- Bouton -->
+      <!-- Button -->
       <button type="submit" class="btn-submit" [disabled]="registerForm.invalid || isLoading">
         <span class="spinner-ring" *ngIf="isLoading"></span>
-        <span>{{ isLoading ? 'Création du compte…' : 'Créer mon compte ' + roleLabel }}</span>
+        <span>{{ isLoading ? 'Creating account…' : 'Create my account ' + roleLabel }}</span>
       </button>
 
     </form>
@@ -124,11 +114,10 @@
 
   <!-- Footer -->
   <div class="card-footer">
-    Déjà un compte ? <a routerLink="/login">Se connecter</a>
+    Already have an account? <a routerLink="/login">Log in</a>
   </div>
 
 </div>
-
 
   </div>
 </div>

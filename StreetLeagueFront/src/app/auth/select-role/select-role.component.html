@@ -2,8 +2,8 @@
 
   <div class="card-head">
     <div class="logo">Street<span>League</span></div>
-    <h2>Choisir votre rôle</h2>
-    <p>Bienvenue, <strong>{{ fullName }}</strong></p>
+    <h2>Choose your role</h2>
+    <p>Welcome, <strong>{{ fullName }}</strong></p>
   </div>
 
   <div class="card-body">
@@ -22,7 +22,7 @@
 
     <button type="button" class="btn-submit" (click)="confirm()" [disabled]="isLoading">
       <span class="spinner-ring" *ngIf="isLoading"></span>
-      <span>{{ isLoading ? 'Chargement...' : 'Confirmer mon rôle' }}</span>
+      <span>{{ isLoading ? 'Loading...' : 'Confirm my role' }}</span>
     </button>
 
   </div>

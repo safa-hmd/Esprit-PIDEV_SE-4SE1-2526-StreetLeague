@@ -9,7 +9,7 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
   return password === confirmPassword ? null : { passwordMismatch: true };
 };
 
-type Role = 'PLAYER' | 'ADMIN' | 'COACH' | 'SPONSOR' | 'DELIVERY';
+type Role = 'PLAYER' |  'COACH' | 'SPONSOR' | 'DELIVERY';
 
 @Component({
   selector: 'app-register',
@@ -29,7 +29,6 @@ export class RegisterComponent {
 
   private roleLabels: Record<Role, string> = {
     PLAYER:   'Joueur',
-    ADMIN:    'Admin',
     COACH:    'Coach',
     SPONSOR:  'Sponsor',
     DELIVERY: 'Livraison',
@@ -37,7 +36,6 @@ export class RegisterComponent {
 
   private emailPlaceholders: Record<Role, string> = {
     PLAYER:   'joueur@streetleague.com',
-    ADMIN:    'admin@streetleague.com',
     COACH:    'coach@streetleague.com',
     SPONSOR:  'sponsor@streetleague.com',
     DELIVERY: 'livreur@streetleague.com',

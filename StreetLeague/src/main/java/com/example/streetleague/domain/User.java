@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -55,5 +56,9 @@ public class User {
     @JsonIgnore
     List<Match> createdMatches;
 
-    // getIdUser() est maintenant généré automatiquement par Lombok @Getter
+    @Column(name = "reset_token")
+    String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    LocalDateTime resetTokenExpiry;
 }

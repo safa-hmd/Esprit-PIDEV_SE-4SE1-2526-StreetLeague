@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
-type Role = 'PLAYER' | 'ADMIN' | 'COACH' | 'SPONSOR' | 'DELIVERY';
+type Role = 'PLAYER' |  'COACH' | 'SPONSOR' | 'DELIVERY';
 
 @Component({
   selector: 'app-login',
@@ -16,23 +16,19 @@ export class LoginComponent {
   isLoading    = false;
   errorMessage = '';
 
-  // Labels affichés dans le bouton
-  private roleLabels: Record<Role, string> = {
-    PLAYER:   'Joueur',
-    ADMIN:    'Admin',
-    COACH:    'Coach',
-    SPONSOR:  'Sponsor',
-    DELIVERY: 'Livraison',
-  };
+private roleLabels: Record<Role, string> = {
+  PLAYER:   'Player',
+  COACH:    'Coach',
+  SPONSOR:  'Sponsor',
+  DELIVERY: 'Delivery',
+};
 
-  // Placeholder email selon le rôle
-  private emailPlaceholders: Record<Role, string> = {
-    PLAYER:   'joueur@streetleague.com',
-    ADMIN:    'admin@streetleague.com',
-    COACH:    'coach@streetleague.com',
-    SPONSOR:  'sponsor@streetleague.com',
-    DELIVERY: 'livreur@streetleague.com',
-  };
+private emailPlaceholders: Record<Role, string> = {
+  PLAYER:   'player@streetleague.com',
+  COACH:    'coach@streetleague.com',
+  SPONSOR:  'sponsor@streetleague.com',
+  DELIVERY: 'delivery@streetleague.com',
+};
 
   get roleLabel():        string { return this.roleLabels[this.selectedRole]; }
   get emailPlaceholder(): string { return this.emailPlaceholders[this.selectedRole]; }
@@ -83,9 +79,6 @@ export class LoginComponent {
 
   private redirectByRole(role: string) {
     switch (role) {
-      case 'ROLE_ADMIN':
-        this.router.navigateByUrl('/admin');
-        break;
       case 'ROLE_COACH':
         this.router.navigateByUrl('/coach');   
         break;

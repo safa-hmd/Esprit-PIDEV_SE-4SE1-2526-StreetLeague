@@ -57,20 +57,10 @@ describe('LoginComponent', () => {
 
   // ── selectRole ────────────────────────────────────────────
 
-  it('selectRoleTest — should change selectedRole', () => {
-    component.selectRole('ADMIN');
-    expect(component.selectedRole).toBe('ADMIN');
-  });
-
   it('selectRoleTest — should clear errorMessage', () => {
     component.errorMessage = 'some error';
     component.selectRole('COACH');
     expect(component.errorMessage).toBe('');
-  });
-
-  it('selectRoleTest — should update roleLabel', () => {
-    component.selectRole('ADMIN');
-    expect(component.roleLabel).toBe('Admin');
   });
 
   it('selectRoleTest — should update emailPlaceholder', () => {
@@ -85,11 +75,6 @@ describe('LoginComponent', () => {
     expect(component.roleLabel).toBe('Joueur');
   });
 
-  it('roleLabelTest — ADMIN returns Admin', () => {
-    component.selectedRole = 'ADMIN';
-    expect(component.roleLabel).toBe('Admin');
-  });
-
   it('roleLabelTest — COACH returns Coach', () => {
     component.selectedRole = 'COACH';
     expect(component.roleLabel).toBe('Coach');
@@ -100,11 +85,6 @@ describe('LoginComponent', () => {
   it('emailPlaceholderTest — PLAYER returns joueur@streetleague.com', () => {
     component.selectedRole = 'PLAYER';
     expect(component.emailPlaceholder).toBe('joueur@streetleague.com');
-  });
-
-  it('emailPlaceholderTest — ADMIN returns admin@streetleague.com', () => {
-    component.selectedRole = 'ADMIN';
-    expect(component.emailPlaceholder).toBe('admin@streetleague.com');
   });
 
   // ── Form validation ───────────────────────────────────────
@@ -178,17 +158,6 @@ describe('LoginComponent', () => {
 
   // ── redirectByRole ────────────────────────────────────────
 
-  it('redirectByRoleTest — ROLE_ADMIN navigates to /admin', () => {
-    authServiceSpy.login.and.returnValue(of({
-      token: 'abc', email: 'admin@test.com', role: 'ROLE_ADMIN'
-    } as any));
-    const navigateSpy = spyOn(router, 'navigateByUrl');
-    component.loginForm.setValue({
-      email: 'admin@test.com', password: '123456'
-    });
-    component.onSubmit();
-    expect(navigateSpy).toHaveBeenCalledWith('/admin');
-  });
 
   it('redirectByRoleTest — ROLE_COACH navigates to /coach', () => {
     authServiceSpy.login.and.returnValue(of({

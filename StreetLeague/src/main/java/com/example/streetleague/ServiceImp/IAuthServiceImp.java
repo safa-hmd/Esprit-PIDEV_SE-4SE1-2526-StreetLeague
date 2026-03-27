@@ -3,13 +3,11 @@ package com.example.streetleague.ServiceImp;
 import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.IAuthService;
 import com.example.streetleague.domain.User;
-import com.example.streetleague.dto.AuthResponse;
-import com.example.streetleague.dto.CompleteGoogleRegisterRequest;
-import com.example.streetleague.dto.LoginRequest;
-import com.example.streetleague.dto.RegisterRequest;
+import com.example.streetleague.dto.*;
 import com.example.streetleague.security.CustomUserDetailsService;
 import com.example.streetleague.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,12 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Étape 10 : Implémentation du service d'authentification
- * Contient toute la logique métier : register, login, forgotPassword, resetPassword, editProfile
- */
 @Service
 @RequiredArgsConstructor
 public class IAuthServiceImp implements IAuthService {
@@ -36,7 +31,8 @@ public class IAuthServiceImp implements IAuthService {
     private final CustomUserDetailsService userDetailsService;
     private final JwtService jwtService;
 
-
+    private static final String FRONTEND_URL = "http://localhost:4200";
+    private final EmailService emailService;
 
     @Override
     public User register(RegisterRequest req) {
@@ -122,6 +118,48 @@ public class IAuthServiceImp implements IAuthService {
 
         return new AuthResponse(token, user.getEmail(), "ROLE_" + user.getRole().name(), user.getIdUser());
     }
+
+    @Override
+    public void forgotPassword(ForgotPasswordRequest req) {
+        Optional<User> optUser = userRepository.findByEmail(req.email());
+        if (optUser.isEmpty()) return;
+
+        User user = optUser.get();
+
+        String token = UUID.randomUUID().toString();
+        user.setResetToken(token);
+        user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(30));
+        userRepository.save(user);
+
+        String resetLink = FRONTEND_URL + "/reset-password?token=" + token;  // ✅ ici
+
+        try {
+            emailService.sendResetEmail(user.getEmail(), resetLink);
+        } catch (Exception e) {
+            System.out.println("⚠️ Email non envoyé: " + e.getMessage());
+            System.out.println(">>> RESET LINK: " + resetLink);
+        }
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest req) {
+        User user = userRepository.findByResetToken(req.token())
+                .orElseThrow(() -> new IllegalArgumentException("Token invalide"));
+
+        if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Token expiré");
+        }
+
+        if (req.newPassword() == null || req.newPassword().length() < 6) {
+            throw new IllegalArgumentException("Le mot de passe doit contenir au moins 6 caractères");
+        }
+
+        user.setPassword(passwordEncoder.encode(req.newPassword()));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        userRepository.save(user);
+    }
+
 
 
 }

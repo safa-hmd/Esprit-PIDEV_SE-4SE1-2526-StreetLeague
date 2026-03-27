@@ -1,10 +1,8 @@
 package com.example.streetleague.Controller;
 
+import com.example.streetleague.ServiceImp.EmailService;
 import com.example.streetleague.ServiceInterface.IAuthService;
-import com.example.streetleague.dto.AuthResponse;
-import com.example.streetleague.dto.CompleteGoogleRegisterRequest;
-import com.example.streetleague.dto.LoginRequest;
-import com.example.streetleague.dto.RegisterRequest;
+import com.example.streetleague.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final IAuthService authService;
+    private final EmailService emailService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
@@ -34,5 +33,18 @@ public class AuthController {
         AuthResponse response = authService.completeGoogleRegister(req);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest req) {
+        authService.forgotPassword(req);
+        return ResponseEntity.ok("Email de réinitialisation envoyé");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest req) {
+        authService.resetPassword(req);
+        return ResponseEntity.ok("Mot de passe réinitialisé avec succès");
+    }
+
 }
 

@@ -2,14 +2,14 @@ package com.example.streetleague.ServiceInterface;
 
 
 import com.example.streetleague.domain.User;
-import com.example.streetleague.dto.AuthResponse;
-import com.example.streetleague.dto.CompleteGoogleRegisterRequest;
-import com.example.streetleague.dto.LoginRequest;
-import com.example.streetleague.dto.RegisterRequest;
+import com.example.streetleague.dto.*;
 
 public interface IAuthService {
     User register(RegisterRequest req);
 
     AuthResponse login(LoginRequest req);
     AuthResponse completeGoogleRegister(CompleteGoogleRegisterRequest req);
+
+    void forgotPassword(ForgotPasswordRequest req);
+    void resetPassword(ResetPasswordRequest req);
 }

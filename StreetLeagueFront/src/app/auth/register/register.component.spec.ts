@@ -56,11 +56,6 @@ describe('RegisterComponent', () => {
     expect(component.selectedRole).toBe('COACH');
   });
 
-  it('selectRoleTest — should clear errorMessage', () => {
-    component.errorMessage = 'some error';
-    component.selectRole('ADMIN');
-    expect(component.errorMessage).toBe('');
-  });
 
   it('selectRoleTest — should update roleLabel', () => {
     component.selectRole('SPONSOR');

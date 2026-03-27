@@ -18,10 +18,10 @@ export class SelectRoleComponent implements OnInit {
   errorMessage = '';
 
   roles: { value: Role; label: string; emoji: string }[] = [
-    { value: 'PLAYER',   label: 'Joueur',    emoji: '👤' },
+    { value: 'PLAYER',   label: 'Player',    emoji: '👤' },
     { value: 'COACH',    label: 'Coach',     emoji: '🎯' },
     { value: 'SPONSOR',  label: 'Sponsor',   emoji: '💼' },
-    { value: 'DELIVERY', label: 'Livraison', emoji: '🚚' },
+    { value: 'DELIVERY', label: 'Delivery', emoji: '🚚' },
   ];
 
   constructor(

@@ -8,6 +8,9 @@ import { RegisterComponent } from './register/register.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SelectRoleComponent } from './select-role/select-role.component';
 import { OAuth2CallbackComponent } from './oauth2-callback/oauth2-callback.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { AdminLoginComponent } from './admin-login/admin-login.component';
 
 
 @NgModule({
@@ -16,7 +19,10 @@ import { OAuth2CallbackComponent } from './oauth2-callback/oauth2-callback.compo
     LoginComponent,
     RegisterComponent,
     SelectRoleComponent,
-    OAuth2CallbackComponent
+    OAuth2CallbackComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent,
+    AdminLoginComponent
   ],
   imports: [
     CommonModule,
