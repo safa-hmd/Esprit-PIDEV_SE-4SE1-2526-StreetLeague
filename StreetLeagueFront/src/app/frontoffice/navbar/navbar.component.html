@@ -1,49 +1,85 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StreetLeague – Accueil</title>
-
-
-
-
-</head>
-<body>
-
-  <!-- NAVBAR -->
-  <nav class="navbar">
-    <div class="navbar-inner">
-      <a href="index.html" class="navbar-logo">
-        <div class="navbar-logo-icon">
-          <svg viewBox="0 0 24 24" fill="white"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-        </div>
-        <span class="navbar-logo-text">Street<span>League</span></span>
-      </a>
-      <div class="navbar-links" id="navLinks">
-        <a routerLink="home" class="nav-link active">Home</a>
-        <a routerLink="team" class="nav-link">Teams</a>
-         <a routerLink="training" class="nav-link">Training</a>
-        <a routerLink="tournaments" class="nav-link">Tournaments</a>
-        <a routerLink="fields" class="nav-link">Fields</a>
-       
-        <a routerLink="community" class="nav-link">Community</a>
-        <a routerLink="shop" class="nav-link">Shop</a>
-        <a routerLink="health" class="nav-link">Health</a>
-        <a routerLink="transport" class="nav-link">Transport</a>
-        <a routerLink="accommodation" class="nav-link">Lodging</a>
-        <a routerLink="news" class="nav-link">News</a>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a routerLink="/home" class="navbar-logo">
+      <div class="navbar-logo-icon">
+        <svg viewBox="0 0 24 24" fill="white">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+        </svg>
       </div>
-      <div class="navbar-actions">
-        <span class="navbar-user" id="userName">Player</span>
-        <button class="btn-logout" id="logoutBtn">Logout</button>
-        <button class="navbar-mobile-btn" id="mobileMenuBtn">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-      </div>
+      <span class="navbar-logo-text">Street<span>League</span></span>
+    </a>
+
+    <div class="navbar-links" [class.open]="menuOpen">
+      <a routerLink="home"          routerLinkActive="active" class="nav-link">Home</a>
+      <a routerLink="team"          routerLinkActive="active" class="nav-link">Teams</a>
+      <a routerLink="training"      routerLinkActive="active" class="nav-link">Training</a>
+      <a routerLink="tournaments"   routerLinkActive="active" class="nav-link">Tournaments</a>
+      <a routerLink="fields"        routerLinkActive="active" class="nav-link">Fields</a>
+      <a routerLink="community"     routerLinkActive="active" class="nav-link">Community</a>
+      <a routerLink="shop"          routerLinkActive="active" class="nav-link">Shop</a>
+      <a routerLink="health"        routerLinkActive="active" class="nav-link">Health</a>
+      <a routerLink="transport"     routerLinkActive="active" class="nav-link">Transport</a>
+      <a routerLink="accommodation" routerLinkActive="active" class="nav-link">Lodging</a>
+      <a routerLink="news"          routerLinkActive="active" class="nav-link">News</a>
     </div>
 
-  </nav>
+    <div class="navbar-actions">
 
-</body>
-</html>
+      <!-- ACCOUNT DROPDOWN -->
+      <div class="account-menu" (click)="toggleDropdown()" [class.open]="dropdownOpen">
+
+        <!-- Trigger : avatar + nom + chevron -->
+        <div class="account-trigger">
+          <div class="account-avatar">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+          </div>
+          <div class="account-info">
+            <span class="account-name">{{ userName }}</span>
+            <span class="account-role">{{ userRole }}</span>
+          </div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </div>
+
+        <!-- Dropdown Panel -->
+        <div class="account-dropdown" (click)="$event.stopPropagation()">
+          <hr class="dropdown-divider"/>
+          <a routerLink="profile" class="dropdown-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+            Mon Profil
+          </a>
+          <a routerLink="/settings" class="dropdown-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            Paramètres
+          </a>
+          <hr class="dropdown-divider"/>
+          <button class="dropdown-item logout" (click)="logout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Déconnexion
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button class="navbar-mobile-btn" (click)="toggleMenu()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>

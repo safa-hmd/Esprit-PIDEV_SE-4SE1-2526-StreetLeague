@@ -5,10 +5,11 @@ import { BackofficeRoutingModule } from './backoffice-routing.module';
 import { BackofficeComponent } from './backoffice.component';
 import { HeaderComponent } from './header/header.component';
 import { MenuComponent } from './menu/menu.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ListTeamsComponent } from './list-teams/list-teams.component';
 import { ListTrainingComponent } from './list-training/list-training.component';
 import { HomeComponent } from './home/home.component';
+import { PlayerProfileComponent } from './player-profile/player-profile.component';
 
 
 
@@ -19,7 +20,8 @@ import { HomeComponent } from './home/home.component';
     MenuComponent,
     ListTeamsComponent,
     ListTrainingComponent,
-    HomeComponent
+    HomeComponent,
+    PlayerProfileComponent
 
   
 
@@ -27,7 +29,10 @@ import { HomeComponent } from './home/home.component';
   imports: [
     CommonModule,
     BackofficeRoutingModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ]
 })
-export class BackofficeModule { }
+export class BackofficeModule { 
+  
+}

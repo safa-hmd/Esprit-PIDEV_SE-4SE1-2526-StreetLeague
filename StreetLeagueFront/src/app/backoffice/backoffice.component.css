@@ -1,0 +1,5 @@
+.admin-content {
+  background: #121212;
+  flex: 1;
+  overflow-y: auto;
+}

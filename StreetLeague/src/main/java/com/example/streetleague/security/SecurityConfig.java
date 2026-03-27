@@ -56,6 +56,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()          // ✅ couvre /auth/complete-google-register
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                        .requestMatchers("/user/profile").authenticated()
                         .requestMatchers("/team/add", "/team/update/**").hasAnyRole("PLAYER", "COACH")
                         .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
                         .requestMatchers("/team/showTeams", "/team/showTeamById/**", "/team/myTeams").permitAll()

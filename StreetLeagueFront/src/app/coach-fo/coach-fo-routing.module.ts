@@ -7,6 +7,7 @@ import { DetailTeamComponent } from './detail-team/detail-team.component';
 import { DetailMatchComponent } from './detail-match/detail-match.component'; 
 import { DetailTrainingComponent } from './detail-training/detail-training.component';
 import { HomeComponent } from './home/home.component';
+import { PlayerProfileComponent } from './player-profile/player-profile.component';
 
 const routes: Routes = [{ path: '', component: CoachFOComponent,   
     children: [                      
@@ -16,7 +17,8 @@ const routes: Routes = [{ path: '', component: CoachFOComponent,
       {path: 'trainingCoach', component: TrainingsComponent },
       { path: 'detail-team/:id',  component: DetailTeamComponent },  
     { path: 'detail-match/:id', component: DetailMatchComponent },
-    { path: 'detail-training/:id', component: DetailTrainingComponent }
+    { path: 'detail-training/:id', component: DetailTrainingComponent },
+    { path: 'profile', component: PlayerProfileComponent },
       
     ]
   }

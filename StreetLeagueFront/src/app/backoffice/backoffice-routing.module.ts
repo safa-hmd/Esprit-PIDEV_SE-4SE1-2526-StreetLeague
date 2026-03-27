@@ -4,6 +4,7 @@ import { BackofficeComponent } from './backoffice.component';
 import { ListTeamsComponent } from './list-teams/list-teams.component';
 import { ListTrainingComponent } from './list-training/list-training.component';
 import { HomeComponent } from './home/home.component';
+import { PlayerProfileComponent } from './player-profile/player-profile.component';
 
 
 const routes: Routes = [{ path: '', component: BackofficeComponent,   
@@ -11,7 +12,8 @@ const routes: Routes = [{ path: '', component: BackofficeComponent,
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       {path: 'home', component: HomeComponent},
       { path: 'teamAdmin', component: ListTeamsComponent},
-      {path: 'trainingAdmin', component: ListTrainingComponent}
+      {path: 'trainingAdmin', component: ListTrainingComponent},
+      { path: 'profile', component: PlayerProfileComponent },
       
     ]
   }
