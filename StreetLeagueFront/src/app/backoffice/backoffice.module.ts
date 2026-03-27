@@ -11,6 +11,7 @@ import { ListTeamsComponent } from './list-teams/list-teams.component';
 import { ListTrainingComponent } from './list-training/list-training.component';
 import { HomeComponent } from './home/home.component';
 import { TournamentComponent } from './tournaments/tournaments.component';
+import { FieldReservationComponent } from './field-reservation/field-reservation.component';
 
 
 @NgModule({
@@ -22,6 +23,8 @@ import { TournamentComponent } from './tournaments/tournaments.component';
     ListTrainingComponent,
     HomeComponent,
     TournamentComponent,
+    FieldReservationComponent,
+    
 
   
 

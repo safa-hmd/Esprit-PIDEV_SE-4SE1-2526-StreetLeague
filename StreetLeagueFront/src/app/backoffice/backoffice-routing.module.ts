@@ -5,6 +5,7 @@ import { ListTeamsComponent } from './list-teams/list-teams.component';
 import { ListTrainingComponent } from './list-training/list-training.component';
 import { HomeComponent } from './home/home.component';
 import { TournamentComponent } from './tournaments/tournaments.component';
+import { FieldReservationComponent } from './field-reservation/field-reservation.component';
 
 
 const routes: Routes = [{ path: '', component: BackofficeComponent,   
@@ -13,7 +14,8 @@ const routes: Routes = [{ path: '', component: BackofficeComponent,
       {path: 'home', component: HomeComponent},
       { path: 'teamAdmin', component: ListTeamsComponent},
       {path: 'trainingAdmin', component: ListTrainingComponent},
-      { path: 'tournaments', component: TournamentComponent }
+      { path: 'tournaments', component: TournamentComponent },
+      { path: 'field-reservation', component: FieldReservationComponent }
       
     ]
   }

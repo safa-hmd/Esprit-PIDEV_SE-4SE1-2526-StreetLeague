@@ -13,6 +13,7 @@ import { DetailMatchComponent } from './detail-match/detail-match.component';
 import { HomeComponent } from './home/home.component';
 import { DetailTeamComponent } from './detail-team/detail-team.component';
 import { TournamentsComponent } from './tournaments/tournaments.component';
+import { FieldReservationComponent } from './field-reservation/field-reservation.component';
 
 
 @NgModule({
@@ -25,16 +26,15 @@ import { TournamentsComponent } from './tournaments/tournaments.component';
     DetailMatchComponent,
     HomeComponent,
     DetailTeamComponent,
-    TournamentsComponent
-
+    TournamentsComponent,
+    FieldReservationComponent,
   ],
   imports: [
     CommonModule,
     FrontofficeRoutingModule,
     ReactiveFormsModule,
     HttpClientModule,
-    FormsModule, 
-    CommonModule,
+    FormsModule,
   ]
 })
 export class FrontofficeModule { }

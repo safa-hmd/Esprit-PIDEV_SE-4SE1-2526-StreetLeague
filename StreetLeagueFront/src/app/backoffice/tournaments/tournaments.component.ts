@@ -233,4 +233,41 @@ export class TournamentComponent implements OnInit, OnDestroy {
 
   trackById(_: number, t: TournamentDto) { return t.id; }
   trackByRegId(_: number, r: TournamentRegistrationDto) { return r.id; }
+ // ─────────────────────────────────────────────────────────────────────────────
+// MÉTHODES À AJOUTER dans tournament.component.ts
+// Colle ces méthodes dans la section "── Helpers ──" (à la fin de la classe)
+// NE SUPPRIME RIEN D'EXISTANT — ajoute juste ces méthodes
+// ─────────────────────────────────────────────────────────────────────────────
+
+  // ── Stats pour la ligne de KPIs ───────────────────────────────────────────
+  getTotalRegistered(): number {
+    return this.allTournaments.reduce((sum, t) => sum + (t.registeredCount ?? 0), 0);
+  }
+
+  getTotalPrize(): number {
+    return this.allTournaments.reduce((sum, t) => sum + (t.prizePool ?? 0), 0);
+  }
+
+  getCountByStatus(status: TournamentStatus): number {
+    return this.allTournaments.filter(t => t.status === status).length;
+  }
+
+  // ── Classes CSS dynamiques ─────────────────────────────────────────────────
+  getStatusClass(status: TournamentStatus): string {
+    const map: Record<TournamentStatus, string> = {
+      'UPCOMING':  'status-upcoming',
+      'ONGOING':   'status-ongoing',
+      'COMPLETED': 'status-completed',
+      'CANCELLED': 'status-cancelled',
+    };
+    return map[status] ?? '';
+  }
+
+  getProgressClass(pct: number): string {
+    if (pct >= 100) return 'progress-full';
+    if (pct >= 75)  return 'progress-high';
+    if (pct >= 40)  return 'progress-mid';
+    return 'progress-low';
+  }
+
 }

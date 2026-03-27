@@ -102,4 +102,5 @@ export class AuthService {
   getEmail(): string | null {
     return localStorage.getItem('EmailUserConnect');
   }
+
 }
