@@ -54,4 +54,5 @@ export interface TrainingResponse {
   status: TrainingStatus;
   teamName: string;
   participantCount: number;
+   participantEmails: string[]; 
 }
