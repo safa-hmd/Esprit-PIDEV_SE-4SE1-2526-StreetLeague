@@ -1,0 +1,224 @@
+/* ===== DARK MODE VARIABLES ===== */
+:host {
+  --bg-primary: #0f0f13;
+  --bg-secondary: #1a1a24;
+  --bg-card: #1e1e2a;
+  --bg-card-hover: #252535;
+  --border-color: #2a2a3a;
+  --border-hover: rgba(230,25,32,0.4);
+  --text-primary: #f0f0f5;
+  --text-secondary: #9090a8;
+  --text-muted: #606078;
+  --red: #E61920;
+  --red-glow: rgba(230,25,32,0.15);
+  display: block;
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+.admin-main-inner {
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+/* ===== SECTION DIVIDER ===== */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 1.75rem 0;
+}
+
+/* ===== STAT CARDS RAPPELS ===== */
+.reminder-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.reminder-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.reminder-stat-card:hover {
+  border-color: var(--border-hover);
+}
+
+.reminder-stat-icon {
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.reminder-stat-val {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.reminder-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ===== CHARTS ===== */
+.health-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.health-chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.health-section-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+}
+
+.health-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.health-chart-legend span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.health-chart-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ===== BADGES ===== */
+.badge-active {
+  background: var(--red-glow);
+  color: #1D9E75;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-inactive {
+  background: rgba(144, 144, 168, 0.1);
+  color: var(--text-secondary);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ===== USER CELL ===== */
+.health-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.health-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--red-glow);
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+/* ===== COUNT BADGE ===== */
+.health-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--red-glow);
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 999px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* ===== LOADING ===== */
+.health-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.health-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== EMPTY STATE ===== */
+.health-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .reminder-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .health-charts-grid  { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .reminder-stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ===== TEXT COLOR OVERRIDES ===== */
+.page-title-admin,
+.a-card-title,
+.a-stat-val,
+.a-table thead th,
+.a-table tbody td {
+  color: var(--text-primary) !important;
+}
+
+.page-subtitle-admin,
+.a-stat-label {
+  color: var(--text-secondary) !important;
+}

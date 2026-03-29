@@ -83,7 +83,7 @@ export class LoginComponent {
 
   private redirectByRole(role: string) {
     switch (role) {
-      case 'ADMIN':
+      case 'ROLE_ADMIN':
         this.router.navigateByUrl('/admin');
         break;
       case 'ROLE_COACH':

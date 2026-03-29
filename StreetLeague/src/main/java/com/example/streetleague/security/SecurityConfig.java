@@ -4,6 +4,7 @@ import com.example.streetleague.security.jwt.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -75,8 +76,24 @@ public class SecurityConfig {
                         // Endpoints publics (login, register, forgot/reset password)
                         .requestMatchers("/auth/**").permitAll()
                         // Endpoints protégés par rôle
-                        .requestMatchers("/student/**").hasRole("STUDENT")
-                        .requestMatchers("/teacher/**").hasRole("TEACHER")
+                        // Posts
+                        .requestMatchers(HttpMethod.GET,    "/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/posts/like/**").hasRole("PLAYER")
+                        .requestMatchers(HttpMethod.POST,   "/posts/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,    "/posts/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/posts/**").hasRole("ADMIN")
+
+
+                        // Comments - PLAYER
+                        .requestMatchers(HttpMethod.GET,    "/comments/**").hasAnyRole("ADMIN", "PLAYER") //
+                        .requestMatchers(HttpMethod.POST,   "/comments/**").hasRole("PLAYER")
+                        .requestMatchers(HttpMethod.PUT,    "/comments/**").hasRole("PLAYER")
+                        .requestMatchers(HttpMethod.DELETE, "/comments/**").hasRole("PLAYER")
+
+
+                        .requestMatchers("/water-reminders/**").hasRole("PLAYER")
+
+
                         // Tout autre endpoint nécessite une authentification
                         .anyRequest().authenticated()
                 )
@@ -96,7 +113,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         // Autoriser uniquement le frontend Angular
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
+        config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:59619"));
 
         // Méthodes HTTP autorisées (OPTIONS obligatoire pour les requêtes CORS preflight)
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

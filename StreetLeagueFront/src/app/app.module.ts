@@ -11,7 +11,7 @@ import { NavbarComponent } from './coach-fo/navbar/navbar.component';
 @NgModule({
   declarations: [
     AppComponent,
-    NavbarComponent,
+   
   ],
   imports: [
     BrowserModule,

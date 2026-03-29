@@ -17,7 +17,7 @@ public class JwtService {
     private final long expirationMs;
     public JwtService(
             @Value("${app.jwt.secret}") String secret,
-            @Value("${app.jwt.expiration-ms}") long expirationMs
+            @Value("86400000") long expirationMs
     ) {
         // Convertir la clé secrète en clé HMAC sécurisée
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
@@ -33,7 +33,7 @@ public class JwtService {
         String role = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
-                .orElse("ROLE_STUDENT");
+                .orElse("PLAYER");
 
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMs);

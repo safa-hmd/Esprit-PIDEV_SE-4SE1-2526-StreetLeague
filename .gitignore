@@ -1,0 +1,10 @@
+ 
+# Spring Boot
+StreetLeague/target/
+StreetLeague/*.jar
+StreetLeague/.mvn/
+
+# Angular
+StreetLeagueFront/node_modules/
+StreetLeagueFront/dist/
+StreetLeagueFront/.angular/

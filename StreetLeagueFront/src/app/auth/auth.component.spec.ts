@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { RouterTestingModule } from '@angular/router/testing';
 import { AuthComponent } from './auth.component';
 
 describe('AuthComponent', () => {
@@ -8,7 +8,8 @@ describe('AuthComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [AuthComponent]
+      declarations: [AuthComponent],
+      imports: [RouterTestingModule] // ← زيد
     });
     fixture = TestBed.createComponent(AuthComponent);
     component = fixture.componentInstance;

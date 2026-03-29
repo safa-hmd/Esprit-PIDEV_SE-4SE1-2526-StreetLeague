@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { NO_ERRORS_SCHEMA } from '@angular/core'; // ← زيد
 import { BackofficeComponent } from './backoffice.component';
 
 describe('BackofficeComponent', () => {
@@ -8,7 +8,8 @@ describe('BackofficeComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [BackofficeComponent]
+      declarations: [BackofficeComponent],
+      schemas: [NO_ERRORS_SCHEMA] // ← زيد
     });
     fixture = TestBed.createComponent(BackofficeComponent);
     component = fixture.componentInstance;

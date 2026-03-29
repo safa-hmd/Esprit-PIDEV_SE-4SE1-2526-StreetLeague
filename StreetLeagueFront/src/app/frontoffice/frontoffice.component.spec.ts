@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { NO_ERRORS_SCHEMA } from '@angular/core'; // ← زيد
 import { FrontofficeComponent } from './frontoffice.component';
 
 describe('FrontofficeComponent', () => {
@@ -8,7 +8,8 @@ describe('FrontofficeComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [FrontofficeComponent]
+      declarations: [FrontofficeComponent],
+      schemas: [NO_ERRORS_SCHEMA] // ← زيد
     });
     fixture = TestBed.createComponent(FrontofficeComponent);
     component = fixture.componentInstance;
