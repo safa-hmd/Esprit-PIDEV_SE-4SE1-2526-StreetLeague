@@ -1,24 +1,33 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { NoAuthGuard } from './no-auth.guard';
+import { AuthService } from '../services/auth.service';
 
 describe('NoAuthGuard', () => {
   let guard: NoAuthGuard;
   let routerSpy: jasmine.SpyObj<Router>;
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   beforeEach(() => {
-    routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
+    routerSpy      = jasmine.createSpyObj('Router',      ['navigateByUrl']);
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['getRole']);
 
+    // ✅ Fix 1 : retourner '' si null pour satisfaire le type string
+    authServiceSpy.getRole.and.callFake(() =>
+      localStorage.getItem('RoleUserConnect') ?? ''
+    );
+
+    // ✅ Fix 2 : pas de resetTestingModule → évite la re-résolution du vrai AuthService
     TestBed.configureTestingModule({
       providers: [
         NoAuthGuard,
-        { provide: Router, useValue: routerSpy },
+        { provide: Router,      useValue: routerSpy      },
+        { provide: AuthService, useValue: authServiceSpy },
       ]
     });
 
     guard = TestBed.inject(NoAuthGuard);
 
-    // Nettoyer localStorage avant chaque test
     localStorage.removeItem('TokenUserConnect');
     localStorage.removeItem('RoleUserConnect');
   });
