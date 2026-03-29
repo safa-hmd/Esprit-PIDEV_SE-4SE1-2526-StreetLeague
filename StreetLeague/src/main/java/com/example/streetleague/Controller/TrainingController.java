@@ -77,4 +77,12 @@ public class TrainingController {
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
         return trainingService.leaveTraining(idTraining, player.getIdUser());
     }
+
+    // GET /training/myTrainings?email=coach@mail.com
+    @GetMapping("myTrainings")
+    public List<TrainingResponse> getMyTrainings(@RequestParam String email) {
+        User coach = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        return trainingService.getTrainingsByCoach(coach.getIdUser());
+    }
 }

@@ -194,4 +194,15 @@ public class TrainingServiceImpl implements ItrainingService {
         training.getParticipants().remove(player);
         return TrainingResponse.fromEntity(trainingRepo.save(training));
     }
+
+
+    @Override
+    public List<TrainingResponse> getTrainingsByCoach(Long coachId) {
+        return trainingRepo.findAll().stream()
+                .filter(t -> t.getTeam() != null
+                        && t.getTeam().getCaptain() != null
+                        && t.getTeam().getCaptain().getIdUser().equals(coachId))
+                .map(TrainingResponse::fromEntity)
+                .toList();
+    }
 }

@@ -3,7 +3,7 @@ import { TeamService } from './team.service';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 describe('TeamService', () => {
-  let service: TeamService;
+  let service:  TeamService;
   let httpMock: HttpTestingController;
 
   const base = 'http://localhost:8086/StreetLeague/team';
@@ -16,7 +16,7 @@ describe('TeamService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports:   [HttpClientTestingModule],
       providers: [TeamService]
     });
     service  = TestBed.inject(TeamService);
@@ -57,6 +57,7 @@ describe('TeamService', () => {
 
     const req = httpMock.expectOne(`${base}/showTeamById/1`);
     expect(req.request.method).toBe('GET');
+    expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
     req.flush(mockTeam);
   });
 
@@ -72,6 +73,7 @@ describe('TeamService', () => {
     const req = httpMock.expectOne(`${base}/add?email=john@test.com`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(newTeam);
+    expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
     req.flush(mockTeam);
   });
 
@@ -98,6 +100,7 @@ describe('TeamService', () => {
     const req = httpMock.expectOne(`${base}/update/1?email=john@test.com`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(updatedTeam);
+    expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
     req.flush(mockTeam);
   });
 
@@ -110,5 +113,44 @@ describe('TeamService', () => {
     expect(req.request.method).toBe('POST');
     expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
     req.flush(mockTeam);
+  });
+
+  // ── leaveTeam ─────────────────────────────────────────────
+
+  it('leaveTeamTest — should call DELETE /team/1/leave', () => {
+    service.leaveTeam(1, 'john@test.com').subscribe();
+
+    const req = httpMock.expectOne(`${base}/1/leave?email=john@test.com`);
+    expect(req.request.method).toBe('DELETE');
+    expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
+    req.flush(null);
+  });
+
+  // ── getMyTeams ────────────────────────────────────────────
+
+  it('getMyTeamsTest — should call GET /team/my-teams with captainId', () => {
+    service.getMyTeams(42).subscribe(res => {
+      expect(res.length).toBe(1);
+      expect(res[0].name).toBe('Thunder FC');
+    });
+
+    const req = httpMock.expectOne(`${base}/my-teams?captainId=42`);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
+    req.flush([mockTeam]);
+  });
+
+  // ── getTeamsByCoach ───────────────────────────────────────
+
+  it('getTeamsByCoachTest — should call GET /team/myTeams with email from localStorage', () => {
+    service.getTeamsByCoach().subscribe(res => {
+      expect(res.length).toBe(1);
+      expect(res[0].name).toBe('Thunder FC');
+    });
+
+    const req = httpMock.expectOne(`${base}/myTeams?email=john@test.com`);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
+    req.flush([mockTeam]);
   });
 });

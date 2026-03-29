@@ -2,8 +2,10 @@ package com.example.streetleague.dto;
 
 import com.example.streetleague.Entity.Level;
 import com.example.streetleague.Entity.Team;
+import com.example.streetleague.domain.User;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record TeamResponse(
         Long idTeam,
@@ -15,7 +17,8 @@ public record TeamResponse(
         String captainEmail,
         Long captainId,
         String captainFullName,
-        int playerCount
+        int playerCount,
+        List<String> playerEmails
 ) {
     public static TeamResponse fromEntity(Team team) {
         return new TeamResponse(
@@ -28,7 +31,12 @@ public record TeamResponse(
                 team.getCaptain().getEmail(),
                 team.getCaptain().getIdUser(),
                 team.getCaptain().getFullName(),
-                team.getPlayers() == null ? 0 : team.getPlayers().size()
+                team.getPlayers() == null ? 0 : team.getPlayers().size(),
+                team.getPlayers() != null                          // ← null check
+                        ? team.getPlayers().stream()
+                        .map(User::getEmail)
+                        .toList()
+                        : List.of()
         );
     }
 }

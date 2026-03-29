@@ -28,17 +28,17 @@ export class RegisterComponent {
   strengthLabel = '';
 
   private roleLabels: Record<Role, string> = {
-    PLAYER:   'Joueur',
+    PLAYER:   'Player',
     COACH:    'Coach',
     SPONSOR:  'Sponsor',
-    DELIVERY: 'Livraison',
+    DELIVERY: 'Delivery',
   };
 
   private emailPlaceholders: Record<Role, string> = {
-    PLAYER:   'joueur@streetleague.com',
+    PLAYER:   'player@streetleague.com',
     COACH:    'coach@streetleague.com',
     SPONSOR:  'sponsor@streetleague.com',
-    DELIVERY: 'livreur@streetleague.com',
+    DELIVERY: 'delivery@streetleague.com',
   };
 
   get roleLabel():        string { return this.roleLabels[this.selectedRole]; }

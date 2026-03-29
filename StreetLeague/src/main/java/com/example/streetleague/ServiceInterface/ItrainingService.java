@@ -14,4 +14,5 @@ public interface ItrainingService {
     TrainingResponse ShowTraining(Long idTraining);
     TrainingResponse joinTraining(Long trainingId, Long playerId);
     TrainingResponse leaveTraining(Long trainingId, Long playerId);
+    List<TrainingResponse> getTrainingsByCoach(Long coachId);
 }
