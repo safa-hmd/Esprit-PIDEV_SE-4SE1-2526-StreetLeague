@@ -1,0 +1,201 @@
+<style>
+  :root { --red: #E61920; --red-dark: #990000; }
+
+  .card {
+    background: white; border-radius: 16px; width: 100%; max-width: 480px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4); overflow: hidden; margin: auto;
+  }
+  .card-head { padding: 2rem 2rem 1.5rem; text-align: center; border-bottom: 1px solid #f0f0f0; }
+  .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; color: #000; letter-spacing: -0.02em; }
+  .logo span { color: var(--red); }
+  .card-head h2 { font-size: 1.1rem; font-weight: 700; margin-top: 0.4rem; color: #111; }
+  .card-head p  { font-size: 0.88rem; color: #888; margin-top: 0.2rem; }
+  .card-body { padding: 2rem; }
+
+  .role-select {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .role-btn {
+    padding: 0.75rem 0.4rem; border: 2px solid #e5e5e5; border-radius: 10px;
+    text-align: center; cursor: pointer; transition: all 0.2s; background: white; width: 100%;
+  }
+  .role-btn:hover { border-color: var(--red); background: rgba(230,25,32,0.04); }
+  .role-btn.active { border-color: var(--red); background: rgba(230,25,32,0.08); }
+  .role-emoji { font-size: 1.4rem; display: block; margin-bottom: 0.25rem; }
+  .role-label { font-weight: 700; font-size: 0.72rem; color: #333; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-group { margin-bottom: 1rem; }
+  label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.35rem; color: #333; }
+
+  input[type=text], input[type=email], input[type=password] {
+    width: 100%; padding: 0.65rem 0.9rem; border: 1.5px solid #ddd; border-radius: 8px;
+    font-size: 0.9rem; background: #f8f8f8; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(230,25,32,0.1); background: white; }
+  input.input-error { border-color: #dc2626; }
+  .field-error { font-size: 0.75rem; color: #dc2626; margin-top: 0.3rem; display: block; }
+
+  .password-strength { margin-top: 0.4rem; height: 4px; border-radius: 4px; background: #eee; overflow: hidden; }
+  .strength-bar { height: 100%; width: 0; border-radius: 4px; transition: width 0.3s, background 0.3s; }
+
+  .error-msg {
+    background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.3);
+    color: #991b1b; border-radius: 8px; padding: 0.65rem 0.9rem;
+    font-size: 0.85rem; margin-bottom: 1rem;
+  }
+  .success-msg {
+    background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.3);
+    color: #166534; border-radius: 8px; padding: 0.65rem 0.9rem;
+    font-size: 0.85rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+  }
+
+  .terms { display: flex; align-items: flex-start; gap: 0.6rem; margin-bottom: 1rem; font-size: 0.82rem; color: #555; }
+  .terms input[type=checkbox] { width: 16px; height: 16px; min-width: 16px; margin-top: 2px; accent-color: var(--red); cursor: pointer; }
+  .terms-label { font-size: 0.82rem; font-weight: 400; color: #555; margin: 0; cursor: pointer; }
+  .terms a { color: var(--red); font-weight: 600; }
+
+  .btn-submit {
+    width: 100%; padding: 0.75rem; background: var(--red); color: white; border: none;
+    border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer;
+    transition: background 0.2s; margin-top: 0.5rem;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  .btn-submit:hover:not(:disabled) { background: var(--red-dark); }
+  .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; }
+
+  .spinner-ring {
+    width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .card-footer { padding: 1.25rem 2rem; text-align: center; border-top: 1px solid #f0f0f0; font-size: 0.88rem; color: #888; }
+  .card-footer a { color: var(--red); font-weight: 700; text-decoration: none; }
+  .card-footer a:hover { text-decoration: underline; }
+</style>
+
+<div class="card">
+
+  <!-- En-tête -->
+  <div class="card-head">
+    <div class="logo">Street<span>League</span></div>
+    <h2>Créer un compte</h2>
+    <p>Rejoignez la communauté StreetLeague</p>
+  </div>
+
+  <!-- Corps -->
+  <div class="card-body">
+
+    <!-- ── 5 Rôles ── -->
+    <div class="role-select">
+      <button type="button" class="role-btn" [class.active]="selectedRole === 'PLAYER'" (click)="selectRole('PLAYER')">
+        <span class="role-emoji">👤</span>
+        <span class="role-label">Joueur</span>
+      </button>
+      <button type="button" class="role-btn" [class.active]="selectedRole === 'ADMIN'" (click)="selectRole('ADMIN')">
+        <span class="role-emoji">🛡️</span>
+        <span class="role-label">Admin</span>
+      </button>
+      <button type="button" class="role-btn" [class.active]="selectedRole === 'COACH'" (click)="selectRole('COACH')">
+        <span class="role-emoji">🎯</span>
+        <span class="role-label">Coach</span>
+      </button>
+      <button type="button" class="role-btn" [class.active]="selectedRole === 'SPONSOR'" (click)="selectRole('SPONSOR')">
+        <span class="role-emoji">💼</span>
+        <span class="role-label">Sponsor</span>
+      </button>
+      <button type="button" class="role-btn" [class.active]="selectedRole === 'DELIVERY'" (click)="selectRole('DELIVERY')">
+        <span class="role-emoji">🚚</span>
+        <span class="role-label">Livraison</span>
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div class="error-msg"   *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="success-msg" *ngIf="successMessage">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+      </svg>
+      {{ successMessage }}
+    </div>
+
+    <!-- Formulaire -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- Prénom + Nom -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">Prénom</label>
+          <input type="text" id="firstName" formControlName="firstName" placeholder=""
+            [class.input-error]="f['firstName'].invalid && f['firstName'].touched" />
+          <small class="field-error" *ngIf="f['firstName'].invalid && f['firstName'].touched">Prénom requis.</small>
+        </div>
+        <div class="form-group">
+          <label for="lastName">Nom</label>
+          <input type="text" id="lastName" formControlName="lastName" placeholder=""
+            [class.input-error]="f['lastName'].invalid && f['lastName'].touched" />
+          <small class="field-error" *ngIf="f['lastName'].invalid && f['lastName'].touched">Nom requis.</small>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" formControlName="email" [placeholder]="emailPlaceholder"
+          [class.input-error]="f['email'].invalid && f['email'].touched" />
+        <small class="field-error" *ngIf="f['email'].invalid && f['email'].touched">Adresse email invalide.</small>
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" formControlName="password" placeholder="••••••••"
+          [class.input-error]="f['password'].invalid && f['password'].touched"
+          (input)="checkStrength($any($event.target).value)" />
+        <div class="password-strength">
+          <div class="strength-bar" [style.width]="strengthWidth" [style.background]="strengthColor"></div>
+        </div>
+        <small [style.color]="strengthColor" *ngIf="strengthLabel">{{ strengthLabel }}</small>
+        <small class="field-error" *ngIf="f['password'].invalid && f['password'].touched">
+          Minimum 6 caractères.
+        </small>
+      </div>
+
+      <!-- Confirmer mot de passe -->
+      <div class="form-group">
+        <label for="confirmPassword">Confirmer le mot de passe</label>
+        <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="••••••••"
+          [class.input-error]="f['confirmPassword'].touched && registerForm.hasError('passwordMismatch')" />
+        <small class="field-error"
+          *ngIf="f['confirmPassword'].touched && registerForm.hasError('passwordMismatch')">
+          Les mots de passe ne correspondent pas.
+        </small>
+      </div>
+
+      <!-- CGU -->
+      <div class="terms">
+        <input type="checkbox" id="terms" formControlName="terms" />
+        <label for="terms" class="terms-label">
+          J'accepte les <a href="#">conditions d'utilisation</a> et la <a href="#">politique de confidentialité</a>
+        </label>
+      </div>
+
+      <!-- Bouton -->
+      <button type="submit" class="btn-submit" [disabled]="registerForm.invalid || isLoading">
+        <span class="spinner-ring" *ngIf="isLoading"></span>
+        <span>{{ isLoading ? 'Création du compte…' : 'Créer mon compte ' + roleLabel }}</span>
+      </button>
+
+    </form>
+  </div>
+
+  <!-- Footer -->
+  <div class="card-footer">
+    Déjà un compte ? <a routerLink="/login">Se connecter</a>
+  </div>
+
+</div>

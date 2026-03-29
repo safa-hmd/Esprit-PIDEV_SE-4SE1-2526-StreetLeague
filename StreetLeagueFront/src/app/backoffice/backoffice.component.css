@@ -1,0 +1,33 @@
+/* Layout global */
+.admin-layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  height: 70px;
+  flex-shrink: 0;
+}
+
+/* Zone sous le header */
+.main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Sidebar gauche */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+}
+
+/* Contenu pages */
+.content {
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto;
+  background: #f4f6f9;
+}

@@ -1,0 +1,102 @@
+<style>
+  .cart-table{width:100%;border-collapse:collapse;}
+  .cart-table th{text-align:left;padding:0.75rem 1rem;font-size:0.8rem;text-transform:uppercase;color:#888;border-bottom:2px solid #eee;}
+  .cart-table td{padding:0.85rem 1rem;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+  .cart-table tr:hover td{background:#fafafa;}
+  .cart-total-box{background:white;border:1.5px solid #eee;border-radius:12px;padding:1.5rem;max-width:340px;margin-left:auto;}
+  .cart-total-row{display:flex;justify-content:space-between;margin-bottom:0.5rem;font-size:0.9rem;}
+  .cart-total-row.total{font-size:1.1rem;font-weight:800;border-top:2px solid #eee;padding-top:0.75rem;margin-top:0.75rem;}
+  .alert{padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;}
+  .alert-success{background:#d1fae5;color:#065f46;}
+  .alert-error{background:#fee2e2;color:#991b1b;}
+  .empty-cart{text-align:center;padding:4rem 2rem;color:#999;}
+  .empty-cart div{font-size:3rem;margin-bottom:1rem;}
+  .btn-danger{background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:0.35rem 0.75rem;cursor:pointer;font-size:0.8rem;}
+  .btn-danger:hover{background:#fca5a5;}
+</style>
+
+<div class="page-content">
+  <div class="page-header">
+    <h1 class="page-title">Mon Panier</h1>
+    <p class="page-subtitle">Vérifiez votre sélection avant de commander</p>
+  </div>
+
+  <div class="alert alert-success" *ngIf="successMsg">{{ successMsg }}</div>
+  <div class="alert alert-error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" style="text-align:center;padding:3rem;color:#999;">
+    Chargement du panier...
+  </div>
+
+  <!-- Panier vide -->
+  <div class="empty-cart" *ngIf="!loading && (!panier || panier.lignes.length === 0)">
+    <div>🛒</div>
+    <p>Votre panier est vide.</p>
+    <a routerLink="/client/shop" class="btn btn-primary">Continuer les achats</a>
+  </div>
+
+  <!-- Panier avec articles -->
+  <div *ngIf="!loading && panier && panier.lignes.length > 0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <span style="font-size:0.9rem;color:#666;">{{ panier.lignes.length }} article(s)</span>
+      <button class="btn-danger" (click)="clearCart()">🗑 Vider le panier</button>
+    </div>
+
+    <div style="background:white;border:1.5px solid #eee;border-radius:12px;overflow:hidden;margin-bottom:1.5rem;">
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Prix unitaire</th>
+            <th>Quantité</th>
+            <th>Sous-total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ligne of panier.lignes">
+            <td>
+              <strong>{{ ligne.materielNom }}</strong>
+            </td>
+            <td>{{ ligne.prix | number:'1.2-2' }} TND</td>
+            <td>
+              <span style="background:#f5f5f5;padding:0.25rem 0.75rem;border-radius:6px;font-weight:600;">
+                {{ ligne.quantite }}
+              </span>
+            </td>
+            <td style="font-weight:700;color:#e61920;">
+              {{ ligne.sousTotal | number:'1.2-2' }} TND
+            </td>
+            <td>
+              <button class="btn-danger" (click)="removeItem(ligne.ligneId)">✕</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Total + checkout -->
+    <div class="cart-total-box">
+      <div class="cart-total-row">
+        <span>Sous-total</span>
+        <span>{{ panier.total | number:'1.2-2' }} TND</span>
+      </div>
+      <div class="cart-total-row">
+        <span>Livraison</span>
+        <span style="color:#059669;">Calculée à la commande</span>
+      </div>
+      <div class="cart-total-row total">
+        <span>Total</span>
+        <span>{{ panier.total | number:'1.2-2' }} TND</span>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:1rem;" (click)="checkout()">
+        ✅ Passer la commande
+      </button>
+      <a routerLink="/client/shop"
+         style="display:block;text-align:center;margin-top:0.75rem;font-size:0.85rem;color:#666;">
+        ← Continuer les achats
+      </a>
+    </div>
+  </div>
+</div>

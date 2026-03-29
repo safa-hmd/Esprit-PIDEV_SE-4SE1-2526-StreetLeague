@@ -1,0 +1,365 @@
+<style>
+  .tab-bar{display:flex;gap:0.25rem;background:#f5f5f5;border-radius:10px;padding:0.25rem;margin-bottom:1.5rem;width:fit-content;}
+  .tab-btn{padding:0.45rem 1.1rem;border:none;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer;background:transparent;color:#666;transition:all 0.15s;}
+  .tab-btn.active{background:white;color:#111;box-shadow:0 1px 4px rgba(0,0,0,0.12);}
+  .form-card{border:2px solid #e61920 !important;margin-bottom:1.5rem;}
+  .a-form-group{margin-bottom:1rem;}
+  .a-form-label{display:block;font-size:0.82rem;font-weight:600;color:#444;margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.03em;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  @media(max-width:600px){.field-row{grid-template-columns:1fr;}}
+  .badge-rupture{background:#fee2e2;color:#991b1b;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;}
+  .badge-low{background:#fef3c7;color:#92400e;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;}
+  .badge-ok{background:#d1fae5;color:#065f46;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:600;}
+  .img-preview{width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid #eee;}
+  .img-placeholder{width:48px;height:48px;background:#f5f5f5;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:1px solid #eee;}
+  .filter-row{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;}
+</style>
+
+<div class="admin-main-inner">
+
+  <!-- Header -->
+  <div class="page-header-admin">
+    <h1 class="page-title-admin">Gestion des Matériels</h1>
+    <p class="page-subtitle-admin">Gérez le catalogue produits affiché dans la boutique</p>
+  </div>
+
+  <!-- Notifications -->
+  <div *ngIf="successMsg"
+       style="background:#d1fae5;color:#065f46;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+    ✅ {{ successMsg }}
+  </div>
+  <div *ngIf="errorMsg"
+       style="background:#fee2e2;color:#991b1b;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+    ❌ {{ errorMsg }}
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid cols-4" style="margin-bottom:1.5rem;">
+    <div class="a-stat">
+      <div class="a-stat-icon" style="background:rgba(78,138,159,0.15);color:#4e8a9f;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="24" height="24">
+          <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+        </svg>
+      </div>
+      <div><div class="a-stat-val">{{ stats.total }}</div><div class="a-stat-label">Produits</div></div>
+    </div>
+    <div class="a-stat">
+      <div class="a-stat-icon" style="background:rgba(34,197,94,0.12);color:#16a34a;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="24" height="24">
+          <path d="M5 8h14M5 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm14 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/>
+        </svg>
+      </div>
+      <div><div class="a-stat-val">{{ stats.totalStock }}</div><div class="a-stat-label">Unités en stock</div></div>
+    </div>
+    <div class="a-stat">
+      <div class="a-stat-icon" style="background:rgba(232,92,122,0.15);color:#e85c7a;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="24" height="24">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div><div class="a-stat-val">{{ stats.rupture }}</div><div class="a-stat-label">En rupture</div></div>
+    </div>
+    <div class="a-stat">
+      <div class="a-stat-icon" style="background:rgba(232,112,64,0.15);color:#e87040;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="24" height="24">
+          <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <div><div class="a-stat-val">{{ stats.prixMoyen }} TND</div><div class="a-stat-label">Prix moyen</div></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'materiels'" (click)="activeTab = 'materiels'">
+      📦 Matériels
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'categories'" (click)="activeTab = 'categories'">
+      🏷️ Catégories
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- TAB MATÉRIELS                                       -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'materiels'">
+
+    <!-- Formulaire Create/Edit -->
+    <div class="a-card form-card" *ngIf="showForm" id="materiel-form">
+      <div class="a-card-header">
+        <span class="a-card-title">{{ editMode ? '✏️ Modifier le matériel' : '➕ Nouveau matériel' }}</span>
+        <button class="a-btn a-btn-ghost a-btn-sm" (click)="closeForm()">✕ Fermer</button>
+      </div>
+      <div class="a-card-body">
+
+        <div class="field-row">
+          <!-- Nom -->
+          <div class="a-form-group">
+            <label class="a-form-label">Nom <span style="color:#e61920">*</span></label>
+            <input type="text" class="a-form-control"
+                   placeholder="ex: Ballon de football Pro"
+                   [(ngModel)]="form.nom">
+          </div>
+          <!-- Catégorie -->
+          <div class="a-form-group">
+            <label class="a-form-label">Catégorie <span style="color:#e61920">*</span></label>
+            <select class="a-form-control" [(ngModel)]="form.categorieId">
+              <option [value]="0" disabled>-- Sélectionner --</option>
+              <option *ngFor="let c of categories" [value]="c.id">{{ c.nom }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="a-form-group">
+          <label class="a-form-label">Description <span style="color:#e61920">*</span></label>
+          <textarea class="a-form-control" rows="2"
+                    placeholder="Description du produit..."
+                    [(ngModel)]="form.description"
+                    style="resize:vertical;"></textarea>
+        </div>
+
+        <div class="field-row">
+          <!-- Prix -->
+          <div class="a-form-group">
+            <label class="a-form-label">Prix (TND) <span style="color:#e61920">*</span></label>
+            <input type="number" class="a-form-control"
+                   placeholder="ex: 49.90"
+                   [(ngModel)]="form.prix"
+                   min="0" step="0.5">
+          </div>
+          <!-- Stock -->
+          <div class="a-form-group">
+            <label class="a-form-label">Quantité en stock <span style="color:#e61920">*</span></label>
+            <input type="number" class="a-form-control"
+                   placeholder="ex: 50"
+                   [(ngModel)]="form.quantiteStock"
+                   min="0">
+          </div>
+        </div>
+
+        <!-- Image URL -->
+        <div class="a-form-group">
+          <label class="a-form-label">URL Image <span style="color:#999;font-weight:400;">(optionnel)</span></label>
+          <input type="text" class="a-form-control"
+                 placeholder="https://example.com/image.jpg"
+                 [(ngModel)]="form.imageUrl">
+          <!-- Aperçu image -->
+          <div *ngIf="form.imageUrl" style="margin-top:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+            <img [src]="form.imageUrl" class="img-preview" (error)="form.imageUrl = ''">
+            <span style="font-size:0.78rem;color:#666;">Aperçu</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+          <button class="a-btn a-btn-primary" (click)="submitForm()">
+            {{ editMode ? '💾 Enregistrer' : '✅ Créer le matériel' }}
+          </button>
+          <button class="a-btn a-btn-ghost" (click)="closeForm()">Annuler</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barre filtres + bouton créer -->
+    <div class="a-card">
+      <div class="a-card-header" style="justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+        <span class="a-card-title">Catalogue ({{ filteredMateriels.length }} / {{ materiels.length }})</span>
+        <button class="a-btn a-btn-primary a-btn-sm" (click)="openCreate()">
+          + Ajouter un matériel
+        </button>
+      </div>
+
+      <!-- Filtres -->
+      <div class="a-card-body" style="padding:0.75rem 1rem;border-bottom:1px solid #f0f0f0;">
+        <div class="filter-row">
+          <!-- Recherche texte -->
+          <div class="a-search" style="flex:1;min-width:180px;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input class="a-form-control"
+                   placeholder="Rechercher par nom, description..."
+                   [(ngModel)]="searchTerm"
+                   (input)="applyFilters()">
+          </div>
+          <!-- Filtre catégorie -->
+          <select class="a-form-control" style="width:auto;"
+                  [(ngModel)]="selectedCatFilter"
+                  (change)="applyFilters()">
+            <option [value]="null">Toutes les catégories</option>
+            <option *ngFor="let c of categories" [value]="c.id">{{ c.nom }}</option>
+          </select>
+          <!-- Reset -->
+          <button class="a-btn a-btn-ghost a-btn-sm"
+                  *ngIf="searchTerm || selectedCatFilter !== null"
+                  (click)="searchTerm=''; selectedCatFilter=null; applyFilters()">
+            ✕ Réinitialiser
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="a-card-body" style="padding:0;">
+        <div *ngIf="loading" style="text-align:center;padding:2rem;color:#999;">
+          Chargement...
+        </div>
+
+        <div class="a-table-wrap" *ngIf="!loading">
+          <table class="a-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Nom</th>
+                <th>Catégorie</th>
+                <th>Prix</th>
+                <th>Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of filteredMateriels">
+                <td>
+                  <img *ngIf="m.imageUrl; else noImg" [src]="m.imageUrl" class="img-preview">
+                  <ng-template #noImg>
+                    <div class="img-placeholder">🏅</div>
+                  </ng-template>
+                </td>
+                <td>
+                  <strong>{{ m.nom }}</strong>
+                  <div style="font-size:0.78rem;color:#888;margin-top:0.15rem;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    {{ m.description }}
+                  </div>
+                </td>
+                <td>
+                  <span class="a-badge a-badge-gray">{{ m.categorieNom || getCatNom(m.categorieId) }}</span>
+                </td>
+                <td style="font-weight:700;color:#e61920;">
+                  {{ m.prix | number:'1.2-2' }} TND
+                </td>
+                <td>
+                  <span [ngClass]="getStockBadge(m.quantiteStock)">
+                    {{ getStockLabel(m.quantiteStock) }}
+                  </span>
+                </td>
+                <td>
+                  <div style="display:flex;gap:0.4rem;">
+                    <button class="a-btn a-btn-ghost a-btn-sm" (click)="openEdit(m)">
+                      ✏️ Modifier
+                    </button>
+                    <button class="a-btn a-btn-ghost a-btn-sm" style="color:#e61920;"
+                            (click)="delete(m)">
+                      🗑 Supprimer
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="filteredMateriels.length === 0 && !loading">
+                <td colspan="6" style="text-align:center;padding:2.5rem;color:#999;">
+                  <div style="font-size:2rem;margin-bottom:0.5rem;">📦</div>
+                  Aucun matériel trouvé.
+                  <span *ngIf="!materiels.length">
+                    <br>
+                    <button class="a-btn a-btn-primary a-btn-sm" style="margin-top:0.75rem;" (click)="openCreate()">
+                      + Créer le premier matériel
+                    </button>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- TAB CATÉGORIES                                      -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'categories'">
+
+    <!-- Formulaire catégorie -->
+    <div class="a-card form-card" *ngIf="showCatForm" style="max-width:480px;margin-bottom:1.5rem;">
+      <div class="a-card-header">
+        <span class="a-card-title">{{ editCatMode ? '✏️ Modifier la catégorie' : '➕ Nouvelle catégorie' }}</span>
+        <button class="a-btn a-btn-ghost a-btn-sm" (click)="closeCatForm()">✕</button>
+      </div>
+      <div class="a-card-body">
+        <div class="a-form-group">
+          <label class="a-form-label">Nom <span style="color:#e61920">*</span></label>
+          <input type="text" class="a-form-control"
+                 placeholder="ex: Football, Basketball..."
+                 [(ngModel)]="catForm.nom">
+        </div>
+        <div class="a-form-group">
+          <label class="a-form-label">Description</label>
+          <input type="text" class="a-form-control"
+                 placeholder="Description optionnelle"
+                 [(ngModel)]="catForm.description">
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+          <button class="a-btn a-btn-primary" (click)="submitCatForm()">
+            {{ editCatMode ? '💾 Enregistrer' : '✅ Créer' }}
+          </button>
+          <button class="a-btn a-btn-ghost" (click)="closeCatForm()">Annuler</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table catégories -->
+    <div class="a-card">
+      <div class="a-card-header" style="justify-content:space-between;">
+        <span class="a-card-title">Catégories ({{ categories.length }})</span>
+        <button class="a-btn a-btn-primary a-btn-sm" (click)="openCreateCat()">
+          + Nouvelle catégorie
+        </button>
+      </div>
+      <div class="a-card-body" style="padding:0;">
+        <div class="a-table-wrap">
+          <table class="a-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Nb matériels</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of categories">
+                <td><strong>#{{ c.id }}</strong></td>
+                <td>
+                  <span class="a-badge a-badge-gray">{{ c.nom }}</span>
+                </td>
+                <td style="color:#666;font-size:0.88rem;">{{ c.description || '—' }}</td>
+                <td>
+                  <span class="a-badge a-badge-blue">{{ c.nombreMateriels || 0 }} produits</span>
+                </td>
+                <td>
+                  <div style="display:flex;gap:0.4rem;">
+                    <button class="a-btn a-btn-ghost a-btn-sm" (click)="openEditCat(c)">
+                      ✏️ Modifier
+                    </button>
+                    <button class="a-btn a-btn-ghost a-btn-sm" style="color:#e61920;"
+                            (click)="deleteCat(c)">
+                      🗑 Supprimer
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="categories.length === 0">
+                <td colspan="5" style="text-align:center;padding:2rem;color:#999;">
+                  Aucune catégorie. Commencez par en créer une.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
