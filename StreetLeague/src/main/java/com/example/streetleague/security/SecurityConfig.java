@@ -1,5 +1,6 @@
 package com.example.streetleague.security;
 
+import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.security.jwt.JwtAuthFilter;
 import com.example.streetleague.security.jwt.JwtService;
 import jakarta.servlet.http.HttpServletResponse;

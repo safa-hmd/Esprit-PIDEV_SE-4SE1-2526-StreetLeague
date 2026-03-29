@@ -46,7 +46,7 @@ public class Training {
     @JoinTable(
             name = "training_participants",
             joinColumns = @JoinColumn(name = "trainings_id_training"),
-            inverseJoinColumns = @JoinColumn(name = "participants_id_user")  // ← nom exact de la colonne User PK
+            inverseJoinColumns = @JoinColumn(name = "participants_id_user")
     )
     private List<User> participants = new ArrayList<>();
 
