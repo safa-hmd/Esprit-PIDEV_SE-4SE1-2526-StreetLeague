@@ -1,0 +1,353 @@
+<!-- src/app/frontoffice/tournaments/tournaments.component.html -->
+
+<!-- ── Toast ── -->
+<div *ngIf="toastMessage" class="toast" [ngClass]="toastType === 'error' ? 'toast-error' : 'toast-success'">
+  {{ toastMessage }}
+</div>
+
+<div class="page-wrapper">
+
+  <!-- ── Hero Header ── -->
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-label">🏆 StreetLeague</div>
+      <h1 class="hero-title">Tournaments</h1>
+      <p class="hero-subtitle">Browse and join upcoming competitions near you</p>
+    </div>
+    <button class="btn-my-regs" (click)="openMyRegistrations()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+        <rect x="9" y="3" width="6" height="4" rx="1"/>
+      </svg>
+      My Registrations
+    </button>
+  </div>
+
+  <!-- ── Filters ── -->
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input placeholder="Search a tournament..." (input)="onSearch($event)">
+    </div>
+
+    <select (change)="onSportFilter($event)">
+      <option value="">All sports</option>
+      <option *ngFor="let s of sportOptions" [value]="s.value">{{ s.label }}</option>
+    </select>
+
+    <select (change)="onStatusFilter($event)">
+      <option value="">All statuses</option>
+      <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+    </select>
+  </div>
+
+  <!-- ── Loading ── -->
+  <div *ngIf="isLoading" class="state-msg">
+    <div class="spinner"></div>
+    Loading tournaments...
+  </div>
+
+  <!-- ── Error ── -->
+  <div *ngIf="errorMessage && !isLoading" class="state-msg error-msg">
+    ⚠️ {{ errorMessage }}
+  </div>
+
+  <!-- ── Empty ── -->
+  <div *ngIf="!isLoading && filteredTournaments.length === 0 && !errorMessage" class="state-msg">
+    No tournaments found matching your criteria.
+  </div>
+
+  <!-- ── Tournament Grid ── -->
+  <div class="tournaments-grid" *ngIf="!isLoading && filteredTournaments.length > 0">
+
+    <div *ngFor="let t of filteredTournaments; trackBy: trackById" class="t-card"
+      [class.card-full]="isFull(t)" [class.card-open]="canRegister(t) && !isFull(t)">
+
+      <!-- Card top accent line -->
+      <div class="card-accent" [ngClass]="'accent-' + t.sportType.toLowerCase()"></div>
+
+      <!-- Sport + Status badges -->
+      <div class="card-badges">
+        <span class="badge badge-sport">{{ sportEmoji(t.sportType) }} {{ t.sportType }}</span>
+        <span class="badge" [ngClass]="{
+          'badge-open':      t.status === 'UPCOMING',
+          'badge-ongoing':   t.status === 'ONGOING',
+          'badge-completed': t.status === 'COMPLETED',
+          'badge-cancelled': t.status === 'CANCELLED'
+        }">{{ statusLabel(t.status!) }}</span>
+        <span *ngIf="isFull(t) && t.status === 'UPCOMING'" class="badge badge-full">Full</span>
+      </div>
+
+      <!-- Title + description -->
+      <div class="card-body">
+        <h3 class="card-title">{{ t.name }}</h3>
+        <p *ngIf="t.description" class="card-desc">{{ t.description }}</p>
+
+        <!-- Meta info -->
+        <div class="card-meta">
+          <div class="meta-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span>{{ t.startDate }} → {{ t.endDate }}</span>
+          </div>
+          <div class="meta-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span>{{ t.location }}</span>
+          </div>
+          <div class="meta-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+            </svg>
+            <span>
+              {{ t.registeredCount ?? 0 }} / {{ t.maxParticipants }}
+              {{ t.tournamentType === 'TEAM' ? 'teams' : 'players' }}
+            </span>
+          </div>
+          <div class="meta-item" *ngIf="t.prizePool">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            <span>Prize: <strong>${{ t.prizePool }}</strong></span>
+          </div>
+          <div class="meta-item" *ngIf="t.registrationDeadline">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span>Deadline: {{ t.registrationDeadline }} · {{ t.tournamentType === 'TEAM' ? 'Team' : 'Individual' }}</span>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress-wrap">
+          <div class="progress-track">
+            <div class="progress-bar" [style.width.%]="getProgress(t)"
+              [ngClass]="getProgress(t) >= 100 ? 'bar-full' : 'bar-active'"></div>
+          </div>
+          <span class="progress-label">
+            {{ t.registeredCount ?? 0 }}/{{ t.maxParticipants }} registered ({{ getProgress(t) }}%)
+          </span>
+        </div>
+      </div>
+
+      <!-- CTA Button -->
+      <div class="card-footer">
+        <!-- UPCOMING + not full → Register Now -->
+        <button *ngIf="canRegister(t) && !isFull(t)"
+          class="btn-register" (click)="openRegister(t)">
+          Register Now
+        </button>
+
+        <!-- UPCOMING + full -->
+        <button *ngIf="canRegister(t) && isFull(t)" class="btn-disabled" disabled>
+          Tournament Full
+        </button>
+
+        <!-- ONGOING -->
+        <button *ngIf="t.status === 'ONGOING'" class="btn-status btn-ongoing" disabled>
+          🔴 In Progress
+        </button>
+
+        <!-- COMPLETED -->
+        <button *ngIf="t.status === 'COMPLETED'" class="btn-status btn-completed" disabled>
+          ✅ Completed
+        </button>
+
+        <!-- CANCELLED -->
+        <button *ngIf="t.status === 'CANCELLED'" class="btn-status btn-cancelled" disabled>
+          🚫 Cancelled
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     MODAL — Register
+══════════════════════════════════════════ -->
+<div class="modal-backdrop" [class.open]="isRegisterModalOpen" (click)="closeRegister()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-title">Register for Tournament</h2>
+        <p *ngIf="selectedTournament" class="modal-sub">{{ selectedTournament.name }}</p>
+      </div>
+      <button class="modal-close" (click)="closeRegister()" aria-label="Close">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="20" height="20">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body" *ngIf="selectedTournament">
+
+      <!-- Tournament summary -->
+      <div class="modal-summary">
+        <div class="summary-row">
+          <span>📅 {{ selectedTournament.startDate }} → {{ selectedTournament.endDate }}</span>
+          <span>📍 {{ selectedTournament.location }}</span>
+        </div>
+        <div class="summary-row" *ngIf="selectedTournament.prizePool">
+          <span>🏆 Prize Pool: ${{ selectedTournament.prizePool }}</span>
+          <span>👥 {{ selectedTournament.tournamentType === 'TEAM' ? 'Team' : 'Individual' }}</span>
+        </div>
+      </div>
+
+      <!-- Notice -->
+      <div class="modal-notice">
+        ℹ️ Your registration will be reviewed by an admin before confirmation.
+      </div>
+
+      <!-- ══ CAS 1 : TOURNOI INDIVIDUEL ══ -->
+      <!-- Pas de saisie, le joueur est identifié automatiquement via le JWT -->
+      <div *ngIf="!isTeamTournament()" class="modal-auto-info">
+        <div class="auto-info-row">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="18" height="18">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>You will be registered as an <strong>individual player</strong>.</span>
+        </div>
+        <div class="auto-info-row auto-info-secondary">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4l3 3"/>
+          </svg>
+          <span>Player ID: <strong>#{{ currentUserId }}</strong></span>
+        </div>
+      </div>
+
+      <!-- ══ CAS 2 : TOURNOI EN ÉQUIPE ══ -->
+      <div *ngIf="isTeamTournament()" [formGroup]="registerForm">
+
+        <!-- Chargement des équipes -->
+        <div *ngIf="isLoadingTeams" class="state-msg-inline">
+          <div class="spinner-sm"></div> Loading teams...
+        </div>
+
+        <!-- Dropdown sélection équipe -->
+        <div *ngIf="!isLoadingTeams" class="form-group">
+          <label class="form-label">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Select your team
+          </label>
+
+          <!-- Aucune équipe disponible -->
+          <div *ngIf="availableTeams.length === 0" class="no-teams-msg">
+            ⚠️ No teams available. Please create or join a team first.
+          </div>
+
+          <!-- Liste des équipes -->
+          <select *ngIf="availableTeams.length > 0"
+            class="form-select"
+            formControlName="teamId">
+            <option [ngValue]="null" disabled>-- Select a team --</option>
+            <option *ngFor="let team of availableTeams" [ngValue]="team.idTeam">
+              {{ team.name }}
+              <ng-container *ngIf="team.sport"> · {{ team.sport }}</ng-container>
+            </option>
+          </select>
+
+          <small *ngIf="registerForm.get('teamId')?.invalid && registerForm.get('teamId')?.touched"
+            class="form-error">Please select a team.</small>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeRegister()">Cancel</button>
+      <button class="btn-confirm"
+        [disabled]="isSubmitting || registerForm.invalid || (isTeamTournament() && isLoadingTeams)"
+        (click)="submitRegistration()">
+        {{ isSubmitting ? 'Submitting...' : 'Submit Registration' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     MODAL — My Registrations
+══════════════════════════════════════════ -->
+<div class="modal-backdrop" [class.open]="isMyRegsModalOpen" (click)="closeMyRegistrations()">
+  <div class="modal modal-wide" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-title">My Registrations</h2>
+        <p class="modal-sub">Track the status of your tournament registrations</p>
+      </div>
+      <button class="modal-close" (click)="closeMyRegistrations()" aria-label="Close">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="20" height="20">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <div *ngIf="isLoadingMyRegs" class="state-msg">
+        <div class="spinner"></div> Loading...
+      </div>
+
+      <div *ngIf="!isLoadingMyRegs && myRegistrations.length === 0" class="state-msg">
+        You haven't registered for any tournaments yet.
+      </div>
+
+      <div *ngIf="!isLoadingMyRegs && myRegistrations.length > 0"
+        style="display:flex;flex-direction:column;gap:0.75rem;">
+
+        <div *ngFor="let reg of myRegistrations; trackBy: trackByRegId" class="reg-row">
+
+          <div class="reg-info">
+            <div class="reg-tournament">{{ reg.tournamentName }}</div>
+            <!-- Afficher équipe ou joueur selon le type -->
+            <div class="reg-participant" *ngIf="reg.teamName">
+              👥 Team: <strong>{{ reg.teamName }}</strong>
+            </div>
+            <div class="reg-participant" *ngIf="!reg.teamName && reg.playerUsername">
+              👤 Player: <strong>{{ reg.playerUsername }}</strong>
+            </div>
+            <div class="reg-date">Registered: {{ reg.registeredAt ?? '—' }}</div>
+          </div>
+
+          <div class="reg-right">
+            <span class="reg-status" [ngClass]="regStatusClass(reg.status?.toString())">
+              {{ regStatusLabel(reg.status?.toString()) }}
+            </span>
+            <!-- ✅ Nouveau — fonctionne pour joueur ET équipe -->
+            <button *ngIf="reg.status?.toString() === 'PENDING' || reg.status?.toString() === 'CONFIRMED'"
+              class="btn-cancel-reg" (click)="cancelMyRegistration(reg)">
+                Cancel
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeMyRegistrations()">Close</button>
+    </div>
+  </div>
+</div>

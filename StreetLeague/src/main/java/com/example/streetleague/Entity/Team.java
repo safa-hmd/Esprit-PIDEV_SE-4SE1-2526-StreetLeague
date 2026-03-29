@@ -46,7 +46,7 @@ public class Team {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @JsonIgnore
-    List<User> players= new ArrayList<>();
+    List<User> players;
 
     // Training sessions for this team
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
@@ -63,5 +63,8 @@ public class Team {
     @JsonIgnore
     List<Match> matchesAsTeamB;
 
-
+    // Inscriptions tournoi
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<TournamentRegistration> registrations = new ArrayList<>();
 }

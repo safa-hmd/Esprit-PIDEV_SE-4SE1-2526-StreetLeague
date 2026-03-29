@@ -1,6 +1,5 @@
 package com.example.streetleague.security;
 
-import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.security.jwt.JwtAuthFilter;
 import com.example.streetleague.security.jwt.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,7 +19,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+
 import java.util.List;
+
 
 @Configuration
 @EnableMethodSecurity
@@ -41,11 +43,17 @@ public class SecurityConfig {
         return p;
     }
 
+    /**
+     * AuthenticationManager : requis pour l'authentification manuelle lors du login
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * SecurityFilterChain : définit toutes les règles de sécurité HTTP
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -91,6 +99,11 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:4200"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // Méthodes HTTP autorisées (OPTIONS obligatoire pour les requêtes CORS preflight)
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
+
+        // Autoriser tous les headers (requis pour Authorization: Bearer <token>)
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

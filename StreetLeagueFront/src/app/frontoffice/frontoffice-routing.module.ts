@@ -6,7 +6,12 @@ import { TrainingComponent } from './training/training.component';
 import { DetailMatchComponent } from './detail-match/detail-match.component';
 import { HomeComponent } from './home/home.component';
 import { DetailTeamComponent } from './detail-team/detail-team.component';
+
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
+
+import { TournamentsComponent } from './tournaments/tournaments.component';
+import { FieldReservationComponent } from './field-reservation/field-reservation.component';
+
 
 const routes: Routes = [
   {
@@ -18,8 +23,14 @@ const routes: Routes = [
       { path: 'team', component: TeamComponent },
       {path: 'training',component:TrainingComponent },
       {path:"detail-match/:id",component:DetailMatchComponent},
+
       {path:"detail-team/:id", component:DetailTeamComponent}, 
       { path: 'profile', component: PlayerProfileComponent },
+
+      {path:"detail-team/:id", component:DetailTeamComponent},
+      { path: 'tournaments', component: TournamentsComponent },
+      { path: 'field-reservation', component: FieldReservationComponent },
+
     ]
   }
 ]

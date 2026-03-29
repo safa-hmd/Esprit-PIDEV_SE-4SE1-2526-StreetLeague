@@ -70,6 +70,7 @@ getRole(): string {
     return localStorage.getItem('TokenUserConnect');
   }
 
+
   //add this without unitaire tests
 
   loginWithGoogle(): void {
@@ -92,4 +93,40 @@ resetPassword(token: string, newPassword: string): Observable<string> {
     { responseType: 'text' }
   );
 }
+
+  
+  // ✅ Decode JWT payload — works without any external library
+  private decodeToken(): Record<string, any> | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const payload = token.split('.')[1];
+      // Fix base64url padding before decoding
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(atob(base64));
+    } catch {
+      return null;
+    }
+  }
+ 
+  // ✅ Get user ID from JWT claim 'id' (added in JwtService.java)
+  getUserId(): number | null {
+    const decoded = this.decodeToken();
+    if (!decoded) return null;
+    const id = decoded['id'];
+    return id != null ? Number(id) : null;
+  }
+ 
+  // ✅ Get full name from JWT claim 'fullName'
+  getFullName(): string | null {
+    const decoded = this.decodeToken();
+    return decoded?.['fullName'] ?? localStorage.getItem('EmailUserConnect');
+  }
+ 
+  // ✅ Get email from JWT subject
+  getEmail(): string | null {
+    return localStorage.getItem('EmailUserConnect');
+  }
+
+
 }

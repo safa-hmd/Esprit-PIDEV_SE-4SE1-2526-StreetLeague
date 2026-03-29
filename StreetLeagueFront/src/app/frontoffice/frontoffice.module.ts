@@ -13,6 +13,8 @@ import { HomeComponent } from './home/home.component';
 import { DetailTeamComponent } from './detail-team/detail-team.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
+import { TournamentsComponent } from './tournaments/tournaments.component';
+import { FieldReservationComponent } from './field-reservation/field-reservation.component';
 
 
 
@@ -27,14 +29,16 @@ import { PlayerProfileComponent } from './player-profile/player-profile.componen
     DetailTeamComponent,
     NavbarComponent,
     PlayerProfileComponent,
+    TournamentsComponent,
+    FieldReservationComponent,
+
   ],
   imports: [
     CommonModule,
     FrontofficeRoutingModule,
     ReactiveFormsModule,
     HttpClientModule,
-    FormsModule, 
-    CommonModule,
+    FormsModule,
   ]
 })
 export class FrontofficeModule { }
