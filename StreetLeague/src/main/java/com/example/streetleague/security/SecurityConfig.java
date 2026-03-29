@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 import java.util.List;
 
 @Configuration
@@ -42,7 +43,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
@@ -54,22 +56,66 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()          // ✅ couvre /auth/complete-google-register
+                        // AUTH
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
-                        .requestMatchers("/team/add", "/team/update/**").hasAnyRole("PLAYER", "COACH")
-                        .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
-                        .requestMatchers("/team/showTeams", "/team/showTeamById/**", "/team/myTeams").permitAll()
-                        .requestMatchers("/team/*/join", "/team/*/leave").hasRole("PLAYER")
-                        .requestMatchers("/match/add", "/match/update").hasAnyRole("PLAYER", "COACH")
-                        .requestMatchers("/match/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
-                        .requestMatchers("/match/showMatchs", "/match/showMatchById/**").permitAll()
-                        .requestMatchers("/training/add", "/training/update").hasRole("COACH")
-                        .requestMatchers("/training/delete/**").hasAnyRole("COACH", "ADMIN")
-                        .requestMatchers("/training/showTrainings", "/training/showTrainingById/**").permitAll()
-                        .requestMatchers("/training/*/join", "/training/*/leave").hasRole("PLAYER")
+
+                        // USERS
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/users/by-email").permitAll()  // ← AJOUTÉ
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/users/me").authenticated()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/users/team/**").authenticated()
+
+                        // TOURNAMENTS
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/tournaments").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/tournaments/**").permitAll()
+
+                        // COACH TRAVEL
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/coach/travel/**").authenticated()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/coach/travel/**").authenticated()
+
+                        // ADMIN TRAVEL
+                        .requestMatchers(
+                                "/api/admin/travel/**").authenticated()
+
+                        // TEAMS
+                        .requestMatchers("/team/add",
+                                "/team/update/**").hasAnyRole("PLAYER", "COACH")
+                        .requestMatchers("/team/delete/**")
+                        .hasAnyRole("PLAYER", "COACH", "ADMIN")
+                        .requestMatchers("/team/showTeams",
+                                "/team/showTeamById/**",
+                                "/team/myTeams").permitAll()
+                        .requestMatchers("/team/*/join",
+                                "/team/*/leave").hasRole("PLAYER")
+
+                        // MATCHES
+                        .requestMatchers("/match/add",
+                                "/match/update").hasAnyRole("PLAYER", "COACH")
+                        .requestMatchers("/match/delete/**")
+                        .hasAnyRole("PLAYER", "COACH", "ADMIN")
+                        .requestMatchers("/match/showMatchs",
+                                "/match/showMatchById/**").permitAll()
+
+                        // TRAININGS
+                        .requestMatchers("/training/add",
+                                "/training/update").hasRole("COACH")
+                        .requestMatchers("/training/delete/**")
+                        .hasAnyRole("COACH", "ADMIN")
+                        .requestMatchers("/training/showTrainings",
+                                "/training/showTrainingById/**").permitAll()
+                        .requestMatchers("/training/*/join",
+                                "/training/*/leave").hasRole("PLAYER")
+
+                        // TOUT LE RESTE
                         .anyRequest().authenticated()
                 )
-                // ✅ FIX PRINCIPAL : empêche Spring de rediriger les appels REST vers OAuth2/login
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -77,9 +123,11 @@ public class SecurityConfig {
                             response.getWriter().write("{\"error\": \"Unauthorized\"}");
                         })
                 )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthFilter,
+                        UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
-                        .successHandler(new OAuth2AuthSuccessHandler(userRepository, jwtService))
+                        .successHandler(
+                                new OAuth2AuthSuccessHandler(userRepository, jwtService))
                 );
 
         return http.build();

@@ -1,0 +1,211 @@
+<div class="page-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1>Coach Accommodation Management</h1>
+    <p>Select accommodation for your team members</p>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    ✓ {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-error">
+    ✗ {{ errorMessage }}
+  </div>
+
+  <!-- Tournament Selector -->
+  <div class="section">
+    <label class="section-label">Select Tournament:</label>
+    <select
+      class="tournament-select"
+      (change)="onTournamentChange($event)"
+      [value]="selectedTournamentId">
+      <option *ngFor="let t of tournaments" [value]="t.id">
+        {{ t.name }} — {{ t.city }}
+      </option>
+    </select>
+    <div *ngIf="tournaments.length === 0" class="empty-msg">
+      Loading tournaments...
+    </div>
+  </div>
+
+  <!-- Available Accommodations -->
+  <div class="section">
+    <h2>Available Accommodations</h2>
+
+    <div *ngIf="filteredAccommodations.length === 0" class="empty-msg">
+      No accommodations available for this tournament city.
+    </div>
+
+    <div class="accommodation-grid">
+      <div
+        *ngFor="let acc of filteredAccommodations"
+        class="accommodation-card"
+        [class.selected]="selectedAccommodation?.id === acc.id"
+        (click)="selectAccommodation(acc)">
+
+        <!-- Badges -->
+        <div class="badges">
+          <span class="badge badge-type">{{ acc.type }}</span>
+          <span class="badge badge-formula">
+            {{ getFormattedFormula(acc.formula) }}
+          </span>
+        </div>
+
+        <!-- Details -->
+        <div class="acc-details">
+          <p>📍 <strong>Address:</strong> {{ acc.address }}</p>
+          <p>🌙 <strong>Duration:</strong> {{ acc.numberOfNights }} nights</p>
+          <p>💰 <strong>Price:</strong> {{ acc.pricePerNight }} TND/night</p>
+          <p>👥 <strong>Capacity:</strong> {{ acc.capacity }} people</p>
+          <p class="individual-cost">
+            <strong>Individual Cost:</strong>
+            {{ acc.numberOfNights }} × {{ acc.pricePerNight }} TND
+            = <span class="amount-green">
+                {{ acc.numberOfNights * acc.pricePerNight }} TND
+              </span>
+          </p>
+        </div>
+
+        <!-- Select Button -->
+        <button
+          class="btn-select"
+          [class.btn-selected]="selectedAccommodation?.id === acc.id">
+          {{ selectedAccommodation?.id === acc.id ? '✓ SELECTED' : 'SELECT' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Members -->
+  <div class="section">
+    <h2>Select Team Members</h2>
+    <p class="section-subtitle">Choose members attending this accommodation</p>
+
+    <div *ngIf="teamMembers.length === 0" class="empty-msg">
+      No team members found.
+    </div>
+
+    <div class="members-grid">
+      <div
+        *ngFor="let member of teamMembers"
+        class="member-card"
+        [class.member-selected]="isSelected(member)"
+        (click)="toggleMember(member)">
+
+        <input
+          type="checkbox"
+          [checked]="isSelected(member)"
+          (click)="$event.stopPropagation()"
+          (change)="toggleMember(member)">
+
+        <div class="member-info">
+          <span class="member-name">
+            {{ member.fullName || member.full_name }}
+          </span>
+          <span class="role-badge">PLAYER</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking Summary -->
+  <div class="section summary-card" *ngIf="selectedAccommodation">
+    <h2>Booking Summary</h2>
+
+    <div class="summary-row">
+      <span>Accommodation:</span>
+      <span>{{ selectedAccommodation.type }} at {{ selectedAccommodation.address }}</span>
+    </div>
+    <div class="summary-row">
+      <span>Formula:</span>
+      <span>{{ getFormattedFormula(selectedAccommodation.formula) }}</span>
+    </div>
+    <div class="summary-row">
+      <span>Duration:</span>
+      <span>{{ selectedAccommodation.numberOfNights }} nights</span>
+    </div>
+    <div class="summary-row">
+      <span>Price per Night:</span>
+      <span>{{ selectedAccommodation.pricePerNight }} TND</span>
+    </div>
+    <div class="summary-row">
+      <span>Members Selected:</span>
+      <span [class.text-red]="selectedMemberIds.length === 0">
+        {{ selectedMemberIds.length }}
+      </span>
+    </div>
+
+    <div class="summary-row">
+      <span>Individual Amount (per person):</span>
+      <span class="amount-green">
+        {{ selectedAccommodation.numberOfNights }} nights
+        × {{ selectedAccommodation.pricePerNight }} TND/night
+        = {{ individualAmount }} TND
+      </span>
+    </div>
+
+    <div class="summary-row total-row">
+      <span>Total Amount (all members):</span>
+      <span class="amount-red">
+        {{ selectedAccommodation.numberOfNights }}
+        × {{ selectedAccommodation.pricePerNight }}
+        × {{ selectedMemberIds.length }} member(s)
+        = {{ totalAmount }} TND
+      </span>
+    </div>
+  </div>
+
+  <!-- Tournament dropdown + Submit -->
+  <div class="section submit-section">
+    <div class="form-group">
+      <label>Tournoi</label>
+      <select
+        class="tournament-select"
+        (change)="onTournamentChange($event)"
+        [value]="selectedTournamentId">
+        <option *ngFor="let t of tournaments" [value]="t.id">
+          {{ t.name }} — {{ t.city }}
+        </option>
+      </select>
+    </div>
+
+    <button
+      class="btn-submit"
+      (click)="submitRequest()"
+      [disabled]="loading || !selectedAccommodation">
+      <span *ngIf="!loading">🔒 SUBMIT REQUEST</span>
+      <span *ngIf="loading">⏳ Submitting...</span>
+    </button>
+  </div>
+
+  <!-- My Accommodation Requests -->
+  <div class="section">
+    <h2>My Accommodation Requests</h2>
+
+    <div *ngIf="myRequests.length === 0" class="empty-msg">
+      No requests submitted yet.
+    </div>
+
+    <div *ngFor="let req of myRequests" class="request-card">
+      <div class="request-header">
+        <span class="request-type">
+          {{ req.accommodation?.type }} at {{ req.accommodation?.address }}
+        </span>
+        <span class="request-status" [class]="getStatusClass(req.status)">
+          {{ req.status }}
+        </span>
+      </div>
+      <div class="request-details">
+        <span>{{ req.accommodation?.numberOfNights }} nights</span>
+        <span>{{ req.accommodation?.pricePerNight }} TND/night</span>
+        <span>{{ req.memberIds?.length || 0 }} members</span>
+        <span class="amount-red">
+          Total: {{ req.totalAmount }} TND
+        </span>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -8,6 +8,8 @@ import { DetailMatchComponent } from './detail-match/detail-match.component';
 import { DetailTrainingComponent } from './detail-training/detail-training.component';
 import { HomeComponent } from './home/home.component';
 
+import { CoachAccommodationComponent } from './accommodation/coach-accommodation.component';
+
 const routes: Routes = [{ path: '', component: CoachFOComponent,   
     children: [                      
       { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -16,7 +18,8 @@ const routes: Routes = [{ path: '', component: CoachFOComponent,
       {path: 'trainingCoach', component: TrainingsComponent },
       { path: 'detail-team/:id',  component: DetailTeamComponent },  
     { path: 'detail-match/:id', component: DetailMatchComponent },
-    { path: 'detail-training/:id', component: DetailTrainingComponent }
+    { path: 'detail-training/:id', component: DetailTrainingComponent },
+    { path: 'lodging', component: CoachAccommodationComponent }
       
     ]
   }

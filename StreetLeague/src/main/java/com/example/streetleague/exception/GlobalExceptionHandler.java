@@ -11,6 +11,16 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(BusinessValidationException.class)
+    public ResponseEntity<?> handleBusinessValidation(BusinessValidationException ex) {
+        return ResponseEntity.badRequest().body(Map.of(
+                "timestamp", LocalDateTime.now().toString(),
+                "status",    400,
+                "error",     "Business Validation Error",
+                "message",   ex.getMessage()
+        ));
+    }
+
     // Auth (register/login)
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException ex) {

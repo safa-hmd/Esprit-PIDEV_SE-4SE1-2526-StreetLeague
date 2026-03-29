@@ -1,0 +1,175 @@
+<div class="accommodation-requests-container">
+
+  <h2>🏨 Accommodation Requests Management</h2>
+
+  <!-- Messages -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table *ngIf="accommodationRequests.length > 0" class="requests-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Coach</th>
+          <th>Accommodation</th>
+          <th>Address</th>
+          <th>Members</th>
+          <th>Total Cost</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let req of accommodationRequests" [class.row-approved]="req.status === 'APPROVED'" [class.row-rejected]="req.status === 'REJECTED'">
+          <td class="id-cell">#{{ req.id }}</td>
+          <td class="coach-cell">
+            <strong>{{ req.coachName || 'Coach' }}</strong>
+            <br/>
+            <small style="color: #666;">{{ req.coachId }}</small>
+          </td>
+          <td class="accom-cell">
+            <strong>{{ req.accommodation?.type }}</strong>
+            <br/>
+            <small>{{ req.accommodation?.formula }}</small>
+          </td>
+          <td class="address-cell">{{ req.accommodation?.address }}</td>
+          <td class="members-cell">
+            <span class="member-badge">{{ req.memberIds?.length || 0 }} players</span>
+          </td>
+          <td class="total-cell">
+            <strong class="total-amount">{{ req.totalAmount }} TND</strong>
+          </td>
+          <td>
+            <span [class]="'status-badge status-' + (req.status || 'PENDING')">
+              {{ req.status || 'PENDING' }}
+            </span>
+          </td>
+          <td class="date-cell">
+            <small>{{ formatDate(req.createdAt) }}</small>
+          </td>
+          <td class="actions-cell">
+            <ng-container [ngSwitch]="req.status">
+              <!-- PENDING: Show Approve/Reject buttons -->
+              <ng-container *ngSwitchCase="'PENDING'">
+                <button class="btn-approve" 
+                        (click)="openApproveModal(req)"
+                        title="Approve this request">
+                  ✓ APPROVE
+                </button>
+                <button class="btn-reject" 
+                        (click)="openRejectModal(req)"
+                        title="Reject this request">
+                  ✗ REJECT
+                </button>
+              </ng-container>
+
+              <!-- APPROVED/REJECTED: Show PDF button -->
+              <ng-container *ngSwitchDefault>
+                <button class="btn-pdf" 
+                        (click)="downloadPdf(req.id)"
+                        title="Download PDF">
+                  📄 PDF
+                </button>
+              </ng-container>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="accommodationRequests.length === 0 && !loading" class="empty-state">
+      <p>No accommodation requests found.</p>
+    </div>
+
+    <div *ngIf="loading" class="loading-state">
+      <p>Loading accommodation requests...</p>
+    </div>
+  </div>
+
+  <!-- APPROVE MODAL -->
+  <div *ngIf="showApproveModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Approve Accommodation Request</h3>
+        <button class="close-btn" (click)="closeModals()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>Coach:</strong> {{ selectedRequest?.coachName }}</p>
+        <p><strong>Accommodation:</strong> {{ selectedRequest?.accommodation?.type }} at {{ selectedRequest?.accommodation?.address }}</p>
+        <p><strong>Members:</strong> {{ selectedRequest?.memberIds?.length || 0 }} players</p>
+        <p><strong>Total Cost:</strong> {{ selectedRequest?.totalAmount }} TND</p>
+
+        <div class="form-group">
+          <label for="approveComment"><strong>Comment (optional):</strong></label>
+          <textarea id="approveComment" 
+                    [(ngModel)]="adminComment"
+                    placeholder="Enter your comment..."
+                    class="form-control"
+                    rows="3"></textarea>
+        </div>
+
+        <p style="color: #d32f2f; font-weight: bold;">
+          Are you sure you want to approve this request?
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModals()">Cancel</button>
+        <button class="btn-confirm-approve" 
+                (click)="confirmApprove()"
+                [disabled]="loading">
+          {{ loading ? 'Processing...' : 'Confirm Approve' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REJECT MODAL -->
+  <div *ngIf="showRejectModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Reject Accommodation Request</h3>
+        <button class="close-btn" (click)="closeModals()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>Coach:</strong> {{ selectedRequest?.coachName }}</p>
+        <p><strong>Accommodation:</strong> {{ selectedRequest?.accommodation?.type }} at {{ selectedRequest?.accommodation?.address }}</p>
+        <p><strong>Members:</strong> {{ selectedRequest?.memberIds?.length || 0 }} players</p>
+        <p><strong>Total Cost:</strong> {{ selectedRequest?.totalAmount }} TND</p>
+
+        <div class="form-group">
+          <label for="rejectComment"><strong>Reason for Rejection (required):</strong></label>
+          <textarea id="rejectComment" 
+                    [(ngModel)]="adminComment"
+                    placeholder="Explain why you're rejecting this request..."
+                    class="form-control"
+                    rows="4"
+                    required></textarea>
+        </div>
+
+        <p style="color: #d32f2f; font-weight: bold;">
+          This action cannot be undone.
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModals()">Cancel</button>
+        <button class="btn-confirm-reject" 
+                (click)="confirmReject()"
+                [disabled]="loading || !adminComment.trim()">
+          {{ loading ? 'Processing...' : 'Confirm Reject' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

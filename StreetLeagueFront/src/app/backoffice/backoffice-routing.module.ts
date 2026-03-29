@@ -4,6 +4,10 @@ import { BackofficeComponent } from './backoffice.component';
 import { ListTeamsComponent } from './list-teams/list-teams.component';
 import { ListTrainingComponent } from './list-training/list-training.component';
 import { HomeComponent } from './home/home.component';
+import { TransportComponent } from './transport/transport.component';
+import { AccommodationComponent } from './accommodation/accommodation.component';
+import { CoachTravelComponent } from './coach-travel/coach-travel.component';
+import { AccommodationRequestsComponent } from './accommodation-requests/accommodation-requests.component';
 
 
 const routes: Routes = [{ path: '', component: BackofficeComponent,   
@@ -11,7 +15,11 @@ const routes: Routes = [{ path: '', component: BackofficeComponent,
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       {path: 'home', component: HomeComponent},
       { path: 'teamAdmin', component: ListTeamsComponent},
-      {path: 'trainingAdmin', component: ListTrainingComponent}
+      {path: 'trainingAdmin', component: ListTrainingComponent},
+      { path: 'transport', component: TransportComponent },
+      { path: 'accommodation', component: AccommodationComponent },
+      { path: 'accommodation-requests', component: AccommodationRequestsComponent },
+      { path: 'coach-travel', component: CoachTravelComponent }
       
     ]
   }
