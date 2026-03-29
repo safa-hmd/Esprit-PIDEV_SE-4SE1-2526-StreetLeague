@@ -32,9 +32,10 @@ const routes: Routes = [
       .then(m => m.CoachFOModule)
   },
   {
-    path: '',
-    loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule)
-  },
+  path: '',
+  canActivate: [NoAuthGuard],   // ← ajouter ici
+  loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule)
+},
   { path: 'oauth2/callback',    component: OAuth2CallbackComponent },
   { path: 'oauth2/select-role', component: SelectRoleComponent },
   {
@@ -43,11 +44,11 @@ const routes: Routes = [
     component: ForgotPasswordComponent
   },
   { path: 'reset-password', component: ResetPasswordComponent },
-  {
-    path: 'admin-login',
-    canActivate: [NoAuthGuard],      // ← bloque si déjà connecté
-    component: AdminLoginComponent
-  },
+ {
+  path: 'admin-login',
+  canActivate: [NoAuthGuard],   // ← déjà présent ✓
+  component: AdminLoginComponent
+},
 
     { path: '**',                 component: NotFoundComponent }
 ];
