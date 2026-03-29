@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { RegisterComponent } from './register.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -18,12 +18,12 @@ describe('RegisterComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [RegisterComponent],
       imports: [
-  RouterTestingModule.withRoutes([
-    { path: 'login',  component: RegisterComponent },
-    { path: 'client', component: RegisterComponent },
-  ]),
-  ReactiveFormsModule
-],
+        RouterTestingModule.withRoutes([
+          { path: 'login',  component: RegisterComponent },
+          { path: 'client', component: RegisterComponent },
+        ]),
+        ReactiveFormsModule
+      ],
       providers: [
         { provide: AuthService, useValue: authServiceSpy }
       ]
@@ -49,6 +49,18 @@ describe('RegisterComponent', () => {
     expect(component.registerForm.invalid).toBeTrue();
   });
 
+  it('initialStateTest — isLoading should be false initially', () => {
+    expect(component.isLoading).toBeFalse();
+  });
+
+  it('initialStateTest — errorMessage should be empty initially', () => {
+    expect(component.errorMessage).toBe('');
+  });
+
+  it('initialStateTest — successMessage should be empty initially', () => {
+    expect(component.successMessage).toBe('');
+  });
+
   // ── selectRole ────────────────────────────────────────────
 
   it('selectRoleTest — should change selectedRole', () => {
@@ -56,10 +68,52 @@ describe('RegisterComponent', () => {
     expect(component.selectedRole).toBe('COACH');
   });
 
-
   it('selectRoleTest — should update roleLabel', () => {
     component.selectRole('SPONSOR');
     expect(component.roleLabel).toBe('Sponsor');
+  });
+
+  it('selectRoleTest — should clear errorMessage when role changes', () => {
+    component.errorMessage = 'some error';
+    component.selectRole('DELIVERY');
+    expect(component.errorMessage).toBe('');
+  });
+
+  it('selectRoleTest — roleLabel should be Player for PLAYER', () => {
+    component.selectRole('PLAYER');
+    expect(component.roleLabel).toBe('Player');
+  });
+
+  it('selectRoleTest — roleLabel should be Coach for COACH', () => {
+    component.selectRole('COACH');
+    expect(component.roleLabel).toBe('Coach');
+  });
+
+  it('selectRoleTest — roleLabel should be Delivery for DELIVERY', () => {
+    component.selectRole('DELIVERY');
+    expect(component.roleLabel).toBe('Delivery');
+  });
+
+  // ── emailPlaceholder ──────────────────────────────────────
+
+  it('emailPlaceholderTest — PLAYER returns player@streetleague.com', () => {
+    component.selectRole('PLAYER');
+    expect(component.emailPlaceholder).toBe('player@streetleague.com');
+  });
+
+  it('emailPlaceholderTest — COACH returns coach@streetleague.com', () => {
+    component.selectRole('COACH');
+    expect(component.emailPlaceholder).toBe('coach@streetleague.com');
+  });
+
+  it('emailPlaceholderTest — SPONSOR returns sponsor@streetleague.com', () => {
+    component.selectRole('SPONSOR');
+    expect(component.emailPlaceholder).toBe('sponsor@streetleague.com');
+  });
+
+  it('emailPlaceholderTest — DELIVERY returns delivery@streetleague.com', () => {
+    component.selectRole('DELIVERY');
+    expect(component.emailPlaceholder).toBe('delivery@streetleague.com');
   });
 
   // ── checkStrength ─────────────────────────────────────────
@@ -142,6 +196,18 @@ describe('RegisterComponent', () => {
     expect(component.registerForm.invalid).toBeTrue();
   });
 
+  it('registerFormTest — firstName field should be required', () => {
+    const ctrl = component.registerForm.get('firstName');
+    ctrl?.setValue('');
+    expect(ctrl?.hasError('required')).toBeTrue();
+  });
+
+  it('registerFormTest — lastName field should be required', () => {
+    const ctrl = component.registerForm.get('lastName');
+    ctrl?.setValue('');
+    expect(ctrl?.hasError('required')).toBeTrue();
+  });
+
   // ── onSubmit ──────────────────────────────────────────────
 
   it('onSubmitTest — should not call register if form invalid', () => {
@@ -177,6 +243,33 @@ describe('RegisterComponent', () => {
     expect(component.isLoading).toBeFalse();
   });
 
+  it('onSubmitTest — should navigate to /login after 1500ms on success', fakeAsync(() => {
+    authServiceSpy.register.and.returnValue(of({} as any));
+    const navigateSpy = spyOn(router, 'navigate');
+    component.registerForm.setValue({
+      firstName: 'John', lastName: 'Doe',
+      email: 'john@test.com', password: 'Pass123!',
+      confirmPassword: 'Pass123!', terms: true
+    });
+    component.onSubmit();
+    tick(1500);
+    expect(navigateSpy).toHaveBeenCalledWith(['/login']);
+  }));
+
+  it('onSubmitTest — should NOT navigate before 1500ms on success', fakeAsync(() => {
+    authServiceSpy.register.and.returnValue(of({} as any));
+    const navigateSpy = spyOn(router, 'navigate');
+    component.registerForm.setValue({
+      firstName: 'John', lastName: 'Doe',
+      email: 'john@test.com', password: 'Pass123!',
+      confirmPassword: 'Pass123!', terms: true
+    });
+    component.onSubmit();
+    tick(999);
+    expect(navigateSpy).not.toHaveBeenCalled();
+    tick(501); // cleanup
+  }));
+
   it('onSubmitTest — should set errorMessage on register failure', () => {
     authServiceSpy.register.and.returnValue(
       throwError(() => ({ error: { message: 'Email already exists' } }))
@@ -191,6 +284,17 @@ describe('RegisterComponent', () => {
     expect(component.isLoading).toBeFalse();
   });
 
+  it('onSubmitTest — should use fallback error message when no error.message', () => {
+    authServiceSpy.register.and.returnValue(throwError(() => ({})));
+    component.registerForm.setValue({
+      firstName: 'John', lastName: 'Doe',
+      email: 'john@test.com', password: 'Pass123!',
+      confirmPassword: 'Pass123!', terms: true
+    });
+    component.onSubmit();
+    expect(component.errorMessage).toBe('Une erreur est survenue. Veuillez réessayer.');
+  });
+
   it('onSubmitTest — should use selected role when registering', () => {
     authServiceSpy.register.and.returnValue(of({} as any));
     component.selectRole('COACH');
@@ -202,6 +306,19 @@ describe('RegisterComponent', () => {
     component.onSubmit();
     expect(authServiceSpy.register).toHaveBeenCalledWith(
       jasmine.objectContaining({ role: 'COACH' })
+    );
+  });
+
+  it('onSubmitTest — fullName should concatenate firstName and lastName', () => {
+    authServiceSpy.register.and.returnValue(of({} as any));
+    component.registerForm.setValue({
+      firstName: 'Sara', lastName: 'Ali',
+      email: 'sara@test.com', password: 'Pass123!',
+      confirmPassword: 'Pass123!', terms: true
+    });
+    component.onSubmit();
+    expect(authServiceSpy.register).toHaveBeenCalledWith(
+      jasmine.objectContaining({ fullName: 'Sara Ali' })
     );
   });
 });

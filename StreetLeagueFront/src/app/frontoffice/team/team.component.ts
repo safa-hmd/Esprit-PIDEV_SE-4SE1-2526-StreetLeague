@@ -168,6 +168,7 @@ export class TeamComponent implements OnInit {
       },
       error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
     });
+    
   }
 
   // ── Edit Team ─────────────────────────────────────────────
@@ -311,4 +312,24 @@ export class TeamComponent implements OnInit {
       default:          return 'badge-gray';
     }
   }
+
+  // team.component.ts
+
+isPlayerInTeam(team: Team): boolean {
+  return team.playerEmails?.some(
+    e => e.toLowerCase() === this.currentUserEmail.toLowerCase()
+  ) ?? false;
+}
+
+leaveTeam(idTeam: number): void {
+  const email = localStorage.getItem('EmailUserConnect');
+  this.teamService.leaveTeam(idTeam, email!).subscribe({
+    next: () => {
+      this.successMsg = 'You left the team.';
+      this.loadTeams();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
+  });
+}
 }

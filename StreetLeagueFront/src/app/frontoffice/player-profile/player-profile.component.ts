@@ -52,57 +52,55 @@ export class PlayerProfileComponent implements OnInit {
   private loadData(): void {
     const email = localStorage.getItem('EmailUserConnect') ?? '';
 
-    // Charger tout en parallèle
+    // Charger les teams, matchs et trainings en parallèle
     forkJoin({
-      profile:      this.userService.getProfile(),
       allTeams:     this.teamService.getAllTeams(),
       allMatches:   this.matchService.getAllMatchs(),
       allTrainings: this.trainingService.getAllTrainings()
     }).subscribe({
-      next: ({ profile, allTeams, allMatches, allTrainings }) => {
+      next: ({ allTeams, allMatches, allTrainings }) => {
 
-        this.profileForm.patchValue({ fullName: profile.fullName });
+        // Charger le profil séparément
+        this.userService.getProfile().subscribe({
+          next: profile => {
+            this.profileForm.patchValue({ fullName: profile.fullName });
 
-        // Debug — enlève après test
-        console.log('Email connecté:', email);
-        console.log('Team exemple:', allTeams[0]);
-        console.log('Match exemple:', allMatches[0]);
-        console.log('Training exemple:', allTrainings[0]);
+            // TEAMS : je suis capitaine OU membre
+            const myTeams = allTeams.filter(t =>
+              t.captainEmail === email ||
+              t.captainFullName === profile.fullName
+            );
 
-        // ── TEAMS : je suis capitaine OU membre ──
-        const myTeams = allTeams.filter(t =>
-          t.captainEmail === email ||
-          t.captainFullName === profile.fullName
-        );
+            const myTeamNames = new Set(myTeams.map(t => t.name));
 
-        // ── MATCHES : je suis capitaine d'une équipe impliquée ──
-        const myTeamNames = new Set(myTeams.map(t => t.name));
-        const myMatches = allMatches.filter(m =>
-          myTeamNames.has(m.teamAName) ||
-          myTeamNames.has(m.teamBName) ||
-          m.captainAEmail === email    ||
-          m.captainBEmail === email
-        );
+            // MATCHES : je suis capitaine d'une équipe impliquée
+            const myMatches = allMatches.filter(m =>
+              myTeamNames.has(m.teamAName) ||
+              myTeamNames.has(m.teamBName) ||
+              m.captainAEmail === email ||
+              m.captainBEmail === email
+            );
 
-        // ── TRAININGS : liés à mes équipes ──
-        const myTrainings = allTrainings.filter(t =>
-          myTeamNames.has(t.teamName)
-        );
+            // TRAININGS : liés à mes équipes
+            const myTrainings = allTrainings.filter(t =>
+              myTeamNames.has(t.teamName)
+            );
 
-        console.log('myTeams:', myTeams.length, myTeams);
-        console.log('myMatches:', myMatches.length);
-        console.log('myTrainings:', myTrainings.length);
-
-        this.profile = {
-          ...profile,
-          teamCount:     myTeams.length,
-          matchCount:    myMatches.length,
-          trainingCount: myTrainings.length
-        };
+            this.profile = {
+              ...profile,
+              teamCount: myTeams.length,
+              matchCount: myMatches.length,
+              trainingCount: myTrainings.length
+            };
+          },
+          error: () => {
+            // fallback si getProfile échoue
+            this.profileForm.patchValue({ fullName: '' });
+          }
+        });
       },
-      error: (err) => {
-        console.error('Load failed:', err);
-        // Fallback : charger juste le profil
+      error: () => {
+        // fallback si forkJoin échoue : charger juste le profil
         this.userService.getProfile().subscribe(p => {
           this.profile = p;
           this.profileForm.patchValue({ fullName: p.fullName });

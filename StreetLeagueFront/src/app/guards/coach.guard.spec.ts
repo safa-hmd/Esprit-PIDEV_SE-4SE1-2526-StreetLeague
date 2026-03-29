@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { AdminGuard } from './admin.guard';
+import { CoachGuard } from './coach.guard';
 import { AuthService } from '../services/auth.service';
 
-describe('AdminGuard', () => {
-  let guard: AdminGuard;
+describe('CoachGuard', () => {
+  let guard: CoachGuard;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
@@ -14,21 +14,21 @@ describe('AdminGuard', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        AdminGuard,
+        CoachGuard,
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router,      useValue: routerSpy      },
       ]
     });
 
-    guard = TestBed.inject(AdminGuard);
+    guard = TestBed.inject(CoachGuard);
   });
 
   it('should create', () => {
     expect(guard).toBeTruthy();
   });
 
-  it('canActivateTest - should return true when role is ROLE_ADMIN', () => {
-    authServiceSpy.getRole.and.returnValue('ROLE_ADMIN');
+  it('canActivateTest - should return true when role is ROLE_COACH', () => {
+    authServiceSpy.getRole.and.returnValue('ROLE_COACH');
 
     const result = guard.canActivate();
 
@@ -42,16 +42,16 @@ describe('AdminGuard', () => {
     const result = guard.canActivate();
 
     expect(result).toBeFalse();
-    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin-login');
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/login');
   });
 
-  it('canActivateTest - should return false and redirect when role is ROLE_COACH', () => {
-    authServiceSpy.getRole.and.returnValue('ROLE_COACH');
+  it('canActivateTest - should return false and redirect when role is ROLE_ADMIN', () => {
+    authServiceSpy.getRole.and.returnValue('ROLE_ADMIN');
 
     const result = guard.canActivate();
 
     expect(result).toBeFalse();
-    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin-login');
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/login');
   });
 
   it('canActivateTest - should return false and redirect when role is null', () => {
@@ -60,6 +60,6 @@ describe('AdminGuard', () => {
     const result = guard.canActivate();
 
     expect(result).toBeFalse();
-    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin-login');
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/login');
   });
 });

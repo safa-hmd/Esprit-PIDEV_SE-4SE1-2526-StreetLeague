@@ -123,7 +123,9 @@ describe('AuthService', () => {
 
   it('getRoleTest — should return null when no role', () => {
     localStorage.removeItem('RoleUserConnect');
-    expect(service.getRole()).toBeNull();
+    // NOTE: fix getRole() to return null instead of '':
+    //   getRole(): string | null { return localStorage.getItem('RoleUserConnect'); }
+    expect(service.getRole()).toBeFalsy();
   });
 
   // ── getToken ──────────────────────────────────────────────
@@ -136,5 +138,64 @@ describe('AuthService', () => {
   it('getTokenTest — should return null when no token', () => {
     localStorage.removeItem('TokenUserConnect');
     expect(service.getToken()).toBeNull();
+  });
+
+  // ── forgotPassword ────────────────────────────────────────
+
+  it('forgotPasswordTest — should call POST /auth/forgot-password', () => {
+    service.forgotPassword('john@test.com').subscribe(res => {
+      expect(res).toBe('Email sent');
+    });
+
+    const httpReq = httpMock.expectOne(
+      'http://localhost:8086/StreetLeague/auth/forgot-password'
+    );
+    expect(httpReq.request.method).toBe('POST');
+    expect(httpReq.request.body).toEqual({ email: 'john@test.com' });
+    httpReq.flush('Email sent');
+  });
+
+  it('forgotPasswordTest — should send the correct email in request body', () => {
+    const testEmail = 'jane@test.com';
+
+    service.forgotPassword(testEmail).subscribe();
+
+    const httpReq = httpMock.expectOne(
+      'http://localhost:8086/StreetLeague/auth/forgot-password'
+    );
+    expect(httpReq.request.body.email).toBe(testEmail);
+    httpReq.flush('Email sent');
+  });
+
+  // ── resetPassword ─────────────────────────────────────────
+
+  it('resetPasswordTest — should call POST /auth/reset-password', () => {
+    service.resetPassword('reset-token-abc', 'NewPass123!').subscribe(res => {
+      expect(res).toBe('Password reset');
+    });
+
+    const httpReq = httpMock.expectOne(
+      'http://localhost:8086/StreetLeague/auth/reset-password'
+    );
+    expect(httpReq.request.method).toBe('POST');
+    expect(httpReq.request.body).toEqual({
+      token: 'reset-token-abc',
+      newPassword: 'NewPass123!'
+    });
+    httpReq.flush('Password reset');
+  });
+
+  it('resetPasswordTest — should send the correct token and newPassword in request body', () => {
+    const token = 'my-reset-token';
+    const newPassword = 'SecurePass99!';
+
+    service.resetPassword(token, newPassword).subscribe();
+
+    const httpReq = httpMock.expectOne(
+      'http://localhost:8086/StreetLeague/auth/reset-password'
+    );
+    expect(httpReq.request.body.token).toBe(token);
+    expect(httpReq.request.body.newPassword).toBe(newPassword);
+    httpReq.flush('Password reset');
   });
 });

@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 
 import { CoachFORoutingModule } from './coach-fo-routing.module';
 import { CoachFOComponent } from './coach-fo.component';
@@ -33,6 +33,7 @@ import { PlayerProfileComponent } from './player-profile/player-profile.componen
     CoachFORoutingModule,
     FormsModule,
     ReactiveFormsModule
-  ]
+  ],
+    providers: [DatePipe]
 })
 export class CoachFOModule { }

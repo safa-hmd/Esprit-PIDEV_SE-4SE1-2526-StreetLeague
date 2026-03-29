@@ -62,9 +62,9 @@ export class AuthService {
     return !!localStorage.getItem('TokenUserConnect');
   }
 
-  getRole(): string | null {
-    return localStorage.getItem('RoleUserConnect');
-  }
+getRole(): string {
+  return localStorage.getItem('RoleUserConnect') || '';
+}
 
   getToken(): string | null {
     return localStorage.getItem('TokenUserConnect');

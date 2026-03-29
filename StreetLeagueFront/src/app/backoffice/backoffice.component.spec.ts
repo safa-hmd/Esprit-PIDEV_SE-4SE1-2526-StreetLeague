@@ -1,13 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BackofficeComponent } from './backoffice.component';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({ selector: 'app-header', template: '' })
 class MockHeaderComponent {}
 
-@Component({ selector: 'app-menu', template: '' })    // ← ajouter
-class MockMenuComponent {}
+@Component({ selector: 'app-menu', template: '' })
+class MockMenuComponent {
+  @Input() collapsed = false;
+}
 
 @Component({ selector: 'app-sidebar', template: '' })
 class MockSidebarComponent {}

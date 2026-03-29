@@ -12,4 +12,5 @@ export interface Team {
   victories?: number;
   defeats?: number;
   matches?: number;
+   playerEmails?:    string[]; 
 }
