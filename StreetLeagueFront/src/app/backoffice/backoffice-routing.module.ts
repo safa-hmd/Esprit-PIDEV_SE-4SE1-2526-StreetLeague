@@ -10,17 +10,20 @@ import { CoachTravelComponent } from './coach-travel/coach-travel.component';
 import { AccommodationRequestsComponent } from './accommodation-requests/accommodation-requests.component';
 
 
+import { TransportManagementComponent } from './transport-management/transport-management.component';
+import { TravelRequestsComponent } from './travel-requests/travel-requests.component';
+
 const routes: Routes = [{ path: '', component: BackofficeComponent,   
     children: [                      
       { path: '', redirectTo: 'home', pathMatch: 'full' },
-      {path: 'home', component: HomeComponent},
+      { path: 'home', component: HomeComponent},
       { path: 'teamAdmin', component: ListTeamsComponent},
-      {path: 'trainingAdmin', component: ListTrainingComponent},
-      { path: 'transport', component: TransportComponent },
+      { path: 'trainingAdmin', component: ListTrainingComponent},
+      { path: 'transport', component: TransportManagementComponent },
+      { path: 'travel/requests', component: TravelRequestsComponent },
       { path: 'accommodation', component: AccommodationComponent },
       { path: 'accommodation-requests', component: AccommodationRequestsComponent },
       { path: 'coach-travel', component: CoachTravelComponent }
-      
     ]
   }
 ];

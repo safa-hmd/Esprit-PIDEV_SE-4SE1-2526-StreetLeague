@@ -16,6 +16,8 @@ public interface AdminTravelService {
     List<TransportDto> getAllTransports();
     Transport updateTransport(Long id, TransportDto dto);
     void deleteTransport(Long id);
+    Transport approveTransport(Long id);
+    Transport rejectTransport(Long id);
 
     Accommodation addAccommodation(AccommodationDto accommodationDto);
     List<TravelRequestResponseDto> getAllRequests();

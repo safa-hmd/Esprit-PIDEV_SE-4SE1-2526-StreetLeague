@@ -183,13 +183,14 @@ public class AdminTravelServiceImpl implements AdminTravelService {
     @Transactional
     public Transport addTransport(TransportDto transportDto) {
         Transport transport = Transport.builder()
-                .type(transportDto.getType())           // ← déjà TransportType ✓
+                .type(transportDto.getType())
                 .pricePerSeat(transportDto.getPricePerSeat())
                 .availableSeats(transportDto.getAvailableSeats() != null
                         ? transportDto.getAvailableSeats() : 0)
                 .departureTime(transportDto.getDepartureTime())
                 .returnTime(transportDto.getReturnTime())
                 .destination(transportDto.getDestination())
+                .status("APPROVED") // Default for admin-added transports
                 .build();
         return transportRepository.save(transport);
     }
@@ -205,8 +206,27 @@ public class AdminTravelServiceImpl implements AdminTravelService {
                         .pricePerSeat(t.getPricePerSeat())
                         .departureTime(t.getDepartureTime())
                         .returnTime(t.getReturnTime())
+                        .status(t.getStatus())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public Transport approveTransport(Long id) {
+        Transport transport = transportRepository.findById(id)
+                .orElseThrow(() -> new BusinessValidationException("Transport not found"));
+        transport.setStatus("APPROVED");
+        return transportRepository.save(transport);
+    }
+
+    @Override
+    @Transactional
+    public Transport rejectTransport(Long id) {
+        Transport transport = transportRepository.findById(id)
+                .orElseThrow(() -> new BusinessValidationException("Transport not found"));
+        transport.setStatus("REJECTED");
+        return transportRepository.save(transport);
     }
 
     @Override

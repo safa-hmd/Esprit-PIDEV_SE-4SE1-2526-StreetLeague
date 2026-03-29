@@ -1,0 +1,64 @@
+<div class="admin-container">
+  <div class="header-action">
+    <h2>Coach Travel Requests</h2>
+  </div>
+
+  <table class="admin-table mt-4">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Team</th>
+        <th>Tournament</th>
+        <th>Transport</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of requests">
+        <td>#{{ r.id }}</td>
+        <td>{{ r.teamName }} ({{ r.teamCity }})</td>
+        <td>{{ r.tournament?.name }}</td>
+        <td>{{ r.transport?.type }} - {{ r.transport?.destination }}</td>
+        <td>${{ r.totalAmount }}</td>
+        <td>
+           <span class="badge" [ngClass]="{'badge-success': r.status === 'APPROVED', 'badge-danger': r.status === 'REJECTED', 'badge-warning': r.status === 'PENDING'}">
+              {{ r.status }}
+           </span>
+        </td>
+        <td>
+          <button class="btn-sm btn-outline" (click)="openDecisionModal(r)">Review</button>
+        </td>
+      </tr>
+      <tr *ngIf="requests.length === 0">
+        <td colspan="7" class="text-center">No requests found.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Decision Modal -->
+  <div class="modal-overlay" *ngIf="displayModal">
+    <div class="modal-content">
+      <h3>Review Request #{{ activeRequest?.id }}</h3>
+      
+      <div class="summary-box">
+         <p><strong>Team:</strong> {{ activeRequest?.teamName }}</p>
+         <p><strong>Transport:</strong> {{ activeRequest?.transport?.type }}</p>
+         <p><strong>Individual Price:</strong> ${{ activeRequest?.individualPrice }}</p>
+         <p><strong>Total Amount:</strong> ${{ activeRequest?.totalAmount }}</p>
+      </div>
+
+      <div class="form-group mt-4">
+        <label>Admin Comment (Optional)</label>
+        <textarea [(ngModel)]="adminComment" class="form-control" rows="3" placeholder="Provide reason for rejection or approval notes..."></textarea>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn btn-outline" (click)="closeModal()">Cancel</button>
+        <button class="btn btn-red" (click)="decide('REJECTED')">Reject</button>
+        <button class="btn btn-success" (click)="decide('APPROVED')">Approve</button>
+      </div>
+    </div>
+  </div>
+</div>

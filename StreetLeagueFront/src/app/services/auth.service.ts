@@ -20,7 +20,8 @@ export interface AuthResponse {
   token: string;
   email: string;
   role: string;
-  id: string;
+  id?: string;
+  idUser?: string;
 }
 
 @Injectable({
@@ -46,7 +47,7 @@ export class AuthService {
         localStorage.setItem('TokenUserConnect', response.token);
         localStorage.setItem('EmailUserConnect', response.email);
         localStorage.setItem('RoleUserConnect',  response.role);
-       localStorage.setItem('UserIdConnect', response.id); 
+        localStorage.setItem('UserIdConnect', String(response.idUser || response.id || '')); 
       })
     );
   }

@@ -19,6 +19,7 @@ public class TransportDto {
     private Double pricePerSeat;
     private LocalDateTime departureTime; // ← LocalDateTime pas String
     private LocalDateTime returnTime;    // ← LocalDateTime pas String
+    private String status;
 
     // ===== EXPLICIT GETTERS/SETTERS =====
     public Long getId() { return this.id; }
@@ -42,6 +43,9 @@ public class TransportDto {
     public LocalDateTime getReturnTime() { return this.returnTime; }
     public void setReturnTime(LocalDateTime returnTime) { this.returnTime = returnTime; }
 
+    public String getStatus() { return this.status; }
+    public void setStatus(String status) { this.status = status; }
+
     // ===== STATIC BUILDER HELPER =====
     public static TransportDtoBuilder builder() {
         return new TransportDtoBuilder();
@@ -55,6 +59,7 @@ public class TransportDto {
         private Double pricePerSeat;
         private LocalDateTime departureTime;
         private LocalDateTime returnTime;
+        private String status;
 
         public TransportDtoBuilder id(Long id) { this.id = id; return this; }
         public TransportDtoBuilder type(TransportType type) { this.type = type; return this; }
@@ -63,6 +68,7 @@ public class TransportDto {
         public TransportDtoBuilder pricePerSeat(Double pricePerSeat) { this.pricePerSeat = pricePerSeat; return this; }
         public TransportDtoBuilder departureTime(LocalDateTime departureTime) { this.departureTime = departureTime; return this; }
         public TransportDtoBuilder returnTime(LocalDateTime returnTime) { this.returnTime = returnTime; return this; }
+        public TransportDtoBuilder status(String status) { this.status = status; return this; }
 
         public TransportDto build() {
             TransportDto dto = new TransportDto();
@@ -73,6 +79,7 @@ public class TransportDto {
             dto.setPricePerSeat(pricePerSeat);
             dto.setDepartureTime(departureTime);
             dto.setReturnTime(returnTime);
+            dto.setStatus(status);
             return dto;
         }
     }

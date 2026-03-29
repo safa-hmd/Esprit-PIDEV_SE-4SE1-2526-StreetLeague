@@ -137,7 +137,7 @@ export class TravelService {
   }
 
   // ============================================================
-  // ADMIN METHODS  
+  // ADMIN METHODS  (Existing)
   // ============================================================
 
   getAccommodationRequests(): Observable<any[]> {
@@ -161,5 +161,58 @@ export class TravelService {
       data,
       { headers: this.getHeaders() }
     );
+  }
+
+  // ============================================================
+  // NEW ADMIN METHODS
+  // ============================================================
+  updateTransport(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}/api/admin/travel/transport/${id}`, data, { headers: this.getHeaders() });
+  }
+
+  deleteTransport(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/api/admin/travel/transport/${id}`, { headers: this.getHeaders() });
+  }
+
+  approveTransport(id: number): Observable<any> {
+    return this.http.put(`${this.baseUrl}/api/admin/travel/transport/${id}/approve`, {}, { headers: this.getHeaders() });
+  }
+
+  rejectTransport(id: number): Observable<any> {
+    return this.http.put(`${this.baseUrl}/api/admin/travel/transport/${id}/reject`, {}, { headers: this.getHeaders() });
+  }
+
+  getAllTravelRequests(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/api/admin/travel/requests`, { headers: this.getHeaders() });
+  }
+
+  decideTravelRequest(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}/api/admin/travel/requests/${id}/decision`, data, { headers: this.getHeaders() });
+  }
+
+  // ============================================================
+  // TOURNAMENTS
+  // ============================================================
+  getTournaments(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/api/tournaments`, { headers: this.getHeaders() });
+  }
+
+  // ============================================================
+  // NEW COACH METHODS
+  // ============================================================
+  checkEligibilityAndGetTransports(coachId: any, tournamentId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/coach/travel/transports/check?coachId=${coachId}&tournamentId=${tournamentId}`, { headers: this.getHeaders() });
+  }
+
+  submitPersonalCar(data: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/coach/travel/transport/personal-car`, data, { headers: this.getHeaders() });
+  }
+
+  submitTravelRequest(data: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/coach/travel/requests`, data, { headers: this.getHeaders() });
+  }
+
+  getMyTravelRequests(coachId: any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/api/coach/travel/requests/my?coachId=${coachId}`, { headers: this.getHeaders() });
   }
 }

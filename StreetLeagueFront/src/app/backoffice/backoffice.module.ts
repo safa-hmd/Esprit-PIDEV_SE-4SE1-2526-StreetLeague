@@ -14,6 +14,8 @@ import { TransportComponent } from './transport/transport.component';
 import { AccommodationComponent } from './accommodation/accommodation.component';
 import { CoachTravelComponent } from './coach-travel/coach-travel.component';
 import { AccommodationRequestsComponent } from './accommodation-requests/accommodation-requests.component';
+import { TransportManagementComponent } from './transport-management/transport-management.component';
+import { TravelRequestsComponent } from './travel-requests/travel-requests.component';
 
 
 
@@ -28,7 +30,9 @@ import { AccommodationRequestsComponent } from './accommodation-requests/accommo
     TransportComponent,
     AccommodationComponent,
     CoachTravelComponent,
-    AccommodationRequestsComponent
+    AccommodationRequestsComponent,
+    TransportManagementComponent,
+    TravelRequestsComponent
 
   
 

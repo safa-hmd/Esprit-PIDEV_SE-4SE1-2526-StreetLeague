@@ -129,7 +129,7 @@ export class TeamComponent implements OnInit {
     const q = query.toLowerCase();
     this.filteredTeams = this.teams.filter(t =>
       t.name.toLowerCase().includes(q) ||
-      t.sport.toLowerCase().includes(q) ||
+      t.sport?.toLowerCase().includes(q) ||
       (t.description || '').toLowerCase().includes(q)
     );
   }

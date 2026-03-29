@@ -1,0 +1,88 @@
+<div class="booking-container bg-white text-dark min-vh-100">
+  <div class="container py-5">
+    <div class="d-flex align-items-center mb-4">
+      <button class="btn btn-outline-secondary me-3" (click)="back()">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
+      <h2 class="page-title mb-0">Complete Your Booking</h2>
+    </div>
+
+    <div class="row">
+      <!-- Left Column: Transport Summary -->
+      <div class="col-md-5 mb-4">
+        <div class="card border-0 shadow-sm p-4 bg-light">
+          <h4 class="font-weight-bold text-danger mb-3">Transport Summary</h4>
+          <div class="summary-details">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Type:</span>
+              <span class="font-weight-bold">{{ transport?.type }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">To:</span>
+              <span class="font-weight-bold">{{ transport?.destination }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Price per Seat:</span>
+              <span class="font-weight-bold">{{ transport?.pricePerSeat | currency }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Available Seats:</span>
+              <span class="badge bg-success">{{ transport?.availableSeats }} remaining</span>
+            </div>
+          </div>
+          <hr>
+          <div class="mt-3">
+            <p class="mb-1"><i class="fas fa-clock text-danger me-2"></i> Departure: {{ transport?.departureTime | date:'short' }}</p>
+            <p class="mb-0"><i class="fas fa-undo text-danger me-2"></i> Return: {{ transport?.returnTime | date:'short' }}</p>
+          </div>
+        </div>
+
+        <!-- FIX 4: Summary Box -->
+        <div class="card border-danger shadow mt-4 p-4 text-center bg-white" style="border: 2px solid #e63946;">
+           <h5 class="text-muted mb-2">Current Total</h5>
+           <h2 class="text-danger font-weight-bold mb-3">{{ totalPrice | currency }}</h2>
+           <div class="p-2 rounded bg-light">
+              <p class="mb-0 text-dark">
+                Selected members: <strong>{{ selectedMemberIds.size }}</strong> | 
+                Price per seat: <strong>{{ transport?.pricePerSeat | currency }}</strong>
+              </p>
+           </div>
+           <button class="btn btn-danger btn-lg mt-4 w-100" (click)="submitRequest()" [disabled]="selectedMemberIds.size === 0">
+             Confirm Request
+           </button>
+        </div>
+      </div>
+
+      <!-- Right Column: Member Selection -->
+      <div class="col-md-7">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <h4 class="font-weight-bold mb-4">Who is traveling?</h4>
+          <p class="text-muted mb-4">Select the team members you are booking transport for.</p>
+
+          <div *ngIf="isLoadingMembers" class="text-center py-5">
+             <div class="spinner-border text-danger"></div>
+             <p>Loading team members...</p>
+          </div>
+
+          <div *ngIf="!isLoadingMembers && teamMembers.length === 0" class="alert alert-warning">
+             No team members found. You must have members in your team to book transport.
+          </div>
+
+          <div class="member-list list-group list-group-flush" *ngIf="!isLoadingMembers && teamMembers.length > 0">
+             <div class="list-group-item d-flex align-items-center py-3 px-0 border-bottom" *ngFor="let m of teamMembers">
+                <div class="form-check me-3">
+                   <input class="form-check-input transport-checkbox" type="checkbox" 
+                          [value]="m.id" [id]="'member' + m.id" 
+                          (change)="toggleMember(m.id)">
+                </div>
+                <div class="member-info flex-grow-1">
+                   <h6 class="mb-0 font-weight-bold text-dark">{{ m.fullName }}</h6>
+                   <small class="text-muted">{{ m.role }} • {{ m.email }}</small>
+                </div>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

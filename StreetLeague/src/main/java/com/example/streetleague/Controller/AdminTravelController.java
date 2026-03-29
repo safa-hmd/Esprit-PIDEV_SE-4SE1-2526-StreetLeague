@@ -46,6 +46,16 @@ public class AdminTravelController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/transport/{id}/approve")
+    public ResponseEntity<Transport> approveTransport(@PathVariable Long id) {
+        return ResponseEntity.ok(adminTravelService.approveTransport(id));
+    }
+
+    @PutMapping("/transport/{id}/reject")
+    public ResponseEntity<Transport> rejectTransport(@PathVariable Long id) {
+        return ResponseEntity.ok(adminTravelService.rejectTransport(id));
+    }
+
     @PostMapping("/accommodation")
     public ResponseEntity<Accommodation> addAccommodation(@RequestBody AccommodationDto accommodationDto) {
         return ResponseEntity.ok(adminTravelService.addAccommodation(accommodationDto));

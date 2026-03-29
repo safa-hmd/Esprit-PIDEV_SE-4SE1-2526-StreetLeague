@@ -114,6 +114,7 @@ public class CoachTravelServiceImpl implements CoachTravelService {
                 .departureTime(carDto.getDepartureTime())
                 .returnTime(carDto.getReturnTime())
                 .destination(carDto.getDestination())
+                .status("PENDING")
                 .build();
         
         Transport saved = transportRepository.save(transport);

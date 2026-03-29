@@ -28,6 +28,9 @@ public class Transport {
     LocalDateTime returnTime;
     String destination;
 
+    @Column(nullable = false)
+    String status = "APPROVED"; 
+
     // ===== EXPLICIT GETTERS/SETTERS (Lombok not processing) =====
 
     public Long getId() { return this.id; }
@@ -51,15 +54,19 @@ public class Transport {
     public String getDestination() { return this.destination; }
     public void setDestination(String destination) { this.destination = destination; }
 
+    public String getStatus() { return this.status; }
+    public void setStatus(String status) { this.status = status; }
+
     // ===== EXPLICIT CONSTRUCTOR ====
     public Transport(TransportType type, Double pricePerSeat, Integer availableSeats, 
-                     LocalDateTime departureTime, LocalDateTime returnTime, String destination) {
+                     LocalDateTime departureTime, LocalDateTime returnTime, String destination, String status) {
         this.type = type;
         this.pricePerSeat = pricePerSeat;
         this.availableSeats = availableSeats != null ? availableSeats : 0;
         this.departureTime = departureTime;
         this.returnTime = returnTime;
         this.destination = destination;
+        this.status = status != null ? status : "APPROVED";
     }
 
     // ===== STATIC BUILDER METHOD ====
@@ -74,6 +81,7 @@ public class Transport {
         private LocalDateTime departureTime;
         private LocalDateTime returnTime;
         private String destination;
+        private String status;
 
         public TransportBuilder type(TransportType type) { this.type = type; return this; }
         public TransportBuilder pricePerSeat(Double pricePerSeat) { this.pricePerSeat = pricePerSeat; return this; }
@@ -81,9 +89,10 @@ public class Transport {
         public TransportBuilder departureTime(LocalDateTime departureTime) { this.departureTime = departureTime; return this; }
         public TransportBuilder returnTime(LocalDateTime returnTime) { this.returnTime = returnTime; return this; }
         public TransportBuilder destination(String destination) { this.destination = destination; return this; }
+        public TransportBuilder status(String status) { this.status = status; return this; }
 
         public Transport build() {
-            return new Transport(type, pricePerSeat, availableSeats, departureTime, returnTime, destination);
+            return new Transport(type, pricePerSeat, availableSeats, departureTime, returnTime, destination, status);
         }
     }
 }

@@ -1,0 +1,108 @@
+<div class="admin-main">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-white">Transport Management</h2>
+    <button class="btn btn-danger" (click)="openModal()">+ Add New Transport</button>
+  </div>
+
+  <table class="table table-dark table-hover">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Destination</th>
+        <th>Departure</th>
+        <th>Return</th>
+        <th>Seats</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let t of transports">
+        <td>
+          <span class="badge" [ngClass]="t.type === 'BUS' ? 'bg-primary' : (t.type === 'VAN' ? 'bg-info' : 'bg-warning text-dark')">
+            {{ t.type }}
+          </span>
+        </td>
+        <td>{{ t.destination }}</td>
+        <td>{{ t.departureTime | date:'short' }}</td>
+        <td>{{ t.returnTime | date:'short' }}</td>
+        <td>{{ t.availableSeats }}</td>
+        <td>{{ t.pricePerSeat | currency }}</td>
+        <td>
+          <span class="badge" [ngClass]="{
+            'bg-success': t.status === 'APPROVED',
+            'bg-danger': t.status === 'REJECTED',
+            'bg-warning text-dark': t.status === 'PENDING'
+          }">
+            {{ t.status || 'APPROVED' }}
+          </span>
+        </td>
+        <td>
+          <div class="btn-group">
+            <!-- Normal Actions -->
+            <button class="btn btn-sm btn-outline-info" (click)="openModal(t)">Edit</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="delete(t.id)">Delete</button>
+            
+            <!-- Approval Actions (Only for Private Car) -->
+            <ng-container *ngIf="t.type === 'PRIVATE_CAR'">
+              <button *ngIf="t.status === 'PENDING'" class="btn btn-sm btn-success ms-2" (click)="approve(t.id)">Approve</button>
+              <button *ngIf="t.status === 'PENDING'" class="btn btn-sm btn-danger ms-1" (click)="reject(t.id)">Reject</button>
+              <button *ngIf="t.status === 'APPROVED'" class="btn btn-sm btn-secondary ms-2" disabled>Revoke</button>
+            </ng-container>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Modal -->
+  <div class="modal d-block" *ngIf="displayModal" style="background: rgba(0,0,0,0.8);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-white text-dark border-danger">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title font-weight-bold" style="color: #1a1a1a;">{{ editing ? 'Edit' : 'Add' }} Transport</h5>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form #f="ngForm">
+            <div class="mb-3">
+              <label class="form-label font-weight-bold" style="color: #1a1a1a;">Type</label>
+              <select class="form-select bg-light text-dark border-secondary" [(ngModel)]="transportDto.type" name="type">
+                <option value="BUS">BUS</option>
+                <option value="VAN">VAN</option>
+                <option value="PRIVATE_CAR">PRIVATE CAR</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label font-weight-bold" style="color: #1a1a1a;">Destination</label>
+              <input type="text" class="form-control bg-light text-dark border-secondary" [(ngModel)]="transportDto.destination" name="destination">
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label font-weight-bold" style="color: #1a1a1a;">Available Seats</label>
+                <input type="number" class="form-control bg-light text-dark border-secondary" [(ngModel)]="transportDto.availableSeats" name="seats">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label font-weight-bold" style="color: #1a1a1a;">Price per Seat</label>
+                <input type="number" class="form-control bg-light text-dark border-secondary" [(ngModel)]="transportDto.pricePerSeat" name="price">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label font-weight-bold" style="color: #1a1a1a;">Departure Time</label>
+              <input type="datetime-local" class="form-control bg-light text-dark border-secondary" [(ngModel)]="transportDto.departureTime" name="departure">
+            </div>
+            <div class="mb-3">
+              <label class="form-label font-weight-bold" style="color: #1a1a1a;">Return Time</label>
+              <input type="datetime-local" class="form-control bg-light text-dark border-secondary" [(ngModel)]="transportDto.returnTime" name="returnTime">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-top">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+          <button type="button" class="btn btn-danger" (click)="save()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

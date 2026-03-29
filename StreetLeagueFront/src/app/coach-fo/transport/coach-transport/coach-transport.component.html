@@ -1,0 +1,135 @@
+<div class="transport-container bg-white text-dark">
+  <div class="container py-5">
+    <h2 class="page-title mb-4">Transport Hub</h2>
+
+    <div class="card p-4 shadow-sm mb-4 border-0" style="background: #f8f9fa;">
+      <label for="tournament" class="form-label font-weight-bold">Select Your Tournament:</label>
+      <select id="tournament" class="form-select border-danger" [(ngModel)]="selectedTournamentId" (change)="onTournamentChange()">
+        <option [ngValue]="null">--- Please choose a tournament ---</option>
+        <option *ngFor="let t of tournaments" [value]="t.id">{{ t.name }} ({{ t.city }})</option>
+      </select>
+    </div>
+
+    <div *ngIf="isLoading && selectedTournamentId" class="text-center my-5">
+      <div class="spinner-border text-danger" role="status"></div>
+      <p>Loading transport options...</p>
+    </div>
+
+    <!-- Case 1: Same City -->
+    <div *ngIf="isSameCity" class="alert alert-danger p-4 border-0 shadow-sm rounded-lg my-4">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+        <div>
+          <h4 class="alert-heading font-weight-bold mb-1">Local Tournament Detected</h4>
+          <p class="mb-2">Your team is already located in <strong>{{ teamCity }}</strong>. Transport is not available. You may book accommodation instead.</p>
+          <button class="btn btn-danger btn-lg mt-2" (click)="goToLodging()">Book Accommodation</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Case 2: Different City & Filtered Transports -->
+    <div *ngIf="!isSameCity && selectedTournamentId && !isLoading">
+      <div class="alert alert-info border-0 shadow-sm mb-4" *ngIf="reason">
+          {{ reason }}
+      </div>
+
+      <div class="transport-grid row g-4" *ngIf="filteredTransports.length > 0">
+        <div class="col-md-4" *ngFor="let t of filteredTransports">
+            <div class="card transport-card h-100 border-0 shadow-sm" (click)="bookTransport(t)">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h4 class="card-title font-weight-bold">{{ t.type }}</h4>
+                        <i class="fas" [ngClass]="t.type === 'BUS' ? 'fa-bus' : 'fa-shuttle-van'" style="font-size: 1.5rem; color: #e63946;"></i>
+                    </div>
+                    <p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i> {{ t.destination }}</p>
+                    <div class="details mt-3">
+                        <p class="mb-1"><small>Departure: {{ t.departureTime | date:'short' }}</small></p>
+                        <p class="mb-1"><small>Return: {{ t.returnTime | date:'short' }}</small></p>
+                    </div>
+                    <div class="mt-4">
+                        <span class="price-tag h4 me-2">{{ t.pricePerSeat | currency }}</span>
+                        <span class="badge bg-success">{{ t.availableSeats }} seats left</span>
+                    </div>
+                    <button class="btn btn-danger w-100 mt-4">Select & Book</button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div *ngIf="filteredTransports.length === 0" class="alert alert-warning border-0 shadow-sm my-4">
+        No transports available for this tournament destination ({{ selectedTournament?.city }}).
+      </div>
+    </div>
+
+    <!-- FIX 5: Personal Car Section -->
+    <div class="personal-car-section mt-5 p-5 border shadow-sm rounded-lg" style="background: #ffffff;">
+      <h3 class="font-weight-bold mb-3 text-danger">Traveling with your own vehicle?</h3>
+      <p class="mb-4 text-muted">Submit your personal car details for reimbursement or coordination. It will appear as a transport option once approved by the admin.</p>
+      
+      <div *ngIf="pcMessage" class="alert alert-success mb-4">{{ pcMessage }}</div>
+
+      <form #pcForm="ngForm" (ngSubmit)="submitPersonalCarForm()">
+          <div class="row g-3">
+              <div class="col-md-4">
+                  <label class="form-label font-weight-bold text-dark">Destination</label>
+                  <input type="text" class="form-control border-secondary" [(ngModel)]="personalCar.destination" name="pDest" required>
+              </div>
+              <div class="col-md-2">
+                  <label class="form-label font-weight-bold text-dark">Available Seats</label>
+                  <input type="number" class="form-control border-secondary" [(ngModel)]="personalCar.availableSeats" name="pSeats" required>
+              </div>
+              <div class="col-md-2">
+                  <label class="form-label font-weight-bold text-dark">Price/Seat ($)</label>
+                  <input type="number" class="form-control border-secondary" [(ngModel)]="personalCar.pricePerSeat" name="pPrice" required>
+              </div>
+              <div class="col-md-2">
+                  <label class="form-label font-weight-bold text-dark">Departure</label>
+                  <input type="datetime-local" class="form-control border-secondary" [(ngModel)]="personalCar.departureTime" name="pDep" required>
+              </div>
+              <div class="col-md-2">
+                  <label class="form-label font-weight-bold text-dark">Return</label>
+                  <input type="datetime-local" class="form-control border-secondary" [(ngModel)]="personalCar.returnTime" name="pRet" required>
+              </div>
+          </div>
+          <button class="btn btn-danger btn-lg mt-4 w-100 shadow-sm" [disabled]="!pcForm.form.valid">Submit Personal Vehicle</button>
+      </form>
+    </div>
+
+    <!-- FIX 6: My Requests Section -->
+    <div class="requests-section mt-5">
+      <h3 class="font-weight-bold mb-4">My Transport Requests</h3>
+      
+      <div *ngIf="myRequests.length === 0" class="text-muted fst-italic">
+        No transport requests submitted yet.
+      </div>
+
+      <div class="requests-grid row g-3" *ngIf="myRequests.length > 0">
+        <div class="col-md-4" *ngFor="let r of myRequests">
+            <div class="card shadow-sm h-100 border-start border-4" [ngClass]="{
+                'border-warning': r.status === 'PENDING',
+                'border-success': r.status === 'APPROVED',
+                'border-danger': r.status === 'REJECTED'
+            }">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h5 class="card-title font-weight-bold">Request #{{ r.id }}</h5>
+                        <span class="badge" [ngClass]="{
+                            'bg-warning text-dark': r.status === 'PENDING',
+                            'bg-success': r.status === 'APPROVED',
+                            'bg-danger': r.status === 'REJECTED'
+                        }">{{ r.status }}</span>
+                    </div>
+                    <p class="mb-1"><strong>To:</strong> {{ r.transport?.destination }} ({{ r.transport?.type }})</p>
+                    <p class="mb-1"><strong>Selection:</strong> {{ r.memberIds?.length || 0 }} members</p>
+                    <p class="mb-2"><strong>Total Price:</strong> {{ r.totalAmount | currency }}</p>
+                    
+                    <div *ngIf="r.status === 'REJECTED' && r.adminComment" class="mt-2 p-2 bg-light border-start border-danger">
+                        <small class="text-danger">Admin: {{ r.adminComment }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

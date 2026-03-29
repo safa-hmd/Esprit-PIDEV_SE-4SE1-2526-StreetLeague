@@ -13,6 +13,10 @@ import { DetailMatchComponent } from './detail-match/detail-match.component';
 import { DetailTrainingComponent } from './detail-training/detail-training.component';
 import { HomeComponent } from './home/home.component';
 import { CoachAccommodationComponent } from './accommodation/coach-accommodation.component';
+import { CoachTransportComponent } from './transport/coach-transport/coach-transport.component';
+import { TransportBookComponent } from './transport/transport-book/transport-book.component';
+import { PersonalCarComponent } from './transport/personal-car/personal-car.component';
+import { MyRequestsComponent } from './transport/my-requests/my-requests.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +29,11 @@ import { CoachAccommodationComponent } from './accommodation/coach-accommodation
     DetailMatchComponent,
     DetailTrainingComponent,
     HomeComponent,
-    CoachAccommodationComponent
+    CoachAccommodationComponent,
+    CoachTransportComponent,
+    TransportBookComponent,
+    PersonalCarComponent,
+    MyRequestsComponent
   ],
   imports: [
     CommonModule,

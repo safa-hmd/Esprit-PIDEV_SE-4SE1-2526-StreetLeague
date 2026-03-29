@@ -1,14 +1,19 @@
 export interface Team {
+  // DB fields (from teams table)
   idTeam?: number;
+  id?: number;
+  city?: string;
   name: string;
-  sport: string;
-  description?: string;
-  level: string;
+  level?: string;
+  sport?: string;
+  captainId?: number;
   creationDate?: string;
-  captainEmail?: string;      
-  captainFullName?: string; 
-   captainId?: number;  
-  playerCount?: number;       
+  description?: string;
+
+  // Computed/joined fields used by components
+  captainFullName?: string;
+  captainEmail?: string;
+  playerCount?: number;
   victories?: number;
   defeats?: number;
   matches?: number;
