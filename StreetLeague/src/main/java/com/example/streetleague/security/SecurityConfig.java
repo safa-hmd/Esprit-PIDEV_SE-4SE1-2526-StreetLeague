@@ -62,7 +62,8 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()          // ✅ couvre /auth/complete-google-register
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         // Lecture publique (listes / détails) — écriture reste soumise à authenticated() plus bas
                         .requestMatchers(HttpMethod.GET,
@@ -94,7 +95,7 @@ public class SecurityConfig {
                         .requestMatchers("/training/*/join", "/training/*/leave").hasRole("PLAYER")
                         .anyRequest().authenticated()
                 )
-                // ✅ FIX PRINCIPAL : empêche Spring de rediriger les appels REST vers OAuth2/login
+
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
