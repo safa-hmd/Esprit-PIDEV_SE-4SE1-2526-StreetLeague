@@ -1,17 +1,22 @@
 package com.example.streetleague.exception;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Auth (register/login)
+    /**
+     * Gère les IllegalArgumentException :
+     * - Email requis / vide
+     * - Email déjà utilisé
+     * - Mot de passe trop court
+     * - Rôle requis
+     * - Token invalide / expiré / déjà utilisé
+     * - Mot de passe actuel incorrect
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(Map.of(
@@ -19,18 +24,9 @@ public class GlobalExceptionHandler {
         ));
     }
 
-    // ✅ AJOUT : erreurs métier (match, team, training)
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRuntime(RuntimeException ex) {
-        return ResponseEntity.badRequest().body(Map.of(
-                "timestamp", LocalDateTime.now().toString(),
-                "status",    400,
-                "error",     "Bad Request",
-                "message",   ex.getMessage()
-        ));
-    }
-
-    // Spring Security
+    /**
+     * Gère les erreurs d'authentification Spring Security
+     */
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
     public ResponseEntity<?> handleAuthException(Exception ex) {
         return ResponseEntity.status(401).body(Map.of(
@@ -38,7 +34,9 @@ public class GlobalExceptionHandler {
         ));
     }
 
-    // Toutes les autres exceptions
+    /**
+     * Gère toutes les autres exceptions non prévues
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGeneral(Exception ex) {
         return ResponseEntity.internalServerError().body(Map.of(

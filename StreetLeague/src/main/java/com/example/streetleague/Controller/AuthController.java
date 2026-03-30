@@ -1,20 +1,20 @@
 package com.example.streetleague.Controller;
 
-import com.example.streetleague.ServiceImp.EmailService;
 import com.example.streetleague.ServiceInterface.IAuthService;
-import com.example.streetleague.dto.*;
+import com.example.streetleague.dto.AuthResponse;
+import com.example.streetleague.dto.LoginRequest;
+import com.example.streetleague.dto.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-//@CrossOrigin("*")
+@CrossOrigin("*")
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final IAuthService authService;
-    private final EmailService emailService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
@@ -24,27 +24,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest req) {
-        AuthResponse response = authService.login(req);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authService.login(req));
     }
 
-    @PostMapping("/complete-google-register")
-    public ResponseEntity<AuthResponse> completeGoogleRegister(@RequestBody CompleteGoogleRegisterRequest req) {
-        AuthResponse response = authService.completeGoogleRegister(req);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest req) {
-        authService.forgotPassword(req);
-        return ResponseEntity.ok("Email de réinitialisation envoyé");
-    }
-
-    @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest req) {
-        authService.resetPassword(req);
-        return ResponseEntity.ok("Mot de passe réinitialisé avec succès");
-    }
 
 }
 

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-menu',
@@ -6,10 +6,5 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./menu.component.css']
 })
 export class MenuComponent {
-  @Input() collapsed = false;
-  @Input() mobileOpen = false;
 
-  closeMobile(): void {
-    this.mobileOpen = false;
-  }
 }

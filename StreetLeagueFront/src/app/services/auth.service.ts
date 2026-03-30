@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
 
 export interface RegisterRequest {
   fullName: string;
@@ -17,15 +16,13 @@ export interface LoginRequest {
 }
 
 export interface AuthResponse {
+  id: number;        // ← nouveau
   token: string;
   email: string;
   role: string;
-  id: string;
 }
 
-@Injectable({
-  providedIn: 'root', 
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
 
   constructor(private http: HttpClient) {}
@@ -41,12 +38,11 @@ export class AuthService {
     return this.http.post<AuthResponse>(
       `http://localhost:8086/StreetLeague/auth/login`, req
     ).pipe(
-      //  Sauvegarde automatique du token
       tap(response => {
         localStorage.setItem('TokenUserConnect', response.token);
         localStorage.setItem('EmailUserConnect', response.email);
         localStorage.setItem('RoleUserConnect',  response.role);
-       localStorage.setItem('UserIdConnect', response.id); 
+        localStorage.setItem('IdUserConnect',    response.id.toString()); // ← nouveau
       })
     );
   }
@@ -55,78 +51,27 @@ export class AuthService {
     localStorage.removeItem('TokenUserConnect');
     localStorage.removeItem('EmailUserConnect');
     localStorage.removeItem('RoleUserConnect');
-    localStorage.removeItem('UserIdConnect');
+    localStorage.removeItem('IdUserConnect');
   }
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('TokenUserConnect');
   }
 
-getRole(): string {
-  return localStorage.getItem('RoleUserConnect') || '';
-}
+  getRole(): string | null {
+    return localStorage.getItem('RoleUserConnect');
+  }
 
   getToken(): string | null {
     return localStorage.getItem('TokenUserConnect');
   }
 
-
-  //add this without unitaire tests
-
-  loginWithGoogle(): void {
-  window.location.href = 
-    'http://localhost:8086/StreetLeague/oauth2/authorization/google';
-}
-
-forgotPassword(email: string): Observable<string> {
-  return this.http.post(
-    `http://localhost:8086/StreetLeague/auth/forgot-password`,
-    { email },
-    { responseType: 'text' }
-  );
-}
-
-resetPassword(token: string, newPassword: string): Observable<string> {
-  return this.http.post(
-    `http://localhost:8086/StreetLeague/auth/reset-password`,
-    { token, newPassword },
-    { responseType: 'text' }
-  );
-}
-
-  
-  // ✅ Decode JWT payload — works without any external library
-  private decodeToken(): Record<string, any> | null {
-    const token = this.getToken();
-    if (!token) return null;
-    try {
-      const payload = token.split('.')[1];
-      // Fix base64url padding before decoding
-      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(atob(base64));
-    } catch {
-      return null;
-    }
-  }
- 
-  // ✅ Get user ID from JWT claim 'id' (added in JwtService.java)
+  // ← nouvelle méthode
   getUserId(): number | null {
-    const decoded = this.decodeToken();
-    if (!decoded) return null;
-    const id = decoded['id'];
-    return id != null ? Number(id) : null;
+    const id = localStorage.getItem('IdUserConnect');
+    return id ? Number(id) : null;
   }
- 
-  // ✅ Get full name from JWT claim 'fullName'
-  getFullName(): string | null {
-    const decoded = this.decodeToken();
-    return decoded?.['fullName'] ?? localStorage.getItem('EmailUserConnect');
-  }
- 
-  // ✅ Get email from JWT subject
   getEmail(): string | null {
-    return localStorage.getItem('EmailUserConnect');
-  }
-
-
+  return localStorage.getItem('EmailUserConnect');
+}
 }

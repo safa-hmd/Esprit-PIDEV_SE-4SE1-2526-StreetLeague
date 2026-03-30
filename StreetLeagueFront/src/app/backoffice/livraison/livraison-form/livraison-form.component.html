@@ -1,0 +1,105 @@
+<div class="admin-main-inner">
+  <div class="page-header-admin">
+    <h1 class="page-title-admin">Nouvelle Livraison</h1>
+    <p class="page-subtitle-admin">Créer une livraison pour une commande existante</p>
+  </div>
+
+  <div *ngIf="successMsg" style="background:#d1fae5;color:#065f46;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;">
+    ✅ {{ successMsg }}
+  </div>
+  <div *ngIf="errorMsg" style="background:#fee2e2;color:#991b1b;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;">
+    ❌ {{ errorMsg }}
+  </div>
+
+  <div class="a-card" style="max-width:600px;">
+    <div class="a-card-header">
+      <span class="a-card-title">Informations de livraison</span>
+    </div>
+    <div class="a-card-body">
+
+      <!-- Commande ID -->
+      <div class="a-form-group">
+        <label class="a-form-label">ID Commande <span style="color:#e61920;">*</span></label>
+        <input type="number"
+               class="a-form-control"
+               placeholder="ex: 1"
+               [(ngModel)]="form.commandeId"
+               min="1">
+        <small style="color:#888;font-size:0.78rem;">L'identifiant de la commande à livrer.</small>
+      </div>
+
+      <!-- Transporteur -->
+      <div class="a-form-group">
+        <label class="a-form-label">Transporteur <span style="color:#e61920;">*</span></label>
+        <select class="a-form-control" [(ngModel)]="form.transporteurId">
+          <option [ngValue]="0" disabled>-- Sélectionner un transporteur --</option>
+          <option *ngFor="let t of transporteurs" [ngValue]="t.id">
+            {{ t.nomSociete }} {{ t.telephone ? '— ' + t.telephone : '' }}
+          </option>
+        </select>
+        <small *ngIf="transporteurs.length === 0" style="color:#f59e0b;">
+          Aucun transporteur disponible. <a routerLink="/admin/transporteurs">En créer un</a>
+        </small>
+      </div>
+
+      <!-- Livreur (DELIVERY user) -->
+      <div class="a-form-group">
+        <label class="a-form-label">
+          Assigner à un livreur <span style="color:#e61920;">*</span>
+        </label>
+        <select class="a-form-control" [(ngModel)]="form.livreurId">
+          <option [ngValue]="undefined" disabled>-- Sélectionner un livreur --</option>
+          <option *ngFor="let l of livreurs" [ngValue]="l.id">
+            {{ l.fullName }} — {{ l.email }}
+          </option>
+        </select>
+        <small *ngIf="livreurs.length === 0" style="color:#f59e0b;">
+          Aucun livreur disponible. Créez un compte avec le rôle DELIVERY.
+        </small>
+        <small style="color:#888;font-size:0.78rem;" *ngIf="livreurs.length > 0">
+          Seuls les utilisateurs avec le rôle DELIVERY sont listés.
+        </small>
+      </div>
+
+      <!-- Adresse -->
+      <div class="a-form-group">
+        <label class="a-form-label">Adresse de livraison <span style="color:#e61920;">*</span></label>
+        <input type="text"
+               class="a-form-control"
+               placeholder="ex: 12 Rue de la Paix, Tunis"
+               [(ngModel)]="form.adresse">
+      </div>
+
+      <!-- Frais de livraison -->
+      <div class="a-form-group">
+        <label class="a-form-label">Frais de livraison (TND)</label>
+        <input type="number"
+               class="a-form-control"
+               placeholder="ex: 7.5"
+               [(ngModel)]="form.fraisLivraison"
+               min="0"
+               step="0.5">
+      </div>
+
+      <!-- Statut initial -->
+      <div class="a-form-group">
+        <label class="a-form-label">Statut initial</label>
+        <select class="a-form-control" [(ngModel)]="form.statut">
+          <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+      <!-- Boutons -->
+      <div style="display:flex;gap:0.75rem;margin-top:1.5rem;">
+        <button class="a-btn a-btn-primary"
+                (click)="submit()"
+                [disabled]="loading">
+          {{ loading ? 'Création...' : '✅ Créer la livraison' }}
+        </button>
+        <button class="a-btn a-btn-ghost" (click)="cancel()">
+          Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

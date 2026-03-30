@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { AuthComponent } from './auth.component';
-import { RouterTestingModule } from '@angular/router/testing';
 
 describe('AuthComponent', () => {
   let component: AuthComponent;
@@ -9,8 +10,9 @@ describe('AuthComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [RouterTestingModule],   // ← pour router-outlet
       declarations: [AuthComponent],
-       imports: [RouterTestingModule]
+      schemas: [NO_ERRORS_SCHEMA]
     });
     fixture = TestBed.createComponent(AuthComponent);
     component = fixture.componentInstance;

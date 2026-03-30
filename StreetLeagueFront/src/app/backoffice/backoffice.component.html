@@ -1,17 +1,13 @@
-<!-- <app-header></app-header>
-<app-menu></app-menu>
-<main class="admin-main" id="adminMain"> 
-  <router-outlet></router-outlet>
-</main> -->
+<div class="admin-layout">
 
+  <app-header class="header"></app-header>
 
-<div style="display:flex; flex-direction:column; min-height:100vh; background:#0a0a0a;">
-  <app-header></app-header>
-  <div style="display:flex; flex:1;">
-    <app-menu ></app-menu>
-    <main style="flex:1; background:#121212; overflow-y:auto;">
+  <div class="main">
+    <app-menu class="sidebar"></app-menu>
+
+    <div class="content">
       <router-outlet></router-outlet>
-    </main>
+    </div>
   </div>
+
 </div>
-<!-- [collapsed]="collapsed" -->

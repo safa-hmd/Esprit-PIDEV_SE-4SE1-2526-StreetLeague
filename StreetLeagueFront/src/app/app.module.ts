@@ -5,18 +5,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
-import { UnauthorizedInterceptor } from './interceptors/unauthorized.interceptor';
-import { NotFoundComponent } from './shared/not-found/not-found.component';
-import { AdminLoginComponent } from './auth/admin-login/admin-login.component.spec';
-
+import { NavbarComponent } from './coach-fo/navbar/navbar.component';
+import { DeliveryFoModule } from './delivery-fo/delivery-fo.module';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    NotFoundComponent,
-    AdminLoginComponent,
-
+    //NavbarComponent,
   ],
   imports: [
     BrowserModule,
@@ -24,16 +20,12 @@ import { AdminLoginComponent } from './auth/admin-login/admin-login.component.sp
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    DeliveryFoModule,
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
-      multi: true,
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: UnauthorizedInterceptor,
       multi: true,
     },
   ],

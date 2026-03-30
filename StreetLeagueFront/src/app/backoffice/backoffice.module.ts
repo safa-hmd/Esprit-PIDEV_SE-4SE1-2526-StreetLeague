@@ -1,51 +1,35 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';           // ← obligatoire pour [(ngModel)]
 import { RouterModule } from '@angular/router';
-
+ 
 import { BackofficeRoutingModule } from './backoffice-routing.module';
 import { BackofficeComponent } from './backoffice.component';
-import { HeaderComponent } from './header/header.component';
+ 
+import { LivraisonListComponent } from './livraison/livraison-list/livraison-list.component';
+import { LivraisonFormComponent } from './livraison/livraison-form/livraison-form.component';
+import { TransporteurListComponent } from './transporteur/transporteur-list/transporteur-list.component';
 import { MenuComponent } from './menu/menu.component';
-
-import { AdminCommunauteModule } from '../components/admin-communaute/admin-communaute.module';
-import { AdminEvenementModule } from '../components/admin-evenement/admin-evenement.module';
-import { AdminSponsorModule } from '../components/admin-sponsor/admin-sponsor.module';
-import { AdminSponsoringEvenementModule } from '../components/admin-sponsoring-evenement/admin-sponsoring-evenement.module';
-import { AdminContratSponsorModule } from '../components/admin-contrat-sponsor/admin-contrat-sponsor.module';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HomeComponent } from './home/home.component';
-import { ListTeamsComponent } from './list-teams/list-teams.component';
-import { ListTrainingComponent } from './list-training/list-training.component';
-import { PlayerProfileComponent } from './player-profile/player-profile.component';
-import { TournamentComponent } from './tournaments/tournaments.component';
-import { FieldReservationComponent } from './field-reservation/field-reservation.component';import { HttpClientModule } from '@angular/common/http';
-
+import { HeaderComponent } from './header/header.component';
+import { MaterielListComponent } from './materiel/materiel-list/materiel-list.component';
+import { CommandeListComponent } from './commande/commande-list/commande-list.component';
+ 
 @NgModule({
   declarations: [
     BackofficeComponent,
-    HeaderComponent,
+    LivraisonListComponent,
+    LivraisonFormComponent,
+    TransporteurListComponent,
     MenuComponent,
-    HomeComponent,
-    ListTeamsComponent,
-    ListTrainingComponent,
-    PlayerProfileComponent,
-    TournamentComponent,
-    FieldReservationComponent,
+    HeaderComponent,
+    MaterielListComponent,
+    CommandeListComponent,
   ],
   imports: [
     CommonModule,
-    RouterModule,
+    FormsModule,           // ← pour [(ngModel)] et (ngModel)
+    RouterModule,          // ← pour routerLink dans les templates
     BackofficeRoutingModule,
-    AdminCommunauteModule,
-    AdminEvenementModule,
-    AdminSponsorModule,
-    AdminSponsoringEvenementModule,
-    AdminContratSponsorModule,
-    ReactiveFormsModule,
-
-    FormsModule,
-
-    HttpClientModule,
   ]
 })
-export class BackofficeModule {  }
+export class BackofficeModule {}

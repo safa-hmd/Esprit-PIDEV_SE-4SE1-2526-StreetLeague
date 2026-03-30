@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
-type Role = 'PLAYER' |  'COACH' | 'SPONSOR' | 'DELIVERY';
+type Role = 'PLAYER' | 'ADMIN' | 'COACH' | 'SPONSOR' | 'DELIVERY';
 
 @Component({
   selector: 'app-login',
@@ -16,19 +16,23 @@ export class LoginComponent {
   isLoading    = false;
   errorMessage = '';
 
-private roleLabels: Record<Role, string> = {
-  PLAYER:   'Player',
-  COACH:    'Coach',
-  SPONSOR:  'Sponsor',
-  DELIVERY: 'Delivery',
-};
+  // Labels affichés dans le bouton
+  private roleLabels: Record<Role, string> = {
+    PLAYER:   'Joueur',
+    ADMIN:    'Admin',
+    COACH:    'Coach',
+    SPONSOR:  'Sponsor',
+    DELIVERY: 'Livraison',
+  };
 
-private emailPlaceholders: Record<Role, string> = {
-  PLAYER:   'player@streetleague.com',
-  COACH:    'coach@streetleague.com',
-  SPONSOR:  'sponsor@streetleague.com',
-  DELIVERY: 'delivery@streetleague.com',
-};
+  // Placeholder email selon le rôle
+  private emailPlaceholders: Record<Role, string> = {
+    PLAYER:   'joueur@streetleague.com',
+    ADMIN:    'admin@streetleague.com',
+    COACH:    'coach@streetleague.com',
+    SPONSOR:  'sponsor@streetleague.com',
+    DELIVERY: 'livreur@streetleague.com',
+  };
 
   get roleLabel():        string { return this.roleLabels[this.selectedRole]; }
   get emailPlaceholder(): string { return this.emailPlaceholders[this.selectedRole]; }
@@ -65,7 +69,7 @@ private emailPlaceholders: Record<Role, string> = {
         localStorage.setItem('TokenUserConnect', response.token);
         localStorage.setItem('EmailUserConnect', response.email);
         localStorage.setItem('RoleUserConnect',  response.role);
-
+console.log("ROLE FROM BACKEND = ", response.role);
         // ✅ Redirection selon le rôle renvoyé par le BACKEND (pas selectedRole)
         this.redirectByRole(response.role);
       },
@@ -75,11 +79,24 @@ private emailPlaceholders: Record<Role, string> = {
         console.error(error);
       },
     });
+    /*this.authService.login({ email, password }).subscribe({
+  next: (response) => {
+    this.isLoading = false;
+    this.redirectByRole(response.role);   // ⭐ juste ça
+  },
+  error: () => {
+    this.isLoading = false;
+    this.errorMessage = 'Email ou mot de passe incorrect.';
   }
+});*/
+}
 
-  private redirectByRole(role: string) {
+ /* private redirectByRole(role: string) {
     switch (role) {
-      case 'ROLE_COACH':
+      case 'ADMIN':
+        this.router.navigateByUrl('/admin');
+        break;
+      case 'COACH':
         this.router.navigateByUrl('/coach');   
         break;
       case 'SPONSOR':
@@ -93,8 +110,19 @@ private emailPlaceholders: Record<Role, string> = {
         this.router.navigateByUrl('/client');
         break;
     }
+  }*/
+ private redirectByRole(role: string) {
+
+  const cleanRole = role.replace('ROLE_', '');
+
+  switch (cleanRole) {
+    case 'ADMIN': this.router.navigateByUrl('/admin'); break;
+    case 'COACH': this.router.navigateByUrl('/coach'); break;
+    case 'SPONSOR': this.router.navigateByUrl('/sponsor'); break;
+    case 'DELIVERY': this.router.navigateByUrl('/delivery/mes-livraisons'); break;
+    //case 'PLAYER':
+    default: this.router.navigateByUrl('/client');
   }
-  loginWithGoogle(): void {
-  this.authService.loginWithGoogle();
 }
+
 }

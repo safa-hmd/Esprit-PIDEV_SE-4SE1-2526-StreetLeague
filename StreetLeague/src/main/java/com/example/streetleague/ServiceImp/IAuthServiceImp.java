@@ -3,22 +3,26 @@ package com.example.streetleague.ServiceImp;
 import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.IAuthService;
 import com.example.streetleague.domain.User;
-import com.example.streetleague.dto.*;
+import com.example.streetleague.dto.AuthResponse;
+import com.example.streetleague.dto.LoginRequest;
+import com.example.streetleague.dto.RegisterRequest;
 import com.example.streetleague.security.CustomUserDetailsService;
 import com.example.streetleague.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Étape 10 : Implémentation du service d'authentification
+ * Contient toute la logique métier : register, login, forgotPassword, resetPassword, editProfile
+ */
 @Service
 @RequiredArgsConstructor
 public class IAuthServiceImp implements IAuthService {
@@ -29,8 +33,7 @@ public class IAuthServiceImp implements IAuthService {
     private final CustomUserDetailsService userDetailsService;
     private final JwtService jwtService;
 
-    private static final String FRONTEND_URL = "http://localhost:4200";
-    private final EmailService emailService;
+
 
     @Override
     public User register(RegisterRequest req) {
@@ -60,100 +63,75 @@ public class IAuthServiceImp implements IAuthService {
         return userRepository.save(u);
     }
 
-    @Override
+   /* @Override
     public AuthResponse login(LoginRequest req) {
         // Spring Security vérifie email + mot de passe (lève une exception si invalide)
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.email(), req.password())
         );
 
-        User user = userRepository.findByEmail(req.email()).orElseThrow();
         UserDetails userDetails = userDetailsService.loadUserByUsername(req.email());
         String token = jwtService.generateToken(userDetails);
 
-        // Rôle depuis la BD (source de vérité) — évite tout décalage avec les authorities
-        String role = "ROLE_" + user.getRole().name();
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No roles found"))
+                .getAuthority();
 
-        return new AuthResponse(token, userDetails.getUsername(), role, user.getIdUser());
-    }
+        return new AuthResponse(token, userDetails.getUsername(), role);
+    }*/
 
-
-
-    @Override
-    public AuthResponse completeGoogleRegister(CompleteGoogleRegisterRequest req) {
-
-        // Vérifier que l'utilisateur n'existe pas déjà
-        if (userRepository.findByEmail(req.email()).isPresent()) {
-            throw new IllegalArgumentException("Email already used");
-        }
-
-        // Créer l'utilisateur avec le rôle choisi
-        User user = User.builder()
-                .email(req.email())
-                .fullName(req.fullName())
-                .password("GOOGLE_OAUTH2_NO_PASSWORD")
-                .role(req.role())
-                .enabled(true)
-                .build();
-
-        userRepository.save(user);
-
-        // Générer le JWT
-        var authorities = List.of(
-                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+   /* @Override
+    public AuthResponse login(LoginRequest req) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(req.email(), req.password())
         );
-        var userDetails = org.springframework.security.core.userdetails.User
-                .withUsername(user.getEmail())
-                .password(user.getPassword())
-                .authorities(authorities)
-                .build();
 
+        UserDetails userDetails = userDetailsService.loadUserByUsername(req.email());
         String token = jwtService.generateToken(userDetails);
 
-        return new AuthResponse(token, user.getEmail(), "ROLE_" + user.getRole().name(), user.getIdUser());
-    }
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No roles found"))
+                .getAuthority();
+
+        User user = userRepository.findByEmail(req.email())
+                .orElseThrow(() -> new RuntimeException("User introuvable"));
+
+        return new AuthResponse(user.getId(), token, userDetails.getUsername(), role);
+    }*/
 
     @Override
-    public void forgotPassword(ForgotPasswordRequest req) {
-        Optional<User> optUser = userRepository.findByEmail(req.email());
-        if (optUser.isEmpty()) return;
+    public AuthResponse login(LoginRequest req) {
 
-        User user = optUser.get();
+        // 1️⃣ authentifier avec Spring Security
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        req.email(),
+                        req.password()
+                )
+        );
 
-        String token = UUID.randomUUID().toString();
-        user.setResetToken(token);
-        user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(30));
-        userRepository.save(user);
+        // 2️⃣ récupérer user depuis DB
+        User user = userRepository.findByEmail(req.email())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String resetLink = FRONTEND_URL + "/reset-password?token=" + token;  // ✅ ici
+        // 3️⃣ charger UserDetails pour JWT
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
 
-        try {
-            emailService.sendResetEmail(user.getEmail(), resetLink);
-        } catch (Exception e) {
-            System.out.println("⚠️ Email non envoyé: " + e.getMessage());
-            System.out.println(">>> RESET LINK: " + resetLink);
-        }
+        // 4️⃣ générer token
+        String token = jwtService.generateToken(userDetails);
+
+        // ⭐ 5️⃣ EXTRAIRE LE ROLE DEPUIS USER (IMPORTANT !!!)
+        String role = user.getRole().name();   // ou user.getRole().toString()
+
+        // 6️⃣ retourner réponse COMPLETE
+        return new AuthResponse(
+                user.getId(),
+                token,
+                user.getEmail(),
+                role
+        );
     }
-
-    @Override
-    public void resetPassword(ResetPasswordRequest req) {
-        User user = userRepository.findByResetToken(req.token())
-                .orElseThrow(() -> new IllegalArgumentException("Token invalide"));
-
-        if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Token expiré");
-        }
-
-        if (req.newPassword() == null || req.newPassword().length() < 6) {
-            throw new IllegalArgumentException("Le mot de passe doit contenir au moins 6 caractères");
-        }
-
-        user.setPassword(passwordEncoder.encode(req.newPassword()));
-        user.setResetToken(null);
-        user.setResetTokenExpiry(null);
-        userRepository.save(user);
-    }
-
-
 
 }
