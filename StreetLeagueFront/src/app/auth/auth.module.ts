@@ -5,7 +5,7 @@ import { AuthRoutingModule } from './auth-routing.module';
 import { AuthComponent } from './auth.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SelectRoleComponent } from './select-role/select-role.component';
 import { OAuth2CallbackComponent } from './oauth2-callback/oauth2-callback.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
@@ -27,7 +27,9 @@ import { AdminLoginComponent } from './admin-login/admin-login.component';
   imports: [
     CommonModule,
     AuthRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule,
+ 
   ]
 })
 export class AuthModule { }

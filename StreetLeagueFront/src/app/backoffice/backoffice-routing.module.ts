@@ -28,14 +28,31 @@ import { AdminSponsoringEvenementEditComponent } from '../components/admin-spons
 import { AdminContratSponsorListComponent } from '../components/admin-contrat-sponsor/admin-contrat-sponsor-list.component';
 import { AdminContratSponsorFormComponent } from '../components/admin-contrat-sponsor/admin-contrat-sponsor-form.component';
 import { AdminContratSponsorEditComponent } from '../components/admin-contrat-sponsor/admin-contrat-sponsor-edit.component';
+import { HomeComponent } from './home/home.component';
+import { ListTeamsComponent } from './list-teams/list-teams.component';
+import { ListTrainingComponent } from './list-training/list-training.component';
+import { PlayerProfileComponent } from './player-profile/player-profile.component';
+import { TournamentComponent } from './tournaments/tournaments.component';
+import { FieldReservationComponent } from './field-reservation/field-reservation.component';
 
 const routes: Routes = [
   {
     path: '',
     component: BackofficeComponent,
     children: [
-      { path: '', redirectTo: 'communaute', pathMatch: 'full' },
+     
 
+
+
+           { path: '', redirectTo: 'home', pathMatch: 'full' },
+      {path: 'home', component: HomeComponent},
+      { path: 'teamAdmin', component: ListTeamsComponent},
+      {path: 'trainingAdmin', component: ListTrainingComponent},
+      { path: 'profile', component: PlayerProfileComponent },
+      { path: 'tournaments', component: TournamentComponent },
+      { path: 'field-reservation', component: FieldReservationComponent },
+
+ { path: 'communaute', component:AdminCommunauteFormComponent },
       // Communauté — CRUD complet admin
       { path: 'communaute', component: AdminCommunauteListComponent },
       { path: 'communaute/new', component: AdminCommunauteFormComponent },
@@ -62,6 +79,8 @@ const routes: Routes = [
       { path: 'contrat-sponsor', component: AdminContratSponsorListComponent },
       { path: 'contrat-sponsor/new', component: AdminContratSponsorFormComponent },
       { path: 'contrat-sponsor/:id/edit', component: AdminContratSponsorEditComponent },
+
+  
     ]
   }
 ];

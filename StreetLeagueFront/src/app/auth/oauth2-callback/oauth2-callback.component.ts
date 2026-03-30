@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-oauth2-callback',
@@ -14,8 +13,7 @@ export class OAuth2CallbackComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
-    private authService: AuthService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -41,15 +39,10 @@ export class OAuth2CallbackComponent implements OnInit {
   }
 
   private redirectByRole(role: string): void {
-    const r = this.authService.normalizeRole(role);
-    if (r === 'ROLE_ADMIN') {
-      this.router.navigateByUrl('/admin');
-      return;
+    switch (role) {
+      case 'ROLE_ADMIN':    this.router.navigateByUrl('/admin');  break;
+      case 'ROLE_COACH':    this.router.navigateByUrl('/coach');  break;
+      default:              this.router.navigateByUrl('/client'); break;
     }
-    if (r === 'ROLE_COACH') {
-      this.router.navigateByUrl('/coach');
-      return;
-    }
-    this.router.navigateByUrl('/client');
   }
 }

@@ -12,12 +12,25 @@ import { AdminEvenementModule } from '../components/admin-evenement/admin-evenem
 import { AdminSponsorModule } from '../components/admin-sponsor/admin-sponsor.module';
 import { AdminSponsoringEvenementModule } from '../components/admin-sponsoring-evenement/admin-sponsoring-evenement.module';
 import { AdminContratSponsorModule } from '../components/admin-contrat-sponsor/admin-contrat-sponsor.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HomeComponent } from './home/home.component';
+import { ListTeamsComponent } from './list-teams/list-teams.component';
+import { ListTrainingComponent } from './list-training/list-training.component';
+import { PlayerProfileComponent } from './player-profile/player-profile.component';
+import { TournamentComponent } from './tournaments/tournaments.component';
+import { FieldReservationComponent } from './field-reservation/field-reservation.component';import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
     BackofficeComponent,
     HeaderComponent,
-    MenuComponent
+    MenuComponent,
+    HomeComponent,
+    ListTeamsComponent,
+    ListTrainingComponent,
+    PlayerProfileComponent,
+    TournamentComponent,
+    FieldReservationComponent,
   ],
   imports: [
     CommonModule,
@@ -28,6 +41,11 @@ import { AdminContratSponsorModule } from '../components/admin-contrat-sponsor/a
     AdminSponsorModule,
     AdminSponsoringEvenementModule,
     AdminContratSponsorModule,
+    ReactiveFormsModule,
+
+    FormsModule,
+
+    HttpClientModule,
   ]
 })
-export class BackofficeModule { }
+export class BackofficeModule {  }

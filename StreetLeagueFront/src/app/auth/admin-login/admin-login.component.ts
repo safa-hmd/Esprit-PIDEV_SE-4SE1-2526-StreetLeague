@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-admin-login',
   templateUrl: './admin-login.component.html',
-  styleUrls: ['./admin-login.component.css']
+  styleUrls: ['./admin-login.component.css'],
+  // standalone: true,
+  //  imports: [ReactiveFormsModule] 
 })
 export class AdminLoginComponent {
   isLoading    = false;
@@ -34,14 +36,9 @@ export class AdminLoginComponent {
     }).subscribe({
       next: (response) => {
         this.isLoading = false;
-        const rawRole =
-          (response.role && String(response.role).trim()) ||
-          this.authService.readRoleFromJwt(response.token) ||
-          '';
-        const normalizedRole = this.authService.normalizeRole(rawRole);
 
         // ✅ Vérifie que c'est bien un ADMIN
-        if (normalizedRole !== 'ROLE_ADMIN') {
+        if (response.role !== 'ROLE_ADMIN') {
           this.authService.logout();
           this.errorMessage = 'Accès refusé. Cette interface est réservée aux administrateurs.';
           return;
@@ -49,15 +46,9 @@ export class AdminLoginComponent {
 
         this.router.navigateByUrl('/admin');
       },
-      error: (error) => {
-        this.isLoading = false;
-        const body = error?.error as Record<string, unknown> | undefined;
-        const err = body?.['error'];
-        const msg = body?.['message'];
-        this.errorMessage =
-          (typeof err === 'string' ? err : null) ||
-          (typeof msg === 'string' ? msg : null) ||
-          'Email ou mot de passe incorrect.';
+      error: () => {
+        this.isLoading    = false;
+        this.errorMessage = 'Email ou mot de passe incorrect.';
       }
     });
   }

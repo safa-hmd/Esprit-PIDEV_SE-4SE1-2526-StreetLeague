@@ -13,18 +13,7 @@ describe('LoginComponent', () => {
   let router: Router;
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['login', 'loginWithGoogle', 'normalizeRole', 'readRoleFromJwt']);
-    authServiceSpy.readRoleFromJwt.and.returnValue(null);
-    authServiceSpy.normalizeRole.and.callFake((role: string | null) => {
-      if (!role) return null;
-      const r = role.trim();
-      if (!r) return null;
-      const upper = r.toUpperCase();
-      if (upper.startsWith('ROLE_')) {
-        return 'ROLE_' + upper.slice(5);
-      }
-      return 'ROLE_' + upper;
-    });
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['login', 'loginWithGoogle']);
 
     await TestBed.configureTestingModule({
       declarations: [LoginComponent],
@@ -109,11 +98,6 @@ describe('LoginComponent', () => {
     expect(component.roleLabel).toBe('Delivery');
   });
 
-  it('roleLabelTest — ADMIN returns Admin', () => {
-    component.selectedRole = 'ADMIN';
-    expect(component.roleLabel).toBe('Admin');
-  });
-
   // ── emailPlaceholder ──────────────────────────────────────
 
   it('emailPlaceholderTest — PLAYER returns player@streetleague.com', () => {
@@ -134,11 +118,6 @@ describe('LoginComponent', () => {
   it('emailPlaceholderTest — DELIVERY returns delivery@streetleague.com', () => {
     component.selectedRole = 'DELIVERY';
     expect(component.emailPlaceholder).toBe('delivery@streetleague.com');
-  });
-
-  it('emailPlaceholderTest — ADMIN returns admin@streetleague.com', () => {
-    component.selectedRole = 'ADMIN';
-    expect(component.emailPlaceholder).toBe('admin@streetleague.com');
   });
 
   // ── Form validation ───────────────────────────────────────
@@ -179,16 +158,17 @@ describe('LoginComponent', () => {
     });
   });
 
-  it('onSubmitTest — should redirect to /client after success (persistance gérée par AuthService.login)', () => {
+  it('onSubmitTest — should save token on success', () => {
     authServiceSpy.login.and.returnValue(of({
       token: 'mytoken', email: 'test@test.com', role: 'PLAYER'
     } as any));
-    const navigateSpy = spyOn(router, 'navigateByUrl');
 
     component.loginForm.setValue({ email: 'test@test.com', password: '123456' });
     component.onSubmit();
 
-    expect(navigateSpy).toHaveBeenCalledWith('/client');
+    expect(localStorage.getItem('TokenUserConnect')).toBe('mytoken');
+    expect(localStorage.getItem('EmailUserConnect')).toBe('test@test.com');
+    expect(localStorage.getItem('RoleUserConnect')).toBe('PLAYER');
   });
 
   it('onSubmitTest — should set isLoading to false after success', () => {
@@ -260,17 +240,5 @@ describe('LoginComponent', () => {
     component.onSubmit();
 
     expect(navigateSpy).toHaveBeenCalledWith('/client');
-  });
-
-  it('redirectByRoleTest — ROLE_ADMIN navigates to /admin', () => {
-    authServiceSpy.login.and.returnValue(of({
-      token: 'abc', email: 'admin@test.com', role: 'ROLE_ADMIN'
-    } as any));
-    const navigateSpy = spyOn(router, 'navigateByUrl');
-
-    component.loginForm.setValue({ email: 'admin@test.com', password: '123456' });
-    component.onSubmit();
-
-    expect(navigateSpy).toHaveBeenCalledWith('/admin');
   });
 });

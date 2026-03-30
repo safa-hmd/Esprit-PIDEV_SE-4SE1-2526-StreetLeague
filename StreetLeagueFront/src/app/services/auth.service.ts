@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { API_BASE_URL } from 'src/environments/api-url';
+import { environment } from 'src/environments/environment';
 
 export interface RegisterRequest {
   fullName: string;
@@ -20,98 +20,35 @@ export interface AuthResponse {
   token: string;
   email: string;
   role: string;
-  /** Backend Java record sérialise en idUser */
-  id?: number;
-  userId?: number;
-  idUser?: number;
-}
-
-export interface ForgotPasswordRequest {
-  email: string;
-}
-
-export interface ResetPasswordRequest {
-  token: string;
-  newPassword: string;
+  id: string;
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root', 
 })
 export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  private readonly apiUrl = `${API_BASE_URL}/auth`;
-
   register(req: RegisterRequest): Observable<string> {
     return this.http.post(
-      `${this.apiUrl}/register`, req,
+      `http://localhost:8086/StreetLeague/auth/register`, req,
       { responseType: 'text' }
     );
   }
 
   login(req: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
-      `${this.apiUrl}/login`, req
+      `http://localhost:8086/StreetLeague/auth/login`, req
     ).pipe(
+      //  Sauvegarde automatique du token
       tap(response => {
         localStorage.setItem('TokenUserConnect', response.token);
         localStorage.setItem('EmailUserConnect', response.email);
-        const role =
-          (response.role && String(response.role).trim()) ||
-          this.readRoleFromJwt(response.token) ||
-          '';
-        if (role) {
-          localStorage.setItem('RoleUserConnect', role);
-        }
-        const userId = response.id ?? response.userId ?? response.idUser;
-        if (userId !== undefined && userId !== null) {
-          localStorage.setItem('UserIdConnect', String(userId));
-        }
+        localStorage.setItem('RoleUserConnect',  response.role);
+       localStorage.setItem('UserIdConnect', response.id); 
       })
     );
-  }
-
-  /** Claim `role` du JWT (ex. ROLE_ADMIN) si le JSON de login omet le champ role. */
-  readRoleFromJwt(token: string | null | undefined): string | null {
-    if (!token || typeof token !== 'string') return null;
-    const clean = token.replace(/"/g, '');
-    const parts = clean.split('.');
-    if (parts.length < 2) return null;
-    try {
-      let b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-      while (b64.length % 4) b64 += '=';
-      const json = atob(b64);
-      const payload = JSON.parse(json) as { role?: string };
-      const r = payload.role;
-      return typeof r === 'string' && r.trim() ? r.trim() : null;
-    } catch {
-      return null;
-    }
-  }
-
-  forgotPassword(email: string): Observable<string> {
-    const payload: ForgotPasswordRequest = { email };
-    return this.http.post(`${this.apiUrl}/forgot-password`, payload, {
-      responseType: 'text',
-    });
-  }
-
-  resetPassword(token: string, newPassword: string): Observable<string> {
-    const payload: ResetPasswordRequest = { token, newPassword };
-    return this.http.post(`${this.apiUrl}/reset-password`, payload, {
-      responseType: 'text',
-    });
-  }
-
-  loginWithGoogle(): void {
-    window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
-  }
-
-  getUserId(): number | null {
-    const id = localStorage.getItem('UserIdConnect');
-    return id ? parseInt(id, 10) : null;
   }
 
   logout(): void {
@@ -125,26 +62,71 @@ export class AuthService {
     return !!localStorage.getItem('TokenUserConnect');
   }
 
-  getRole(): string | null {
-    return localStorage.getItem('RoleUserConnect');
-  }
-
-  /**
-   * Unifie les rôles renvoyés par le back (ADMIN, ROLE_ADMIN, admin, etc.)
-   * pour que les redirections (login, OAuth2) reconnaissent bien ROLE_ADMIN.
-   */
-  normalizeRole(role: string | null): string | null {
-    if (!role) return null;
-    const r = role.trim();
-    if (!r) return null;
-    const upper = r.toUpperCase();
-    if (upper.startsWith('ROLE_')) {
-      return 'ROLE_' + upper.slice(5);
-    }
-    return 'ROLE_' + upper;
-  }
+getRole(): string {
+  return localStorage.getItem('RoleUserConnect') || '';
+}
 
   getToken(): string | null {
     return localStorage.getItem('TokenUserConnect');
   }
+
+
+  //add this without unitaire tests
+
+  loginWithGoogle(): void {
+  window.location.href = 
+    'http://localhost:8086/StreetLeague/oauth2/authorization/google';
+}
+
+forgotPassword(email: string): Observable<string> {
+  return this.http.post(
+    `http://localhost:8086/StreetLeague/auth/forgot-password`,
+    { email },
+    { responseType: 'text' }
+  );
+}
+
+resetPassword(token: string, newPassword: string): Observable<string> {
+  return this.http.post(
+    `http://localhost:8086/StreetLeague/auth/reset-password`,
+    { token, newPassword },
+    { responseType: 'text' }
+  );
+}
+
+  
+  // ✅ Decode JWT payload — works without any external library
+  private decodeToken(): Record<string, any> | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const payload = token.split('.')[1];
+      // Fix base64url padding before decoding
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(atob(base64));
+    } catch {
+      return null;
+    }
+  }
+ 
+  // ✅ Get user ID from JWT claim 'id' (added in JwtService.java)
+  getUserId(): number | null {
+    const decoded = this.decodeToken();
+    if (!decoded) return null;
+    const id = decoded['id'];
+    return id != null ? Number(id) : null;
+  }
+ 
+  // ✅ Get full name from JWT claim 'fullName'
+  getFullName(): string | null {
+    const decoded = this.decodeToken();
+    return decoded?.['fullName'] ?? localStorage.getItem('EmailUserConnect');
+  }
+ 
+  // ✅ Get email from JWT subject
+  getEmail(): string | null {
+    return localStorage.getItem('EmailUserConnect');
+  }
+
+
 }

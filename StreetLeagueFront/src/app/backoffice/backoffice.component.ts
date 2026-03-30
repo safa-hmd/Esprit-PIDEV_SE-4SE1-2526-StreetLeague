@@ -6,5 +6,6 @@ import { Component } from '@angular/core';
   styleUrls: ['./backoffice.component.css']
 })
 export class BackofficeComponent {
+collapsed = false;
 
 }

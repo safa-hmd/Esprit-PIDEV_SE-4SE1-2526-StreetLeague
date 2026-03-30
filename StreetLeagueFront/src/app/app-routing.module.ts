@@ -4,13 +4,14 @@ import { OAuth2CallbackComponent } from './auth/oauth2-callback/oauth2-callback.
 import { SelectRoleComponent } from './auth/select-role/select-role.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
-import { AdminLoginComponent } from './auth/admin-login/admin-login.component';
+
 import { AdminGuard } from './guards/admin.guard';
 import { AuthGuard } from './guards/auth.guard';
 import { CoachGuard } from './guards/coach.guard';
 import { NoAuthGuard } from './guards/no-auth.guard';
 import { PlayerGuard } from './guards/player.guard';
 import { NotFoundComponent } from './shared/not-found/not-found.component';
+import { AdminLoginComponent } from './auth/admin-login/admin-login.component';
 
 const routes: Routes = [
   {

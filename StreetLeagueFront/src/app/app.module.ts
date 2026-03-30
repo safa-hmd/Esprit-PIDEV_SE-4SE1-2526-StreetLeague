@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { UnauthorizedInterceptor } from './interceptors/unauthorized.interceptor';
 import { NotFoundComponent } from './shared/not-found/not-found.component';
+import { AdminLoginComponent } from './auth/admin-login/admin-login.component.spec';
 
 
 
@@ -14,6 +15,7 @@ import { NotFoundComponent } from './shared/not-found/not-found.component';
   declarations: [
     AppComponent,
     NotFoundComponent,
+    AdminLoginComponent,
 
   ],
   imports: [
@@ -21,7 +23,7 @@ import { NotFoundComponent } from './shared/not-found/not-found.component';
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
   ],
   providers: [
     {

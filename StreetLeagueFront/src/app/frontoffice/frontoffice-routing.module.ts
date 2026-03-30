@@ -30,14 +30,34 @@ import { SponsoringListComponent } from '../components/sponsoring-evenement/spon
 import { SponsoringFormComponent } from '../components/sponsoring-evenement/sponsoring-form.component';
 import { SponsoringDetailComponent } from '../components/sponsoring-evenement/sponsoring-detail.component';
 import { SponsoringEditComponent } from '../components/sponsoring-evenement/sponsoring-edit.component';
+import { HomeComponent } from './home/home.component';
+import { TeamComponent } from './team/team.component';
+import { TrainingComponent } from './training/training.component';
+import { DetailMatchComponent } from './detail-match/detail-match.component';
+import { DetailTeamComponent } from './detail-team/detail-team.component';
+import { PlayerProfileComponent } from './player-profile/player-profile.component';
+import { TournamentsComponent } from './tournaments/tournaments.component';
+import { FieldReservationComponent } from './field-reservation/field-reservation.component';
 
 const routes: Routes = [
   {
     path: '',
     component: FrontofficeComponent,
     children: [
-      { path: '', redirectTo: 'communaute', pathMatch: 'full' },
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      
+      {path: 'home', component: HomeComponent },
+      { path: 'team', component: TeamComponent },
+      {path: 'training',component:TrainingComponent },
+      {path:"detail-match/:id",component:DetailMatchComponent},
+      {path:"detail-team/:id", component:DetailTeamComponent}, 
+      { path: 'profile', component: PlayerProfileComponent },
 
+        { path: 'tournaments', component: TournamentsComponent },
+      { path: 'field-reservation', component: FieldReservationComponent },
+
+
+       {path: 'communaute', component: CommunauteListComponent},
       // Communauté routes
       { path: 'communaute', component: CommunauteListComponent },
       { path: 'communaute/new', component: CommunauteFormComponent },
