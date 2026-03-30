@@ -79,3 +79,4 @@ public class Tournament {
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
     public LocalDate getEndDate() { return this.endDate; }
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+}

@@ -1,6 +1,9 @@
 package com.example.streetleague.security;
 
 import com.example.streetleague.security.jwt.JwtAuthFilter;
+import com.example.streetleague.security.jwt.JwtService;
+import com.example.streetleague.Repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +33,8 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthFilter jwtAuthFilter;
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     /**
      * DaoAuthenticationProvider : définit COMMENT les utilisateurs sont authentifiés
