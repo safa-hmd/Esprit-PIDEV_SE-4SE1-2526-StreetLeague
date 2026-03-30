@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,10 +21,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
+import org.springframework.http.HttpMethod;
 
 import java.util.List;
-
 
 @Configuration
 @EnableMethodSecurity
@@ -44,27 +44,42 @@ public class SecurityConfig {
         return p;
     }
 
-    /**
-     * AuthenticationManager : requis pour l'authentification manuelle lors du login
-     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    /**
-     * SecurityFilterChain : définit toutes les règles de sécurité HTTP
-     */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            @Qualifier("authProvider") DaoAuthenticationProvider daoAuthProvider
+    ) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
+                .authenticationProvider(daoAuthProvider)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()          // ✅ couvre /auth/complete-google-register
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                        // Lecture publique (listes / détails) — écriture reste soumise à authenticated() plus bas
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/communaute", "/api/communaute/**",
+                                "/api/evenement", "/api/evenement/**",
+                                "/api/contrat", "/api/contrat/**",
+                                "/api/contrat-sponsor", "/api/contrat-sponsor/**"
+                        ).permitAll()
+                        // Aligné sur StreetLeagueApp (demo RBAC + APIs sponsor)
+                        .requestMatchers("/student/**").hasRole("STUDENT")
+                        .requestMatchers("/teacher/**").hasRole("TEACHER")
+                        // Front /client (PLAYER, COACH, etc.) : CRUD API métier avec JWT valide
+                        .requestMatchers("/api/sponsor/**").authenticated()
+                        .requestMatchers("/api/sponsoring/**").authenticated()
+                        .requestMatchers("/api/communaute/**").authenticated()
+                        .requestMatchers("/api/contrat/**").authenticated()
+                        .requestMatchers("/api/contrat-sponsor/**").authenticated()
                         .requestMatchers("/user/profile").authenticated()
                         .requestMatchers("/team/add", "/team/update/**").hasAnyRole("PLAYER", "COACH")
                         .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
@@ -98,13 +113,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
+        config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:4201"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-        // Méthodes HTTP autorisées (OPTIONS obligatoire pour les requêtes CORS preflight)
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
-
-        // Autoriser tous les headers (requis pour Authorization: Bearer <token>)
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
