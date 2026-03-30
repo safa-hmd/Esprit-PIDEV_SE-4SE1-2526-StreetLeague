@@ -9,7 +9,7 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
   return password === confirmPassword ? null : { passwordMismatch: true };
 };
 
-type Role = 'PLAYER' |  'COACH' | 'SPONSOR' | 'DELIVERY';
+type Role = 'PLAYER' | 'COACH' | 'SPONSOR' | 'DELIVERY' | 'ADMIN';
 
 @Component({
   selector: 'app-register',
@@ -32,6 +32,7 @@ export class RegisterComponent {
     COACH:    'Coach',
     SPONSOR:  'Sponsor',
     DELIVERY: 'Delivery',
+    ADMIN:    'Admin',
   };
 
   private emailPlaceholders: Record<Role, string> = {
@@ -39,6 +40,7 @@ export class RegisterComponent {
     COACH:    'coach@streetleague.com',
     SPONSOR:  'sponsor@streetleague.com',
     DELIVERY: 'delivery@streetleague.com',
+    ADMIN:    'admin@streetleague.com',
   };
 
   get roleLabel():        string { return this.roleLabels[this.selectedRole]; }
@@ -90,12 +92,20 @@ export class RegisterComponent {
     this.authService.register({ fullName, email, password, role: this.selectedRole }).subscribe({
       next: () => {
         this.isLoading = false;
-        this.successMessage = 'Compte créé ! Redirection vers la connexion…';
-        setTimeout(() => this.router.navigate(['/login']), 1500);
+        const isAdmin = this.selectedRole === 'ADMIN';
+        this.successMessage = isAdmin
+          ? 'Compte créé ! Redirection vers la connexion administrateur…'
+          : 'Compte créé ! Redirection vers la connexion…';
+        const target = isAdmin ? '/admin-login' : '/login';
+        setTimeout(() => this.router.navigateByUrl(target), 1500);
       },
       error: (error) => {
         this.isLoading    = false;
-        this.errorMessage = error?.error?.message || 'Une erreur est survenue. Veuillez réessayer.';
+        const body = error?.error;
+        this.errorMessage =
+          (typeof body === 'object' && body !== null && 'message' in body && (body as { message?: string }).message) ||
+          (typeof body === 'object' && body !== null && 'error' in body && String((body as { error?: unknown }).error)) ||
+          'Une erreur est survenue. Veuillez réessayer.';
         console.error(error);
       },
     });

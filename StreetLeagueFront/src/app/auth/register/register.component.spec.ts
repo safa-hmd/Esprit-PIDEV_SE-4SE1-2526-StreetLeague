@@ -94,6 +94,11 @@ describe('RegisterComponent', () => {
     expect(component.roleLabel).toBe('Delivery');
   });
 
+  it('selectRoleTest — roleLabel should be Admin for ADMIN', () => {
+    component.selectRole('ADMIN');
+    expect(component.roleLabel).toBe('Admin');
+  });
+
   // ── emailPlaceholder ──────────────────────────────────────
 
   it('emailPlaceholderTest — PLAYER returns player@streetleague.com', () => {
@@ -114,6 +119,11 @@ describe('RegisterComponent', () => {
   it('emailPlaceholderTest — DELIVERY returns delivery@streetleague.com', () => {
     component.selectRole('DELIVERY');
     expect(component.emailPlaceholder).toBe('delivery@streetleague.com');
+  });
+
+  it('emailPlaceholderTest — ADMIN returns admin@streetleague.com', () => {
+    component.selectRole('ADMIN');
+    expect(component.emailPlaceholder).toBe('admin@streetleague.com');
   });
 
   // ── checkStrength ─────────────────────────────────────────
@@ -243,9 +253,10 @@ describe('RegisterComponent', () => {
     expect(component.isLoading).toBeFalse();
   });
 
-  it('onSubmitTest — should navigate to /login after 1500ms on success', fakeAsync(() => {
+  it('onSubmitTest — should navigate to /login after 1500ms on success (non-admin)', fakeAsync(() => {
     authServiceSpy.register.and.returnValue(of({} as any));
-    const navigateSpy = spyOn(router, 'navigate');
+    const navigateSpy = spyOn(router, 'navigateByUrl');
+    component.selectedRole = 'PLAYER';
     component.registerForm.setValue({
       firstName: 'John', lastName: 'Doe',
       email: 'john@test.com', password: 'Pass123!',
@@ -253,12 +264,26 @@ describe('RegisterComponent', () => {
     });
     component.onSubmit();
     tick(1500);
-    expect(navigateSpy).toHaveBeenCalledWith(['/login']);
+    expect(navigateSpy).toHaveBeenCalledWith('/login');
+  }));
+
+  it('onSubmitTest — should navigate to /admin-login after 1500ms when role is ADMIN', fakeAsync(() => {
+    authServiceSpy.register.and.returnValue(of({} as any));
+    const navigateSpy = spyOn(router, 'navigateByUrl');
+    component.selectedRole = 'ADMIN';
+    component.registerForm.setValue({
+      firstName: 'John', lastName: 'Doe',
+      email: 'admin@test.com', password: 'Pass123!',
+      confirmPassword: 'Pass123!', terms: true
+    });
+    component.onSubmit();
+    tick(1500);
+    expect(navigateSpy).toHaveBeenCalledWith('/admin-login');
   }));
 
   it('onSubmitTest — should NOT navigate before 1500ms on success', fakeAsync(() => {
     authServiceSpy.register.and.returnValue(of({} as any));
-    const navigateSpy = spyOn(router, 'navigate');
+    const navigateSpy = spyOn(router, 'navigateByUrl');
     component.registerForm.setValue({
       firstName: 'John', lastName: 'Doe',
       email: 'john@test.com', password: 'Pass123!',
@@ -306,6 +331,20 @@ describe('RegisterComponent', () => {
     component.onSubmit();
     expect(authServiceSpy.register).toHaveBeenCalledWith(
       jasmine.objectContaining({ role: 'COACH' })
+    );
+  });
+
+  it('onSubmitTest — should send ADMIN role when selected', () => {
+    authServiceSpy.register.and.returnValue(of({} as any));
+    component.selectRole('ADMIN');
+    component.registerForm.setValue({
+      firstName: 'A', lastName: 'Root',
+      email: 'admin@test.com', password: 'Pass123!',
+      confirmPassword: 'Pass123!', terms: true
+    });
+    component.onSubmit();
+    expect(authServiceSpy.register).toHaveBeenCalledWith(
+      jasmine.objectContaining({ role: 'ADMIN' })
     );
   });
 

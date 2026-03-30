@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { UnauthorizedInterceptor } from './interceptors/unauthorized.interceptor';
 import { NotFoundComponent } from './shared/not-found/not-found.component';
 
 
@@ -26,6 +27,11 @@ import { NotFoundComponent } from './shared/not-found/not-found.component';
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: UnauthorizedInterceptor,
       multi: true,
     },
   ],

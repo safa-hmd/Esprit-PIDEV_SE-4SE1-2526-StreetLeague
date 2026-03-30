@@ -16,18 +16,29 @@ describe('AdminLoginComponent', () => {
     token: 'admin-token',
     email: 'admin@test.com',
     role: 'ROLE_ADMIN',
-    id: '1'
+    idUser: 1
   };
 
   const mockPlayerResponse = {
     token: 'player-token',
     email: 'player@test.com',
     role: 'PLAYER',
-    id: '2'
+    idUser: 2
   };
 
   beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['login', 'logout']);
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['login', 'logout', 'normalizeRole', 'readRoleFromJwt']);
+    authServiceSpy.readRoleFromJwt.and.returnValue(null);
+    authServiceSpy.normalizeRole.and.callFake((role: string | null) => {
+      if (!role) return null;
+      const r = role.trim();
+      if (!r) return null;
+      const upper = r.toUpperCase();
+      if (upper.startsWith('ROLE_')) {
+        return 'ROLE_' + upper.slice(5);
+      }
+      return 'ROLE_' + upper;
+    });
     routerSpy      = jasmine.createSpyObj('Router', ['navigateByUrl']);
 
     TestBed.configureTestingModule({

@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
-type Role = 'PLAYER' |  'COACH' | 'SPONSOR' | 'DELIVERY';
+type Role = 'PLAYER' | 'COACH' | 'SPONSOR' | 'DELIVERY' | 'ADMIN';
 
 @Component({
   selector: 'app-login',
@@ -21,6 +21,7 @@ private roleLabels: Record<Role, string> = {
   COACH:    'Coach',
   SPONSOR:  'Sponsor',
   DELIVERY: 'Delivery',
+  ADMIN:    'Admin',
 };
 
 private emailPlaceholders: Record<Role, string> = {
@@ -28,6 +29,7 @@ private emailPlaceholders: Record<Role, string> = {
   COACH:    'coach@streetleague.com',
   SPONSOR:  'sponsor@streetleague.com',
   DELIVERY: 'delivery@streetleague.com',
+  ADMIN:    'admin@streetleague.com',
 };
 
   get roleLabel():        string { return this.roleLabels[this.selectedRole]; }
@@ -61,38 +63,39 @@ private emailPlaceholders: Record<Role, string> = {
       next: (response) => {
         this.isLoading = false;
 
-        // ✅ Sauvegarde sans JSON.stringify
-        localStorage.setItem('TokenUserConnect', response.token);
-        localStorage.setItem('EmailUserConnect', response.email);
-        localStorage.setItem('RoleUserConnect',  response.role);
-
-        // ✅ Redirection selon le rôle renvoyé par le BACKEND (pas selectedRole)
-        this.redirectByRole(response.role);
+        // Le tap() d'AuthService.login a déjà enregistré token / email / rôle (rôle peut venir du JWT)
+        const rawRole =
+          (response.role && String(response.role).trim()) ||
+          this.authService.readRoleFromJwt(response.token) ||
+          '';
+        this.redirectAfterLogin(rawRole);
       },
       error: (error) => {
-        this.isLoading    = false;
-        this.errorMessage = 'Email ou mot de passe incorrect.';
+        this.isLoading = false;
+        const body = error?.error as Record<string, unknown> | undefined;
+        const err = body?.['error'];
+        const msg = body?.['message'];
+        this.errorMessage =
+          (typeof err === 'string' ? err : null) ||
+          (typeof msg === 'string' ? msg : null) ||
+          'Email ou mot de passe incorrect.';
         console.error(error);
       },
     });
   }
 
-  private redirectByRole(role: string) {
-    switch (role) {
-      case 'ROLE_COACH':
-        this.router.navigateByUrl('/coach');   
-        break;
-      case 'SPONSOR':
-        this.router.navigateByUrl('/client');   
-        break;
-      case 'DELIVERY':
-        this.router.navigateByUrl('/client');   
-        break;
-      case 'PLAYER':
-      default:
-        this.router.navigateByUrl('/client');
-        break;
+  /** Après login réussi : admin → /admin, coach → /coach, sinon espace client */
+  private redirectAfterLogin(roleFromBackend: string) {
+    const role = this.authService.normalizeRole(roleFromBackend);
+    if (role === 'ROLE_ADMIN') {
+      this.router.navigateByUrl('/admin');
+      return;
     }
+    if (role === 'ROLE_COACH') {
+      this.router.navigateByUrl('/coach');
+      return;
+    }
+    this.router.navigateByUrl('/client');
   }
   loginWithGoogle(): void {
   this.authService.loginWithGoogle();

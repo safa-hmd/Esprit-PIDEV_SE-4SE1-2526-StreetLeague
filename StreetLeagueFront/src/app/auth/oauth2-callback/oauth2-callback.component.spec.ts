@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { OAuth2CallbackComponent } from './oauth2-callback.component';
+import { AuthService } from 'src/app/services/auth.service';
 
 describe('OAuth2CallbackComponent', () => {
   let component: OAuth2CallbackComponent;
@@ -14,10 +15,23 @@ describe('OAuth2CallbackComponent', () => {
     routerSpy          = jasmine.createSpyObj('Router', ['navigateByUrl']);
     queryParamsSubject = new Subject<any>();
 
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['normalizeRole']);
+    authServiceSpy.normalizeRole.and.callFake((role: string | null) => {
+      if (!role) return null;
+      const r = role.trim();
+      if (!r) return null;
+      const upper = r.toUpperCase();
+      if (upper.startsWith('ROLE_')) {
+        return 'ROLE_' + upper.slice(5);
+      }
+      return 'ROLE_' + upper;
+    });
+
     TestBed.configureTestingModule({
       declarations: [OAuth2CallbackComponent],
       providers: [
         { provide: Router, useValue: routerSpy },
+        { provide: AuthService, useValue: authServiceSpy },
         {
           provide: ActivatedRoute,
           useValue: { queryParams: queryParamsSubject.asObservable() }

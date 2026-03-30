@@ -34,9 +34,14 @@ export class AdminLoginComponent {
     }).subscribe({
       next: (response) => {
         this.isLoading = false;
+        const rawRole =
+          (response.role && String(response.role).trim()) ||
+          this.authService.readRoleFromJwt(response.token) ||
+          '';
+        const normalizedRole = this.authService.normalizeRole(rawRole);
 
         // ✅ Vérifie que c'est bien un ADMIN
-        if (response.role !== 'ROLE_ADMIN') {
+        if (normalizedRole !== 'ROLE_ADMIN') {
           this.authService.logout();
           this.errorMessage = 'Accès refusé. Cette interface est réservée aux administrateurs.';
           return;
@@ -44,9 +49,15 @@ export class AdminLoginComponent {
 
         this.router.navigateByUrl('/admin');
       },
-      error: () => {
-        this.isLoading    = false;
-        this.errorMessage = 'Email ou mot de passe incorrect.';
+      error: (error) => {
+        this.isLoading = false;
+        const body = error?.error as Record<string, unknown> | undefined;
+        const err = body?.['error'];
+        const msg = body?.['message'];
+        this.errorMessage =
+          (typeof err === 'string' ? err : null) ||
+          (typeof msg === 'string' ? msg : null) ||
+          'Email ou mot de passe incorrect.';
       }
     });
   }
