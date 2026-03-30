@@ -24,8 +24,8 @@
 
   <!-- Header -->
   <div class="page-header-admin">
-    <h1 class="page-title-admin">Gestion des Commandes</h1>
-    <p class="page-subtitle-admin">Suivi et traitement de toutes les commandes clients</p>
+    <h1 class="page-title-admin">Order Management</h1>
+    <p class="page-subtitle-admin">Track and manage all customer orders</p>
   </div>
 
   <!-- Notifications -->
@@ -46,27 +46,27 @@
     </div>
     <div class="stat-mini">
       <div class="stat-mini-val orange">{{ stats.enAttente }}</div>
-      <div class="stat-mini-label">En attente</div>
+      <div class="stat-mini-label">Pending</div>
     </div>
     <div class="stat-mini">
       <div class="stat-mini-val blue">{{ stats.preparees }}</div>
-      <div class="stat-mini-label">Préparées</div>
+      <div class="stat-mini-label">Prepared</div>
     </div>
     <div class="stat-mini">
       <div class="stat-mini-val green">{{ stats.validees }}</div>
-      <div class="stat-mini-label">Validées</div>
+      <div class="stat-mini-label">Validated</div>
     </div>
     <div class="stat-mini">
       <div class="stat-mini-val">{{ stats.livrees }}</div>
-      <div class="stat-mini-label">Livrées</div>
+      <div class="stat-mini-label">Delivered</div>
     </div>
     <div class="stat-mini">
       <div class="stat-mini-val red">{{ stats.annulees }}</div>
-      <div class="stat-mini-label">Annulées</div>
+      <div class="stat-mini-label">Cancelled</div>
     </div>
     <div class="stat-mini" style="min-width:160px;">
       <div class="stat-mini-val green">{{ stats.chiffreAffaires | number:'1.2-2' }} TND</div>
-      <div class="stat-mini-label">Chiffre d'affaires</div>
+      <div class="stat-mini-label">Revenue</div>
     </div>
   </div>
 
@@ -75,27 +75,27 @@
     <div class="a-card-header" style="flex-direction:column;align-items:flex-start;gap:0.75rem;">
       <div style="display:flex;justify-content:space-between;width:100%;align-items:center;">
         <span class="a-card-title">
-          Commandes ({{ filteredCommandes.length }} / {{ commandes.length }})
+          Orders ({{ filteredCommandes.length }} / {{ commandes.length }})
         </span>
         <button class="a-btn a-btn-ghost a-btn-sm" (click)="loadCommandes()">
-          🔄 Actualiser
+          🔄 Refresh
         </button>
       </div>
 
       <!-- Filtres rapides par statut -->
       <div class="tab-statuts">
         <button class="tab-statut-btn" [class.active]="filterStatut === ''"
-                (click)="filterStatut=''; applyFilters()">Tous</button>
+                (click)="filterStatut=''; applyFilters()">All</button>
         <button class="tab-statut-btn" [class.active]="filterStatut === 'EN_ATTENTE'"
-                (click)="filterStatut='EN_ATTENTE'; applyFilters()">En attente</button>
+                (click)="filterStatut='EN_ATTENTE'; applyFilters()">Pending</button>
         <button class="tab-statut-btn" [class.active]="filterStatut === 'PREPAREE'"
-                (click)="filterStatut='PREPAREE'; applyFilters()">Préparées</button>
+                (click)="filterStatut='PREPAREE'; applyFilters()">Prepared</button>
         <button class="tab-statut-btn" [class.active]="filterStatut === 'VALIDEE'"
-                (click)="filterStatut='VALIDEE'; applyFilters()">Validées</button>
+                (click)="filterStatut='VALIDEE'; applyFilters()">Validated</button>
         <button class="tab-statut-btn" [class.active]="filterStatut === 'LIVREE'"
-                (click)="filterStatut='LIVREE'; applyFilters()">Livrées</button>
+                (click)="filterStatut='LIVREE'; applyFilters()">Delivered</button>
         <button class="tab-statut-btn" [class.active]="filterStatut === 'ANNULEE'"
-                (click)="filterStatut='ANNULEE'; applyFilters()">Annulées</button>
+                (click)="filterStatut='ANNULEE'; applyFilters()">Cancelled</button>
       </div>
 
       <!-- Recherche par ID -->
@@ -122,7 +122,7 @@
 
       <!-- Loading -->
       <div *ngIf="loading" style="text-align:center;padding:2.5rem;color:#999;">
-        Chargement des commandes...
+        Loading orders...
       </div>
 
       <div class="a-table-wrap" *ngIf="!loading">
@@ -130,10 +130,10 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th>Montant total</th>
-              <th>Statut</th>
-              <th>Changer statut</th>
-              <th>Détail</th>
+              <th>Total Amount</th>
+              <th>Status</th>
+              <th>Change Status</th>
+              <th>Detail</th>
             </tr>
           </thead>
           <tbody>
@@ -157,7 +157,7 @@
               </td>
               <td>
                 <button class="a-btn a-btn-ghost a-btn-sm" (click)="openDetail(c)">
-                  🔍 Voir
+                  🔍 View
                 </button>
               </td>
             </tr>
@@ -165,7 +165,7 @@
             <tr *ngIf="filteredCommandes.length === 0 && !loading">
               <td colspan="5" style="text-align:center;padding:2.5rem;color:#999;">
                 <div style="font-size:2rem;margin-bottom:0.5rem;">📋</div>
-                Aucune commande trouvée.
+                No orders found.
               </td>
             </tr>
           </tbody>

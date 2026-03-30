@@ -1,7 +1,7 @@
 <!-- Page header -->
 <div class="dfo-page-header">
-  <h1 class="dfo-page-title">Mes Livraisons</h1>
-  <p class="dfo-page-subtitle">Gérez et mettez à jour vos livraisons assignées</p>
+  <h1 class="dfo-page-title" style="color: #ffffff;">My Deliveries</h1>
+  <p class="dfo-page-subtitle" style="color: #aaaaaa;">Manage and update your assigned deliveries</p>
 </div>
 
 <!-- Notifications -->
@@ -11,7 +11,7 @@
 <!-- Stats -->
 <div class="dfo-stat-grid">
   <div class="dfo-stat">
-    <div class="dfo-stat-icon" style="background:rgba(78,138,159,0.15);color:#4e8a9f;">
+    <div class="dfo-stat-icon" style="background:rgba(78,138,159,0.2);color:#7ec8e3;">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22">
         <rect x="1" y="3" width="15" height="13"/>
         <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
@@ -20,26 +20,26 @@
       </svg>
     </div>
     <div>
-      <div class="dfo-stat-val">{{ stats.total }}</div>
-      <div class="dfo-stat-label">Total assignées</div>
+      <div class="dfo-stat-val" style="color:#F0F0F0;">{{ stats.total }}</div>
+      <div class="dfo-stat-label" style="color:#aaaaaa;">Total assigned</div>
     </div>
   </div>
 
   <div class="dfo-stat">
-    <div class="dfo-stat-icon" style="background:rgba(232,112,64,0.15);color:#E87040;">
+    <div class="dfo-stat-icon" style="background:rgba(232,112,64,0.2);color:#f59e6b;">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22">
         <circle cx="12" cy="12" r="10"/>
         <polyline points="12 6 12 12 16 14"/>
       </svg>
     </div>
     <div>
-      <div class="dfo-stat-val" style="color:#E87040;">{{ stats.preparees }}</div>
-      <div class="dfo-stat-label">À préparer</div>
+      <div class="dfo-stat-val" style="color:#f59e6b;">{{ stats.preparees }}</div>
+      <div class="dfo-stat-label" style="color:#aaaaaa;">To Prepare</div>
     </div>
   </div>
 
   <div class="dfo-stat">
-    <div class="dfo-stat-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6;">
+    <div class="dfo-stat-icon" style="background:rgba(59,130,246,0.2);color:#7eb3f7;">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22">
         <path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/>
         <rect x="9" y="11" width="14" height="10" rx="2"/>
@@ -47,25 +47,25 @@
       </svg>
     </div>
     <div>
-      <div class="dfo-stat-val" style="color:#3b82f6;">{{ stats.enCours }}</div>
-      <div class="dfo-stat-label">En transit</div>
+      <div class="dfo-stat-val" style="color:#7eb3f7;">{{ stats.enCours }}</div>
+      <div class="dfo-stat-label" style="color:#aaaaaa;">In Transit</div>
     </div>
   </div>
 
   <div class="dfo-stat">
-    <div class="dfo-stat-icon" style="background:rgba(34,197,94,0.12);color:#22c55e;">
+    <div class="dfo-stat-icon" style="background:rgba(34,197,94,0.15);color:#4ade80;">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22">
         <polyline points="20 6 9 17 4 12"/>
       </svg>
     </div>
     <div>
-      <div class="dfo-stat-val" style="color:#22c55e;">{{ stats.livrees }}</div>
-      <div class="dfo-stat-label">Livrées</div>
+      <div class="dfo-stat-val" style="color:#4ade80;">{{ stats.livrees }}</div>
+      <div class="dfo-stat-label" style="color:#aaaaaa;">Delivered</div>
     </div>
   </div>
 
   <div class="dfo-stat">
-    <div class="dfo-stat-icon" style="background:rgba(230,25,32,0.15);color:#E61920;">
+    <div class="dfo-stat-icon" style="background:rgba(230,25,32,0.2);color:#f87171;">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22">
         <circle cx="12" cy="12" r="10"/>
         <line x1="12" y1="8" x2="12" y2="12"/>
@@ -73,8 +73,8 @@
       </svg>
     </div>
     <div>
-      <div class="dfo-stat-val" style="color:#E61920;">{{ stats.echecs }}</div>
-      <div class="dfo-stat-label">Échecs</div>
+      <div class="dfo-stat-val" style="color:#f87171;">{{ stats.echecs }}</div>
+      <div class="dfo-stat-label" style="color:#aaaaaa;">Failed</div>
     </div>
   </div>
 </div>
@@ -82,95 +82,119 @@
 <!-- Filtres rapides -->
 <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;">
   <button class="dfo-status-btn"
-          [style.background]="activeFilter === 'TOUTES' ? 'rgba(230,25,32,0.2)' : ''"
-          [style.color]="activeFilter === 'TOUTES' ? '#E61920' : '#aaa'"
-          [style.border-color]="activeFilter === 'TOUTES' ? '#E61920' : '#2a2a2a'"
+          [style.background]="activeFilter === 'TOUTES' ? 'rgba(230,25,32,0.2)' : 'rgba(255,255,255,0.05)'"
+          [style.color]="activeFilter === 'TOUTES' ? '#ff6b6b' : '#cccccc'"
+          [style.border-color]="activeFilter === 'TOUTES' ? '#E61920' : '#3a3a3a'"
           (click)="setFilter('TOUTES')">
-    Toutes ({{ livraisons.length }})
+    ALL ({{ livraisons.length }})
   </button>
   <button *ngFor="let s of statuts"
           class="dfo-status-btn"
           [ngClass]="activeFilter === s ? 'active-' + s : ''"
-          [style.border-color]="activeFilter !== s ? '#2a2a2a' : ''"
-          [style.color]="activeFilter !== s ? '#aaa' : ''"
+          [style.background]="activeFilter !== s ? 'rgba(255,255,255,0.05)' : ''"
+          [style.border-color]="activeFilter !== s ? '#3a3a3a' : ''"
+          [style.color]="activeFilter !== s ? '#cccccc' : ''"
           (click)="setFilter(s)">
-    {{ s }} ({{ livraisons | filterByStatut:s }})
+    {{ s === 'EN_COURS' ? 'EN COURS' : s }} ({{ livraisons | filterByStatut:s }})
   </button>
 </div>
 
 <!-- Table principale -->
 <div class="dfo-card">
   <div class="dfo-card-header">
-    <span class="dfo-card-title">
-      Livraisons ({{ filteredLivraisons.length }})
+    <span class="dfo-card-title" style="color:#F0F0F0;">
+      Deliveries ({{ filteredLivraisons.length }})
     </span>
-    <button class="dfo-btn dfo-btn-ghost dfo-btn-sm" (click)="loadLivraisons()">
+    <button class="dfo-btn dfo-btn-ghost dfo-btn-sm" (click)="loadLivraisons()"
+            style="color:#cccccc;border-color:#3a3a3a;">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="14" height="14">
         <polyline points="23 4 23 10 17 10"/>
         <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
       </svg>
-      Actualiser
+      Refresh
     </button>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" style="text-align:center;padding:3rem;color:#888;">
+  <div *ngIf="loading" style="text-align:center;padding:3rem;color:#cccccc;">
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
-         width="32" height="32" style="animation:spin 1s linear infinite;display:block;margin:0 auto 0.75rem;">
+         width="32" height="32"
+         style="animation:spin 1s linear infinite;display:block;margin:0 auto 0.75rem;color:#E61920;">
       <path d="M21 12a9 9 0 1 1-6.22-8.56"/>
     </svg>
-    Chargement...
+    REFRESHING...
   </div>
 
   <div class="dfo-table-wrap" *ngIf="!loading">
     <table class="dfo-table">
       <thead>
-        <tr>
-          <th>ID</th>
-          <th>Commande</th>
-          <th>Adresse</th>
-          <th>Frais</th>
-          <th>Statut</th>
-          <th>Mettre à jour</th>
-          <th></th>
-        </tr>
+          <tr>
+            <th style="color:#ffffff;background:#161616;font-weight:700;">ID</th>
+            <th style="color:#ffffff;background:#161616;font-weight:700;">Commande</th>
+            <th style="color:#ffffff;background:#161616;font-weight:700;">Adresse</th>
+            <th style="color:#ffffff;background:#161616;font-weight:700;">Frais</th>
+            <th style="color:#ffffff;background:#161616;font-weight:700;">Statut</th>
+            <th style="color:#ffffff;background:#161616;font-weight:700;">Mettre à jour</th>
+            <th style="background:#161616;"></th>
+          </tr>
       </thead>
       <tbody>
         <tr *ngFor="let l of filteredLivraisons"
             [style.border-left]="selectedLivraison?.id === l.id ? '3px solid #E61920' : '3px solid transparent'">
-          <td><strong style="color:#E61920;">#{{ l.id }}</strong></td>
-          <td>Cmd #{{ l.commandeId }}</td>
+
+          <!-- ID -->
+          <td><strong style="color:#ff6b6b;font-size:0.95rem;">#{{ l.id }}</strong></td>
+
+          <!-- Commande -->
+          <td style="color:#e0e0e0;font-weight:500;">Cmd #{{ l.commandeId }}</td>
+
+          <!-- Adresse -->
           <td>
-            <div style="max-width:200px;">
+            <div style="max-width:200px;display:flex;align-items:center;gap:5px;">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
-                   width="12" height="12" style="display:inline;margin-right:4px;color:#888;">
+                   width="12" height="12" style="color:#aaaaaa;flex-shrink:0;">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                 <circle cx="12" cy="10" r="3"/>
               </svg>
-              <span style="font-size:0.85rem;">{{ l.adresse }}</span>
+              <span style="font-size:0.85rem;color:#e0e0e0;">{{ l.adresse }}</span>
             </div>
           </td>
-          <td style="color:#888;font-size:0.85rem;">{{ l.fraisLivraison | number:'1.2-2' }} TND</td>
-          <td>
-            <span class="dfo-badge" [ngClass]="getBadgeClass(l.statut)">{{ l.statut }}</span>
+
+          <!-- Frais -->
+          <td style="color:#cccccc;font-size:0.85rem;font-weight:600;">
+            {{ l.fraisLivraison | number:'1.2-2' }} TND
           </td>
+
+          <!-- Statut badge avec meilleure lisibilité -->
           <td>
-            <!-- Boutons de changement statut rapide -->
-            <div class="dfo-status-actions">
+            <span class="dfo-badge" 
+                  [ngClass]="getBadgeClass(l.statut)"
+                  style="font-weight:700;padding:0.3rem 0.8rem;">
+              {{ l.statut === 'EN_COURS' ? 'EN COURS' : l.statut }}
+            </span>
+          </td>
+
+          <!-- Boutons update statut avec meilleure lisibilité -->
+          <td>
+            <div class="dfo-status-actions" style="gap:0.5rem;">
               <button *ngFor="let s of statuts"
                       class="dfo-status-btn"
                       [ngClass]="'active-' + s"
                       [disabled]="l.statut === s"
-                      [title]="l.statut === s ? 'Statut actuel' : 'Passer à ' + s"
-                      (click)="updateStatus(l, s)">
+                      [title]="l.statut === s ? 'Statut actuel' : 'Passer à ' + (s === 'EN_COURS' ? 'EN COURS' : s)"
+                      (click)="updateStatus(l, s)"
+                      style="font-weight:600;font-size:0.75rem;padding:0.35rem 0.85rem;">
                 {{ s === 'EN_COURS' ? 'EN COURS' : s }}
               </button>
             </div>
           </td>
+
+          <!-- Détail toggle -->
           <td>
             <button class="dfo-btn dfo-btn-ghost dfo-btn-sm"
                     (click)="selectLivraison(l)"
-                    [style.color]="selectedLivraison?.id === l.id ? '#E61920' : ''">
+                    [style.color]="selectedLivraison?.id === l.id ? '#ff6b6b' : '#cccccc'"
+                    style="border-color:#3a3a3a;font-weight:600;">
               {{ selectedLivraison?.id === l.id ? '▲ Réduire' : '▼ Détail' }}
             </button>
           </td>
@@ -180,32 +204,63 @@
         <ng-container *ngIf="selectedLivraison">
           <tr *ngFor="let l of filteredLivraisons"
               [style.display]="selectedLivraison && selectedLivraison.id === l.id ? 'table-row' : 'none'">
-            <td colspan="7" style="background:#1a1a1a;padding:1.25rem 1.5rem;">
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+            <td colspan="7" style="background:#181818;padding:1.5rem;border-top:1px solid #2a2a2a;">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;">
+
                 <div>
-                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:#666;margin-bottom:0.35rem;">ID Livraison</div>
-                  <div style="font-weight:700;color:#E61920;font-size:1.1rem;">#{{ l.id }}</div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;
+                               color:#aaaaaa;margin-bottom:0.35rem;font-weight:700;">
+                    Delivery ID
+                  </div>
+                  <div style="font-weight:700;color:#ff6b6b;font-size:1.1rem;">#{{ l.id }}</div>
                 </div>
+
                 <div>
-                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:#666;margin-bottom:0.35rem;">Commande</div>
-                  <div style="font-weight:700;">#{{ l.commandeId }}</div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;
+                               color:#aaaaaa;margin-bottom:0.35rem;font-weight:700;">
+                    Order
+                  </div>
+                  <div style="font-weight:700;color:#ffffff;">#{{ l.commandeId }}</div>
                 </div>
+
                 <div>
-                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:#666;margin-bottom:0.35rem;">Transporteur</div>
-                  <div style="font-weight:700;">#{{ l.transporteurId }}</div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;
+                               color:#aaaaaa;margin-bottom:0.35rem;font-weight:700;">
+                    Transporteur
+                  </div>
+                  <div style="font-weight:700;color:#ffffff;">#{{ l.transporteurId }}</div>
                 </div>
+
                 <div>
-                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:#666;margin-bottom:0.35rem;">Adresse complète</div>
-                  <div style="font-weight:600;color:#ddd;">{{ l.adresse }}</div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;
+                               color:#aaaaaa;margin-bottom:0.35rem;font-weight:700;">
+                    Adresse complète
+                  </div>
+                  <div style="font-weight:500;color:#e0e0e0;line-height:1.5;">{{ l.adresse }}</div>
                 </div>
+
                 <div>
-                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:#666;margin-bottom:0.35rem;">Frais de livraison</div>
-                  <div style="font-weight:700;">{{ l.fraisLivraison | number:'1.2-2' }} TND</div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;
+                               color:#aaaaaa;margin-bottom:0.35rem;font-weight:700;">
+                    Frais de livraison
+                  </div>
+                  <div style="font-weight:700;color:#ffffff;">
+                    {{ l.fraisLivraison | number:'1.2-2' }} TND
+                  </div>
                 </div>
+
                 <div>
-                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:#666;margin-bottom:0.35rem;">Statut actuel</div>
-                  <span class="dfo-badge" [ngClass]="getBadgeClass(l.statut)">{{ l.statut }}</span>
+                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;
+                               color:#aaaaaa;margin-bottom:0.35rem;font-weight:700;">
+                    Statut actuel
+                  </div>
+                  <span class="dfo-badge" 
+                        [ngClass]="getBadgeClass(l.statut)"
+                        style="font-weight:700;padding:0.3rem 0.8rem;">
+                    {{ l.statut === 'EN_COURS' ? 'EN COURS' : l.statut }}
+                  </span>
                 </div>
+
               </div>
             </td>
           </tr>
@@ -213,18 +268,19 @@
 
         <!-- Vide -->
         <tr *ngIf="filteredLivraisons.length === 0 && !loading">
-          <td colspan="7" style="text-align:center;padding:3rem;color:#555;">
+          <td colspan="7" style="text-align:center;padding:3rem;">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"
-                 width="48" height="48" style="display:block;margin:0 auto 0.75rem;opacity:0.3;">
+                 width="48" height="48"
+                 style="display:block;margin:0 auto 0.75rem;opacity:0.35;color:#cccccc;">
               <rect x="1" y="3" width="15" height="13"/>
               <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
               <circle cx="5.5" cy="18.5" r="2.5"/>
               <circle cx="18.5" cy="18.5" r="2.5"/>
             </svg>
-            <div style="font-size:0.9rem;">
+            <div style="font-size:0.9rem;color:#bbbbbb;">
               {{ activeFilter === 'TOUTES'
                  ? 'Aucune livraison assignée pour le moment.'
-                 : 'Aucune livraison avec le statut ' + activeFilter + '.' }}
+                 : 'Aucune livraison avec le statut ' + (activeFilter === 'EN_COURS' ? 'EN COURS' : activeFilter) + '.' }}
             </div>
           </td>
         </tr>

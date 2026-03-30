@@ -17,8 +17,8 @@
 
 <div class="page-content">
   <div class="page-header">
-    <h1 class="page-title">Mon Panier</h1>
-    <p class="page-subtitle">Vérifiez votre sélection avant de commander</p>
+    <h1 class="page-title">My Cart</h1>
+    <p class="page-subtitle">Verify your selection before ordering</p>
   </div>
 
   <div class="alert alert-success" *ngIf="successMsg">{{ successMsg }}</div>
@@ -26,31 +26,31 @@
 
   <!-- Loading -->
   <div *ngIf="loading" style="text-align:center;padding:3rem;color:#999;">
-    Chargement du panier...
+    Loading the cart...
   </div>
 
   <!-- Panier vide -->
   <div class="empty-cart" *ngIf="!loading && (!panier || panier.lignes.length === 0)">
     <div>🛒</div>
-    <p>Votre panier est vide.</p>
-    <a routerLink="/client/shop" class="btn btn-primary">Continuer les achats</a>
+    <p>Your cart is empty.</p>
+    <a routerLink="/client/shop" class="btn btn-primary">Continue Shopping</a>
   </div>
 
   <!-- Panier avec articles -->
   <div *ngIf="!loading && panier && panier.lignes.length > 0">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
       <span style="font-size:0.9rem;color:#666;">{{ panier.lignes.length }} article(s)</span>
-      <button class="btn-danger" (click)="clearCart()">🗑 Vider le panier</button>
+      <button class="btn-danger" (click)="clearCart()">🗑 Clear Cart</button>
     </div>
 
     <div style="background:white;border:1.5px solid #eee;border-radius:12px;overflow:hidden;margin-bottom:1.5rem;">
       <table class="cart-table">
         <thead>
           <tr>
-            <th>Produit</th>
-            <th>Prix unitaire</th>
-            <th>Quantité</th>
-            <th>Sous-total</th>
+            <th>Product</th>
+            <th>Unit Price</th>
+            <th>Quantity</th>
+            <th>Subtotal</th>
             <th></th>
           </tr>
         </thead>
@@ -91,11 +91,11 @@
         <span>{{ panier.total | number:'1.2-2' }} TND</span>
       </div>
       <button class="btn btn-primary" style="width:100%;margin-top:1rem;" (click)="checkout()">
-        ✅ Passer la commande
+        ✅ Order Now
       </button>
       <a routerLink="/client/shop"
          style="display:block;text-align:center;margin-top:0.75rem;font-size:0.85rem;color:#666;">
-        ← Continuer les achats
+        ← Continue Shopping
       </a>
     </div>
   </div>

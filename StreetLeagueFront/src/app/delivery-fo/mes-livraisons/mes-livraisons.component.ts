@@ -38,13 +38,8 @@ export class MesLivraisonsComponent implements OnInit {
   loadLivraisons(): void {
     this.loading = true;
     this.livraisonService.getAllLivraisons().subscribe({
-      next: data => {
-        // Le backend retourne livreur comme objet nested { id, fullName, email, role }
-        // On supporte les deux cas : livreur.id (nested) ou livreurId (flat)
-        this.livraisons = data.filter((l: any) => {
-          const livreurId = l.livreur?.id ?? l.livreurId;
-          return livreurId === this.userId;
-        });
+      next: (data: any[]) => {
+        this.livraisons = data.filter(l => l.livreur?.id === this.userId);
         this.applyFilter();
         this.loading = false;
       },
@@ -66,27 +61,35 @@ export class MesLivraisonsComponent implements OnInit {
     this.applyFilter();
   }
 
-  updateStatus(livraison: Livraison, newStatut: LivraisonStatus): void {
+  updateStatus(livraison: any, newStatut: LivraisonStatus): void {
     if (livraison.statut === newStatut) return;
-    const livreurId = (livraison as any).livreur?.id ?? livraison.livreurId;
 
-    this.livraisonService.updateStatus(livraison.id!, {
+    const dto = {
       commandeId:     livraison.commandeId,
       transporteurId: livraison.transporteurId,
-      livreurId:      livreurId,
+      livreurId:      livraison.livreur?.id ?? null,
       adresse:        livraison.adresse,
       fraisLivraison: livraison.fraisLivraison,
       statut:         newStatut
-    }).subscribe({
+    };
+
+    this.livraisonService.updateStatus(livraison.id, dto).subscribe({
       next: () => {
         livraison.statut = newStatut;
-        if (this.selectedLivraison?.id === livraison.id) {
-          this.selectedLivraison!.statut = newStatut;
+
+        // FIX TS2531 : vérification explicite !== null avant accès à .statut
+        const sel = this.selectedLivraison;
+        if (sel !== null && sel.id === livraison.id) {
+          sel.statut = newStatut;
         }
+
         this.applyFilter();
         this.showSuccess(`Livraison #${livraison.id} → ${newStatut}`);
       },
-      error: () => this.showError('Erreur lors de la mise à jour.')
+      error: (err: any) => {
+        console.error('updateStatus error:', err);
+        this.showError('Erreur lors de la mise à jour.');
+      }
     });
   }
 
@@ -115,7 +118,7 @@ export class MesLivraisonsComponent implements OnInit {
     return map[statut] || 'dfo-badge-gray';
   }
 
-  getStatusBtnClass(statut: LivraisonStatus, current: LivraisonStatus): string {
+  getStatusBtnClass(statut: LivraisonStatus): string {
     return `dfo-status-btn active-${statut}`;
   }
 
@@ -123,6 +126,7 @@ export class MesLivraisonsComponent implements OnInit {
     this.successMsg = msg; this.errorMsg = '';
     setTimeout(() => this.successMsg = '', 3500);
   }
+
   private showError(msg: string): void {
     this.errorMsg = msg; this.successMsg = '';
     setTimeout(() => this.errorMsg = '', 4000);

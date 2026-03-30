@@ -2,14 +2,13 @@ package com.example.streetleague.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,6 +22,8 @@ public class Livraison {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    // ← GARDER @JsonIgnore pour éviter la sérialisation circulaire
+    //   mais exposer l'ID via @JsonProperty
     @JsonIgnore
     @OneToOne
     @JoinColumn(name = "commande_id", nullable = false)
@@ -43,4 +44,15 @@ public class Livraison {
 
     @Enumerated(EnumType.STRING)
     LivraisonStatus statut;
+
+    // ← AJOUTER ces deux méthodes pour exposer les IDs dans le JSON
+    @JsonProperty("commandeId")
+    public Long getCommandeId() {
+        return commande != null ? commande.getId() : null;
+    }
+
+    @JsonProperty("transporteurId")
+    public Long getTransporteurId() {
+        return transporteur != null ? transporteur.getId() : null;
+    }
 }

@@ -27,8 +27,8 @@
 
 <div class="page-content">
   <div class="page-header">
-    <h1 class="page-title">Boutique Sport</h1>
-    <p class="page-subtitle">Équipements et vêtements de qualité pour les athlètes</p>
+    <h1 class="page-title">Sports Shop</h1>
+    <p class="page-subtitle">Quality equipment and clothing for athletes</p>
   </div>
 
   <!-- Notifications -->
@@ -38,11 +38,11 @@
   <div class="shop-layout">
     <!-- Sidebar filtres catégories -->
     <div class="shop-sidebar">
-      <h3>🔍 Filtres</h3>
-      <h4>Catégorie</h4>
+      <h3>🔍 Filters</h3>
+      <h4>Category</h4>
       <label class="filter-item">
         <input type="radio" name="cat" (change)="filterByCategory(null)" [checked]="selectedCategorieId === null">
-        Tous
+        All
       </label>
       <label class="filter-item" *ngFor="let cat of categories">
         <input type="radio" name="cat" (change)="filterByCategory(cat.id!)" [checked]="selectedCategorieId === cat.id">
@@ -51,9 +51,9 @@
 
       <!-- Bouton checkout si panier non vide -->
       <div *ngIf="cartCount > 0" style="margin-top:1.5rem;border-top:1px solid #eee;padding-top:1rem;">
-        <p style="font-size:0.85rem;color:#666;margin-bottom:0.5rem;">{{ cartCount }} article(s) dans le panier</p>
+        <p style="font-size:0.85rem;color:#666;margin-bottom:0.5rem;">{{ cartCount }} article(s) in the cart</p>
         <button class="btn btn-primary" style="width:100%" (click)="checkout()">
-          ✅ Commander
+          ✅ order
         </button>
       </div>
     </div>
@@ -87,7 +87,7 @@
             <button class="btn btn-primary btn-sm"
                     [disabled]="m.quantiteStock === 0"
                     (click)="addToCart(m)">
-              {{ m.quantiteStock > 0 ? '🛒 Ajouter' : 'Épuisé' }}
+              {{ m.quantiteStock > 0 ? '🛒 Add to Cart' : 'Out of Stock' }}
             </button>
           </div>
         </div>
@@ -96,7 +96,7 @@
       <div *ngIf="filteredMateriels.length === 0"
            style="grid-column:1/-1;text-align:center;padding:3rem;color:#999;">
         <div style="font-size:2rem;margin-bottom:0.5rem;">📦</div>
-        Aucun produit dans cette catégorie.
+        No products in this category.
       </div>
     </div>
   </div>
@@ -104,5 +104,5 @@
 
 <!-- Cart FAB -->
 <button class="cart-fab" *ngIf="cartCount > 0" (click)="goToCart()">
-  🛒 Panier ({{ cartCount }})
+  🛒 Cart ({{ cartCount }})
 </button>

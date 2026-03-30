@@ -1,7 +1,7 @@
 <div class="admin-main-inner">
   <div class="page-header-admin">
-    <h1 class="page-title-admin">Gestion des Transporteurs</h1>
-    <p class="page-subtitle-admin">Gérez les sociétés de transport partenaires</p>
+    <h1 class="page-title-admin">Transport Management</h1>
+    <p class="page-subtitle-admin">Manage partner shipping companies</p>
   </div>
 
   <!-- Notifications -->
@@ -51,7 +51,7 @@
     <div class="a-card-header" style="justify-content:space-between;">
       <span class="a-card-title">Transporteurs ({{ transporteurs.length }})</span>
       <button class="a-btn a-btn-primary a-btn-sm" (click)="openCreate()">
-        + Ajouter un transporteur
+        + Add Transporter
       </button>
     </div>
     <div class="a-card-body" style="padding:0;">
@@ -77,12 +77,12 @@
               <td>
                 <div style="display:flex;gap:0.5rem;">
                   <button class="a-btn a-btn-ghost a-btn-sm" (click)="openEdit(t)">
-                    ✏️ Modifier
+                    ✏️ Modify
                   </button>
                   <button class="a-btn a-btn-ghost a-btn-sm"
                           style="color:#e61920;"
                           (click)="delete(t.id!, t.nomSociete)">
-                    🗑 Supprimer
+                    🗑 Delete
                   </button>
                 </div>
               </td>
