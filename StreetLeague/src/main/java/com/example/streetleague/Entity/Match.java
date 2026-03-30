@@ -8,8 +8,7 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -44,4 +43,33 @@ public class Match {
     @ManyToOne
     @JoinColumn(name = "created_by_id", nullable = false)
     User createdBy;
+
+    // ===== EXPLICIT GETTERS/SETTERS (Lombok not processing) =====
+
+    public Long getIdMatch() { return this.idMatch; }
+    public void setIdMatch(Long idMatch) { this.idMatch = idMatch; }
+
+    public LocalDateTime getMatchDate() { return this.matchDate; }
+    public void setMatchDate(LocalDateTime matchDate) { this.matchDate = matchDate; }
+
+    public String getLocation() { return this.location; }
+    public void setLocation(String location) { this.location = location; }
+
+    public MatchStatus getStatus() { return this.status; }
+    public void setStatus(MatchStatus status) { this.status = status; }
+
+    public Integer getScoreTeamA() { return this.scoreTeamA; }
+    public void setScoreTeamA(Integer scoreTeamA) { this.scoreTeamA = scoreTeamA; }
+
+    public Integer getScoreTeamB() { return this.scoreTeamB; }
+    public void setScoreTeamB(Integer scoreTeamB) { this.scoreTeamB = scoreTeamB; }
+
+    public Team getTeamA() { return this.teamA; }
+    public void setTeamA(Team teamA) { this.teamA = teamA; }
+
+    public Team getTeamB() { return this.teamB; }
+    public void setTeamB(Team teamB) { this.teamB = teamB; }
+
+    public User getCreatedBy() { return this.createdBy; }
+    public void setCreatedBy(User createdBy) { this.createdBy = createdBy; }
 }

@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 import { CoachFORoutingModule } from './coach-fo-routing.module';
 import { CoachFOComponent } from './coach-fo.component';
@@ -12,8 +12,12 @@ import { DetailTeamComponent } from './detail-team/detail-team.component';
 import { DetailMatchComponent } from './detail-match/detail-match.component';
 import { DetailTrainingComponent } from './detail-training/detail-training.component';
 import { HomeComponent } from './home/home.component';
+import { CoachAccommodationComponent } from './accommodation/coach-accommodation.component';
+import { CoachTransportComponent } from './transport/coach-transport/coach-transport.component';
+import { TransportBookComponent } from './transport/transport-book/transport-book.component';
+import { PersonalCarComponent } from './transport/personal-car/personal-car.component';
+import { MyRequestsComponent } from './transport/my-requests/my-requests.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
-
 
 @NgModule({
   declarations: [
@@ -26,14 +30,18 @@ import { PlayerProfileComponent } from './player-profile/player-profile.componen
     DetailMatchComponent,
     DetailTrainingComponent,
     HomeComponent,
-    PlayerProfileComponent
+      PlayerProfileComponent,
+    CoachAccommodationComponent,
+    CoachTransportComponent,
+    TransportBookComponent,
+    PersonalCarComponent,
+    MyRequestsComponent
   ],
   imports: [
     CommonModule,
     CoachFORoutingModule,
     FormsModule,
     ReactiveFormsModule
-  ],
-    providers: [DatePipe]
+  ]
 })
 export class CoachFOModule { }

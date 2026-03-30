@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -50,4 +49,38 @@ public class Training {
     )
     private List<User> participants = new ArrayList<>();
 
+    // ===== EXPLICIT GETTERS/SETTERS (Lombok not processing) =====
+
+    public Long getIdTraining() { return this.idTraining; }
+    public void setIdTraining(Long idTraining) { this.idTraining = idTraining; }
+
+    public String getTitle() { return this.title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getDescription() { return this.description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public LocalDateTime getTrainingDate() { return this.trainingDate; }
+    public void setTrainingDate(LocalDateTime trainingDate) { this.trainingDate = trainingDate; }
+
+    public Integer getDurationInMinutes() { return this.durationInMinutes; }
+    public void setDurationInMinutes(Integer durationInMinutes) { this.durationInMinutes = durationInMinutes; }
+
+    public String getLocation() { return this.location; }
+    public void setLocation(String location) { this.location = location; }
+
+    public String getExercises() { return this.exercises; }
+    public void setExercises(String exercises) { this.exercises = exercises; }
+
+    public String getPerformanceReport() { return this.performanceReport; }
+    public void setPerformanceReport(String performanceReport) { this.performanceReport = performanceReport; }
+
+    public TrainingStatus getStatus() { return this.status; }
+    public void setStatus(TrainingStatus status) { this.status = status; }
+
+    public Team getTeam() { return this.team; }
+    public void setTeam(Team team) { this.team = team; }
+
+    public List<User> getParticipants() { return this.participants; }
+    public void setParticipants(List<User> participants) { this.participants = participants; }
 }

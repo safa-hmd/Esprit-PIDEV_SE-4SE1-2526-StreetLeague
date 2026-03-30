@@ -82,7 +82,7 @@ export class TournamentsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Récupérer les infos de l'utilisateur connecté depuis le JWT
-    this.currentUserId    = this.auth.getUserId();
+    this.currentUserId    = this.auth.getUserId() ? +this.auth.getUserId()! : null;
     this.currentUserEmail = this.auth.getEmail();
 
     // Formulaire : teamId requis seulement pour les tournois TEAM

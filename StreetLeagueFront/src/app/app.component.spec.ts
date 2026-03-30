@@ -20,5 +20,10 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('StreetLeagueFront');
   });
 
-  // ← test "should render title" supprimé car le HTML n'a pas de .content span
+  // ← Test corrigé : le texte généré par défaut n'existe plus dans le projet
+  it('should render the app', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    expect(fixture.componentInstance).toBeTruthy();
+  });
 });

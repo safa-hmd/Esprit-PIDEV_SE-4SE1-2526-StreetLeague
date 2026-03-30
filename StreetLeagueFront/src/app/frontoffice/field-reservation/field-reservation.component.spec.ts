@@ -37,7 +37,7 @@ describe('Frontoffice FieldReservationComponent', () => {
     svcSpy.getAllFields.and.returnValue(of(mockFields as any));
     svcSpy.getAllReservations.and.returnValue(of(mockReservations as any));
     svcSpy.getReservationsByPlayer.and.returnValue(of([mockReservations[0]] as any));
-    authSpy.getUserId.and.returnValue(42);
+    authSpy.getUserId.and.returnValue('42');
 
     await TestBed.configureTestingModule({
       declarations: [FieldReservationComponent],

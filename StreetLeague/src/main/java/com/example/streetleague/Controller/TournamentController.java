@@ -1,5 +1,7 @@
 package com.example.streetleague.Controller;
 
+import com.example.streetleague.Entity.Tournament;
+import com.example.streetleague.Repository.TournamentRepository;
 import com.example.streetleague.ServiceInterface.ITournamentService;
 import com.example.streetleague.dto.TournamentDto;
 import jakarta.validation.Valid;
@@ -17,6 +19,7 @@ import java.util.List;
 public class TournamentController {
 
     private final ITournamentService tournamentService;
+    private final TournamentRepository tournamentRepository;
 
     // ===== ADMIN =====
 
@@ -46,8 +49,13 @@ public class TournamentController {
     // ===== ADMIN + PLAYER =====
 
     @GetMapping
-    public ResponseEntity<List<TournamentDto>> getAll() {
+    public ResponseEntity<?> getAll() {
         return ResponseEntity.ok(tournamentService.getAllTournaments());
+    }
+
+    @GetMapping("/legacy")
+    public ResponseEntity<List<Tournament>> getAllTournaments() {
+        return ResponseEntity.ok(tournamentRepository.findAll());
     }
 
     @GetMapping("/upcoming")
@@ -59,5 +67,4 @@ public class TournamentController {
     public ResponseEntity<TournamentDto> getById(@Valid @PathVariable Long id) {
         return ResponseEntity.ok(tournamentService.getTournamentById(id));
     }
-
 }

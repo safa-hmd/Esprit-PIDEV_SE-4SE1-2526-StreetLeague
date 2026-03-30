@@ -20,7 +20,8 @@ export interface AuthResponse {
   token: string;
   email: string;
   role: string;
-  id: string;
+  id?: string;
+  idUser?: string;
 }
 
 @Injectable({
@@ -46,7 +47,7 @@ export class AuthService {
         localStorage.setItem('TokenUserConnect', response.token);
         localStorage.setItem('EmailUserConnect', response.email);
         localStorage.setItem('RoleUserConnect',  response.role);
-       localStorage.setItem('UserIdConnect', response.id); 
+        localStorage.setItem('UserIdConnect', String(response.idUser || response.id || '')); 
       })
     );
   }
@@ -62,14 +63,21 @@ export class AuthService {
     return !!localStorage.getItem('TokenUserConnect');
   }
 
-getRole(): string {
-  return localStorage.getItem('RoleUserConnect') || '';
-}
+  getRole(): string | null {
+    return localStorage.getItem('RoleUserConnect');
+  }
 
   getToken(): string | null {
     return localStorage.getItem('TokenUserConnect');
   }
 
+  getEmail(): string | null {
+    return localStorage.getItem('EmailUserConnect');
+  }
+
+  getUserId(): string | null {
+    return localStorage.getItem('UserIdConnect');
+  }
 
   //add this without unitaire tests
 
@@ -93,40 +101,4 @@ resetPassword(token: string, newPassword: string): Observable<string> {
     { responseType: 'text' }
   );
 }
-
-  
-  // ✅ Decode JWT payload — works without any external library
-  private decodeToken(): Record<string, any> | null {
-    const token = this.getToken();
-    if (!token) return null;
-    try {
-      const payload = token.split('.')[1];
-      // Fix base64url padding before decoding
-      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(atob(base64));
-    } catch {
-      return null;
-    }
-  }
- 
-  // ✅ Get user ID from JWT claim 'id' (added in JwtService.java)
-  getUserId(): number | null {
-    const decoded = this.decodeToken();
-    if (!decoded) return null;
-    const id = decoded['id'];
-    return id != null ? Number(id) : null;
-  }
- 
-  // ✅ Get full name from JWT claim 'fullName'
-  getFullName(): string | null {
-    const decoded = this.decodeToken();
-    return decoded?.['fullName'] ?? localStorage.getItem('EmailUserConnect');
-  }
- 
-  // ✅ Get email from JWT subject
-  getEmail(): string | null {
-    return localStorage.getItem('EmailUserConnect');
-  }
-
-
 }

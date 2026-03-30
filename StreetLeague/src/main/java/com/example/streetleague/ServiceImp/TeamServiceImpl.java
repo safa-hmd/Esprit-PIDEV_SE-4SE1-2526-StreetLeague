@@ -16,12 +16,19 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
 public class TeamServiceImpl implements IteamService {
 
-    TeamRepository teamRepository;
-    UserRepository userRepository;
-    MatchRepository matchRepository;
+    private final TeamRepository teamRepository;
+    private final UserRepository userRepository;
+    private final MatchRepository matchRepository;
+
+    public TeamServiceImpl(TeamRepository teamRepository, 
+                           UserRepository userRepository, 
+                           MatchRepository matchRepository) {
+        this.teamRepository = teamRepository;
+        this.userRepository = userRepository;
+        this.matchRepository = matchRepository;
+    }
 
     @Override
     public TeamResponse addTeam(TeamRequest dto, Long captainId) {
@@ -111,7 +118,7 @@ public class TeamServiceImpl implements IteamService {
             throw new RuntimeException("Only the team captain or an admin can delete this team");
 
         // ✅ 1. Supprimer les matchs associés (teamA ou teamB)
-        matchRepository.deleteByTeamAIdOrTeamBId(idTeam, idTeam);
+        matchRepository.deleteByTeamAIdOrTeamBId(idTeam);
 
         // ✅ 2. Retirer tous les joueurs de la team (évite la contrainte FK)
         team.getPlayers().clear();

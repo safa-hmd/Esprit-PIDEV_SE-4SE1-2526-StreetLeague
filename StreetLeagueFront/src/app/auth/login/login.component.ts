@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
-type Role = 'PLAYER' |  'COACH' | 'SPONSOR' | 'DELIVERY';
+type Role = 'PLAYER' | 'COACH' | 'SPONSOR' | 'DELIVERY' | 'ADMIN';
 
 @Component({
   selector: 'app-login',
@@ -13,35 +13,37 @@ type Role = 'PLAYER' |  'COACH' | 'SPONSOR' | 'DELIVERY';
 export class LoginComponent {
 
   selectedRole: Role = 'PLAYER';
-  isLoading    = false;
+  isLoading = false;
   errorMessage = '';
 
-private roleLabels: Record<Role, string> = {
-  PLAYER:   'Player',
-  COACH:    'Coach',
-  SPONSOR:  'Sponsor',
-  DELIVERY: 'Delivery',
-};
+  private roleLabels: Record<Role, string> = {
+    PLAYER: 'Player',
+    COACH: 'Coach',
+    SPONSOR: 'Sponsor',
+    DELIVERY: 'Delivery',
+    ADMIN: 'Admin',
+  };
 
-private emailPlaceholders: Record<Role, string> = {
-  PLAYER:   'player@streetleague.com',
-  COACH:    'coach@streetleague.com',
-  SPONSOR:  'sponsor@streetleague.com',
-  DELIVERY: 'delivery@streetleague.com',
-};
+  private emailPlaceholders: Record<Role, string> = {
+    PLAYER: 'player@streetleague.com',
+    COACH: 'coach@streetleague.com',
+    SPONSOR: 'sponsor@streetleague.com',
+    DELIVERY: 'delivery@streetleague.com',
+    ADMIN: 'admin@streetleague.com',
+  };
 
-  get roleLabel():        string { return this.roleLabels[this.selectedRole]; }
+  get roleLabel(): string { return this.roleLabels[this.selectedRole]; }
   get emailPlaceholder(): string { return this.emailPlaceholders[this.selectedRole]; }
 
   loginForm = new FormGroup({
-    email:    new FormControl('', [Validators.required, Validators.email]),
+    email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required]),
   });
 
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   selectRole(role: Role) {
     this.selectedRole = role;
@@ -51,10 +53,10 @@ private emailPlaceholders: Record<Role, string> = {
   onSubmit() {
     if (this.loginForm.invalid) return;
 
-    const email    = this.loginForm.value.email!;
+    const email = this.loginForm.value.email!;
     const password = this.loginForm.value.password!;
 
-    this.isLoading    = true;
+    this.isLoading = true;
     this.errorMessage = '';
 
     this.authService.login({ email, password }).subscribe({
@@ -64,13 +66,13 @@ private emailPlaceholders: Record<Role, string> = {
         // ✅ Sauvegarde sans JSON.stringify
         localStorage.setItem('TokenUserConnect', response.token);
         localStorage.setItem('EmailUserConnect', response.email);
-        localStorage.setItem('RoleUserConnect',  response.role);
+        localStorage.setItem('RoleUserConnect', response.role);
 
         // ✅ Redirection selon le rôle renvoyé par le BACKEND (pas selectedRole)
         this.redirectByRole(response.role);
       },
       error: (error) => {
-        this.isLoading    = false;
+        this.isLoading = false;
         this.errorMessage = 'Email ou mot de passe incorrect.';
         console.error(error);
       },
@@ -80,13 +82,13 @@ private emailPlaceholders: Record<Role, string> = {
   private redirectByRole(role: string) {
     switch (role) {
       case 'ROLE_COACH':
-        this.router.navigateByUrl('/coach');   
+        this.router.navigateByUrl('/coach');
         break;
       case 'SPONSOR':
-        this.router.navigateByUrl('/client');   
+        this.router.navigateByUrl('/client');
         break;
       case 'DELIVERY':
-        this.router.navigateByUrl('/client');   
+        this.router.navigateByUrl('/client');
         break;
       case 'PLAYER':
       default:
@@ -95,6 +97,6 @@ private emailPlaceholders: Record<Role, string> = {
     }
   }
   loginWithGoogle(): void {
-  this.authService.loginWithGoogle();
-}
+    this.authService.loginWithGoogle();
+  }
 }

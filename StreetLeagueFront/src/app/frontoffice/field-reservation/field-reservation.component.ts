@@ -252,8 +252,9 @@ export class FieldReservationComponent implements OnInit {
     this.selectedField    = null;
   }
 
-  private getPlayerId(): number | null {
-  return this.authService.getUserId(); // ✅ utilise le JWT decode
+private getPlayerId(): number | null {
+  const userId = this.authService.getUserId();
+  return userId ? parseInt(userId, 10) : null;
 }
 
 

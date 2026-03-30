@@ -54,7 +54,7 @@ describe('Frontoffice TournamentsComponent', () => {
     teamSvcSpy = jasmine.createSpyObj('TeamService', ['getAllTeams']);
 
     svcSpy.getAll.and.returnValue(of(mockTournaments));
-    authSpy.getUserId.and.returnValue(42);
+    authSpy.getUserId.and.returnValue('42');
     authSpy.getEmail.and.returnValue('player@test.com');
     teamSvcSpy.getAllTeams.and.returnValue(of(mockTeams as any));
 

@@ -3,15 +3,17 @@ package com.example.streetleague.Entity;
 import com.example.streetleague.Entity.SportType;
 import com.example.streetleague.Entity.TournamentRegistration;
 import com.example.streetleague.Entity.TournamentStatus;
+import com.example.streetleague.Entity.TournamentType;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "tournaments")
+@Table(name = "tournaments") // from main
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,25 +37,28 @@ public class Tournament {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TournamentType tournamentType; // INDIVIDUAL ou TEAM
+    private TournamentType tournamentType;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TournamentStatus status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "start_date")
     private LocalDate startDate;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "end_date")
     private LocalDate endDate;
 
     @Column(nullable = false)
     private LocalDate registrationDeadline;
 
     @Column(nullable = false)
-    private int maxParticipants; // max joueurs ou max équipes
+    private int maxParticipants;
 
     private String location;
+    
+    // city kept for Logistique branch
+    private String city;
 
     private Double prizePool;
 
@@ -62,4 +67,16 @@ public class Tournament {
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<TournamentRegistration> registrations = new ArrayList<>();
+    
+    // ===== EXPLICIT GETTERS/SETTERS from HEAD =====
+    public Long getId() { return this.id; }
+    public void setId(Long id) { this.id = id; }
+    public String getName() { return this.name; }
+    public void setName(String name) { this.name = name; }
+    public String getCity() { return this.city; }
+    public void setCity(String city) { this.city = city; }
+    public LocalDate getStartDate() { return this.startDate; }
+    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+    public LocalDate getEndDate() { return this.endDate; }
+    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
 }

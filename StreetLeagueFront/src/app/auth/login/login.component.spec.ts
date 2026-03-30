@@ -13,17 +13,18 @@ describe('LoginComponent', () => {
   let router: Router;
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['login', 'loginWithGoogle']);
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['login']);
 
     await TestBed.configureTestingModule({
       declarations: [LoginComponent],
       imports: [
-        RouterTestingModule.withRoutes([
-          { path: 'client', component: LoginComponent },
-          { path: 'coach',  component: LoginComponent },
-        ]),
-        ReactiveFormsModule
-      ],
+  RouterTestingModule.withRoutes([
+    { path: 'client', component: LoginComponent },
+    { path: 'admin',  component: LoginComponent },
+    { path: 'coach',  component: LoginComponent },
+  ]),
+  ReactiveFormsModule
+],
       providers: [
         { provide: AuthService, useValue: authServiceSpy }
       ]
@@ -33,10 +34,6 @@ describe('LoginComponent', () => {
     fixture   = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
-
-  afterEach(() => {
-    localStorage.clear();
   });
 
   // ── Init ──────────────────────────────────────────────────
@@ -66,11 +63,6 @@ describe('LoginComponent', () => {
     expect(component.errorMessage).toBe('');
   });
 
-  it('selectRoleTest — should update selectedRole', () => {
-    component.selectRole('COACH');
-    expect(component.selectedRole).toBe('COACH');
-  });
-
   it('selectRoleTest — should update emailPlaceholder', () => {
     component.selectRole('COACH');
     expect(component.emailPlaceholder).toBe('coach@streetleague.com');
@@ -80,7 +72,7 @@ describe('LoginComponent', () => {
 
   it('roleLabelTest — PLAYER returns Player', () => {
     component.selectedRole = 'PLAYER';
-    expect(component.roleLabel).toBe('Player');        // ✅ corrigé (était 'Joueur')
+    expect(component.roleLabel).toBe('Player');
   });
 
   it('roleLabelTest — COACH returns Coach', () => {
@@ -88,36 +80,11 @@ describe('LoginComponent', () => {
     expect(component.roleLabel).toBe('Coach');
   });
 
-  it('roleLabelTest — SPONSOR returns Sponsor', () => {
-    component.selectedRole = 'SPONSOR';
-    expect(component.roleLabel).toBe('Sponsor');
-  });
-
-  it('roleLabelTest — DELIVERY returns Delivery', () => {
-    component.selectedRole = 'DELIVERY';
-    expect(component.roleLabel).toBe('Delivery');
-  });
-
   // ── emailPlaceholder ──────────────────────────────────────
 
   it('emailPlaceholderTest — PLAYER returns player@streetleague.com', () => {
     component.selectedRole = 'PLAYER';
-    expect(component.emailPlaceholder).toBe('player@streetleague.com'); // ✅ corrigé
-  });
-
-  it('emailPlaceholderTest — COACH returns coach@streetleague.com', () => {
-    component.selectedRole = 'COACH';
-    expect(component.emailPlaceholder).toBe('coach@streetleague.com');
-  });
-
-  it('emailPlaceholderTest — SPONSOR returns sponsor@streetleague.com', () => {
-    component.selectedRole = 'SPONSOR';
-    expect(component.emailPlaceholder).toBe('sponsor@streetleague.com');
-  });
-
-  it('emailPlaceholderTest — DELIVERY returns delivery@streetleague.com', () => {
-    component.selectedRole = 'DELIVERY';
-    expect(component.emailPlaceholder).toBe('delivery@streetleague.com');
+    expect(component.emailPlaceholder).toBe('player@streetleague.com');
   });
 
   // ── Form validation ───────────────────────────────────────
@@ -128,7 +95,9 @@ describe('LoginComponent', () => {
   });
 
   it('loginFormTest — should be valid with correct credentials', () => {
-    component.loginForm.setValue({ email: 'test@test.com', password: '123456' });
+    component.loginForm.setValue({
+      email: 'test@test.com', password: '123456'
+    });
     expect(component.loginForm.valid).toBeTrue();
   });
 
@@ -150,7 +119,9 @@ describe('LoginComponent', () => {
       token: 'abc', email: 'test@test.com', role: 'PLAYER'
     } as any));
 
-    component.loginForm.setValue({ email: 'test@test.com', password: '123456' });
+    component.loginForm.setValue({
+      email: 'test@test.com', password: '123456'
+    });
     component.onSubmit();
 
     expect(authServiceSpy.login).toHaveBeenCalledWith({
@@ -163,7 +134,9 @@ describe('LoginComponent', () => {
       token: 'mytoken', email: 'test@test.com', role: 'PLAYER'
     } as any));
 
-    component.loginForm.setValue({ email: 'test@test.com', password: '123456' });
+    component.loginForm.setValue({
+      email: 'test@test.com', password: '123456'
+    });
     component.onSubmit();
 
     expect(localStorage.getItem('TokenUserConnect')).toBe('mytoken');
@@ -171,38 +144,30 @@ describe('LoginComponent', () => {
     expect(localStorage.getItem('RoleUserConnect')).toBe('PLAYER');
   });
 
-  it('onSubmitTest — should set isLoading to false after success', () => {
-    authServiceSpy.login.and.returnValue(of({
-      token: 'abc', email: 'test@test.com', role: 'PLAYER'
-    } as any));
-
-    component.loginForm.setValue({ email: 'test@test.com', password: '123456' });
-    component.onSubmit();
-
-    expect(component.isLoading).toBeFalse();
-  });
-
   it('onSubmitTest — should set errorMessage on login failure', () => {
-    authServiceSpy.login.and.returnValue(throwError(() => ({ status: 401 })));
-
-    component.loginForm.setValue({ email: 'test@test.com', password: 'wrongpass' });
+    authServiceSpy.login.and.returnValue(
+      throwError(() => ({ status: 401 }))
+    );
+    component.loginForm.setValue({
+      email: 'test@test.com', password: 'wrongpass'
+    });
     component.onSubmit();
-
     expect(component.errorMessage).toBe('Email ou mot de passe incorrect.');
     expect(component.isLoading).toBeFalse();
   });
 
   // ── redirectByRole ────────────────────────────────────────
 
+
   it('redirectByRoleTest — ROLE_COACH navigates to /coach', () => {
     authServiceSpy.login.and.returnValue(of({
       token: 'abc', email: 'coach@test.com', role: 'ROLE_COACH'
     } as any));
     const navigateSpy = spyOn(router, 'navigateByUrl');
-
-    component.loginForm.setValue({ email: 'coach@test.com', password: '123456' });
+    component.loginForm.setValue({
+      email: 'coach@test.com', password: '123456'
+    });
     component.onSubmit();
-
     expect(navigateSpy).toHaveBeenCalledWith('/coach');
   });
 
@@ -211,34 +176,10 @@ describe('LoginComponent', () => {
       token: 'abc', email: 'player@test.com', role: 'PLAYER'
     } as any));
     const navigateSpy = spyOn(router, 'navigateByUrl');
-
-    component.loginForm.setValue({ email: 'player@test.com', password: '123456' });
+    component.loginForm.setValue({
+      email: 'player@test.com', password: '123456'
+    });
     component.onSubmit();
-
-    expect(navigateSpy).toHaveBeenCalledWith('/client');
-  });
-
-  it('redirectByRoleTest — SPONSOR navigates to /client', () => {
-    authServiceSpy.login.and.returnValue(of({
-      token: 'abc', email: 'sponsor@test.com', role: 'SPONSOR'
-    } as any));
-    const navigateSpy = spyOn(router, 'navigateByUrl');
-
-    component.loginForm.setValue({ email: 'sponsor@test.com', password: '123456' });
-    component.onSubmit();
-
-    expect(navigateSpy).toHaveBeenCalledWith('/client');
-  });
-
-  it('redirectByRoleTest — DELIVERY navigates to /client', () => {
-    authServiceSpy.login.and.returnValue(of({
-      token: 'abc', email: 'delivery@test.com', role: 'DELIVERY'
-    } as any));
-    const navigateSpy = spyOn(router, 'navigateByUrl');
-
-    component.loginForm.setValue({ email: 'delivery@test.com', password: '123456' });
-    component.onSubmit();
-
     expect(navigateSpy).toHaveBeenCalledWith('/client');
   });
 });

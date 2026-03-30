@@ -3,6 +3,7 @@ package com.example.streetleague.security;
 import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.security.jwt.JwtAuthFilter;
 import com.example.streetleague.security.jwt.JwtService;
+import com.example.streetleague.Repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ import org.springframework.http.HttpMethod;
 
 import java.util.List;
 
+
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
@@ -45,9 +47,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -62,8 +66,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()          // ✅ couvre /auth/complete-google-register
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         // Lecture publique (listes / détails) — écriture reste soumise à authenticated() plus bas
                         .requestMatchers(HttpMethod.GET,
@@ -95,7 +98,7 @@ public class SecurityConfig {
                         .requestMatchers("/training/*/join", "/training/*/leave").hasRole("PLAYER")
                         .anyRequest().authenticated()
                 )
-
+                // ✅ FIX PRINCIPAL : empêche Spring de rediriger les appels REST vers OAuth2/login
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

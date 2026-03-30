@@ -1,7 +1,6 @@
 package com.example.streetleague.security;
 
 import com.example.streetleague.Repository.UserRepository;
-import com.example.streetleague.domain.Role;
 import com.example.streetleague.domain.User;
 import com.example.streetleague.security.jwt.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +19,7 @@ public class OAuth2AuthSuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
+
     @Override
     public void onAuthenticationSuccess(
             HttpServletRequest request,
@@ -31,11 +31,9 @@ public class OAuth2AuthSuccessHandler implements AuthenticationSuccessHandler {
         String email    = oAuth2User.getAttribute("email");
         String fullName = oAuth2User.getAttribute("name");
 
-        // Vérifier si l'utilisateur existe déjà
         var existingUser = userRepository.findByEmail(email);
 
         if (existingUser.isPresent()) {
-            // ✅ Utilisateur existant → générer JWT et rediriger directement
             User user = existingUser.get();
             String token = generateJwt(user);
 
@@ -46,7 +44,6 @@ public class OAuth2AuthSuccessHandler implements AuthenticationSuccessHandler {
             response.sendRedirect(redirectUrl);
 
         } else {
-            // 🆕 Nouvel utilisateur → rediriger vers page de choix de rôle
             String redirectUrl = String.format(
                     "http://localhost:4200/oauth2/select-role?email=%s&name=%s",
                     email, fullName != null ? fullName : "Google User"
@@ -55,7 +52,6 @@ public class OAuth2AuthSuccessHandler implements AuthenticationSuccessHandler {
         }
     }
 
-    // Méthode utilitaire pour générer le JWT
     private String generateJwt(User user) {
         var authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().name())

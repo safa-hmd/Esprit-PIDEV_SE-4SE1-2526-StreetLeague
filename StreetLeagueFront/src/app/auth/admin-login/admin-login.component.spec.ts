@@ -1,53 +1,24 @@
-import { Component } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService } from 'src/app/services/auth.service';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { AdminLoginComponent } from './admin-login.component';
 
-@Component({
-  selector: 'app-admin-login',
-  templateUrl: './admin-login.component.html',
-  styleUrls: ['./admin-login.component.css']
-})
-export class AdminLoginComponent {
-  isLoading    = false;
-  errorMessage = '';
+describe('AdminLoginComponent', () => {
+  let component: AdminLoginComponent;
+  let fixture: ComponentFixture<AdminLoginComponent>;
 
-  loginForm = new FormGroup({
-    email:    new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required]),
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [AdminLoginComponent],
+      imports: [HttpClientTestingModule, RouterTestingModule, ReactiveFormsModule]
+    });
+    fixture = TestBed.createComponent(AdminLoginComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
-
-  onSubmit() {
-    if (this.loginForm.invalid) return;
-
-    this.isLoading    = true;
-    this.errorMessage = '';
-
-    this.authService.login({
-      email:    this.loginForm.value.email!,
-      password: this.loginForm.value.password!
-    }).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-
-        // ✅ Vérifie que c'est bien un ADMIN
-        if (response.role !== 'ROLE_ADMIN') {
-          this.authService.logout();
-          this.errorMessage = 'Accès refusé. Cette interface est réservée aux administrateurs.';
-          return;
-        }
-
-        this.router.navigateByUrl('/admin');
-      },
-      error: () => {
-        this.isLoading    = false;
-        this.errorMessage = 'Email ou mot de passe incorrect.';
-      }
-    });
-  }
-}
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
