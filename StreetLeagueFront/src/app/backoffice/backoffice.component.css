@@ -1,5 +1,32 @@
-.admin-content {
-  background: #121212;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+}
+
+:root {
+  --red: #e61920;
+  --red-hover: #ff3d44;
+  --sidebar-width: 240px;
+  --header-height: 60px;
+}
+
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.admin-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.admin-main {
   flex: 1;
   overflow-y: auto;
+  background: #f4f6fa;
 }
