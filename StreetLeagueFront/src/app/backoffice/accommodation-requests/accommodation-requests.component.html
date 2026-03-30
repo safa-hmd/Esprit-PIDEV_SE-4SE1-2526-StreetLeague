@@ -1,173 +1,138 @@
-<div class="accommodation-requests-container">
+<div class="accommodation-editorial">
+  
+  <div class="header-row">
+    <div>
+      <h1 class="header-title">Accommodation Requests</h1>
+      <p class="header-subtitle">Authorize and audit delegation stays across certified league establishments.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-ghost">⭳ Export CSV</button>
+      <button class="btn-primary" (click)="loadAccommodationRequests()">↻ Refresh</button>
+    </div>
+  </div>
 
-  <h2>🏨 Accommodation Requests Management</h2>
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div>
+        <div class="kpi-label">AWAITING REVIEW</div>
+        <div class="kpi-value">{{ pendingCount }}</div>
+      </div>
+      <div class="kpi-icon">📋</div>
+    </div>
+    <div class="kpi-card accent">
+      <div>
+        <div class="kpi-label">BOARDED DELEGATIONS</div>
+        <div class="kpi-value">{{ boardedCount }}</div>
+      </div>
+      <div class="kpi-icon">🏨</div>
+    </div>
+    <div class="kpi-card">
+      <div>
+        <div class="kpi-label">ACTIVE SITES</div>
+        <div class="kpi-value">{{ activeSitesCount | number:'2.0-0' }}</div>
+      </div>
+      <div class="kpi-icon">📍</div>
+    </div>
+    <div class="kpi-card dark-red" style="background:#CC0000; color:white; border:none;">
+      <div>
+        <div class="kpi-label" style="color:rgba(255,255,255,0.8);">TOTAL BUDGET</div>
+        <div class="kpi-value">{{ totalBudget | number:'1.3-3' }} TND</div>
+      </div>
+      <div class="kpi-icon" style="color:white;">💰</div>
+    </div>
+  </div>
 
-  <!-- Messages -->
-  <div *ngIf="errorMessage" class="alert alert-danger">
+  <!-- MESSAGES -->
+  <div *ngIf="errorMessage" style="background:#FEF2F2; color:#B91C1C; padding:1.25rem; border-radius:12px; margin-bottom:2rem; border-left:4px solid #EF4444; font-weight:700;">
     {{ errorMessage }}
   </div>
-  <div *ngIf="successMessage" class="alert alert-success">
+  <div *ngIf="successMessage" style="background:#F0FDF4; color:#15803D; padding:1.25rem; border-radius:12px; margin-bottom:2rem; border-left:4px solid #22C55E; font-weight:700;">
     {{ successMessage }}
   </div>
 
   <!-- Table -->
-  <div class="table-wrapper">
-    <table *ngIf="accommodationRequests.length > 0" class="requests-table">
+  <div class="data-table-container">
+    <table class="requests-table">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Coach</th>
-          <th>Accommodation</th>
-          <th>Address</th>
-          <th>Members</th>
-          <th>Total Cost</th>
-          <th>Status</th>
-          <th>Created</th>
-          <th>Actions</th>
+          <th>COACH</th>
+          <th>ACCOMMODATION</th>
+          <th>ADDRESS</th>
+          <th>MEMBERS</th>
+          <th>TOTAL COST</th>
+          <th>STATUS</th>
+          <th>ACTIONS</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let req of accommodationRequests" [class.row-approved]="req.status === 'APPROVED'" [class.row-rejected]="req.status === 'REJECTED'">
-          <td class="id-cell">#{{ req.id }}</td>
+        <tr *ngFor="let req of accommodationRequests">
           <td class="coach-cell">
-            <strong>{{ req.coachName || 'Coach' }}</strong>
-            <br/>
-            <small style="color: #666;">{{ req.coachId }}</small>
+            <strong>{{ req.coachName || 'Official League Coach' }}</strong>
           </td>
           <td class="accom-cell">
-            <strong>{{ req.accommodation?.type }}</strong>
-            <br/>
+            <strong>{{ req.accommodation?.type }}</strong><br/>
             <small>{{ req.accommodation?.formula }}</small>
           </td>
-          <td class="address-cell">{{ req.accommodation?.address }}</td>
-          <td class="members-cell">
-            <span class="member-badge">{{ req.memberIds?.length || 0 }} players</span>
-          </td>
-          <td class="total-cell">
-            <strong class="total-amount">{{ req.totalAmount }} TND</strong>
+          <td>{{ req.accommodation?.address }}</td>
+          <td>
+            <span class="member-badge">{{ req.memberIds?.length || 0 }} PLAYERS</span>
           </td>
           <td>
-            <span [class]="'status-badge status-' + (req.status || 'PENDING')">
-              {{ req.status || 'PENDING' }}
+            <strong class="total-amount">{{ req.totalAmount | number:'1.3-3' }} TND</strong>
+          </td>
+          <td>
+            <span class="status-pill status-{{ (req.status || 'PENDING') | lowercase }}">
+              <span class="status-dot"></span> {{ req.status || 'PENDING' }}
             </span>
           </td>
-          <td class="date-cell">
-            <small>{{ formatDate(req.createdAt) }}</small>
+          <td>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button class="btn-ghost" style="color: #15803D; padding: 0.5rem;" *ngIf="req.status === 'PENDING'" (click)="openApproveModal(req)">✓ APPROVE</button>
+              <button class="btn-ghost" style="color: #DC2626; padding: 0.5rem;" *ngIf="req.status === 'PENDING'" (click)="openRejectModal(req)">✗ REJECT</button>
+              <button class="btn-ghost" style="padding: 0.5rem;" *ngIf="req.status !== 'PENDING'" (click)="downloadPdf(req.id)">📄 PDF</button>
+            </div>
           </td>
-          <td class="actions-cell">
-            <ng-container [ngSwitch]="req.status">
-              <!-- PENDING: Show Approve/Reject buttons -->
-              <ng-container *ngSwitchCase="'PENDING'">
-                <button class="btn-approve" 
-                        (click)="openApproveModal(req)"
-                        title="Approve this request">
-                  ✓ APPROVE
-                </button>
-                <button class="btn-reject" 
-                        (click)="openRejectModal(req)"
-                        title="Reject this request">
-                  ✗ REJECT
-                </button>
-              </ng-container>
-
-              <!-- APPROVED/REJECTED: Show PDF button -->
-              <ng-container *ngSwitchDefault>
-                <button class="btn-pdf" 
-                        (click)="downloadPdf(req.id)"
-                        title="Download PDF">
-                  📄 PDF
-                </button>
-              </ng-container>
-            </ng-container>
-          </td>
+        </tr>
+        <tr *ngIf="accommodationRequests.length === 0 && !loading">
+          <td colspan="7" style="text-align: center; padding: 3rem; color: #888;">No accommodation requests found. All logistics are clear.</td>
+        </tr>
+        <tr *ngIf="loading">
+          <td colspan="7" style="text-align: center; padding: 3rem;">Loading athletic delegations...</td>
         </tr>
       </tbody>
     </table>
-
-    <div *ngIf="accommodationRequests.length === 0 && !loading" class="empty-state">
-      <p>No accommodation requests found.</p>
-    </div>
-
-    <div *ngIf="loading" class="loading-state">
-      <p>Loading accommodation requests...</p>
-    </div>
   </div>
 
-  <!-- APPROVE MODAL -->
-  <div *ngIf="showApproveModal" class="modal-overlay" (click)="closeModals()">
+  <!-- MODALS -->
+  <div class="modal-overlay" *ngIf="showApproveModal" (click)="closeModals()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>Approve Accommodation Request</h3>
-        <button class="close-btn" (click)="closeModals()">×</button>
+        <h3>Approve Stay</h3>
       </div>
-
       <div class="modal-body">
-        <p><strong>Coach:</strong> {{ selectedRequest?.coachName }}</p>
-        <p><strong>Accommodation:</strong> {{ selectedRequest?.accommodation?.type }} at {{ selectedRequest?.accommodation?.address }}</p>
-        <p><strong>Members:</strong> {{ selectedRequest?.memberIds?.length || 0 }} players</p>
-        <p><strong>Total Cost:</strong> {{ selectedRequest?.totalAmount }} TND</p>
-
-        <div class="form-group">
-          <label for="approveComment"><strong>Comment (optional):</strong></label>
-          <textarea id="approveComment" 
-                    [(ngModel)]="adminComment"
-                    placeholder="Enter your comment..."
-                    class="form-control"
-                    rows="3"></textarea>
-        </div>
-
-        <p style="color: #d32f2f; font-weight: bold;">
-          Are you sure you want to approve this request?
-        </p>
+        <p>You are about to authorize <strong>{{ selectedRequest?.memberIds?.length }} players</strong> for a stay at <strong>{{ selectedRequest?.accommodation?.type }}</strong>.</p>
+        <textarea class="form-control" [(ngModel)]="adminComment" placeholder="Admin notes (optional)..." rows="3"></textarea>
       </div>
-
       <div class="modal-footer">
-        <button class="btn-cancel" (click)="closeModals()">Cancel</button>
-        <button class="btn-confirm-approve" 
-                (click)="confirmApprove()"
-                [disabled]="loading">
-          {{ loading ? 'Processing...' : 'Confirm Approve' }}
-        </button>
+        <button class="btn-ghost" (click)="closeModals()">Cancel</button>
+        <button class="btn-primary" (click)="confirmApprove()">Confirm Approval</button>
       </div>
     </div>
   </div>
 
-  <!-- REJECT MODAL -->
-  <div *ngIf="showRejectModal" class="modal-overlay" (click)="closeModals()">
+  <div class="modal-overlay" *ngIf="showRejectModal" (click)="closeModals()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>Reject Accommodation Request</h3>
-        <button class="close-btn" (click)="closeModals()">×</button>
+        <h3>Reject Request</h3>
       </div>
-
       <div class="modal-body">
-        <p><strong>Coach:</strong> {{ selectedRequest?.coachName }}</p>
-        <p><strong>Accommodation:</strong> {{ selectedRequest?.accommodation?.type }} at {{ selectedRequest?.accommodation?.address }}</p>
-        <p><strong>Members:</strong> {{ selectedRequest?.memberIds?.length || 0 }} players</p>
-        <p><strong>Total Cost:</strong> {{ selectedRequest?.totalAmount }} TND</p>
-
-        <div class="form-group">
-          <label for="rejectComment"><strong>Reason for Rejection (required):</strong></label>
-          <textarea id="rejectComment" 
-                    [(ngModel)]="adminComment"
-                    placeholder="Explain why you're rejecting this request..."
-                    class="form-control"
-                    rows="4"
-                    required></textarea>
-        </div>
-
-        <p style="color: #d32f2f; font-weight: bold;">
-          This action cannot be undone.
-        </p>
+        <p>Please provide a surgical justification for rejecting this delegation request.</p>
+        <textarea class="form-control" [(ngModel)]="adminComment" placeholder="Reason for rejection (required)..." rows="4"></textarea>
       </div>
-
       <div class="modal-footer">
-        <button class="btn-cancel" (click)="closeModals()">Cancel</button>
-        <button class="btn-confirm-reject" 
-                (click)="confirmReject()"
-                [disabled]="loading || !adminComment.trim()">
-          {{ loading ? 'Processing...' : 'Confirm Reject' }}
-        </button>
+        <button class="btn-ghost" (click)="closeModals()">Cancel</button>
+        <button class="btn-primary" (click)="confirmReject()" [disabled]="!adminComment.trim()">Confirm Rejection</button>
       </div>
     </div>
   </div>

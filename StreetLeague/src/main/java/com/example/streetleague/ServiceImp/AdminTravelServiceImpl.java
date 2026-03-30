@@ -8,6 +8,8 @@ import com.example.streetleague.Repository.AccommodationRepository;
 import com.example.streetleague.Repository.AccommodationRequestRepository;
 import com.example.streetleague.Repository.TransportRepository;
 import com.example.streetleague.Repository.TravelRequestRepository;
+import com.example.streetleague.Repository.UserRepository;
+import com.example.streetleague.ServiceInterface.NotificationService;
 import com.example.streetleague.ServiceInterface.AdminTravelService;
 import com.example.streetleague.dto.AccommodationDto;
 import com.example.streetleague.dto.AccommodationRequestResponseDto;
@@ -32,6 +34,8 @@ public class AdminTravelServiceImpl implements AdminTravelService {
     private final TravelRequestRepository travelRequestRepository;
     private final AccommodationRequestRepository accommodationRequestRepository;
     private final PdfGeneratorService pdfGeneratorService;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -176,6 +180,7 @@ public class AdminTravelServiceImpl implements AdminTravelService {
                 .adminComment(req.getAdminComment())
                 .totalAmount(req.getTotalAmount())
                 .createdAt(req.getCreatedAt())
+                .selectedMemberIds(req.getSelectedMemberIds())
                 .build();
     }
 
@@ -198,7 +203,14 @@ public class AdminTravelServiceImpl implements AdminTravelService {
     @Override
     public List<TransportDto> getAllTransports() {
         return transportRepository.findAll().stream()
-                .map(t -> TransportDto.builder()
+                .map(t -> {
+                    String coachName = "Official League";
+                    if (t.getCoachId() != null) {
+                        coachName = userRepository.findById(t.getCoachId())
+                                .map(u -> u.getFullName() != null ? u.getFullName() : u.getEmail())
+                                .orElse("Unknown Coach");
+                    }
+                    return TransportDto.builder()
                         .id(t.getId())
                         .type(t.getType())
                         .destination(t.getDestination())
@@ -207,7 +219,10 @@ public class AdminTravelServiceImpl implements AdminTravelService {
                         .departureTime(t.getDepartureTime())
                         .returnTime(t.getReturnTime())
                         .status(t.getStatus())
-                        .build())
+                        .coachId(t.getCoachId())
+                        .coachName(coachName)
+                        .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -217,7 +232,15 @@ public class AdminTravelServiceImpl implements AdminTravelService {
         Transport transport = transportRepository.findById(id)
                 .orElseThrow(() -> new BusinessValidationException("Transport not found"));
         transport.setStatus("APPROVED");
-        return transportRepository.save(transport);
+        Transport saved = transportRepository.save(transport);
+        
+        if (saved.getCoachId() != null) {
+            notificationService.sendNotification(
+                saved.getCoachId(),
+                "✅ Your personal vehicle submission for " + saved.getDestination() + " has been APPROVED. It is now available for booking."
+            );
+        }
+        return saved;
     }
 
     @Override
@@ -226,7 +249,15 @@ public class AdminTravelServiceImpl implements AdminTravelService {
         Transport transport = transportRepository.findById(id)
                 .orElseThrow(() -> new BusinessValidationException("Transport not found"));
         transport.setStatus("REJECTED");
-        return transportRepository.save(transport);
+        Transport saved = transportRepository.save(transport);
+        
+        if (saved.getCoachId() != null) {
+            notificationService.sendNotification(
+                saved.getCoachId(),
+                "❌ Your personal vehicle submission for " + saved.getDestination() + " has been REJECTED by the administrator."
+            );
+        }
+        return saved;
     }
 
     @Override
@@ -278,6 +309,13 @@ public class AdminTravelServiceImpl implements AdminTravelService {
         }
         AccommodationRequest saved = 
             accommodationRequestRepository.save(req);
+            
+        if (saved.getCoachId() != null) {
+            notificationService.sendNotification(
+                saved.getCoachId(),
+                "✅ Your accommodation request for " + (saved.getAccommodation() != null ? saved.getAccommodation().getAddress() : "tournament") + " has been APPROVED."
+            );
+        }
         return mapToAccommodationRequestResponseDto(saved);
     }
 
@@ -295,6 +333,13 @@ public class AdminTravelServiceImpl implements AdminTravelService {
         }
         AccommodationRequest saved = 
             accommodationRequestRepository.save(req);
+            
+        if (saved.getCoachId() != null) {
+            notificationService.sendNotification(
+                saved.getCoachId(),
+                "❌ Your accommodation request for " + (saved.getAccommodation() != null ? saved.getAccommodation().getAddress() : "tournament") + " has been REJECTED."
+            );
+        }
         return mapToAccommodationRequestResponseDto(saved);
     }
 
@@ -303,12 +348,28 @@ public class AdminTravelServiceImpl implements AdminTravelService {
         return pdfGeneratorService.generateRequestPdf(id);
     }
 
-    private AccommodationRequestResponseDto mapToAccommodationRequestResponseDto(
-        AccommodationRequest req) {
+    @Override
+    public byte[] generateTransportPdf(Long id) {
+        return pdfGeneratorService.generateTransportPdf(id);
+    }
+
+    @Override
+    public byte[] generateTravelRequestPdf(Long id) {
+        return pdfGeneratorService.generateTravelRequestPdf(id);
+    }
+
+    private AccommodationRequestResponseDto mapToAccommodationRequestResponseDto(AccommodationRequest req) {
+        String coachName = req.getCoachName();
+        if ((coachName == null || coachName.trim().isEmpty()) && req.getCoachId() != null) {
+            coachName = userRepository.findById(req.getCoachId())
+                    .map(u -> (u.getFullName() != null ? u.getFullName() : u.getEmail()))
+                    .orElse("Official Coach");
+        }
+
         return AccommodationRequestResponseDto.builder()
             .id(req.getId())
             .coachId(req.getCoachId())
-            .coachName(req.getCoachName())
+            .coachName(coachName)
             .tournamentId(req.getTournamentId())
             .memberIds(req.getMemberIds())
             .totalAmount(req.getTotalAmount())

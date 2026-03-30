@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class CoachTravelServiceImpl implements CoachTravelService {
 
     private final TravelRequestRepository travelRequestRepository;
@@ -44,6 +43,22 @@ public class CoachTravelServiceImpl implements CoachTravelService {
     private final AccommodationRepository accommodationRepository;
     private final AccommodationRequestRepository accommodationRequestRepository;
     private final UserRepository userRepository;
+
+    public CoachTravelServiceImpl(TravelRequestRepository travelRequestRepository,
+                                   TeamRepository teamRepository,
+                                   TournamentRepository tournamentRepository,
+                                   TransportRepository transportRepository,
+                                   AccommodationRepository accommodationRepository,
+                                   AccommodationRequestRepository accommodationRequestRepository,
+                                   UserRepository userRepository) {
+        this.travelRequestRepository = travelRequestRepository;
+        this.teamRepository = teamRepository;
+        this.tournamentRepository = tournamentRepository;
+        this.transportRepository = transportRepository;
+        this.accommodationRepository = accommodationRepository;
+        this.accommodationRequestRepository = accommodationRequestRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     public List<Transport> getAvailableTransports() {
@@ -107,6 +122,7 @@ public class CoachTravelServiceImpl implements CoachTravelService {
     @Override
     @Transactional
     public TransportDto submitPersonalCar(TransportDto carDto) {
+        System.out.println("DEBUG [CoachTravelService] submitPersonalCar coachId received: " + carDto.getCoachId());
         Transport transport = Transport.builder()
                 .type(com.example.streetleague.Entity.TransportType.PRIVATE_CAR)
                 .pricePerSeat(carDto.getPricePerSeat())
@@ -115,6 +131,7 @@ public class CoachTravelServiceImpl implements CoachTravelService {
                 .returnTime(carDto.getReturnTime())
                 .destination(carDto.getDestination())
                 .status("PENDING")
+                .coachId(carDto.getCoachId())
                 .build();
         
         Transport saved = transportRepository.save(transport);
@@ -127,6 +144,7 @@ public class CoachTravelServiceImpl implements CoachTravelService {
                 .pricePerSeat(saved.getPricePerSeat())
                 .departureTime(saved.getDepartureTime())
                 .returnTime(saved.getReturnTime())
+                .status(saved.getStatus())
                 .build();
     }
 
@@ -209,21 +227,7 @@ public class CoachTravelServiceImpl implements CoachTravelService {
     public List<User> getMyTeamMembers(Long coachId) {
         System.out.println("=== getMyTeamMembers coachId: " + coachId);
 
-        User coach = userRepository.findById(coachId)
-                .orElseThrow(() -> new BusinessValidationException(
-                        "Coach not found: " + coachId));
-
-        Long teamId = coach.getTeamId();
-        System.out.println("teamId from column: " + teamId);
-
-        if (teamId == null) {
-            List<Team> captained = teamRepository
-                    .findByCaptain_IdUser(coachId);
-            if (captained != null && !captained.isEmpty()) {
-                teamId = captained.get(0).getIdTeam();
-                System.out.println("teamId from captained: " + teamId);
-            }
-        }
+        Long teamId = resolveTeamId(coachId);
 
         if (teamId == null) {
             System.out.println("No teamId for coachId: " + coachId);
@@ -231,10 +235,48 @@ public class CoachTravelServiceImpl implements CoachTravelService {
         }
 
         System.out.println("Loading players for teamId: " + teamId);
-        List<User> players = userRepository
-                .findByTeamIdAndRole(teamId, Role.PLAYER);
-        System.out.println("Players returned: " + players.size());
+        // Find all users where team_id = that team_id AND role = 'PLAYER'
+        List<User> players = userRepository.findByTeamIdAndRole(teamId, Role.PLAYER);
+        System.out.println("Players found by junction: " + players.size());
+        
+        // Final fallback: if no players found, try searching by team_id directly from teams table
+        if (players.isEmpty()) {
+            System.out.println("Junction returned empty, trying fallback by teamId field...");
+            players = userRepository.findByTeamId(teamId).stream()
+                    .filter(u -> u.getRole() == Role.PLAYER)
+                    .collect(Collectors.toList());
+            System.out.println("Players found by fallback: " + players.size());
+        }
+        
         return players;
+    }
+
+    @Override
+    public Long resolveTeamId(Long coachId) {
+        if (coachId == null) return null;
+        
+        // 1. Check junction table (if coach is also a player or explicitly joined)
+        Long teamId = userRepository.findTeamIdByUserId(coachId);
+        
+        // 2. Check if coach is a captain of any team
+        if (teamId == null) {
+            List<Team> captained = teamRepository.findByCaptain_IdUser(coachId);
+            if (captained != null && !captained.isEmpty()) {
+                teamId = captained.get(0).getIdTeam();
+            }
+        }
+        
+        // 3. Last fallback: Check team_id field on user if it exists
+        if (teamId == null) {
+            try {
+                User user = userRepository.findById(coachId).orElse(null);
+                if (user != null) {
+                    teamId = user.getTeamId();
+                }
+            } catch (Exception e) {}
+        }
+        
+        return teamId;
     }
 
     @Override
@@ -242,9 +284,17 @@ public class CoachTravelServiceImpl implements CoachTravelService {
     public TravelRequestResponseDto submitTravelRequest(
             TravelRequestDto requestDto) {
 
-        Team team = teamRepository.findById(requestDto.getTeamId())
-                .orElseThrow(() -> new BusinessValidationException(
-                        "Team not found"));
+        Long teamId = requestDto.getTeamId();
+        if (teamId == null) {
+            teamId = resolveTeamId(requestDto.getCoachId());
+        }
+        
+        if (teamId == null) {
+            throw new BusinessValidationException("Could not resolve team for coach ID: " + requestDto.getCoachId());
+        }
+        
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new BusinessValidationException("Team not found"));
 
         Tournament tournament = tournamentRepository
                 .findById(requestDto.getTournamentId())
@@ -281,6 +331,10 @@ public class CoachTravelServiceImpl implements CoachTravelService {
         }
 
         int paxCount = (requestDto.getSelectedMemberIds() != null) ? requestDto.getSelectedMemberIds().size() : 0;
+        
+        if (requestDto.getSelectedMemberIds() == null || requestDto.getSelectedMemberIds().isEmpty()) {
+            throw new BusinessValidationException("CRITICAL BACKEND CHECK: The backend received 0 members from the frontend! The selectedMemberIds array is empty or null parsing JSON. Payload transportId: " + requestDto.getTransportId());
+        }
 
         if (transport != null) {
             if (transport.getAvailableSeats() != null && transport.getAvailableSeats() < paxCount) {
@@ -365,6 +419,7 @@ public class CoachTravelServiceImpl implements CoachTravelService {
                 .totalAmount(req.getTotalAmount())
                 .individualPrice(req.getTransport() != null ? req.getTransport().getPricePerSeat() : null)
                 .createdAt(req.getCreatedAt())
+                .selectedMemberIds(req.getSelectedMemberIds())
                 .build();
     }
 }

@@ -1,18 +1,40 @@
 <!-- ============== HEADER ============== -->
 <header class="admin-header">
+  
   <div class="header-left">
-    <button class="menu-toggle" id="menuToggle">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-    </button>
-    <div class="header-logo">Street<span>League</span> <span style="font-size:0.75rem;background:var(--red);padding:0.1rem 0.5rem;border-radius:4px;vertical-align:middle;">Admin</span></div>
-  </div>
-  <div class="header-right">
-    <div class="header-user">
-      <div class="header-user-name" id="adminUserName">Administrateur</div>
-      <div class="header-user-role">Super Admin</div>
+    <!-- SEARCH BAR (Pill Shape) -->
+    <div class="search-pill">
+      <span style="position:absolute; left:1rem; top:0.875rem; color:#888;">🔍</span>
+      <input type="text" class="search-input" placeholder="Search athletes, fleet, or bookings...">
     </div>
-    <button class="btn-logout-admin" id="adminLogout" title="Déconnexion">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+  </div>
+
+  <div class="header-right">
+    <!-- NOTIFICATIONS -->
+    <button class="header-icon" title="Notifications">
+      🔔
+      <span style="position:absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #CC0000; border-radius: 50%; border: 2px solid white;"></span>
+    </button>
+    
+    <!-- SETTINGS -->
+    <button class="header-icon" title="Settings">⚙️</button>
+    
+    <!-- HELP -->
+    <button class="header-icon" title="Help Centre">❓</button>
+
+    <!-- USER PROXIMITY -->
+    <div class="user-snippet">
+      <div class="user-info">
+        <span class="user-name">ADMINISTRATEUR</span>
+        <span class="user-caption">Chief Logistics Officer</span>
+      </div>
+      <img src="https://ui-avatars.com/api/?name=Admin&background=CC0000&color=fff" alt="User Avatar" class="user-avatar">
+    </div>
+
+    <!-- LOGOUT -->
+    <button class="header-icon" title="Logout" (click)="logout()">
+      🚪
     </button>
   </div>
+
 </header>

@@ -28,8 +28,11 @@ public class Transport {
     LocalDateTime returnTime;
     String destination;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     String status = "APPROVED"; 
+
+    @Column(name = "coach_id")
+    private Long coachId;
 
     // ===== EXPLICIT GETTERS/SETTERS (Lombok not processing) =====
 
@@ -57,9 +60,12 @@ public class Transport {
     public String getStatus() { return this.status; }
     public void setStatus(String status) { this.status = status; }
 
+    public Long getCoachId() { return this.coachId; }
+    public void setCoachId(Long coachId) { this.coachId = coachId; }
+
     // ===== EXPLICIT CONSTRUCTOR ====
     public Transport(TransportType type, Double pricePerSeat, Integer availableSeats, 
-                     LocalDateTime departureTime, LocalDateTime returnTime, String destination, String status) {
+                     LocalDateTime departureTime, LocalDateTime returnTime, String destination, String status, Long coachId) {
         this.type = type;
         this.pricePerSeat = pricePerSeat;
         this.availableSeats = availableSeats != null ? availableSeats : 0;
@@ -67,6 +73,7 @@ public class Transport {
         this.returnTime = returnTime;
         this.destination = destination;
         this.status = status != null ? status : "APPROVED";
+        this.coachId = coachId;
     }
 
     // ===== STATIC BUILDER METHOD ====
@@ -82,6 +89,7 @@ public class Transport {
         private LocalDateTime returnTime;
         private String destination;
         private String status;
+        private Long coachId;
 
         public TransportBuilder type(TransportType type) { this.type = type; return this; }
         public TransportBuilder pricePerSeat(Double pricePerSeat) { this.pricePerSeat = pricePerSeat; return this; }
@@ -90,9 +98,10 @@ public class Transport {
         public TransportBuilder returnTime(LocalDateTime returnTime) { this.returnTime = returnTime; return this; }
         public TransportBuilder destination(String destination) { this.destination = destination; return this; }
         public TransportBuilder status(String status) { this.status = status; return this; }
+        public TransportBuilder coachId(Long coachId) { this.coachId = coachId; return this; }
 
         public Transport build() {
-            return new Transport(type, pricePerSeat, availableSeats, departureTime, returnTime, destination, status);
+            return new Transport(type, pricePerSeat, availableSeats, departureTime, returnTime, destination, status, coachId);
         }
     }
 }

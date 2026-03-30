@@ -16,12 +16,19 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
 public class TeamServiceImpl implements IteamService {
 
-    TeamRepository teamRepository;
-    UserRepository userRepository;
-    MatchRepository matchRepository;
+    private final TeamRepository teamRepository;
+    private final UserRepository userRepository;
+    private final MatchRepository matchRepository;
+
+    public TeamServiceImpl(TeamRepository teamRepository, 
+                           UserRepository userRepository, 
+                           MatchRepository matchRepository) {
+        this.teamRepository = teamRepository;
+        this.userRepository = userRepository;
+        this.matchRepository = matchRepository;
+    }
 
     @Override
     public TeamResponse addTeam(TeamRequest dto, Long captainId) {

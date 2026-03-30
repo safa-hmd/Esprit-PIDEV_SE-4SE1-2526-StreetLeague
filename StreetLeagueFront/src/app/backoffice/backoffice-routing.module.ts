@@ -12,6 +12,7 @@ import { AccommodationRequestsComponent } from './accommodation-requests/accommo
 
 import { TransportManagementComponent } from './transport-management/transport-management.component';
 import { TravelRequestsComponent } from './travel-requests/travel-requests.component';
+import { AdminTransportRequestsComponent } from './transport-requests/admin-transport-requests.component';
 
 const routes: Routes = [{ path: '', component: BackofficeComponent,   
     children: [                      
@@ -23,6 +24,7 @@ const routes: Routes = [{ path: '', component: BackofficeComponent,
       { path: 'travel/requests', component: TravelRequestsComponent },
       { path: 'accommodation', component: AccommodationComponent },
       { path: 'accommodation-requests', component: AccommodationRequestsComponent },
+      { path: 'transport-requests', component: AdminTransportRequestsComponent },
       { path: 'coach-travel', component: CoachTravelComponent }
     ]
   }

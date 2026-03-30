@@ -46,10 +46,8 @@ public class TravelRequest {
 
     Double totalAmount;
 
-    @ElementCollection
-    @CollectionTable(name = "travel_request_members", joinColumns = @JoinColumn(name = "travel_request_id"))
-    @Column(name = "member_id")
-    List<Long> selectedMemberIds;
+    @Column(name = "selected_member_ids_str", length = 1000)
+    String selectedMemberIdsStr;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
@@ -100,8 +98,25 @@ public class TravelRequest {
     public Double getTotalAmount() { return this.totalAmount; }
     public void setTotalAmount(Double totalAmount) { this.totalAmount = totalAmount; }
 
-    public List<Long> getSelectedMemberIds() { return this.selectedMemberIds; }
-    public void setSelectedMemberIds(List<Long> selectedMemberIds) { this.selectedMemberIds = selectedMemberIds; }
+    public List<Long> getSelectedMemberIds() {
+        if (this.selectedMemberIdsStr == null || this.selectedMemberIdsStr.trim().isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+        return java.util.Arrays.stream(this.selectedMemberIdsStr.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(Long::valueOf)
+                .collect(java.util.stream.Collectors.toList());
+    }
+    public void setSelectedMemberIds(List<Long> selectedMemberIds) {
+        if (selectedMemberIds == null || selectedMemberIds.isEmpty()) {
+            this.selectedMemberIdsStr = "";
+        } else {
+            this.selectedMemberIdsStr = selectedMemberIds.stream()
+                .map(String::valueOf)
+                .collect(java.util.stream.Collectors.joining(","));
+        }
+    }
 
     public LocalDateTime getCreatedAt() { return this.createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

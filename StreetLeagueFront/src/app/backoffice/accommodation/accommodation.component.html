@@ -1,207 +1,175 @@
-<div class="accommodation-page">
-  <div class="hero-banner">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <span class="hero-label">GLOBAL OPERATIONS</span>
-      <h1 class="hero-title">ELITE ACCOMMODATIONS</h1>
-    </div>
-  </div>
+<div class="accommodation-editorial">
+  
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb">ASSET MANAGEMENT</div>
 
-  <div class="stats-card mt-24">
-    <div class="stats-accent"></div>
-    <div class="stats-content">
-      <span class="stats-label">TOTAL CAPACITY</span>
-      <div class="stats-number-row">
-        <span class="stats-number">{{ accommodationList.length }}</span>
+  <!-- HEADER -->
+  <div class="header-row">
+    <div class="title-container">
+      <h1 class="page-title">Accommodation Management</h1>
+    </div>
+    <div class="header-stats">
+      <div class="stat-icon">🛏️</div>
+      <div class="stat-group">
+        <div class="stat-label">TOTAL CAPACITY</div>
+        <div class="stat-value">{{ accommodationList?.length || 0 }} Active Bookings</div>
       </div>
-      <span class="stats-subtitle">Active Reservations Across All Sectors</span>
     </div>
   </div>
 
-  <div *ngIf="errorMessage" class="page-error mt-24">
+  <!-- MESSAGES -->
+  <div *ngIf="errorMessage" style="background:#FEF2F2; color:#B91C1C; padding:1.25rem; border-radius:12px; margin-bottom:2rem; border-left:4px solid #EF4444; font-weight:700;">
     {{ errorMessage }}
   </div>
-  <div *ngIf="successMessage" class="page-success mt-24" style="color: #4caf50; background: rgba(76,175,80,0.1); padding: 1rem; border-radius: 8px; border-left: 4px solid #4caf50;">
+  <div *ngIf="successMessage" style="background:#F0FDF4; color:#15803D; padding:1.25rem; border-radius:12px; margin-bottom:2rem; border-left:4px solid #22C55E; font-weight:700;">
     {{ successMessage }}
   </div>
 
-  <div class="form-section-container mt-24">
-    <div class="accommodation-form-card">
-      <div class="form-header">
-        <span class="plus-icon">{{ editMode ? '✏️' : '+' }}</span>
-        <h2 class="form-title">{{ editMode ? 'EDIT ACCOMMODATION' : 'ADD NEW ACCOMMODATION' }}</h2>
+  <!-- MAIN GRID -->
+  <div class="panel-grid">
+    
+    <!-- LEFT PANEL: FORM -->
+    <div class="panel-card">
+      <div class="panel-header">
+        <div class="panel-icon">{{ editMode ? '✏️' : '📝' }}</div>
+        <h2 class="panel-title">{{ editMode ? 'EDIT ESTABLISHMENT' : 'ADD NEW ACCOMMODATION' }}</h2>
       </div>
 
-      <form>
+      <form (submit)="$event.preventDefault(); submitForm()">
+        <div class="form-group">
+          <label class="form-label">TYPE</label>
+          <select class="form-select" name="type" [(ngModel)]="type">
+            <option *ngFor="let t of accommodationTypes" [value]="t.value">{{ t.label }}</option>
+          </select>
+        </div>
+
         <div class="form-grid">
           <div class="form-group">
-            <label class="form-label">ACCOMMODATION TYPE</label>
-            <select class="form-select" name="type" [(ngModel)]="type">
-              <option *ngFor="let t of accommodationTypes" [value]="t.value">
-                {{ t.label }}
-              </option>
-            </select>
+            <label class="form-label">NIGHTS</label>
+            <input type="number" min="1" class="form-input" name="nights" [(ngModel)]="numberOfNights" placeholder="Ex: 7">
           </div>
-
-          <div class="form-group">
-            <label class="form-label">NUMBER OF NIGHTS</label>
-            <input type="number" min="1" class="form-input" name="numberOfNights" placeholder="0" [(ngModel)]="numberOfNights" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">PRICE PER NIGHT</label>
-            <div class="input-with-suffix">
-              <input type="number" step="0.01" min="0" class="form-input" name="pricePerNight" placeholder="0.00" [(ngModel)]="pricePerNight" />
-              <span class="input-suffix">TND</span>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">ACCOMMODATION FORMULA</label>
-            <select class="form-select" name="formula" [(ngModel)]="formula">
-              <option *ngFor="let f of formulas" [value]="f.value">
-                {{ f.label }}
-              </option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">ADDRESS</label>
-            <input type="text" class="form-input" name="address" placeholder="e.g. 12 Avenue Habib Bourguiba, Tunis" [(ngModel)]="address" />
-          </div>
-
           <div class="form-group">
             <label class="form-label">CAPACITY</label>
-            <input type="number" min="1" class="form-input" name="capacity" placeholder="0" [(ngModel)]="capacity" />
+            <input type="number" min="1" class="form-input" name="capacity" [(ngModel)]="capacity" placeholder="Ex: 20">
           </div>
         </div>
 
-        <div style="display: flex; gap: 1rem;">
-          <button type="button" class="submit-btn full-width" (click)="submitForm()" [disabled]="loading">
-            <div *ngIf="loading" class="spinner"></div>
-            <span *ngIf="!loading">{{ editMode ? 'UPDATE ACCOMMODATION' : 'ADD ACCOMMODATION' }}</span>
-          </button>
-          
-          <button type="button" *ngIf="editMode" class="submit-btn full-width" style="background: #555; border-color: #555;" (click)="cancelEdit()">
-            <span>CANCEL</span>
-          </button>
+        <div class="form-group">
+          <label class="form-label">PRICE PER NIGHT (TND)</label>
+          <div style="position:relative;">
+            <input type="number" step="0.001" min="0" class="form-input" name="price" [(ngModel)]="pricePerNight" placeholder="0.000">
+            <span style="position:absolute; right:1rem; top:0.875rem; font-weight:800; color:#CC0000; font-size:0.8rem;">TND</span>
+          </div>
         </div>
+
+        <div class="form-group">
+          <label class="form-label">BOARD BASIS</label>
+          <div class="board-toggle-grid">
+            <button type="button" class="toggle-btn" [class.active]="formula === 'ROOM_ONLY'" (click)="formula = 'ROOM_ONLY'">ROOM ONLY</button>
+            <button type="button" class="toggle-btn" [class.active]="formula === 'BREAKFAST_INCLUDED'" (click)="formula = 'BREAKFAST_INCLUDED'">BREAKFAST</button>
+            <button type="button" class="toggle-btn" [class.active]="formula === 'HALF_BOARD'" (click)="formula = 'HALF_BOARD'">HALF BOARD</button>
+            <button type="button" class="toggle-btn" [class.active]="formula === 'FULL_BOARD'" (click)="formula = 'FULL_BOARD'">FULL BOARD</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ESTABLISHMENT ADDRESS</label>
+          <select class="form-select" name="address" [(ngModel)]="address">
+            <option value="" disabled>Select an available {{ type | lowercase }}</option>
+            <option *ngFor="let addr of filteredAddresses" [value]="addr">{{ addr }}</option>
+            <option value="CUSTOM">--- Use Custom Address ---</option>
+          </select>
+          <div *ngIf="address === 'CUSTOM'" style="margin-top:0.75rem;">
+            <textarea class="form-textarea" name="customAddress" #customAddr (change)="address = customAddr.value" placeholder="Enter full address details..."></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="loading">
+          {{ loading ? 'SAVING...' : (editMode ? 'UPDATE ESTABLISHMENT' : 'SAVE ESTABLISHMENT') }}
+        </button>
+        <button type="button" class="btn-ghost" *ngIf="editMode" (click)="cancelEdit()" style="width:100%; margin-top:0.5rem;">CANCEL EDIT</button>
       </form>
     </div>
-  </div>
 
-  <div class="table-section-container mt-24">
-    <div class="accommodation-table-card">
-      <div class="table-header-row">
-        <h2 class="table-title">LIVE INVENTORY</h2>
+    <!-- RIGHT PANEL: TABLE -->
+    <div class="panel-card">
+      <div class="inventory-header">
+        <h2 class="panel-title">LIVE INVENTORY</h2>
+        <div class="inventory-pill">UPDATED: 2M AGO</div>
       </div>
 
-      <div class="table-wrapper">
-        <div *ngIf="loading" class="table-loading">Loading accommodation data...</div>
-        
-        <table class="data-table" *ngIf="!loading">
+      <div style="overflow-x: auto;">
+        <table class="inventory-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>TYPE</th>
-              <th>FORMULA</th>
-              <th>NIGHTS</th>
+              <th>TYPE & BOARD</th>
+              <th>STAY</th>
               <th>PRICE/NIGHT</th>
               <th>CAPACITY</th>
-              <th>ADDRESS</th>
               <th>STATUS</th>
-              <th>ACTIONS</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let a of accommodationList">
-              <td class="id-cell">#SL-{{ a.id }}</td>
-              <td class="type-cell-acc">
-                <div class="type-accent"></div>
-                {{ a.type }}
+              <td class="acc-type-col">
+                <span class="acc-name">{{ a.type }}</span>
+                <span class="acc-sub">{{ formatFormula(a.formula) }} • {{ a.address || 'Location Unknown' }}</span>
               </td>
-              <td>{{ formatFormula(a.formula) }}</td>
-              <td>{{ a.numberOfNights }}</td>
-              <td>{{ a.pricePerNight }} TND</td>
-              <td>{{ a.capacity }}</td>
-              <td>{{ a.address }}</td>
+              <td>{{ a.numberOfNights }} Nights</td>
+              <td style="font-weight:800;">{{ a.pricePerNight | number:'1.3-3' }} TND</td>
               <td>
-                <span [ngClass]="{
-                  'badge-pending':  a.status === 'PENDING' || !a.status,
-                  'badge-approved': a.status === 'APPROVED',
-                  'badge-rejected': a.status === 'REJECTED'
-                }">
-                  {{a.status || 'PENDING'}}
+                <div class="capacity-bar-container">
+                  <span class="capacity-label">{{ a.capacity }} / {{ a.capacity }}</span>
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width]="'100%'"></div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="status-pill status-{{ (a.status || 'PENDING') | lowercase }}">
+                  {{ a.status || 'PENDING' }}
                 </span>
               </td>
-              <td class="actions-cell">
-                <!-- Edit button -->
-                <button class="action-btn edit-btn" 
-                        title="Edit"
-                        (click)="startEdit(a)">
-                  ✏️
-                </button>
-                
-                <!-- Delete button -->
-                <button class="action-btn delete-btn"
-                        title="Delete"
-                        (click)="confirmDelete(a.id)">
-                  🗑️
-                </button>
-                
-                <!-- Approve button -->
-                <button class="action-btn approve-btn"
-                        title="Approve"
-                        *ngIf="a.status !== 'APPROVED'"
-                        (click)="approve(a.id)">
-                  ✅
-                </button>
-                
-                <!-- Reject button -->
-                <button class="action-btn reject-btn"
-                        title="Reject"
-                        *ngIf="a.status !== 'REJECTED'"
-                        (click)="reject(a.id)">
-                  ❌
-                </button>
+              <td style="text-align: right;">
+                <div style="display:flex; gap:0.5rem; justify-content: flex-end;">
+                  <button class="action-icon" title="Edit" (click)="startEdit(a)">✏️</button>
+                  <button class="action-icon" title="Delete" (click)="confirmDelete(a.id)">🗑️</button>
+                  <button class="action-icon" *ngIf="a.status !== 'APPROVED'" title="Approve" (click)="approve(a.id)">✅</button>
+                </div>
               </td>
             </tr>
             <tr *ngIf="accommodationList.length === 0">
-              <td colspan="9" class="empty-cell" style="text-align: center; padding: 1rem;">No accommodations found</td>
+              <td colspan="6" style="text-align:center; padding:3rem; color:#888;">No establishments found. Optimize your inventory by adding new sites.</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+
   </div>
 
-  <div class="info-card mt-24">
-    <div class="info-icon">🛡️</div>
-    <div class="info-content">
-      <h3 class="info-title">ACCOMMODATION STANDARDS</h3>
-      <p class="info-text">
-        All listed accommodations are pre-vetted for StreetLeague athlete 
-        compliance, ensuring high-performance recovery standards and dietary 
-        formula availability.
-      </p>
+  <!-- PROMO BANNER -->
+  <div class="promo-banner">
+    <div class="promo-content">
+      <h3>OPTIMIZE YOUR ATHLETIC LOGISTICS</h3>
+      <p>Manage accommodations in real-time with surgical precision across all league sectors.</p>
     </div>
+    <button class="btn-outline">VIEW ANNUAL REPORT</button>
   </div>
 
-  <!-- Delete Modal -->
+  <!-- DELETE MODAL -->
   <div class="modal-overlay" *ngIf="showDeleteConfirm">
-    <div class="modal-dialog">
-      <h3>Confirm Delete</h3>
-      <p>Are you sure you want to delete this accommodation?</p>
+    <div class="modal-card">
+      <h3 class="modal-title">Confirm Deletion</h3>
+      <p style="color:#555; line-height:1.6; margin-bottom:2rem;">
+        Are you sure you want to remove this establishment from your live inventory? This action is irreversible and may affect active delegations.
+      </p>
       <div class="modal-actions">
-        <button class="btn-confirm-delete" 
-                (click)="executeDelete()">
-          Delete
-        </button>
-        <button class="btn-cancel" 
-                (click)="cancelDelete()">
-          Cancel
-        </button>
+        <button class="btn-ghost" (click)="cancelDelete()">CANCEL</button>
+        <button class="btn-danger" (click)="executeDelete()">DELETE SITE</button>
       </div>
     </div>
   </div>
+
 </div>

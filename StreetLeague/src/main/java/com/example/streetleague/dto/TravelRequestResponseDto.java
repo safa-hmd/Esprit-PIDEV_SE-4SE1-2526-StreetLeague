@@ -28,6 +28,9 @@ public class TravelRequestResponseDto {
     private Double totalAmount;
     private LocalDateTime createdAt;
 
+    @com.fasterxml.jackson.annotation.JsonProperty("selectedMemberIds")
+    private java.util.List<Long> selectedMemberIds;
+
     // ===== EXPLICIT GETTERS/SETTERS =====
     public Long getId() { return this.id; }
     public void setId(Long id) { this.id = id; }
@@ -71,6 +74,9 @@ public class TravelRequestResponseDto {
     public LocalDateTime getCreatedAt() { return this.createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
+    public java.util.List<Long> getSelectedMemberIds() { return this.selectedMemberIds; }
+    public void setSelectedMemberIds(java.util.List<Long> selectedMemberIds) { this.selectedMemberIds = selectedMemberIds; }
+
     // ===== STATIC BUILDER HELPER =====
     public static TravelRequestResponseDtoBuilder builder() {
         return new TravelRequestResponseDtoBuilder();
@@ -91,6 +97,7 @@ public class TravelRequestResponseDto {
         private Double individualPrice;
         private Double totalAmount;
         private LocalDateTime createdAt;
+        private java.util.List<Long> selectedMemberIds;
 
         public TravelRequestResponseDtoBuilder id(Long id) { this.id = id; return this; }
         public TravelRequestResponseDtoBuilder teamId(Long teamId) { this.teamId = teamId; return this; }
@@ -106,6 +113,7 @@ public class TravelRequestResponseDto {
         public TravelRequestResponseDtoBuilder individualPrice(Double individualPrice) { this.individualPrice = individualPrice; return this; }
         public TravelRequestResponseDtoBuilder totalAmount(Double totalAmount) { this.totalAmount = totalAmount; return this; }
         public TravelRequestResponseDtoBuilder createdAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
+        public TravelRequestResponseDtoBuilder selectedMemberIds(java.util.List<Long> selectedMemberIds) { this.selectedMemberIds = selectedMemberIds; return this; }
 
         public TravelRequestResponseDto build() {
             TravelRequestResponseDto dto = new TravelRequestResponseDto();
@@ -123,6 +131,7 @@ public class TravelRequestResponseDto {
             dto.setIndividualPrice(individualPrice);
             dto.setTotalAmount(totalAmount);
             dto.setCreatedAt(createdAt);
+            dto.setSelectedMemberIds(selectedMemberIds);
             return dto;
         }
     }

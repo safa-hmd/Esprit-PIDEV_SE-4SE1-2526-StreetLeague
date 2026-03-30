@@ -1,0 +1,187 @@
+<div class="athletic-editorial">
+  
+  <div class="header-row">
+    <div>
+      <h1 class="header-title">Transport Requests</h1>
+      <p class="header-subtitle">View and manage logistics flows for individual athletes and sports delegations.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-ghost" title="Export CSV">⭳ Export CSV</button>
+      <button class="btn-primary">+ New Request</button>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div>
+        <div class="kpi-label">PENDING</div>
+        <div class="kpi-value">{{ transportRequests?.length || 0 }}</div>
+      </div>
+      <div class="kpi-icon">📋</div>
+    </div>
+    <div class="kpi-card accent">
+      <div>
+        <div class="kpi-label">VEHICLES READY</div>
+        <div class="kpi-value">12</div>
+      </div>
+      <div class="kpi-icon">🚗</div>
+    </div>
+    <div class="kpi-card">
+      <div>
+        <div class="kpi-label">TEAMS IN TRANSIT</div>
+        <div class="kpi-value">08</div>
+      </div>
+      <div class="kpi-icon">👥</div>
+    </div>
+    <div class="kpi-card dark-red">
+      <div>
+        <div class="kpi-label">WEEKLY BUDGET</div>
+        <div class="kpi-value">43.800 TND</div>
+      </div>
+      <div class="kpi-icon">💰</div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMessage" style="background:#FEF2F2; color:#B91C1C; padding:1rem; border-radius:8px; margin-bottom:1rem; border-left:4px solid #EF4444;">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" style="background:#F0FDF4; color:#15803D; padding:1rem; border-radius:8px; margin-bottom:1rem; border-left:4px solid #22C55E;">{{ successMessage }}</div>
+
+  <h2 class="section-title">Personal Vehicle Requests</h2>
+  <div class="data-table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>TYPE</th>
+          <th>COACH</th>
+          <th>DESTINATION</th>
+          <th>SEATS</th>
+          <th>PRICE</th>
+          <th>DEPARTURE</th>
+          <th>STATUS</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tr of transportRequests">
+          <td class="col-type"><span style="color: #CC0000; margin-right: 8px;">🚗</span>{{ tr.type }}</td>
+          <td><strong>{{ tr.coachName || 'League Member' }}</strong></td>
+          <td class="col-dest">{{ tr.destination || tr.address || 'N/A' }}</td>
+          <td>{{ tr.availableSeats }} Seats</td>
+          <td class="col-price">{{ tr.pricePerSeat || 0 | number:'1.3-3' }} TND</td>
+          <td>{{ tr.departureTime | date:'dd MMM yyyy HH:mm' }}</td>
+          <td>
+            <span class="status-pill status-{{ (tr.status || 'pending') | lowercase }}">
+              <span class="status-dot"></span> {{ tr.status || 'PENDING' }}
+            </span>
+          </td>
+          <td>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button class="btn-ghost" style="color: #15803D; padding: 0.25rem 0.5rem;" *ngIf="tr.status === 'PENDING'" (click)="openApproveModal(tr)">✓</button>
+              <button class="btn-ghost" style="color: #DC2626; padding: 0.25rem 0.5rem;" *ngIf="tr.status === 'PENDING'" (click)="openRejectModal(tr)">✗</button>
+              <button class="btn-ghost" style="padding: 0.25rem 0.5rem;" *ngIf="tr.status !== 'PENDING'" (click)="downloadPdf(tr.id)">📄 PDF</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="!transportRequests || transportRequests.length === 0">
+          <td colspan="8" style="text-align: center; padding: 2rem; color: #888;">No personal vehicle requests found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="section-title">Team Transport Requests</h2>
+  <div class="data-table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>TEAM & COACH</th>
+          <th>TOURNAMENT</th>
+          <th>TRANSPORT</th>
+          <th>MEMBERS</th>
+          <th>TOTAL PRICE</th>
+          <th>STATUS</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let req of travelRequests">
+          <td class="col-type">
+            {{ req.teamName }}<br/>
+            <span style="font-weight: 400; font-size: 0.85rem; color: #888;">Coach: {{ req.coachName || 'N/A' }}</span>
+          </td>
+          <td>{{ req.tournament?.name || 'Tournament' }} 🏆</td>
+          <td>
+            <span style="background: #EFF6FF; color: #2563EB; padding: 0.25rem 0.5rem; border-radius: 99px; font-size: 0.75rem; font-weight: 700;">
+              🚌 {{ req.transport?.type || 'BUS' }}
+            </span>
+          </td>
+          <td>{{ req.selectedMemberIds?.length || 0 }}</td>
+          <td class="col-price">{{ req.totalAmount || 0 | number:'1.3-3' }} TND</td>
+          <td>
+            <span class="status-pill status-{{ (req.status || 'pending') | lowercase }}">
+              <span class="status-dot"></span> {{ req.status || 'PENDING' }}
+            </span>
+          </td>
+          <td>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button class="btn-ghost" style="color: #15803D; padding: 0.25rem 0.5rem;" *ngIf="req.status === 'PENDING'" (click)="openTravelApproveModal(req)">✓</button>
+              <button class="btn-ghost" style="color: #DC2626; padding: 0.25rem 0.5rem;" *ngIf="req.status === 'PENDING'" (click)="openTravelRejectModal(req)">✗</button>
+              <button class="btn-ghost" style="padding: 0.25rem 0.5rem;" *ngIf="req.status !== 'PENDING'" (click)="downloadTravelPdf(req.id)">📄 PDF</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="!travelRequests || travelRequests.length === 0">
+          <td colspan="7" style="text-align: center; padding: 2rem; color: #888;">No team transport requests found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- MODALS FOR PRIVATE CAR -->
+  <div *ngIf="showApproveModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:999;" (click)="closeModals()">
+    <div style="background:#FFF; padding:2rem; border-radius:1rem; width:400px; max-width:90%;" (click)="$event.stopPropagation()">
+      <h3 style="margin-top:0;">Approve Personal Vehicle</h3>
+      <textarea [(ngModel)]="adminComment" placeholder="Admin comment (optional)" style="width:100%; padding:0.75rem; border:1px solid #CCC; border-radius:0.5rem; margin-top:1rem;"></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1.5rem;">
+        <button class="btn-ghost" (click)="closeModals()">Cancel</button>
+        <button class="btn-primary" (click)="confirmApprove()">Confirm Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showRejectModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:999;" (click)="closeModals()">
+    <div style="background:#FFF; padding:2rem; border-radius:1rem; width:400px; max-width:90%;" (click)="$event.stopPropagation()">
+      <h3 style="margin-top:0;">Reject Personal Vehicle</h3>
+      <textarea [(ngModel)]="adminComment" placeholder="Reason for rejection (required)" style="width:100%; padding:0.75rem; border:1px solid #CCC; border-radius:0.5rem; margin-top:1rem;"></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1.5rem;">
+        <button class="btn-ghost" (click)="closeModals()">Cancel</button>
+        <button class="btn-primary" style="background:#DC2626;" (click)="confirmReject()">Confirm Reject</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALS FOR TEAM TRAVEL -->
+  <div *ngIf="showTravelApproveModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:999;" (click)="closeTravelModals()">
+    <div style="background:#FFF; padding:2rem; border-radius:1rem; width:400px; max-width:90%;" (click)="$event.stopPropagation()">
+      <h3 style="margin-top:0;">Approve Team Transport</h3>
+      <textarea [(ngModel)]="travelAdminComment" placeholder="Admin comment (optional)" style="width:100%; padding:0.75rem; border:1px solid #CCC; border-radius:0.5rem; margin-top:1rem;"></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1.5rem;">
+        <button class="btn-ghost" (click)="closeTravelModals()">Cancel</button>
+        <button class="btn-primary" (click)="confirmTravelApprove()">Confirm Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showTravelRejectModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:999;" (click)="closeTravelModals()">
+    <div style="background:#FFF; padding:2rem; border-radius:1rem; width:400px; max-width:90%;" (click)="$event.stopPropagation()">
+      <h3 style="margin-top:0;">Reject Team Transport</h3>
+      <textarea [(ngModel)]="travelAdminComment" placeholder="Reason for rejection (required)" style="width:100%; padding:0.75rem; border:1px solid #CCC; border-radius:0.5rem; margin-top:1rem;"></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1.5rem;">
+        <button class="btn-ghost" (click)="closeTravelModals()">Cancel</button>
+        <button class="btn-primary" style="background:#DC2626;" (click)="confirmTravelReject()">Confirm Reject</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="fab" title="New Entry">+</button>
+</div>

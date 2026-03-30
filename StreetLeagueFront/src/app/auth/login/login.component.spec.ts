@@ -70,9 +70,9 @@ describe('LoginComponent', () => {
 
   // ── roleLabel ─────────────────────────────────────────────
 
-  it('roleLabelTest — PLAYER returns Joueur', () => {
+  it('roleLabelTest — PLAYER returns Player', () => {
     component.selectedRole = 'PLAYER';
-    expect(component.roleLabel).toBe('Joueur');
+    expect(component.roleLabel).toBe('Player');
   });
 
   it('roleLabelTest — COACH returns Coach', () => {
@@ -82,9 +82,9 @@ describe('LoginComponent', () => {
 
   // ── emailPlaceholder ──────────────────────────────────────
 
-  it('emailPlaceholderTest — PLAYER returns joueur@streetleague.com', () => {
+  it('emailPlaceholderTest — PLAYER returns player@streetleague.com', () => {
     component.selectedRole = 'PLAYER';
-    expect(component.emailPlaceholder).toBe('joueur@streetleague.com');
+    expect(component.emailPlaceholder).toBe('player@streetleague.com');
   });
 
   // ── Form validation ───────────────────────────────────────

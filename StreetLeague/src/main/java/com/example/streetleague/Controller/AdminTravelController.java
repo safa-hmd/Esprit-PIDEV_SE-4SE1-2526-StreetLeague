@@ -56,6 +56,15 @@ public class AdminTravelController {
         return ResponseEntity.ok(adminTravelService.rejectTransport(id));
     }
 
+    @GetMapping("/transport/{id}/pdf")
+    public ResponseEntity<byte[]> getTransportPdf(@PathVariable Long id) {
+        byte[] pdf = adminTravelService.generateTransportPdf(id);
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=transport-decision-" + id + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
     @PostMapping("/accommodation")
     public ResponseEntity<Accommodation> addAccommodation(@RequestBody AccommodationDto accommodationDto) {
         return ResponseEntity.ok(adminTravelService.addAccommodation(accommodationDto));
@@ -137,5 +146,14 @@ public class AdminTravelController {
                 "attachment; filename=request-" + id + ".pdf")
             .contentType(MediaType.APPLICATION_PDF)
             .body(pdf);
+    }
+
+    @GetMapping("/requests/{id}/pdf")
+    public ResponseEntity<byte[]> getTravelRequestPdf(@PathVariable Long id) {
+        byte[] pdf = adminTravelService.generateTravelRequestPdf(id);
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=team-transport-" + id + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 }

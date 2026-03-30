@@ -1,79 +1,72 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StreetLeague Admin – Dashboard</title>
-</head>
-<body>
-
-
-
-<!-- ============== SIDEBAR ============== -->
 <aside class="admin-sidebar" id="adminSidebar">
+  
+  <div class="logo-area">
+    <div class="logo-text">Street<span>League</span></div>
+  </div>
+
   <nav class="sidebar-nav">
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Principal</div>
-      <a routerLink="home" class="sidebar-link active">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    
+    <div class="nav-group">
+      <div class="group-label">PRINCIPAL</div>
+      <a routerLink="home" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">📊</span> Dashboard
       </a>
-      <a routerLink="teamAdmin" class="sidebar-link">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Équipes & Matchs
+      <a routerLink="teamAdmin" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">👥</span> Teams & Matches
+      </a>
+      <a routerLink="trainingAdmin" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">⚒️</span> Training Sessions
+      </a>
+      <a routerLink="tournament" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🏆</span> Tournaments
+      </a>
+      <a routerLink="terrain" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">📍</span> Venues
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="group-label">CONTENT</div>
+      <a routerLink="community" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">💬</span> Community
+      </a>
+      <a routerLink="sponsors" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">💰</span> Sponsors
+      </a>
+      <a routerLink="news" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">📄</span> News
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="group-label">SERVICES</div>
+      <a routerLink="health" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">❤️</span> Health
+      </a>
+      <a routerLink="shop" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🛍️</span> Shop
+      </a>
+      
+      <!-- LOGISTICS GROUP -->
+      <div class="sub-nav-item">
+        <span class="nav-icon">🚚</span> Logistics
+      </div>
+      <a [routerLink]="['transport']" routerLinkActive="active" class="nav-item sub-link">
+          <span class="nav-icon">🚌</span> Transport Management
+      </a>
+      <a [routerLink]="['transport-requests']" routerLinkActive="active" class="nav-item sub-link">
+          <span class="nav-icon">🏎️</span> Transport Requests
       </a>
 
-      <a routerLink="trainingAdmin" class="sidebar-link">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>Entraînements
+      <!-- ACCOMMODATION GROUP -->
+      <div class="sub-nav-item active-like" routerLinkActive="active" [routerLink]="['accommodation']">
+        <span class="nav-icon">📔</span> Lodging HQ
+      </div>
+      <a [routerLink]="['accommodation-requests']" routerLinkActive="active" class="nav-item sub-link">
+          <span class="nav-icon">📋</span> Accommodation Requests
       </a>
-      <a href="tournaments.html" class="sidebar-link">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>Tournois
-      </a>
-      <a href="fields.html" class="sidebar-link">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Terrains
-      </a>
+    </div>
 
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Contenu</div>
-      <a href="community.html" class="sidebar-link">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Communauté
-      </a>
-      <a href="sponsors.html" class="sidebar-link">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Sponsors
-      </a>
-      <a href="news.html" class="sidebar-link">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/></svg>Actualités
-      </a>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Services</div>
-      <a href="health.html" class="sidebar-link">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Santé
-      </a>
-      <a href="shop.html" class="sidebar-link">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Boutique
-      </a>
-      <a href="delivery.html" class="sidebar-link">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Livraisons
-      </a>
-      <a [routerLink]="['transport']" routerLinkActive="active" class="sidebar-link" *ngIf="isAdmin()">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>Transport
-      </a>
-      <a [routerLink]="['accommodation']" routerLinkActive="active" class="sidebar-link" *ngIf="isAdmin()">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="m9 22 3-3 3 3"/></svg>Hébergement
-      </a>
-      <a [routerLink]="['accommodation-requests']" routerLinkActive="active" class="sidebar-link" *ngIf="isAdmin()">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>📋 Accommodation Requests
-      </a>
-      <a [routerLink]="['coach-travel']" routerLinkActive="active" class="sidebar-link" *ngIf="isCoach()">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>Travel Request
-      </a>
-    </div>
   </nav>
+
 </aside>
-
-<!-- Overlay mobile -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-
-
-</body>
-</html>

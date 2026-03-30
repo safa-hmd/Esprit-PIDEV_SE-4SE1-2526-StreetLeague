@@ -8,9 +8,15 @@ import { TravelService } from 'src/app/services/travel.service';
 })
 export class TravelRequestsComponent implements OnInit {
   requests: any[] = [];
-  displayModal = false;
-  activeRequest: any = null;
-  adminComment: string = '';
+  loading = false;
+  errorMessage = '';
+  successMessage = '';
+  
+  // Modal State
+  selectedRequest: any = null;
+  showApproveModal = false;
+  showRejectModal = false;
+  adminComment = '';
 
   constructor(private travelService: TravelService) {}
 
@@ -19,30 +25,90 @@ export class TravelRequestsComponent implements OnInit {
   }
 
   loadRequests() {
-    this.travelService.getAllTravelRequests().subscribe(res => {
-      this.requests = res;
+    this.loading = true;
+    this.travelService.getAllTravelRequests().subscribe({
+      next: (res) => {
+        this.requests = res;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.errorMessage = "Failed to load travel requests.";
+        this.loading = false;
+      }
     });
   }
 
-  openDecisionModal(r: any) {
-    this.activeRequest = r;
-    this.adminComment = r.adminComment || '';
-    this.displayModal = true;
+  openApproveModal(req: any) {
+    this.selectedRequest = req;
+    this.adminComment = '';
+    this.showApproveModal = true;
   }
 
-  closeModal() {
-    this.displayModal = false;
-    this.activeRequest = null;
+  openRejectModal(req: any) {
+    this.selectedRequest = req;
+    this.adminComment = '';
+    this.showRejectModal = true;
   }
 
-  decide(status: string) {
+  closeModals() {
+    this.showApproveModal = false;
+    this.showRejectModal = false;
+    this.selectedRequest = null;
+  }
+
+  confirmApprove() {
+    if (!this.selectedRequest) return;
+    this.loading = true;
     const payload = {
-      status: status,
+      status: 'APPROVED',
       adminComment: this.adminComment
     };
-    this.travelService.decideTravelRequest(this.activeRequest.id, payload).subscribe(() => {
-      this.loadRequests();
-      this.closeModal();
+    
+    this.travelService.decideTravelRequest(this.selectedRequest.id, payload).subscribe({
+      next: () => {
+        this.successMessage = "Request approved successfully.";
+        this.loadRequests();
+        this.closeModals();
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: () => {
+        this.errorMessage = "Failed to approve request.";
+        this.loading = false;
+      }
     });
+  }
+
+  confirmReject() {
+    if (!this.selectedRequest) return;
+    this.loading = true;
+    const payload = {
+      status: 'REJECTED',
+      adminComment: this.adminComment
+    };
+
+    this.travelService.decideTravelRequest(this.selectedRequest.id, payload).subscribe({
+      next: () => {
+        this.successMessage = "Request rejected.";
+        this.loadRequests();
+        this.closeModals();
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: () => {
+        this.errorMessage = "Failed to reject request.";
+        this.loading = false;
+      }
+    });
+  }
+
+  downloadPdf(requestId: number) {
+    // Note: If there's a specific endpoint for Travel Request PDF, use it.
+    // Otherwise, we might need to add one. For now, we'll use a placeholder or check service.
+    // Based on BUG 3 requirements, we need a PDF download button.
+    alert("PDF Decision generation for Travel Requests (Transport) is being processed.");
+  }
+
+  formatDate(date: any) {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString();
   }
 }

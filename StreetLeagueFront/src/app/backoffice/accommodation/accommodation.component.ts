@@ -30,6 +30,42 @@ export class AccommodationComponent implements OnInit {
   rejectTargetId: number | null = null;
   rejectComment: string = '';
 
+  addressSuggestions: { [key: string]: string[] } = {
+    'HOTEL': [
+      'Hotel Africa, Avenue Habib Bourguiba, Tunis',
+      'Radisson Blu Palace, Hammamet',
+      'El Mouradi Palace, Port El Kantaoui, Sousse',
+      'Hotel Bizerte Resort, Port de Bizerte',
+      'Iberostar Selection, Enfidha',
+      'Mövenpick Resort & Marine Spa, Sousse',
+      'Sheraton Tunis Hotel, Avenue de la Ligue Arabe, Tunis'
+    ],
+    'HOSTEL': [
+      'Hostel Carthage, Rue Ibn Khaldoun, Tunis',
+      'Dar Ben Gacem, Medina de Tunis',
+      'Auberge de Jeunesse, Sousse',
+      'Auberge de Jeunesse de Bizerte',
+      'Dar El Yasmine, La Marsa'
+    ],
+    'APARTMENT': [
+      'Les Berges du Lac 1, Tunis',
+      'Residence Jardin des Fleurs, La Marsa',
+      'Appartement de Vacances, Port Kantaoui',
+      'Residence Ennasr, Tunis',
+      'Apartment Vue Lac, Corniche Bizerte'
+    ],
+    'SPORTS_CENTER': [
+      'Cité Nationale Sportive, El Menzah, Tunis',
+      'Complexe Sportif de l’Espérance, Tunis',
+      'Centre National de Médecine et des Sciences des Sports, Tunis',
+      'Stade Olympique de Radès, Ben Arous'
+    ]
+  };
+
+  get filteredAddresses(): string[] {
+    return this.addressSuggestions[this.type] || [];
+  }
+
   accommodationTypes = [
     { value: 'HOTEL', label: 'Hotel' },
     { value: 'HOSTEL', label: 'Hostel' },

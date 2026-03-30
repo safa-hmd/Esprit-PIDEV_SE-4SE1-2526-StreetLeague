@@ -20,8 +20,12 @@ public class TransportDto {
     private LocalDateTime departureTime; // ← LocalDateTime pas String
     private LocalDateTime returnTime;    // ← LocalDateTime pas String
     private String status;
+    private Long coachId;
+    private String coachName;
 
     // ===== EXPLICIT GETTERS/SETTERS =====
+    public String getCoachName() { return this.coachName; }
+    public void setCoachName(String coachName) { this.coachName = coachName; }
     public Long getId() { return this.id; }
     public void setId(Long id) { this.id = id; }
 
@@ -46,6 +50,9 @@ public class TransportDto {
     public String getStatus() { return this.status; }
     public void setStatus(String status) { this.status = status; }
 
+    public Long getCoachId() { return this.coachId; }
+    public void setCoachId(Long coachId) { this.coachId = coachId; }
+
     // ===== STATIC BUILDER HELPER =====
     public static TransportDtoBuilder builder() {
         return new TransportDtoBuilder();
@@ -60,6 +67,8 @@ public class TransportDto {
         private LocalDateTime departureTime;
         private LocalDateTime returnTime;
         private String status;
+        private Long coachId;
+        private String coachName;
 
         public TransportDtoBuilder id(Long id) { this.id = id; return this; }
         public TransportDtoBuilder type(TransportType type) { this.type = type; return this; }
@@ -69,6 +78,8 @@ public class TransportDto {
         public TransportDtoBuilder departureTime(LocalDateTime departureTime) { this.departureTime = departureTime; return this; }
         public TransportDtoBuilder returnTime(LocalDateTime returnTime) { this.returnTime = returnTime; return this; }
         public TransportDtoBuilder status(String status) { this.status = status; return this; }
+        public TransportDtoBuilder coachId(Long coachId) { this.coachId = coachId; return this; }
+        public TransportDtoBuilder coachName(String coachName) { this.coachName = coachName; return this; }
 
         public TransportDto build() {
             TransportDto dto = new TransportDto();
@@ -80,6 +91,8 @@ public class TransportDto {
             dto.setDepartureTime(departureTime);
             dto.setReturnTime(returnTime);
             dto.setStatus(status);
+            dto.setCoachId(coachId);
+            dto.setCoachName(coachName);
             return dto;
         }
     }

@@ -13,8 +13,6 @@ export class TravelService {
       || localStorage.getItem('token') 
       || '';
       
-    console.log('Token found:', token ? 'YES' : 'NO');
-    
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': token ? 'Bearer ' + token : ''
@@ -36,10 +34,25 @@ export class TravelService {
     );
   }
 
+  updateTransport(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}/api/admin/travel/transport/${id}`, data, { headers: this.getHeaders() });
+  }
+
+  deleteTransport(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/api/admin/travel/transport/${id}`, { headers: this.getHeaders() });
+  }
+
+  approveTransport(id: number): Observable<any> {
+    return this.http.put(`${this.baseUrl}/api/admin/travel/transport/${id}/approve`, {}, { headers: this.getHeaders() });
+  }
+
+  rejectTransport(id: number): Observable<any> {
+    return this.http.put(`${this.baseUrl}/api/admin/travel/transport/${id}/reject`, {}, { headers: this.getHeaders() });
+  }
+
   getAllAccommodations(): Observable<any[]> {
-    console.log('Calling getAllAccommodations...');
     return this.http.get<any[]>(
-      'http://localhost:8086/StreetLeague/api/admin/travel/accommodation',
+      `${this.baseUrl}/api/admin/travel/accommodation`,
       { headers: this.getHeaders() }
     );
   }
@@ -112,33 +125,37 @@ export class TravelService {
     );
   }
 
-  // ============================================================
-  // PDF DOWNLOAD METHODS
-  // ============================================================
-
-  downloadRequestPdf(requestId: number): Observable<Blob> {
-    return this.http.get(
-      `${this.baseUrl}/api/coach/travel/accommodation-requests/${requestId}/pdf`,
-      { 
-        headers: this.getHeaders(),
-        responseType: 'blob'
-      }
-    );
+  getAllTravelRequests(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/api/admin/travel/requests`, { headers: this.getHeaders() });
   }
 
-  downloadAdminRequestPdf(requestId: number): Observable<Blob> {
-    return this.http.get(
-      `${this.baseUrl}/api/admin/travel/accommodation-requests/${requestId}/pdf`,
-      {
-        headers: this.getHeaders(),
-        responseType: 'blob'
-      }
-    );
+  decideTravelRequest(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}/api/admin/travel/requests/${id}/decision`, data, { headers: this.getHeaders() });
   }
 
-  // ============================================================
-  // ADMIN METHODS  (Existing)
-  // ============================================================
+  getTournaments(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/api/tournaments`, { headers: this.getHeaders() });
+  }
+
+  checkEligibilityAndGetTransports(coachId: any, tournamentId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/coach/travel/transports/check?coachId=${coachId}&tournamentId=${tournamentId}`, { headers: this.getHeaders() });
+  }
+
+  submitPersonalCar(data: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/coach/travel/transport/personal-car`, data, { headers: this.getHeaders() });
+  }
+
+  submitTravelRequest(data: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/coach/travel/requests`, data, { headers: this.getHeaders() });
+  }
+
+  getMyTravelRequests(coachId: any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/api/coach/travel/requests/my?coachId=${coachId}`, { headers: this.getHeaders() });
+  }
+
+  getMyTeam(coachId: any): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/coach/travel/my-team?coachId=${coachId}`, { headers: this.getHeaders() });
+  }
 
   getAccommodationRequests(): Observable<any[]> {
     return this.http.get<any[]>(
@@ -164,55 +181,40 @@ export class TravelService {
   }
 
   // ============================================================
-  // NEW ADMIN METHODS
+  // PDF DOWNLOAD METHODS
   // ============================================================
-  updateTransport(id: number, data: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/api/admin/travel/transport/${id}`, data, { headers: this.getHeaders() });
+
+  downloadAccommodationPdf(requestId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.baseUrl}/api/admin/travel/accommodation-requests/${requestId}/pdf`,
+      { 
+        headers: this.getHeaders(),
+        responseType: 'blob'
+      }
+    );
   }
 
-  deleteTransport(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/api/admin/travel/transport/${id}`, { headers: this.getHeaders() });
+  // Legacy alias
+  downloadRequestPdf(requestId: number): Observable<Blob> {
+    return this.downloadAccommodationPdf(requestId);
   }
 
-  approveTransport(id: number): Observable<any> {
-    return this.http.put(`${this.baseUrl}/api/admin/travel/transport/${id}/approve`, {}, { headers: this.getHeaders() });
+  // Legacy alias
+  downloadAdminRequestPdf(requestId: number): Observable<Blob> {
+    return this.downloadAccommodationPdf(requestId);
   }
 
-  rejectTransport(id: number): Observable<any> {
-    return this.http.put(`${this.baseUrl}/api/admin/travel/transport/${id}/reject`, {}, { headers: this.getHeaders() });
+  downloadTransportPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/api/admin/travel/transport/${id}/pdf`, {
+      headers: this.getHeaders(),
+      responseType: 'blob'
+    });
   }
 
-  getAllTravelRequests(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/api/admin/travel/requests`, { headers: this.getHeaders() });
-  }
-
-  decideTravelRequest(id: number, data: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/api/admin/travel/requests/${id}/decision`, data, { headers: this.getHeaders() });
-  }
-
-  // ============================================================
-  // TOURNAMENTS
-  // ============================================================
-  getTournaments(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/api/tournaments`, { headers: this.getHeaders() });
-  }
-
-  // ============================================================
-  // NEW COACH METHODS
-  // ============================================================
-  checkEligibilityAndGetTransports(coachId: any, tournamentId: number): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/api/coach/travel/transports/check?coachId=${coachId}&tournamentId=${tournamentId}`, { headers: this.getHeaders() });
-  }
-
-  submitPersonalCar(data: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/api/coach/travel/transport/personal-car`, data, { headers: this.getHeaders() });
-  }
-
-  submitTravelRequest(data: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/api/coach/travel/requests`, data, { headers: this.getHeaders() });
-  }
-
-  getMyTravelRequests(coachId: any): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/api/coach/travel/requests/my?coachId=${coachId}`, { headers: this.getHeaders() });
+  downloadTravelRequestPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/api/admin/travel/requests/${id}/pdf`, {
+      headers: this.getHeaders(),
+      responseType: 'blob'
+    });
   }
 }

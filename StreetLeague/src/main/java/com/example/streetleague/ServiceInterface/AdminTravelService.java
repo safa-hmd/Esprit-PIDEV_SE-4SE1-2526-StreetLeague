@@ -34,4 +34,6 @@ public interface AdminTravelService {
     AccommodationRequestResponseDto approveAccommodationRequest(Long id, DecisionDto decision);
     AccommodationRequestResponseDto rejectAccommodationRequest(Long id, DecisionDto decision);
     byte[] generateRequestPdf(Long id);
+    byte[] generateTransportPdf(Long id);
+    byte[] generateTravelRequestPdf(Long id);
 }

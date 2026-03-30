@@ -22,4 +22,5 @@ public interface CoachTravelService {
     List<Accommodation> getApprovedAccommodations();
     com.example.streetleague.dto.AccommodationRequestResponseDto submitAccommodationRequest(com.example.streetleague.dto.AccommodationRequestDto requestDto);
     List<com.example.streetleague.dto.AccommodationRequestResponseDto> getMyAccommodationRequests(Long coachId);
+    Long resolveTeamId(Long coachId);
 }

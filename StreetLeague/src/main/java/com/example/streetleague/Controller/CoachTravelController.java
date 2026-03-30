@@ -1,11 +1,13 @@
 package com.example.streetleague.Controller;
 
 import com.example.streetleague.Entity.Accommodation;
+import com.example.streetleague.Entity.Team;
 import com.example.streetleague.Entity.Transport;
+import com.example.streetleague.Repository.TeamRepository;
+import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.CoachTravelService;
 import com.example.streetleague.dto.*;
 import com.example.streetleague.domain.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,11 +17,34 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/coach/travel")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class CoachTravelController {
 
     private final CoachTravelService coachTravelService;
+    private final UserRepository userRepository;
+    private final TeamRepository teamRepository;
+
+    public CoachTravelController(CoachTravelService coachTravelService, 
+                                 UserRepository userRepository, 
+                                 TeamRepository teamRepository) {
+        this.coachTravelService = coachTravelService;
+        this.userRepository = userRepository;
+        this.teamRepository = teamRepository;
+    }
+
+    @GetMapping("/my-team")
+    public ResponseEntity<java.util.Map<String,Object>> getMyTeam(@RequestParam Long coachId) {
+        Long teamId = userRepository.findTeamIdByUserId(coachId);
+        if (teamId == null) {
+            return ResponseEntity.ok(new java.util.HashMap<>());
+        }
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new RuntimeException("Team not found"));
+        java.util.Map<String,Object> result = new java.util.HashMap<>();
+        result.put("id", team.getIdTeam());
+        result.put("name", team.getName());
+        result.put("city", team.getCity());
+        return ResponseEntity.ok(result);
+    }
 
     @GetMapping("/transports/tournament/{tournamentId}")
     public ResponseEntity<List<Transport>> getAvailableTransports(
@@ -71,6 +96,10 @@ public class CoachTravelController {
     @PostMapping("/requests")
     public ResponseEntity<TravelRequestResponseDto> submitTravelRequest(
             @RequestBody TravelRequestDto requestDto) {
+        System.out.println("\n\n=== SUBMIT TRAVEL REQUEST DEBUG ===");
+        System.out.println("Payload received: " + requestDto);
+        System.out.println("SelectedMemberIds: " + requestDto.getSelectedMemberIds());
+        System.out.println("=====================================\n\n");
         return ResponseEntity.ok(
                 coachTravelService.submitTravelRequest(requestDto));
     }
@@ -97,25 +126,11 @@ public class CoachTravelController {
             coachId = getAuthenticatedUserId();
         }
         
-        // Find team by coach ID to query requests
-        Long teamId = getTeamIdByCoachId(coachId); // Helper to implement or inject user service if needed
+        Long teamId = coachTravelService.resolveTeamId(coachId);
         if (teamId == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok(new java.util.ArrayList<>());
         }
         return ResponseEntity.ok(coachTravelService.getRequestsByTeam(teamId));
-    }
-
-    private Long getTeamIdByCoachId(Long coachId) {
-        try {
-            // Ideally we get User and check Team ID. For this implementation we might just rely on passing teamId explicitly instead 
-            // of my requests, but since requested, here is a mock retrieval:
-            // This would realistically call userService or teamService here.
-            com.example.streetleague.domain.User coach = getAuthenticatedUser();
-            if (coach != null) {
-                return coach.getTeamId();
-            }
-        } catch (Exception e) {}
-        return null;
     }
 
     private com.example.streetleague.domain.User getAuthenticatedUser() {

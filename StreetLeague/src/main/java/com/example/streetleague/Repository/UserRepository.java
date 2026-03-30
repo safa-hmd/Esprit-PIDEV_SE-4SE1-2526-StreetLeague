@@ -14,6 +14,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByResetToken(String resetToken);
+    
+    @Query(value = "SELECT tp.team_id FROM team_players tp WHERE tp.user_id = :userId LIMIT 1", nativeQuery = true)
+    Long findTeamIdByUserId(@Param("userId") Long userId);
 
     @Query(value = "SELECT u.* FROM users u " +
             "JOIN team_players tp ON u.id = tp.user_id " +
@@ -21,5 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             nativeQuery = true)
     List<User> findByTeamId(@Param("teamId") Long teamId);
 
-    List<User> findByTeamIdAndRole(Long teamId, Role role);
+    @Query("SELECT u FROM User u JOIN u.teams t WHERE t.idTeam = :teamId AND u.role = :role")
+    List<User> findByTeamIdAndRole(@Param("teamId") Long teamId, @Param("role") Role role);
 }

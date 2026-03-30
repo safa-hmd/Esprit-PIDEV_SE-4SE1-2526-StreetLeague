@@ -40,10 +40,10 @@ public class JwtService {
 
         return Jwts.builder()
                 .subject(userDetails.getUsername()) // username = email
-                .claims(Map.of("role", role))
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(exp)
-                .signWith(key, Jwts.SIG.HS256)
+                .signWith(key)
                 .compact();
     }
 

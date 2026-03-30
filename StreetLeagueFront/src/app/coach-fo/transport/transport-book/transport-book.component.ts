@@ -14,24 +14,39 @@ export class TransportBookComponent implements OnInit {
   selectedMemberIds: Set<number> = new Set<number>();
   totalPrice: number = 0;
   teamId: number = 0;
+  coachId: string | null = null;
   isLoadingMembers = true;
+  successMessage: string = '';
+  errorMessage: string = '';
   
   constructor(private travelService: TravelService, private router: Router) {
-    const state = this.router.getCurrentNavigation()?.extras.state;
-    if (state) {
-      this.transport = state['data'];
-      this.tournamentId = state['tournamentId'];
+    const nav = this.router.getCurrentNavigation();
+    // Robust state retrieval from multiple sources
+    const state = nav?.extras?.state as any || history.state || window.history.state || {};
+    
+    console.log('Transport Booking State:', state);
+
+    if (state && state.data) {
+      this.transport = state.data;
+      this.tournamentId = state.tournamentId;
     }
   }
 
   ngOnInit() {
     if (!this.transport) {
-      this.router.navigate(['/coach/transport']);
+      console.warn('No transport data found in state.');
+      this.errorMessage = "No transport selected. Please go back and select one.";
       return;
     }
     
-    const coachId = localStorage.getItem('UserIdConnect');
-    this.travelService.getMyTeamMembers(coachId).subscribe({
+    this.coachId = localStorage.getItem('UserIdConnect');
+    this.loadTeamMembers();
+  }
+
+  loadTeamMembers() {
+    if (!this.coachId) return;
+    this.isLoadingMembers = true;
+    this.travelService.getMyTeamMembers(this.coachId).subscribe({
       next: (members) => {
         this.teamMembers = members;
         if (members.length > 0) {
@@ -42,6 +57,7 @@ export class TransportBookComponent implements OnInit {
       error: (err) => {
         console.error(err);
         this.isLoadingMembers = false;
+        this.errorMessage = "Failed to load team members.";
       }
     });
   }
@@ -52,7 +68,11 @@ export class TransportBookComponent implements OnInit {
     } else {
       this.selectedMemberIds.add(id);
     }
-    this.totalPrice = this.selectedMemberIds.size * (this.transport.pricePerSeat || 0);
+    this.calculateTotal();
+  }
+
+  calculateTotal() {
+    this.totalPrice = this.selectedMemberIds.size * (this.transport?.pricePerSeat || 0);
   }
 
   submitRequest() {
@@ -66,9 +86,8 @@ export class TransportBookComponent implements OnInit {
         return;
     }
 
-    const coachId = localStorage.getItem('UserIdConnect');
     const requestData = {
-      coachId: coachId,
+      coachId: this.coachId,
       teamId: this.teamId,
       tournamentId: this.tournamentId, 
       transportId: this.transport.id,
@@ -77,8 +96,8 @@ export class TransportBookComponent implements OnInit {
 
     this.travelService.submitTravelRequest(requestData).subscribe({
       next: (res) => {
-        alert('Transport request submitted. Awaiting admin approval.');
-        this.router.navigate(['/coach/transport']);
+        this.successMessage = 'Transport request submitted! Awaiting admin approval.';
+        setTimeout(() => this.router.navigate(['/coach/transport']), 2000);
       },
       error: (err) => alert('Error submitting transport request.')
     });

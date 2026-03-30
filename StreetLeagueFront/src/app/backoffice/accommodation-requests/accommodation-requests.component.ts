@@ -19,6 +19,26 @@ export class AccommodationRequestsComponent implements OnInit {
 
   private baseUrl = 'http://localhost:8086/StreetLeague';
 
+  // KPI Getters
+  get pendingCount(): number {
+    return (this.accommodationRequests || []).filter(r => r.status === 'PENDING').length;
+  }
+
+  get boardedCount(): number {
+    return (this.accommodationRequests || []).filter(r => r.status === 'APPROVED').length;
+  }
+
+  get totalBudget(): number {
+    return (this.accommodationRequests || []).reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+  }
+
+  get activeSitesCount(): number {
+    const sites = (this.accommodationRequests || [])
+      .filter(r => r.accommodation)
+      .map(r => r.accommodation.id);
+    return new Set(sites).size;
+  }
+
   constructor(
     private travelService: TravelService,
     private http: HttpClient
@@ -32,15 +52,15 @@ export class AccommodationRequestsComponent implements OnInit {
   // LOAD REQUESTS
   // ============================================================
 
-  private loadAccommodationRequests(): void {
+  loadAccommodationRequests(): void {
     this.loading = true;
     this.travelService.getAccommodationRequests().subscribe({
-      next: (data) => {
+      next: (data: any[]) => {
         this.accommodationRequests = data || [];
         this.loading = false;
         console.log('Accommodation requests loaded:', this.accommodationRequests);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error loading requests:', err);
         this.errorMessage = 'Failed to load accommodation requests.';
         this.loading = false;
@@ -85,14 +105,14 @@ export class AccommodationRequestsComponent implements OnInit {
       this.selectedRequest.id, 
       data
     ).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this.loading = false;
         this.successMessage = '✓ Request approved successfully!';
         this.closeModals();
         this.loadAccommodationRequests();
         setTimeout(() => this.successMessage = '', 3000);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.loading = false;
         this.errorMessage = 'Error approving request: ' + (err.error?.message || err.statusText);
         console.error('Approve error:', err);
@@ -115,14 +135,14 @@ export class AccommodationRequestsComponent implements OnInit {
       this.selectedRequest.id, 
       data
     ).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this.loading = false;
         this.successMessage = '✓ Request rejected successfully!';
         this.closeModals();
         this.loadAccommodationRequests();
         setTimeout(() => this.successMessage = '', 3000);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.loading = false;
         this.errorMessage = 'Error rejecting request: ' + (err.error?.message || err.statusText);
         console.error('Reject error:', err);
@@ -144,7 +164,7 @@ export class AccommodationRequestsComponent implements OnInit {
         a.click();
         URL.revokeObjectURL(url);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('PDF download error:', err);
         this.errorMessage = 'Failed to download PDF.';
       }
