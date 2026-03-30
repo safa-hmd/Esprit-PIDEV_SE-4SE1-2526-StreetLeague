@@ -87,7 +87,7 @@ public class CommandeServiceImp implements CommandeService {
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
         // 2️⃣ récupérer panier
-        Panier panier = panierRepository.findByUserId(userId)
+        Panier panier = panierRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new RuntimeException("Panier introuvable"));
 
         List<LignePanier> lignesPanier = panier.getLignes();

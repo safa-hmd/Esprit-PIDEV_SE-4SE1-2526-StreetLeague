@@ -16,7 +16,7 @@ export interface LoginRequest {
 }
 
 export interface AuthResponse {
-  id: number;        // ← nouveau
+  id: number;
   token: string;
   email: string;
   role: string;
@@ -25,28 +25,33 @@ export interface AuthResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
+  private readonly base = 'http://localhost:8086/StreetLeague';
+
   constructor(private http: HttpClient) {}
 
+  // ── Register ────────────────────────────────────────────
   register(req: RegisterRequest): Observable<string> {
     return this.http.post(
-      `http://localhost:8086/StreetLeague/auth/register`, req,
+      `${this.base}/auth/register`, req,
       { responseType: 'text' }
     );
   }
 
+  // ── Login ───────────────────────────────────────────────
   login(req: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
-      `http://localhost:8086/StreetLeague/auth/login`, req
+      `${this.base}/auth/login`, req
     ).pipe(
       tap(response => {
         localStorage.setItem('TokenUserConnect', response.token);
         localStorage.setItem('EmailUserConnect', response.email);
         localStorage.setItem('RoleUserConnect',  response.role);
-        localStorage.setItem('IdUserConnect',    response.id.toString()); // ← nouveau
+        localStorage.setItem('IdUserConnect',    response.id.toString());
       })
     );
   }
 
+  // ── Logout ──────────────────────────────────────────────
   logout(): void {
     localStorage.removeItem('TokenUserConnect');
     localStorage.removeItem('EmailUserConnect');
@@ -54,6 +59,31 @@ export class AuthService {
     localStorage.removeItem('IdUserConnect');
   }
 
+  // ── Google OAuth2 (feature/match-team-training) ─────────
+  loginWithGoogle(): void {
+    window.location.href =
+      `${this.base}/oauth2/authorization/google`;
+  }
+
+  // ── Forgot Password (feature/match-team-training) ───────
+  forgotPassword(email: string): Observable<string> {
+    return this.http.post(
+      `${this.base}/auth/forgot-password`,
+      { email },
+      { responseType: 'text' }
+    );
+  }
+
+  // ── Reset Password (feature/match-team-training) ────────
+  resetPassword(token: string, newPassword: string): Observable<string> {
+    return this.http.post(
+      `${this.base}/auth/reset-password`,
+      { token, newPassword },
+      { responseType: 'text' }
+    );
+  }
+
+  // ── Getters ─────────────────────────────────────────────
   isLoggedIn(): boolean {
     return !!localStorage.getItem('TokenUserConnect');
   }
@@ -66,12 +96,12 @@ export class AuthService {
     return localStorage.getItem('TokenUserConnect');
   }
 
-  // ← nouvelle méthode
   getUserId(): number | null {
     const id = localStorage.getItem('IdUserConnect');
     return id ? Number(id) : null;
   }
+
   getEmail(): string | null {
-  return localStorage.getItem('EmailUserConnect');
-}
+    return localStorage.getItem('EmailUserConnect');
+  }
 }

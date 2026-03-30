@@ -15,5 +15,5 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     @Modifying
     @Transactional
     @Query("DELETE FROM Match m WHERE m.teamA.idTeam = :teamId OR m.teamB.idTeam = :teamId")
-    void deleteByTeamAIdOrTeamBId(@Param("teamId") Long teamId, @Param("teamId2") Long teamId2);
+    void deleteByTeamAIdOrTeamBId(@Param("teamId") Long teamId);
 }

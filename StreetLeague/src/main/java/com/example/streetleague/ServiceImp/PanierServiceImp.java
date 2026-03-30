@@ -29,7 +29,7 @@ public class PanierServiceImp implements PanierService {
         Materiel materiel = materielRepository.findById(dto.getMaterielId())
                 .orElseThrow(() -> new RuntimeException("Materiel introuvable"));
 
-        Panier panier = panierRepository.findByUserId(user.getId())
+        Panier panier = panierRepository.findByUserIdUser(user.getIdUser())
                 .orElseGet(() -> panierRepository.save(Panier.builder().user(user).lignes(new ArrayList<>()).build()));
 
         Optional<LignePanier> existing = panier.getLignes()
@@ -57,7 +57,7 @@ public class PanierServiceImp implements PanierService {
     @Override
     public PanierResponseDTO getUserCart(Long userId) {
 
-        Panier panier = panierRepository.findByUserId(userId)
+        Panier panier = panierRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new RuntimeException("Panier vide"));
 
         List<LignePanierResponseDTO> lignesDTO = new ArrayList<>();
@@ -105,7 +105,7 @@ public class PanierServiceImp implements PanierService {
     // 🟢 CLEAR CART
     @Override
     public void clearCart(Long userId) {
-        Panier panier = panierRepository.findByUserId(userId)
+        Panier panier = panierRepository.findByUserIdUser(userId)
                 .orElseThrow(() -> new RuntimeException("Panier introuvable"));
 
         lignePanierRepository.deleteAll(panier.getLignes());

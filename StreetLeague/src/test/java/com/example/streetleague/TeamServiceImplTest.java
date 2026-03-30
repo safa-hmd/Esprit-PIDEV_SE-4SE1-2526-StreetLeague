@@ -86,12 +86,12 @@ class TeamServiceImplTest {
     void deleteTeamTest() {
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
         when(userRepository.findById(3L)).thenReturn(Optional.of(admin));
-        doNothing().when(matchRepository).deleteByTeamAIdOrTeamBId(1L, 1L);
+        doNothing().when(matchRepository).deleteByTeamAIdOrTeamBId(1L);
         when(teamRepository.save(any())).thenReturn(team);
 
         teamService.deleteTeam(1L, 3L);
 
-        verify(matchRepository).deleteByTeamAIdOrTeamBId(1L, 1L);
+        verify(matchRepository).deleteByTeamAIdOrTeamBId(1L);
         verify(teamRepository).deleteById(1L);
     }
 

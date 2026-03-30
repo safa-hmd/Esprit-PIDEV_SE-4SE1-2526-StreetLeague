@@ -65,7 +65,7 @@
 <body>
 
   <!-- NAVBAR -->
-  <nav class="navbar">
+ <!-- <nav class="navbar">
     <div class="navbar-inner">
       <a href="index.html" class="navbar-logo">
         <div class="navbar-logo-icon">
@@ -107,7 +107,58 @@
       <a href="accommodation.html">Lodging</a>
       <a href="news.html">News</a>
     </div>
-  </nav>
+  </nav>-->
+<!-- frontoffice/navbar/navbar.component.html -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a routerLink="/" class="navbar-logo">
+      <div class="navbar-logo-icon">
+        <svg viewBox="0 0 24 24" fill="white">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+        </svg>
+      </div>
+      <span class="navbar-logo-text">Street<span>League</span></span>
+    </a>
 
+    <div class="navbar-links" id="navLinks">
+      <a routerLink="/" routerLinkActive="active" class="nav-link">Home</a>
+      <a routerLink="/client/teams" routerLinkActive="active" class="nav-link">Teams</a>
+      <a routerLink="/client/tournaments" routerLinkActive="active" class="nav-link">Tournaments</a>
+      <a routerLink="/client/fields" routerLinkActive="active" class="nav-link">Fields</a>
+      <a routerLink="/client/training" routerLinkActive="active" class="nav-link">Training</a>
+      <a routerLink="/client/community" routerLinkActive="active" class="nav-link">Community</a>
+      <a routerLink="/client/shop" routerLinkActive="active" class="nav-link">Shop</a>
+      <a routerLink="/client/health" routerLinkActive="active" class="nav-link">Health</a>
+      <a routerLink="/client/transport" routerLinkActive="active" class="nav-link">Transport</a>
+      <a routerLink="/client/accommodation" routerLinkActive="active" class="nav-link">Lodging</a>
+      <a routerLink="/client/news" routerLinkActive="active" class="nav-link">News</a>
+    </div>
+
+    <div class="navbar-actions">
+      <span class="navbar-user" id="userName">Player</span>
+      <button class="btn-logout" id="logoutBtn">Logout</button>
+      <button class="navbar-mobile-btn" id="mobileMenuBtn">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="navbar-mobile" id="mobileMenu">
+    <a routerLink="/" routerLinkActive="active">Home</a>
+    <a routerLink="/client/teams" routerLinkActive="active">Teams</a>
+    <a routerLink="/client/tournaments" routerLinkActive="active">Tournaments</a>
+    <a routerLink="/client/fields" routerLinkActive="active">Fields</a>
+    <a routerLink="/client/training" routerLinkActive="active">Training</a>
+    <a routerLink="/client/community" routerLinkActive="active">Community</a>
+    <a routerLink="/client/shop" routerLinkActive="active">Shop</a>
+    <a routerLink="/client/health" routerLinkActive="active">Health</a>
+    <a routerLink="/client/transport" routerLinkActive="active">Transport</a>
+    <a routerLink="/client/accommodation" routerLinkActive="active">Lodging</a>
+    <a routerLink="/client/news" routerLinkActive="active">News</a>
+  </div>
+</nav>
 </body>
 </html>

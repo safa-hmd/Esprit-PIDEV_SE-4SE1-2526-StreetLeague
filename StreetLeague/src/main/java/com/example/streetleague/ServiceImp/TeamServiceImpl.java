@@ -111,7 +111,7 @@ public class TeamServiceImpl implements IteamService {
             throw new RuntimeException("Only the team captain or an admin can delete this team");
 
         // ✅ 1. Supprimer les matchs associés (teamA ou teamB)
-        matchRepository.deleteByTeamAIdOrTeamBId(idTeam, idTeam);
+        matchRepository.deleteByTeamAIdOrTeamBId(idTeam);
 
         // ✅ 2. Retirer tous les joueurs de la team (évite la contrainte FK)
         team.getPlayers().clear();
