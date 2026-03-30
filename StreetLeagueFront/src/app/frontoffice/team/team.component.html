@@ -59,18 +59,35 @@
               </button>
             </ng-container>
 
-            <ng-template #notCaptain>
-              <button class="btn btn-gray btn-sm" title="View Details" (click)="goToTeamDetail(team.idTeam!)">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="width:14px;height:14px">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="12" y1="8" x2="12" y2="12"/>
-                  <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-              </button>
-              <button class="btn btn-primary btn-sm" title="Join this team" (click)="joinTeam(team.idTeam!)">
-                ➕ Join
-              </button>
-            </ng-template>
+<ng-template #notCaptain>
+  <button class="btn btn-gray btn-sm" title="View Details"
+          (click)="goToTeamDetail(team.idTeam!)">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+         stroke-width="2" style="width:14px;height:14px">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+  </button>
+
+  <!-- Toggle Join / Leave -->
+  <ng-container *ngIf="isPlayerInTeam(team); else joinBtn">
+    <button class="btn btn-sm"
+            style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;"
+            title="Leave this team"
+            (click)="leaveTeam(team.idTeam!)">
+      🚪 Leave
+    </button>
+  </ng-container>
+
+  <ng-template #joinBtn>
+    <button class="btn btn-primary btn-sm"
+            title="Join this team"
+            (click)="joinTeam(team.idTeam!)">
+      ➕ Join
+    </button>
+  </ng-template>
+</ng-template>
           </div>
         </div>
 

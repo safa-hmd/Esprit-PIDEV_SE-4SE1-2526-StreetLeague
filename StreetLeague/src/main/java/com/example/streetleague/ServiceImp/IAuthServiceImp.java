@@ -7,7 +7,6 @@ import com.example.streetleague.dto.*;
 import com.example.streetleague.security.CustomUserDetailsService;
 import com.example.streetleague.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,6 +20,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Étape 10 : Implémentation du service d'authentification
+ * Contient toute la logique métier : register, login, forgotPassword, resetPassword, editProfile
+ */
 @Service
 @RequiredArgsConstructor
 public class IAuthServiceImp implements IAuthService {
@@ -31,8 +34,11 @@ public class IAuthServiceImp implements IAuthService {
     private final CustomUserDetailsService userDetailsService;
     private final JwtService jwtService;
 
+
     private static final String FRONTEND_URL = "http://localhost:4200";
     private final EmailService emailService;
+
+
 
     @Override
     public User register(RegisterRequest req) {
@@ -62,7 +68,7 @@ public class IAuthServiceImp implements IAuthService {
         return userRepository.save(u);
     }
 
-    @Override
+   /* @Override
     public AuthResponse login(LoginRequest req) {
         // Spring Security vérifie email + mot de passe (lève une exception si invalide)
         authenticationManager.authenticate(
@@ -77,13 +83,61 @@ public class IAuthServiceImp implements IAuthService {
                 .orElseThrow(() -> new IllegalStateException("No roles found"))
                 .getAuthority();
 
-        User user = userRepository.findByEmail(req.email()).orElseThrow();
+        return new AuthResponse(token, userDetails.getUsername(), role);
+    }*/
 
+   /* @Override
+    public AuthResponse login(LoginRequest req) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(req.email(), req.password())
+        );
 
-        return new AuthResponse(token, userDetails.getUsername(), role, (Long) user.getIdUser());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(req.email());
+        String token = jwtService.generateToken(userDetails);
+
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No roles found"))
+                .getAuthority();
+
+        User user = userRepository.findByEmail(req.email())
+                .orElseThrow(() -> new RuntimeException("User introuvable"));
+
+        return new AuthResponse(user.getId(), token, userDetails.getUsername(), role);
+    }*/
+
+    @Override
+    public AuthResponse login(LoginRequest req) {
+
+        // 1️⃣ authentifier avec Spring Security
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        req.email(),
+                        req.password()
+                )
+        );
+
+        // 2️⃣ récupérer user depuis DB
+        User user = userRepository.findByEmail(req.email())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 3️⃣ charger UserDetails pour JWT
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+
+        // 4️⃣ générer token
+        String token = jwtService.generateToken(userDetails);
+
+        // ⭐ 5️⃣ EXTRAIRE LE ROLE DEPUIS USER (IMPORTANT !!!)
+        String role = user.getRole().name();   // ou user.getRole().toString()
+
+        // 6️⃣ retourner réponse COMPLETE
+        return new AuthResponse(
+                user.getIdUser(),
+                token,
+                user.getEmail(),
+                role
+        );
     }
-
-
 
     @Override
     public AuthResponse completeGoogleRegister(CompleteGoogleRegisterRequest req) {
@@ -116,7 +170,7 @@ public class IAuthServiceImp implements IAuthService {
 
         String token = jwtService.generateToken(userDetails);
 
-        return new AuthResponse(token, user.getEmail(), "ROLE_" + user.getRole().name(), user.getIdUser());
+        return new AuthResponse(user.getIdUser(), token, user.getEmail(), "ROLE_" + user.getRole().name());
     }
 
     @Override
@@ -159,7 +213,6 @@ public class IAuthServiceImp implements IAuthService {
         user.setResetTokenExpiry(null);
         userRepository.save(user);
     }
-
 
 
 }

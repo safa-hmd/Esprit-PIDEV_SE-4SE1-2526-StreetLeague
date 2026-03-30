@@ -64,4 +64,21 @@ joinTeam(idTeam: number, email: string): Observable<void> {
     {}, { headers: this.getHeaders() }
   );
 }
+
+// team.service.ts
+leaveTeam(idTeam: number, email: string): Observable<void> {
+  return this.http.delete<void>(
+    `${this.base}/${idTeam}/leave?email=${email}`,
+    { headers: this.getHeaders() }
+  );
+}
+
+// Ajouter dans team.service.ts
+getTeamsByCoach(): Observable<Team[]> {
+  const email = localStorage.getItem('EmailUserConnect');
+  return this.http.get<Team[]>(
+    `${this.base}/myTeams?email=${email}`,
+    { headers: this.getHeaders() }
+  );
+}
 }

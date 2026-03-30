@@ -6,24 +6,68 @@ import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
 import { AdminLoginComponent } from './auth/admin-login/admin-login.component';
 import { AdminGuard } from './guards/admin.guard';
+import { CoachGuard } from './guards/coach.guard';
+import { NoAuthGuard } from './guards/no-auth.guard';
+import { PlayerGuard } from './guards/player.guard';
+import { NotFoundComponent } from './shared/not-found/not-found.component';
 
-const routes: Routes = [{ path: 'client', loadChildren: () => import('./frontoffice/frontoffice.module').then(m => m.FrontofficeModule) },
+const routes: Routes = [
+  // ── Front office (joueurs) ──────────────────────────────
+  {
+    path: 'client',
+    canActivate: [PlayerGuard],
+    loadChildren: () => import('./frontoffice/frontoffice.module')
+      .then(m => m.FrontofficeModule)
+  },
 
-  { path: 'admin', loadChildren: () => import('./backoffice/backoffice.module')
-    .then(m => m.BackofficeModule),
-  canActivate: [AdminGuard]   // ← ajoute un guard
-},
-  
-{ path: '', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) },
-  
-{ path: 'coach', loadChildren: () => import('./coach-fo/coach-fo.module').then(m => m.CoachFOModule) }
-  ,
-  { path: 'oauth2/callback', component: OAuth2CallbackComponent },
+  // ── Back office (admin) ─────────────────────────────────
+  {
+    path: 'admin',
+    canActivate: [AdminGuard],
+    loadChildren: () => import('./backoffice/backoffice.module')
+      .then(m => m.BackofficeModule)
+  },
+
+  // ── Coach ───────────────────────────────────────────────
+  {
+    path: 'coach',
+    canActivate: [CoachGuard],
+    loadChildren: () => import('./coach-fo/coach-fo.module')
+      .then(m => m.CoachFOModule)
+  },
+
+  // ── Delivery ────────────────────────────────────────────
+  {
+    path: 'delivery',
+    loadChildren: () => import('./delivery-fo/delivery-fo.module')
+      .then(m => m.DeliveryFoModule)
+  },
+
+  // ── Auth ────────────────────────────────────────────────
+  {
+    path: '',
+    canActivate: [NoAuthGuard],
+    loadChildren: () => import('./auth/auth.module')
+      .then(m => m.AuthModule)
+  },
+
+  // ── Misc auth routes ────────────────────────────────────
+  { path: 'oauth2/callback',    component: OAuth2CallbackComponent },
   { path: 'oauth2/select-role', component: SelectRoleComponent },
-  { path: 'forgot-password', component: ForgotPasswordComponent },
+  {
+    path: 'forgot-password',
+    canActivate: [NoAuthGuard],
+    component: ForgotPasswordComponent
+  },
   { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'admin-login', component: AdminLoginComponent },
+  {
+    path: 'admin-login',
+    canActivate: [NoAuthGuard],
+    component: AdminLoginComponent
+  },
 
+  // ── 404 ─────────────────────────────────────────────────
+  { path: '**', component: NotFoundComponent }
 ];
 
 @NgModule({

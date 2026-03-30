@@ -1,9 +1,6 @@
 package com.example.streetleague.security;
 
-import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.security.jwt.JwtAuthFilter;
-import com.example.streetleague.security.jwt.JwtService;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +19,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.http.HttpMethod;
 import java.util.List;
+import java.util.List;
+
 
 @Configuration
 @EnableMethodSecurity
@@ -31,9 +30,12 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthFilter jwtAuthFilter;
-    private final UserRepository userRepository;
-    private final JwtService jwtService;
 
+    /**
+     * DaoAuthenticationProvider : définit COMMENT les utilisateurs sont authentifiés
+     * - Utilise CustomUserDetailsService pour charger l'utilisateur
+     * - Utilise PasswordEncoder pour vérifier le mot de passe
+     */
     @Bean
     public DaoAuthenticationProvider authProvider() {
         DaoAuthenticationProvider p = new DaoAuthenticationProvider();
@@ -42,19 +44,35 @@ public class SecurityConfig {
         return p;
     }
 
+    /**
+     * AuthenticationManager : requis pour l'authentification manuelle lors du login
+     */
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * SecurityFilterChain : définit toutes les règles de sécurité HTTP
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // Désactiver CSRF (application stateless, JWT protège les requêtes)
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+
+                // Activer CORS pour le frontend Angular (localhost:4200)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // Session STATELESS : chaque requête doit contenir un JWT valide
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Provider d'authentification
+                .authenticationProvider(authProvider())
+
+                // Règles d'autorisation des endpoints
+
                 .authorizeHttpRequests(auth -> auth
                         // AUTH
                         .requestMatchers("/auth/**").permitAll()
@@ -62,7 +80,7 @@ public class SecurityConfig {
 
                         // USERS
                         .requestMatchers(HttpMethod.GET,
-                                "/api/users/by-email").permitAll()  // ← AJOUTÉ
+                                "/api/users/by-email").permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/users/me").authenticated()
                         .requestMatchers(HttpMethod.GET,
@@ -113,6 +131,10 @@ public class SecurityConfig {
                         .requestMatchers("/training/*/join",
                                 "/training/*/leave").hasRole("PLAYER")
 
+                        // STUDENT / TEACHER (from main)
+                        .requestMatchers("/student/**").hasRole("STUDENT")
+                        .requestMatchers("/teacher/**").hasRole("TEACHER")
+
                         // TOUT LE RESTE
                         .anyRequest().authenticated()
                 )
@@ -133,14 +155,28 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Configuration CORS : permet au frontend Angular (localhost:4200)
+     * d'accéder aux APIs Spring Boot
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
+
+        // Autoriser uniquement le frontend Angular
         config.setAllowedOrigins(List.of("http://localhost:4200"));
+
+        // Méthodes HTTP autorisées (OPTIONS obligatoire pour les requêtes CORS preflight)
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // Autoriser tous les headers (requis pour Authorization: Bearer <token>)
         config.setAllowedHeaders(List.of("*"));
+
+        // Autoriser l'envoi des credentials (headers d'autorisation)
         config.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Appliquer cette configuration à tous les endpoints
         source.registerCorsConfiguration("/**", config);
         return source;
     }

@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -45,7 +46,7 @@ public class Team {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @JsonIgnore
-    List<User> players;
+    List<User> players= new ArrayList<>();
 
     // Training sessions for this team
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)

@@ -16,7 +16,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin("*")
 public class UserController {
 
     private final UserRepository userRepository;
@@ -65,5 +65,10 @@ public class UserController {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Erreur: " + e.getMessage());
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<User>> getAll() {
+        return ResponseEntity.ok(userRepository.findAll());
     }
 }

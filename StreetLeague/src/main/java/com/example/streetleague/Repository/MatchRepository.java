@@ -21,6 +21,9 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
             @Param("teamId2") Long teamId2
     );
 
+    @Query("DELETE FROM Match m WHERE m.teamA.idTeam = :teamId OR m.teamB.idTeam = :teamId")
+    void deleteByTeamAIdOrTeamBId(@Param("teamId") Long teamId);
+
     List<Match> findByTeamA_IdTeamOrTeamB_IdTeam(Long teamAId, Long teamBId);
 
     List<Match> findByTeamA_IdTeam(Long teamId);

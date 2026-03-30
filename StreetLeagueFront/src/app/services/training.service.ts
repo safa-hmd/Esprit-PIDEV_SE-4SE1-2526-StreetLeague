@@ -83,4 +83,12 @@ export class TrainingService {
       { headers: this.getHeaders() }
     );
   }
+
+  getTrainingsByCoach(): Observable<TrainingResponse[]> {
+  const email = localStorage.getItem('EmailUserConnect');
+  return this.http.get<TrainingResponse[]>(
+    `${this.base}/myTrainings?email=${email}`,
+    { headers: this.getHeaders() }
+  );
+}
 }

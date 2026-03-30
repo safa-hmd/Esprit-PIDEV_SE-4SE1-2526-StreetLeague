@@ -1,38 +1,32 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+ 
 import { FrontofficeRoutingModule } from './frontoffice-routing.module';
 import { FrontofficeComponent } from './frontoffice.component';
-import { FooterComponent } from './footer/footer.component';
-import { NavbarComponent } from './navbar/navbar.component';
-import { TeamComponent } from './team/team.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { TrainingComponent } from './training/training.component';
-import { DetailMatchComponent } from './detail-match/detail-match.component';
-import { HomeComponent } from './home/home.component';
-import { DetailTeamComponent } from './detail-team/detail-team.component';
-
-
+ 
+import { ShopListComponent } from './shop/shop-list/shop-list.component';
+import { CartComponent } from './shop/cart/cart.component';
+ 
+// Si tu as déjà un navbar et footer composant, importe-les ici aussi
+ import { NavbarComponent } from './navbar/navbar.component';
+ import { FooterComponent } from './footer/footer.component';
+ 
 @NgModule({
   declarations: [
     FrontofficeComponent,
-    NavbarComponent,
-    FooterComponent,
-    TeamComponent,
-    TrainingComponent,
-    DetailMatchComponent,
-    HomeComponent,
-    DetailTeamComponent,
-
+    ShopListComponent,
+    CartComponent,
+     NavbarComponent,
+     FooterComponent,
   ],
   imports: [
     CommonModule,
+    FormsModule,
+    RouterModule,
     FrontofficeRoutingModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    FormsModule, 
-    CommonModule,
   ]
 })
-export class FrontofficeModule { }
+export class FrontofficeModule {}
+ 

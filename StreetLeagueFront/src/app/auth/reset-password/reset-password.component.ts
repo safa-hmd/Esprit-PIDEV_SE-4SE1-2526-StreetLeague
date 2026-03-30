@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
@@ -49,7 +50,7 @@ export class ResetPasswordComponent implements OnInit {
         this.successMsg = 'Mot de passe modifié ! Redirection...';
         setTimeout(() => this.router.navigateByUrl('/login'), 2500);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         this.isLoading = false;
         this.errorMsg  = err.status === 400
           ? 'Lien expiré ou invalide. Veuillez recommencer.'

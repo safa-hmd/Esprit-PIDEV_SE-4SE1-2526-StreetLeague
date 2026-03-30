@@ -1,6 +1,13 @@
-<app-header></app-header>
-<app-menu></app-menu>
-<main class="admin-main" id="adminMain">   <!-- ← cette classe est clé -->
-  <router-outlet></router-outlet>
-</main>
+<div class="admin-layout">
 
+  <app-header class="header"></app-header>
+
+  <div class="main">
+    <app-menu class="sidebar"></app-menu>
+
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+</div>

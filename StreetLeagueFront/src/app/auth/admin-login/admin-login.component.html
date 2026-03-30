@@ -3,7 +3,12 @@
 
     <div class="card-head">
       <div class="logo">Street<span>League</span></div>
-      <div class="admin-badge">🛡️ Administration</div>
+      <div class="admin-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+        </svg>
+        Administration
+      </div>
       <h2>Administrator Access</h2>
       <p>Restricted interface for administrators only</p>
     </div>
@@ -22,7 +27,8 @@
             placeholder="admin@streetleague.com"
             [class.input-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
           />
-          <small class="field-error" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          <small class="field-error"
+                 *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
             Invalid email address.
           </small>
         </div>
@@ -36,7 +42,8 @@
             placeholder="••••••••"
             [class.input-error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
           />
-          <small class="field-error" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          <small class="field-error"
+                 *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
             Password is required.
           </small>
         </div>
@@ -50,7 +57,7 @@
     </div>
 
     <div class="card-footer">
-      <a routerLink="/login">← Back to user login</a>
+      <a routerLink="/login">Back to user login</a>
     </div>
 
   </div>

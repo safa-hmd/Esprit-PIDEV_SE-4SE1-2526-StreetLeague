@@ -1,0 +1,135 @@
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Mes Contrats de Sponsoring</h1>
+        <p>{{ contrats.length }} contrat(s) enregistré(s)</p>
+      </div>
+    </div>
+    <button (click)="createNew()" class="btn-primary" id="btn-new-contrat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+      </svg>
+      Nouveau contrat
+    </button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">✔ {{ successMessage }}</div>
+  <div *ngIf="error" class="alert alert-error">⚠ {{ error }}</div>
+
+  <div class="card">
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <span>Chargement des contrats...</span>
+    </div>
+
+    <div *ngIf="!loading && contrats.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <p class="empty-title">Aucun contrat pour l'instant</p>
+      <p class="empty-sub">Créez votre premier contrat de sponsoring.</p>
+      <button (click)="createNew()" class="btn-primary">Créer un contrat</button>
+    </div>
+
+    <table *ngIf="!loading && contrats.length > 0" class="data-table">
+      <thead>
+        <tr>
+          <th>#ID</th>
+          <th>Sponsor</th>
+          <th>Équipe</th>
+          <th>Montant (€)</th>
+          <th>Date Début</th>
+          <th>Date Fin</th>
+          <th>Statut</th>
+          <th>Conditions</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of contrats">
+          <td><span class="id-badge">#{{ c.id }}</span></td>
+          <td><span class="ref-badge">Sponsor #{{ c.sponsorId }}</span></td>
+          <td><span class="ref-badge ref-green">Équipe #{{ c.equipeId }}</span></td>
+          <td><strong class="money">{{ c.montant | number:'1.2-2' }} €</strong></td>
+          <td>{{ c.dateDebut | date:'dd/MM/yyyy' }}</td>
+          <td>{{ c.dateFin | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <span class="statut-badge" [ngClass]="getStatutBadgeClass(c.statut)">{{ c.statut }}</span>
+          </td>
+          <td class="desc-cell">{{ (c.conditions || '') | slice:0:40 }}{{ (c.conditions || '').length > 40 ? '...' : '' }}</td>
+          <td>
+            <div class="row-actions">
+              <button (click)="edit(c.id)" class="btn-icon btn-edit" [id]="'btn-edit-cont-' + c.id" title="Modifier">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
+              <button (click)="delete(c.id)" class="btn-icon btn-delete" [disabled]="loading" [id]="'btn-del-cont-' + c.id" title="Supprimer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{font-family:'Inter',sans-serif;box-sizing:border-box;}
+.page-wrap{padding:32px;background:#f4f6fa;min-height:100vh;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.header-left{display:flex;align-items:center;gap:14px;}
+.header-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(79,70,229,0.35);}
+.header-icon svg{width:22px;height:22px;stroke:white;}
+.page-header h1{margin:0 0 2px;font-size:22px;font-weight:800;color:#1a1a2e;}
+.page-header p{margin:0;font-size:13px;color:#888;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;border:none;border-radius:12px;cursor:pointer;font-size:13px;font-weight:700;box-shadow:0 4px 14px rgba(79,70,229,0.35);transition:all .2s;}
+.btn-primary svg{width:16px;height:16px;}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,0.45);}
+.alert{padding:12px 16px;border-radius:10px;margin-bottom:16px;font-size:13px;font-weight:500;}
+.alert-success{background:#d4edda;color:#1a6b3a;border:1px solid #b8dfc5;}
+.alert-error{background:#fdecea;color:#c0392b;border:1px solid #f5c6cb;}
+.card{background:white;border-radius:18px;box-shadow:0 2px 16px rgba(0,0,0,0.07);border:1px solid #edf0f7;overflow:hidden;}
+.loading-state{display:flex;align-items:center;gap:12px;padding:56px;color:#888;font-size:14px;}
+.spinner{width:22px;height:22px;border:2.5px solid #eee;border-top-color:#4f46e5;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty-state{padding:72px 48px;text-align:center;}
+.empty-icon{width:64px;height:64px;background:#f0f4ff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.empty-icon svg{width:30px;height:30px;stroke:#4f46e5;}
+.empty-title{font-size:16px;font-weight:700;color:#1a1a2e;margin:0 0 6px;}
+.empty-sub{font-size:13px;color:#888;margin:0 0 20px;}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;}
+.data-table thead{background:#f8f9fc;}
+.data-table th{padding:13px 16px;text-align:left;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #edf0f7;}
+.data-table td{padding:14px 16px;border-bottom:1px solid #f4f6fa;color:#333;vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:#fafbfd;}
+.id-badge{padding:2px 8px;background:#f0f4ff;color:#4f46e5;border-radius:6px;font-size:11px;font-weight:700;}
+.ref-badge{padding:3px 9px;background:#eef2ff;color:#4f46e5;border-radius:6px;font-size:11px;font-weight:600;}
+.ref-green{background:#ecfdf5;color:#059669;}
+.money{color:#059669;font-weight:700;}
+.statut-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-actif{background:#dcfce7;color:#166534;border:1px solid #86efac;}
+.badge-expire{background:#fdecea;color:#c0392b;border:1px solid #fca5a5;}
+.badge-attente{background:#fef9c3;color:#854d0e;border:1px solid #fde68a;}
+.badge-resilie{background:#f3e8ff;color:#7c3aed;border:1px solid #d8b4fe;}
+.badge-autre{background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;}
+.desc-cell{color:#888;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.row-actions{display:flex;gap:6px;}
+.btn-icon{width:32px;height:32px;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.btn-icon svg{width:15px;height:15px;}
+.btn-edit{background:#fff3cd;color:#856404;}.btn-edit:hover{background:#ffeeba;}
+.btn-delete{background:#fdecea;color:#c0392b;}.btn-delete:hover{background:#f5c6cb;}
+</style>
