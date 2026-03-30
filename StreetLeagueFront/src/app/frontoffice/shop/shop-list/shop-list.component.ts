@@ -30,7 +30,7 @@ export class ShopListComponent implements OnInit {
       this.showError('Utilisateur non connecté.');
       return;
     }
-    this.userId = id;
+    this.userId = Number(id);
     this.loadMateriels();
     this.loadCategories();
   }

@@ -30,7 +30,7 @@ export class MesLivraisonsComponent implements OnInit {
   ngOnInit(): void {
     const id = this.authService.getUserId();
     if (id) {
-      this.userId = id;
+      this.userId = Number(id);
       this.loadLivraisons();
     }
   }

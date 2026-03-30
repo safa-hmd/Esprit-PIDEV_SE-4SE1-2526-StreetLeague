@@ -28,7 +28,7 @@ export class CartComponent implements OnInit {
       this.router.navigate(['/']);
       return;
     }
-    this.userId = id;
+    this.userId = Number(id);
     this.loadCart();
   }
 
