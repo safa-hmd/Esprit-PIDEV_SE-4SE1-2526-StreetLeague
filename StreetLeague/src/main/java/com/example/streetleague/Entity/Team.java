@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ public class Team {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @JsonIgnore
-    List<User> players;
+    List<User> players= new ArrayList<>();
 
     // Training sessions for this team
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
@@ -64,8 +63,5 @@ public class Team {
     @JsonIgnore
     List<Match> matchesAsTeamB;
 
-    // Inscriptions tournoi
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<TournamentRegistration> registrations = new ArrayList<>();
+
 }

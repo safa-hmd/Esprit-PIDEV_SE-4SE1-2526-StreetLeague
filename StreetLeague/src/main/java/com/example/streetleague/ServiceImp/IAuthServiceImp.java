@@ -7,10 +7,8 @@ import com.example.streetleague.dto.*;
 import com.example.streetleague.security.CustomUserDetailsService;
 import com.example.streetleague.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -69,18 +67,14 @@ public class IAuthServiceImp implements IAuthService {
                 new UsernamePasswordAuthenticationToken(req.email(), req.password())
         );
 
+        User user = userRepository.findByEmail(req.email()).orElseThrow();
         UserDetails userDetails = userDetailsService.loadUserByUsername(req.email());
         String token = jwtService.generateToken(userDetails);
 
-        String role = userDetails.getAuthorities().stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No roles found"))
-                .getAuthority();
+        // Rôle depuis la BD (source de vérité) — évite tout décalage avec les authorities
+        String role = "ROLE_" + user.getRole().name();
 
-        User user = userRepository.findByEmail(req.email()).orElseThrow();
-
-
-        return new AuthResponse(token, userDetails.getUsername(), role, (Long) user.getIdUser());
+        return new AuthResponse(token, userDetails.getUsername(), role, user.getIdUser());
     }
 
 
