@@ -1,4 +1,6 @@
+import { API_BASE_URL } from './api-url';
+
 export const environment = {
   production: false,
-  baseUrl: 'http://localhost:8086/StreetLeague'
+  baseUrl: API_BASE_URL
 };
