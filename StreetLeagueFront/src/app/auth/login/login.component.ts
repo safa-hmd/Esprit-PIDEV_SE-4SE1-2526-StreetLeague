@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
-type Role = 'PLAYER' | 'COACH' | 'SPONSOR' | 'DELIVERY';
+type Role = 'PLAYER' | 'COACH' | 'SPONSOR' | 'DELIVERY' | 'ADMIN';
 
 @Component({
   selector: 'app-login',
@@ -21,6 +21,7 @@ export class LoginComponent {
     COACH: 'Coach',
     SPONSOR: 'Sponsor',
     DELIVERY: 'Delivery',
+    ADMIN: 'Admin',
   };
 
   private emailPlaceholders: Record<Role, string> = {
@@ -28,6 +29,7 @@ export class LoginComponent {
     COACH: 'coach@streetleague.com',
     SPONSOR: 'sponsor@streetleague.com',
     DELIVERY: 'delivery@streetleague.com',
+    ADMIN: 'admin@streetleague.com',
   };
 
   get roleLabel(): string { return this.roleLabels[this.selectedRole]; }

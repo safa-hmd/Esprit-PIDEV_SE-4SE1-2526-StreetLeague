@@ -64,72 +64,7 @@
 </head>
 <body>
 
-  <!-- NAVBAR -->
- <!-- <nav class="navbar">
-    <div class="navbar-inner">
-      <a href="index.html" class="navbar-logo">
-        <div class="navbar-logo-icon">
-          <svg viewBox="0 0 24 24" fill="white"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-        </div>
-        <span class="navbar-logo-text">Street<span>League</span></span>
-      </a>
-      <div class="navbar-links" id="navLinks">
-        <a href="index.html" class="nav-link active">Home</a>
-        <a href="teams.html" class="nav-link">Teams</a>
-        <a href="tournaments.html" class="nav-link">Tournaments</a>
-        <a href="fields.html" class="nav-link">Fields</a>
-        <a href="training.html" class="nav-link">Training</a>
-        <a href="community.html" class="nav-link">Community</a>
-        <a href="shop.html" class="nav-link">Shop</a>
-        <a href="health.html" class="nav-link">Health</a>
-        <a routerLink="transport" class="nav-link">Transport</a>
-        <a routerLink="lodging" class="nav-link">Lodging</a>
-        <a href="news.html" class="nav-link">News</a>
-      </div>
-      <div class="navbar-actions">
-        <!-- Notification Bell -->
-        <div class="notification-container" #notificationContainer>
-          <button class="notification-bell" (click)="toggleNotifications($event)">
-             <span class="bell-icon">🔔</span>
-             <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
-          </button>
-          
-          <div class="notification-dropdown" [class.show]="showNotifications">
-            <div class="notification-header">
-              <h3>Notifications</h3>
-              <button (click)="markAllAsRead()" *ngIf="notifications.length > 0">Mark all as read</button>
-            </div>
-            <div class="notification-list">
-              <div *ngIf="notifications.length === 0" class="no-notifications">No new notifications</div>
-              <div *ngFor="let n of notifications" class="notification-item" [class.unread]="!n.read" (click)="markAsRead(n)">
-                <div class="notification-message">{{ n.message }}</div>
-                <div class="notification-time">{{ n.createdAt | date:'short' }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <span class="navbar-user" id="userName">User</span>
-        <button class="btn-logout" id="logoutBtn">Logout</button>
-        <button class="navbar-mobile-btn" id="mobileMenuBtn">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-      </div>
-    </div>
-    <div class="navbar-mobile" id="mobileMenu">
-      <a href="index.html" class="active">Home</a>
-      <a href="teams.html">Teams</a>
-      <a href="tournaments.html">Tournaments</a>
-      <a href="fields.html">Fields</a>
-      <a href="training.html">Training</a>
-      <a href="community.html">Community</a>
-      <a href="shop.html">Shop</a>
-      <a href="health.html">Health</a>
-      <a href="transport.html">Transport</a>
-      <a href="accommodation.html">Lodging</a>
-      <a href="news.html">News</a>
-    </div>
-  </nav>-->
 <!-- frontoffice/navbar/navbar.component.html -->
 <nav class="navbar">
   <div class="navbar-inner">

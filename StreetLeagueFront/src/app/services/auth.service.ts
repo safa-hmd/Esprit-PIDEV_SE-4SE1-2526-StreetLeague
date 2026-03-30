@@ -71,6 +71,14 @@ export class AuthService {
     return localStorage.getItem('TokenUserConnect');
   }
 
+  getEmail(): string | null {
+    return localStorage.getItem('EmailUserConnect');
+  }
+
+  getUserId(): string | null {
+    return localStorage.getItem('UserIdConnect');
+  }
+
   //add this without unitaire tests
 
   loginWithGoogle(): void {
