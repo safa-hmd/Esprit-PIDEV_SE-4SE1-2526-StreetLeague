@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { BackofficeComponent } from './backoffice.component';
+
 import { ListTeamsComponent } from './list-teams/list-teams.component';
 import { ListTrainingComponent } from './list-training/list-training.component';
 import { HomeComponent } from './home/home.component';
@@ -22,9 +23,14 @@ import { LivraisonFormComponent } from './livraison/livraison-form/livraison-for
 import { TransporteurListComponent } from './transporteur/transporteur-list/transporteur-list.component';
 import { CommandeListComponent } from './commande/commande-list/commande-list.component';
 
+import { NewsComponent } from './news/news.component';
+import { HealthComponent } from './health/health.component';
+
+
 const routes: Routes = [{ path: '', component: BackofficeComponent,   
     children: [                      
       { path: '', redirectTo: 'home', pathMatch: 'full' },
+
       { path: 'home', component: HomeComponent},
       { path: 'teamAdmin', component: ListTeamsComponent},
       { path: 'trainingAdmin', component: ListTrainingComponent},
@@ -54,7 +60,12 @@ const routes: Routes = [{ path: '', component: BackofficeComponent,
       
 
 
-    
+
+      {path: 'news', component: NewsComponent },
+            {path: 'health', component: HealthComponent },
+
+      
+
     ]
   }
 ];

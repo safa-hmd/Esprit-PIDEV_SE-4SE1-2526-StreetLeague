@@ -42,7 +42,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(
       `http://localhost:8086/StreetLeague/auth/login`, req
     ).pipe(
-      //  Sauvegarde automatique du token
+
       tap(response => {
         localStorage.setItem('TokenUserConnect', response.token);
         localStorage.setItem('EmailUserConnect', response.email);

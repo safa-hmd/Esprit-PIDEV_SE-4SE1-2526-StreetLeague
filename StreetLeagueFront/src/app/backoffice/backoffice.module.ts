@@ -5,6 +5,7 @@ import { BackofficeRoutingModule } from './backoffice-routing.module';
 import { BackofficeComponent } from './backoffice.component';
 import { HeaderComponent } from './header/header.component';
 import { MenuComponent } from './menu/menu.component';
+
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { ListTeamsComponent } from './list-teams/list-teams.component';
@@ -32,6 +33,11 @@ import { AdminSponsoringEvenementModule } from '../components/admin-sponsoring-e
 import { AdminContratSponsorModule } from '../components/admin-contrat-sponsor/admin-contrat-sponsor.module';
 import { AdminCommunauteModule } from '../components/admin-communaute/admin-communaute.module';
 
+import { NewsComponent } from './news/news.component';
+
+import { HealthComponent } from './health/health.component';
+
+
 @NgModule({
   declarations: [
     BackofficeComponent,
@@ -50,27 +56,27 @@ import { AdminCommunauteModule } from '../components/admin-communaute/admin-comm
     TransportManagementComponent,
     TravelRequestsComponent,
     AdminTransportRequestsComponent,
-
-
     LivraisonListComponent,
     LivraisonFormComponent,
     TransporteurListComponent,
     MaterielListComponent,
     CommandeListComponent,
-
-
-
-
-
+    NewsComponent,
+    HealthComponent,
   ],
-  imports: [
-    CommonModule,
-    RouterModule,
-    BackofficeRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-
+  imports: [                          // ✅ MANQUAIT COMPLÈTEMENT
+    CommonModule,                     // ✅ ngClass, date, number, currency, lowercase
+    FormsModule,                      // ✅ ngModel
+    ReactiveFormsModule,              // ✅ formGroup, formControl
+    HttpClientModule,                 // ✅ HttpClient
+    RouterModule,                     // ✅ routerLink
+    BackofficeRoutingModule,          // ✅ routing
+    AdminEvenementModule,
+    AdminSponsorModule,
+    AdminSponsoringEvenementModule,
+    AdminContratSponsorModule,
+    AdminCommunauteModule,
   ]
 })
+
 export class BackofficeModule { }

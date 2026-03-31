@@ -79,6 +79,7 @@ private emailPlaceholders: Record<Role, string> = {
 
   private redirectByRole(role: string) {
     switch (role) {
+
       case 'ROLE_COACH':
         this.router.navigateByUrl('/coach');   
         break;

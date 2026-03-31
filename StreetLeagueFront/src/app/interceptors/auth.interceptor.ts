@@ -27,7 +27,18 @@ export class AuthInterceptor implements HttpInterceptor {
     // Nettoyer le token (supprimer les guillemets JSON éventuels)
     const cleanToken = token.replace(/"/g, '');
 
-    // Cloner la requête et ajouter le header Authorization
+    // For FormData requests, only add Authorization header
+    // The browser will automatically handle Content-Type with boundary
+    if (request.body instanceof FormData) {
+      const authRequest = request.clone({
+        setHeaders: {
+          Authorization: `Bearer ${cleanToken}`,
+        },
+      });
+      return next.handle(authRequest);
+    }
+
+    // For regular JSON requests, clone and add Authorization header
     const authRequest = request.clone({
       setHeaders: {
         Authorization: `Bearer ${cleanToken}`,

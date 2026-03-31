@@ -24,6 +24,7 @@ import { SponsoringEditComponent } from '../components/sponsoring-evenement/spon
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import { RouterModule } from '@angular/router';
  
 import { FrontofficeRoutingModule } from './frontoffice-routing.module';
@@ -44,6 +45,9 @@ import { PlayerProfileComponent } from './player-profile/player-profile.componen
 import { TournamentsComponent } from './tournaments/tournaments.component';
 import { FieldReservationComponent } from './field-reservation/field-reservation.component';
 import { HttpClientModule } from '@angular/common/http';
+
+import { NewsComponent } from './news/news.component';
+import { HealthComponent } from './health/health.component';
  
 @NgModule({
   declarations: [
@@ -85,7 +89,10 @@ import { HttpClientModule } from '@angular/common/http';
 
   ContratListComponent,
   ContratFormComponent,
-  ContratEditComponent
+  ContratEditComponent,
+
+     NewsComponent,
+    HealthComponent,
   ],
   imports: [
       CommonModule,
@@ -97,3 +104,4 @@ import { HttpClientModule } from '@angular/common/http';
 })
 export class FrontofficeModule {}
  
+

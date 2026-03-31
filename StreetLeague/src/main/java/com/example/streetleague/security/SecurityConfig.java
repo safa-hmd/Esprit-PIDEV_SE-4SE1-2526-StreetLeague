@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -65,6 +66,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
+
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()          // ✅ couvre /auth/complete-google-register
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
@@ -96,6 +98,30 @@ public class SecurityConfig {
                         .requestMatchers("/training/delete/**").hasAnyRole("COACH", "ADMIN")
                         .requestMatchers("/training/showTrainings", "/training/showTrainingById/**").permitAll()
                         .requestMatchers("/training/*/join", "/training/*/leave").hasRole("PLAYER")
+
+                        // Endpoints publics (login, register, forgot/reset password)
+                        .requestMatchers("/auth/**").permitAll()
+                        // Endpoints protégés par rôle
+                        // Posts
+                        .requestMatchers(HttpMethod.GET,    "/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/posts/like/**").hasRole("PLAYER")
+                        .requestMatchers(HttpMethod.POST,   "/posts/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,    "/posts/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/posts/**").hasRole("ADMIN")
+
+
+                        // Comments - PLAYER
+                        .requestMatchers(HttpMethod.GET,    "/comments/**").hasAnyRole("ADMIN", "PLAYER") //
+                        .requestMatchers(HttpMethod.POST,   "/comments/**").hasRole("PLAYER")
+                        .requestMatchers(HttpMethod.PUT,    "/comments/**").hasRole("PLAYER")
+                        .requestMatchers(HttpMethod.DELETE, "/comments/**").hasRole("PLAYER")
+
+
+                        .requestMatchers("/water-reminders/**").hasRole("PLAYER")
+
+
+                        // Tout autre endpoint nécessite une authentification
+
                         .anyRequest().authenticated()
                 )
                 // ✅ FIX PRINCIPAL : empêche Spring de rediriger les appels REST vers OAuth2/login
@@ -117,7 +143,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
+
         config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:4201"));
+
+
+        // Autoriser uniquement le frontend Angular
+        config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:59619"));
+
+        // Méthodes HTTP autorisées (OPTIONS obligatoire pour les requêtes CORS preflight)
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

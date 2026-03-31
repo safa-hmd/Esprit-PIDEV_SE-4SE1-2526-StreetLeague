@@ -1,6 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FrontofficeComponent } from './frontoffice.component';
+import { NewsComponent } from './news/news.component';
+import { HealthComponent } from './health/health.component';
+
 
 // Contrat Sponsor (frontoffice)
 import { ContratListComponent } from '../components/contrat-sponsor/contrat-list.component';
@@ -92,6 +95,10 @@ const routes: Routes = [
 
       {path:'shop',component:ShopListComponent},
       {path:'cart',component:CartComponent},
+
+        { path: 'news', component: NewsComponent },
+      { path: 'health', component: HealthComponent },
+
     ]
   }
 ];

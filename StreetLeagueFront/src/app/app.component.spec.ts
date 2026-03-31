@@ -24,6 +24,8 @@ describe('AppComponent', () => {
   it('should render the app', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
+
     expect(fixture.componentInstance).toBeTruthy();
+
   });
 });
