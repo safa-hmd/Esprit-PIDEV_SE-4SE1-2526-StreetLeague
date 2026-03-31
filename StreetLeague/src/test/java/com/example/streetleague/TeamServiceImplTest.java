@@ -32,6 +32,7 @@ class TeamServiceImplTest {
     private User admin;
     private Team team;
 
+//Initialise les objets avant chaque test
     @BeforeEach
     void setUp() {
         captain = new User();
@@ -58,12 +59,15 @@ class TeamServiceImplTest {
     @Test
     void addTeamTest() {
         TeamRequest dto = new TeamRequest("TeamX", "Football", "desc", Level.BEGINNER);
+        //Arrange (préparer)
         when(userRepository.findById(1L)).thenReturn(Optional.of(captain));
         when(teamRepository.findAll()).thenReturn(List.of());
         when(teamRepository.save(any())).thenReturn(team);
 
+        //Act (exécuter)
         TeamResponse res = teamService.addTeam(dto, 1L);
 
+        //Assert (vérifier)
         assertNotNull(res);
         assertEquals("TeamX", res.name());
         verify(teamRepository, times(1)).save(any());

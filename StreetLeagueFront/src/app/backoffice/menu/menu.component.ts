@@ -1,26 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css']
 })
-export class MenuComponent implements OnInit {
+export class MenuComponent {
+  @Input() collapsed = false;
+  @Input() mobileOpen = false;
 
-  userRole: string = '';
-
-  constructor() {}
-
-  ngOnInit(): void {
-    this.userRole = localStorage.getItem('RoleUserConnect') || '';
-    this.userRole = this.userRole.replace('ROLE_', '');
-  }
-
-  isAdmin(): boolean {
-    return this.userRole === 'ADMIN';
-  }
-
-  isCoach(): boolean {
-    return this.userRole === 'COACH';
+  closeMobile(): void {
+    this.mobileOpen = false;
   }
 }

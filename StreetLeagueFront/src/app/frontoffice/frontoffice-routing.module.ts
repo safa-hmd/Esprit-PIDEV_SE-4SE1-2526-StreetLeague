@@ -38,6 +38,8 @@ import { DetailTeamComponent } from './detail-team/detail-team.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
 import { TournamentsComponent } from './tournaments/tournaments.component';
 import { FieldReservationComponent } from './field-reservation/field-reservation.component';
+import { ShopListComponent } from './shop/shop-list/shop-list.component';
+import { CartComponent } from './shop/cart/cart.component';
 
 const routes: Routes = [
   {
@@ -86,6 +88,10 @@ const routes: Routes = [
       { path: 'contrat-sponsor', component: ContratListComponent },
       { path: 'contrat-sponsor/new', component: ContratFormComponent },
       { path: 'contrat-sponsor/:id/edit', component: ContratEditComponent },
+
+
+      {path:'shop',component:ShopListComponent},
+      {path:'cart',component:CartComponent},
     ]
   }
 ];

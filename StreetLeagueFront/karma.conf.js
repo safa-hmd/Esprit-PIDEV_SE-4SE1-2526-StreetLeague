@@ -5,10 +5,10 @@ module.exports = function (config) {
   
   if (isCI) {
     // Jenkins Linux — utilise chromium installé
-    process.env.CHROME_BIN = process.env.CHROME_BIN || '/usr/bin/chromium';
+    process.env.CHROME_BIN = '/usr/bin/chromium';
   } else {
-    // Windows local — utilise le chemin par défaut de Chrome si CHROME_BIN n'est pas déjà défini
-    process.env.CHROME_BIN = process.env.CHROME_BIN || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+    // Windows local — utilise Avast Browser
+    process.env.CHROME_BIN = 'C:\\Program Files\\AVAST Software\\Browser\\Application\\AvastBrowser.exe';
   }
 
   config.set({
