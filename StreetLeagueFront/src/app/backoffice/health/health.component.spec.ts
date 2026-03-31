@@ -4,7 +4,7 @@ import { HealthComponent } from './health.component';
 import { HealthDashboardService } from '../../services/healthdashboard.service';
 import { of, throwError } from 'rxjs';
 
-describe('HealthComponent (Backoffice) - Contrôles de Saisie', () => {
+describe('HealthComponent (Backoffice) - Input Validation', () => {
   let component: HealthComponent;
   let fixture: ComponentFixture<HealthComponent>;
   let healthService: jasmine.SpyObj<HealthDashboardService>;
@@ -25,8 +25,8 @@ describe('HealthComponent (Backoffice) - Contrôles de Saisie', () => {
     component = fixture.componentInstance;
   });
 
-  describe('Validation - Chargement des données', () => {
-    it('devrait charger les rappels au démarrage', (done) => {
+  describe('Validation - Data Loading', () => {
+    it('should load reminders on initialization', (done) => {
       const mockReminders = [
         { id: 1, frequency: 60, quantity: 250, active: true, userName: 'John', userEmail: 'john@example.com' },
         { id: 2, frequency: 30, quantity: 500, active: true, userName: 'Jane', userEmail: 'jane@example.com' }
@@ -43,7 +43,7 @@ describe('HealthComponent (Backoffice) - Contrôles de Saisie', () => {
       }, 150);
     });
 
-    it('devrait gérer erreur lors du chargement des rappels', (done) => {
+    it('should handle error loading reminders', (done) => {
       healthService.getAllReminders.and.returnValue(throwError(() => ({ status: 500 })));
       component.ngOnInit();
 
@@ -55,7 +55,7 @@ describe('HealthComponent (Backoffice) - Contrôles de Saisie', () => {
     });
   });
 
-  describe('Validation - Filtrage par recherche', () => {
+  describe('Validation - Search Filtering', () => {
     beforeEach(() => {
       component.reminders = [
         { id: 1, frequency: 60, quantity: 250, active: true, userName: 'John Doe', userEmail: 'john@example.com' },
@@ -64,40 +64,40 @@ describe('HealthComponent (Backoffice) - Contrôles de Saisie', () => {
       component.filteredReminders = [...component.reminders];
     });
 
-    it('devrait filtrer par nom d\'utilisateur', () => {
+    it('should filter by username', () => {
       const event = { target: { value: 'john' } };
       component.onSearch(event);
       expect(component.filteredReminders.length).toBe(1);
       expect(component.filteredReminders[0].userName).toBe('John Doe');
     });
 
-    it('devrait filtrer par email', () => {
+    it('should filter by email', () => {
       const event = { target: { value: 'jane@' } };
       component.onSearch(event);
       expect(component.filteredReminders.length).toBe(1);
       expect(component.filteredReminders[0].userEmail).toBe('jane@example.com');
     });
 
-    it('devrait ignorer la casse lors du filtrage', () => {
+    it('should be case insensitive', () => {
       const event = { target: { value: 'JOHN' } };
       component.onSearch(event);
       expect(component.filteredReminders.length).toBe(1);
     });
 
-    it('devrait retourner tous les rappels avec recherche vide', () => {
+    it('should return all reminders with empty search', () => {
       const event = { target: { value: '' } };
       component.onSearch(event);
       expect(component.filteredReminders.length).toBe(2);
     });
 
-    it('devrait retourner tableau vide si pas de correspondance', () => {
+    it('should return empty array if no match', () => {
       const event = { target: { value: 'xyz123' } };
       component.onSearch(event);
       expect(component.filteredReminders.length).toBe(0);
     });
   });
 
-  describe('Validation - Calcul des statistiques', () => {
+  describe('Validation - Statistics Calculation', () => {
     beforeEach(() => {
       component.reminders = [
         { id: 1, frequency: 60, quantity: 300, active: true, userName: 'User 1', userEmail: 'user1@example.com' },
@@ -106,52 +106,52 @@ describe('HealthComponent (Backoffice) - Contrôles de Saisie', () => {
       ];
     });
 
-    it('devrait calculer le nombre total d\'utilisateurs', () => {
+    it('should calculate total users', () => {
       expect(component.totalUsers).toBe(3);
     });
 
-    it('devrait retourner 0 si pas de rappels', () => {
+    it('should return 0 if no reminders', () => {
       component.reminders = [];
       expect(component.totalUsers).toBe(0);
       expect(component.avgQuantity).toBe('0 ml');
       expect(component.avgFrequency).toBe('-');
     });
 
-    it('devrait calculer les rappels actifs correctement', () => {
+    it('should calculate active reminders correctly', () => {
       expect(component.activeReminders).toBe(2);
     });
 
-    it('devrait calculer la quantité moyenne correctement', () => {
+    it('should calculate average quantity correctly', () => {
       expect(component.avgQuantity).toBe('250 ml');
     });
 
-    it('devrait calculer la fréquence moyenne correctement', () => {
+    it('should calculate average frequency correctly', () => {
       expect(component.avgFrequency).toBe('60 min');
     });
   });
 
-  describe('Validation - Formatage des labels de fréquence', () => {
-    it('devrait formater les minutes < 60', () => {
+  describe('Validation - Frequency Label Formatting', () => {
+    it('should format minutes < 60', () => {
       expect(component.freqLabel(30)).toBe('30 min');
       expect(component.freqLabel(59)).toBe('59 min');
     });
 
-    it('devrait formater 60 min comme 1 heure', () => {
+    it('should format 60 min as 1 hour', () => {
       expect(component.freqLabel(60)).toBe('1 heure');
     });
 
-    it('devrait formater les heures > 60 min', () => {
+    it('should format hours > 60 min', () => {
       expect(component.freqLabel(120)).toBe('2 heures');
       expect(component.freqLabel(90)).toBe('1.5 heures');
     });
 
-    it('devrait gérer 0 minute', () => {
+    it('should handle 0 minute', () => {
       expect(component.freqLabel(0)).toBe('0 min');
     });
   });
 
-  describe('Validation - Valeurs de données invalides', () => {
-    it('devrait gérer userName null sans erreur', () => {
+  describe('Validation - Invalid Data Values', () => {
+    it('should handle null userName without error', () => {
       component.reminders = [
         { id: 1, frequency: 60, quantity: 250, active: true, userName: null as any, userEmail: 'test@example.com' }
       ];
@@ -162,7 +162,7 @@ describe('HealthComponent (Backoffice) - Contrôles de Saisie', () => {
       }).not.toThrow();
     });
 
-    it('devrait gérer userEmail null sans erreur', () => {
+    it('should handle null userEmail without error', () => {
       component.reminders = [
         { id: 1, frequency: 60, quantity: 250, active: true, userName: 'User', userEmail: null as any }
       ];
@@ -174,12 +174,12 @@ describe('HealthComponent (Backoffice) - Contrôles de Saisie', () => {
     });
   });
 
-  describe('Initialisation du composant', () => {
-    it('devrait être créé', () => {
+  describe('Component Initialization', () => {
+    it('should create component', () => {
       expect(component).toBeTruthy();
     });
 
-    it('devrait initialiser avec des valeurs par défaut', () => {
+    it('should initialize with default values', () => {
       expect(component.isLoading).toBe(true);
       expect(component.reminders).toEqual([]);
       expect(component.filteredReminders).toEqual([]);

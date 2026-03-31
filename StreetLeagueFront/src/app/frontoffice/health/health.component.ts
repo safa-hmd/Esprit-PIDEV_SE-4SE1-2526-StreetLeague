@@ -53,14 +53,14 @@ export class HealthComponent implements OnInit, OnDestroy {
     if (this.countdownInterval) clearInterval(this.countdownInterval);
   }
 
-  // 🔔 Notification permission
+  //Notification permission
   requestNotificationPermission() {
     if ('Notification' in window) {
       Notification.requestPermission();
     }
   }
 
-  // 🔔 Toggle reminder
+  //Toggle reminder
   toggleReminder() {
     this.reminderActive = !this.reminderActive;
 
@@ -73,7 +73,7 @@ export class HealthComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 🔁 Countdown
+  //Countdown
   startCountdown() {
     if (this.countdownInterval) clearInterval(this.countdownInterval);
 
@@ -89,7 +89,7 @@ export class HealthComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  // 🔔 Reminder
+  //Reminder
   triggerReminder() {
     if (!this.reminderActive) return;
     // Show notification message
@@ -110,13 +110,13 @@ export class HealthComponent implements OnInit, OnDestroy {
     this.playSound();
   }
 
-  // 🔊 Sound
+  //Sound
   playSound() {
     const audio = new Audio('assets/sounds/alert.mp3');
     audio.play().catch(err => console.log('Sound blocked', err));
   }
 
-  // 🥤 Drink
+  //Drink
   drinkNow() {
     const time = new Date().toLocaleTimeString('fr-FR', {
       hour: '2-digit',
@@ -156,7 +156,7 @@ export class HealthComponent implements OnInit, OnDestroy {
     localStorage.setItem(`drinkHistory_${today}`, JSON.stringify(this.drinkHistory));
   }
 
-  // 🔧 FUNCTIONS MISSING (IMPORTANT)
+  //FUNCTIONS MISSING (IMPORTANT)
 
   setFrequency(freq: number) {
     this.reminderFrequency = freq;
@@ -192,9 +192,33 @@ export class HealthComponent implements OnInit, OnDestroy {
     return diff > 0 ? '+' + this.weightDifference : this.weightDifference;
   }
 
-  // BMI
   calculateBMI() {
-    if (!this.weight || !this.height) return;
+    if (!this.weight || !this.height) {
+      this.notificationMessage = 'Error: Please enter both weight and height';
+      this.showNotification = true;
+      setTimeout(() => { this.showNotification = false; }, 5000);
+      return;
+    }
+
+    if (this.weight <= 0) {
+      this.notificationMessage = 'Error: Weight must be positive';
+      this.showNotification = true;
+      setTimeout(() => { this.showNotification = false; }, 5000);
+      this.bmiResult = '';
+      this.bmiLabel = '';
+      this.bmiCategory = '';
+      return;
+    }
+
+    if (this.height <= 0) {
+      this.notificationMessage = 'Error: Height must be positive';
+      this.showNotification = true;
+      setTimeout(() => { this.showNotification = false; }, 5000);
+      this.bmiResult = '';
+      this.bmiLabel = '';
+      this.bmiCategory = '';
+      return;
+    }
 
     const h = this.height / 100;
     const bmi = this.weight / (h * h);

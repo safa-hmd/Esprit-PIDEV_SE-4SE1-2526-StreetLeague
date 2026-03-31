@@ -18,6 +18,15 @@ export class NewsComponent implements OnInit {
   showForm = false;
   selectedPost: any = null;
   selectedPostId: number = 0;
+  
+  // Validation
+  showCommentError: { [postId: number]: boolean } = {};
+  commentErrorMessage: { [postId: number]: string } = {};
+  showEditError = false;
+  editErrorMessage = '';
+  
+  // Like toggle state
+  likeInProgress: { [postId: number]: boolean } = {};
 
   constructor(
     private postService: PostService,
@@ -65,13 +74,45 @@ export class NewsComponent implements OnInit {
 
   addComment(post: any) {
     const content = this.newComment[post.id]?.trim();
-    if (!content) return;
+    
+    if (!content) {
+      this.showCommentError[post.id] = true;
+      this.commentErrorMessage[post.id] = 'Comment cannot be empty';
+      setTimeout(() => { 
+        this.showCommentError[post.id] = false; 
+      }, 5000);
+      return;
+    }
+
+    if (content.length < 2) {
+      this.showCommentError[post.id] = true;
+      this.commentErrorMessage[post.id] = 'Comment must be at least 2 characters';
+      setTimeout(() => { 
+        this.showCommentError[post.id] = false; 
+      }, 5000);
+      return;
+    }
+
+    if (content.length > 500) {
+      this.showCommentError[post.id] = true;
+      this.commentErrorMessage[post.id] = 'Comment must not exceed 500 characters';
+      setTimeout(() => { 
+        this.showCommentError[post.id] = false; 
+      }, 5000);
+      return;
+    }
+
     this.commentService.addComment({ content, postId: post.id }).subscribe({
       next: () => {
         this.newComment[post.id] = '';
+        this.showCommentError[post.id] = false;
         this.loadComments(post);
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        this.showCommentError[post.id] = true;
+        this.commentErrorMessage[post.id] = 'Failed to add comment. Please try again.';
+        console.error(err);
+      }
     });
   }
 
@@ -83,7 +124,35 @@ export class NewsComponent implements OnInit {
   }
 
   saveEditComment(post: any) {
-    if (!this.editCommentContent.trim()) return;
+    const content = this.editCommentContent?.trim();
+    
+    if (!content) {
+      this.showEditError = true;
+      this.editErrorMessage = 'Comment cannot be empty';
+      setTimeout(() => { 
+        this.showEditError = false; 
+      }, 5000);
+      return;
+    }
+
+    if (content.length < 2) {
+      this.showEditError = true;
+      this.editErrorMessage = 'Comment must be at least 2 characters';
+      setTimeout(() => { 
+        this.showEditError = false; 
+      }, 5000);
+      return;
+    }
+
+    if (content.length > 500) {
+      this.showEditError = true;
+      this.editErrorMessage = 'Comment must not exceed 500 characters';
+      setTimeout(() => { 
+        this.showEditError = false; 
+      }, 5000);
+      return;
+    }
+
     this.commentService.updateComment(this.editingComment.id, {
       content: this.editCommentContent,
       postId: post.id
@@ -92,9 +161,14 @@ export class NewsComponent implements OnInit {
         this.showEditCommentForm = false;
         this.editingComment = null;
         this.editCommentContent = '';
+        this.showEditError = false;
         this.loadComments(post);
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        this.showEditError = true;
+        this.editErrorMessage = 'Failed to update comment. Please try again.';
+        console.error(err);
+      }
     });
   }
 
@@ -110,30 +184,56 @@ export class NewsComponent implements OnInit {
   }
 
   loadPosts() {
-  console.log('loadPosts called'); // ← أضف
+  console.log('loadPosts called'); 
   this.postService.getAllPosts().subscribe({
     next: (data) => {
-      console.log('data:', data); // ← أضف
-      this.posts = data.map(p => ({ ...p, comments: [], showComments: false, liked: false }));
-      console.log('posts array:', this.posts); // ← أضف
+      console.log('data:', data); 
+      this.posts = data.map(p => ({ 
+        ...p, 
+        comments: [], 
+        showComments: false, 
+        liked: p.liked || false,
+        likes: p.likes || 0
+      }));
+      console.log('posts array:', this.posts); 
     },
     error: (err) => console.error('Error:', err)
   });
 }
 
 toggleLike(post: any) {
-  if (post.liked) {
-    post.likes = (post.likes || 1) - 1;
-    post.liked = false;
-  } else {
-    this.postService.likePost(post.id).subscribe({
-      next: (data) => {
-        post.likes = data.likes;
-        post.liked = true;
-      },
-      error: (err) => console.error(err)
-    });
+  // Prevent multiple rapid clicks
+  if (this.likeInProgress[post.id]) {
+    return;
   }
+
+  // Optimistic update - change UI immediately
+  const previousLiked = post.liked;
+  const previousLikes = post.likes;
+  
+  post.liked = !post.liked;
+  post.likes = post.liked ? (post.likes || 0) + 1 : (post.likes || 1) - 1;
+  this.likeInProgress[post.id] = true;
+
+  const apiCall = post.liked 
+    ? this.postService.likePost(post.id)
+    : this.postService.dislikePost(post.id);
+
+  apiCall.subscribe({
+    next: (data) => {
+      // Update with server response
+      post.likes = data.likes;
+      post.liked = data.liked !== undefined ? data.liked : post.liked;
+      this.likeInProgress[post.id] = false;
+    },
+    error: (err) => {
+      // Revert to previous state on error
+      post.liked = previousLiked;
+      post.likes = previousLikes;
+      this.likeInProgress[post.id] = false;
+      console.error('Like/Unlike failed:', err);
+    }
+  });
 }
 getImageUrl(postId: number): string {
   return `http://localhost:8086/StreetLeague/posts/image/${postId}`;

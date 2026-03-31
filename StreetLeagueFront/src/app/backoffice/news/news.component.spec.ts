@@ -5,7 +5,7 @@ import { PostService } from '../../services/post.service';
 import { CommentService } from '../../services/comment.service';
 import { of } from 'rxjs';
 
-describe('NewsComponent (Backoffice) - Contrôles de Saisie', () => {
+describe('NewsComponent (Backoffice) - Input Validation', () => {
   let component: NewsComponent;
   let fixture: ComponentFixture<NewsComponent>;
   let postService: jasmine.SpyObj<PostService>;
@@ -27,7 +27,7 @@ describe('NewsComponent (Backoffice) - Contrôles de Saisie', () => {
     postService = TestBed.inject(PostService) as jasmine.SpyObj<PostService>;
     commentService = TestBed.inject(CommentService) as jasmine.SpyObj<CommentService>;
 
-    // ✅ setup قبل detectChanges
+// ✅ setup before detectChanges
     postService.getAllPosts.and.returnValue(of([]));
     commentService.getCommentsByPost.and.returnValue(of([]));
 
@@ -36,9 +36,9 @@ describe('NewsComponent (Backoffice) - Contrôles de Saisie', () => {
     fixture.detectChanges();
   });
 
-  describe('Validation - Formulaire d\'ajout de post', () => {
-    it('ne devrait pas ajouter un post si titre est vide', () => {
-      component.newPost = { title: '', description: 'Description valide' };
+  describe('Validation - Post Add Form', () => {
+    it('should not add post if title is empty', () => {
+      component.newPost = { title: '', description: 'Valid description' };
       component.selectedImage = new File([''], 'test.jpg', { type: 'image/jpeg' });
 
       spyOn(window, 'alert');
@@ -48,8 +48,8 @@ describe('NewsComponent (Backoffice) - Contrôles de Saisie', () => {
       expect(postService.addPost).not.toHaveBeenCalled();
     });
 
-    it('ne devrait pas ajouter un post si description est vide', () => {
-      component.newPost = { title: 'Titre valide', description: '' };
+    it('should not add post if description is empty', () => {
+      component.newPost = { title: 'Valid title', description: '' };
       component.selectedImage = new File([''], 'test.jpg', { type: 'image/jpeg' });
 
       spyOn(window, 'alert');
@@ -59,8 +59,8 @@ describe('NewsComponent (Backoffice) - Contrôles de Saisie', () => {
       expect(postService.addPost).not.toHaveBeenCalled();
     });
 
-    it('ne devrait pas ajouter un post si titre contient seulement espaces', () => {
-      component.newPost = { title: '   ', description: 'Description valide' };
+    it('should not add post if title contains only spaces', () => {
+      component.newPost = { title: '   ', description: 'Valid description' };
       component.selectedImage = new File([''], 'test.jpg', { type: 'image/jpeg' });
 
       spyOn(window, 'alert');
@@ -69,8 +69,8 @@ describe('NewsComponent (Backoffice) - Contrôles de Saisie', () => {
       expect(window.alert).toHaveBeenCalled();
     });
 
-    it('ne devrait pas ajouter un post si l\'image est vide', () => {
-      component.newPost = { title: 'Titre valide', description: 'Description valide' };
+    it('should not add post if image is missing', () => {
+      component.newPost = { title: 'Valid title', description: 'Valid description' };
       component.selectedImage = null;
 
       spyOn(window, 'alert');
@@ -80,10 +80,10 @@ describe('NewsComponent (Backoffice) - Contrôles de Saisie', () => {
       expect(postService.addPost).not.toHaveBeenCalled();
     });
 
-    it('devrait ajouter un post avec données valides', (done) => {
-      component.newPost = { title: 'Titre', description: 'Description' };
+    it('should add post with valid data', (done) => {
+      component.newPost = { title: 'Title', description: 'Description' };
       component.selectedImage = new File(['content'], 'test.jpg', { type: 'image/jpeg' });
-      postService.addPost.and.returnValue(of({ id: 1 })); // ✅
+      postService.addPost.and.returnValue(of({ id: 1 }));
 
       component.addPost();
 
@@ -95,8 +95,8 @@ describe('NewsComponent (Backoffice) - Contrôles de Saisie', () => {
     });
   });
 
-  describe('Validation - Sélection d\'image', () => {
-    it('devrait sauvegarder l\'image sélectionnée', () => {
+  describe('Validation - Image Selection', () => {
+    it('should save selected image', () => {
       const file = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
       const event = { target: { files: [file] } };
 
@@ -105,7 +105,7 @@ describe('NewsComponent (Backoffice) - Contrôles de Saisie', () => {
       expect(component.selectedImage).toBe(file);
     });
 
-    it('devrait générer un aperçu de l\'image', (done) => {
+    it('should generate image preview', (done) => {
       const file = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
       const event = { target: { files: [file] } };
 
@@ -118,8 +118,8 @@ describe('NewsComponent (Backoffice) - Contrôles de Saisie', () => {
     });
   });
 
-  describe('Validation - Modification de post', () => {
-    it('devrait ouvrir le modal de modification', () => {
+  describe('Validation - Post Edit', () => {
+    it('should open edit modal', () => {
       const mockPost = { id: 1, title: 'Post 1', description: 'Desc 1' };
       component.openEditModal(mockPost);
 
@@ -127,7 +127,7 @@ describe('NewsComponent (Backoffice) - Contrôles de Saisie', () => {
       expect(component.showEditForm).toBe(true);
     });
 
-    it('ne devrait pas mettre à jour si validation échoue', () => {
+    it('should not update if validation fails', () => {
       component.editPost = { id: 1, title: '', description: 'Description' };
       component.updatePost();
 
@@ -135,17 +135,17 @@ describe('NewsComponent (Backoffice) - Contrôles de Saisie', () => {
     });
   });
 
-  describe('Validation - Initiales', () => {
-    it('devrait formater le nom complet en initiales', () => {
+  describe('Validation - Initials', () => {
+    it('should format full name as initials', () => {
       expect(component.getInitials('John Doe')).toBe('JD');
     });
 
-    it('devrait retourner ?? si nom invalide', () => {
+    it('should return ?? if invalid name', () => {
       expect(component.getInitials(null as any)).toBe('??');
     });
   });
 
-  it('devrait être créé', () => {
+  it('should create component', () => {
     expect(component).toBeTruthy();
   });
 });

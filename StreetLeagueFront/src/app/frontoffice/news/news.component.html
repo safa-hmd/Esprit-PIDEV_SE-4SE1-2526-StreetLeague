@@ -9,6 +9,8 @@
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#333;">Comment</label>
       <textarea [(ngModel)]="newComment[selectedPostId]" placeholder="Write your comment..." rows="4"
         style="width:100%;padding:0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;color:#333;"></textarea>
+      <small style="display:block;margin-top:0.25rem;color:#999;">{{ newComment[selectedPostId]?.length || 0 }}/500 characters</small>
+      <small *ngIf="showCommentError[selectedPostId]" style="display:block;margin-top:0.25rem;color:#E61920;font-weight:600;">Error: {{ commentErrorMessage[selectedPostId] }}</small>
     </div>
     <div style="display:flex;gap:1rem;justify-content:flex-end;">
       <button (click)="showForm = false" style="padding:0.75rem 1.5rem;border:1px solid #ddd;border-radius:8px;background:white;cursor:pointer;color:#666;">Cancel</button>
@@ -28,6 +30,8 @@
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#333;">Comment</label>
       <textarea [(ngModel)]="editCommentContent" placeholder="Edit your comment..." rows="4"
         style="width:100%;padding:0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;color:#333;"></textarea>
+      <small style="display:block;margin-top:0.25rem;color:#999;">{{ editCommentContent?.length || 0 }}/500 characters</small>
+      <small *ngIf="showEditError" style="display:block;margin-top:0.25rem;color:#E61920;font-weight:600;">Error: {{ editErrorMessage }}</small>
     </div>
     <div style="display:flex;gap:1rem;justify-content:flex-end;">
       <button (click)="showEditCommentForm = false" style="padding:0.75rem 1.5rem;border:1px solid #ddd;border-radius:8px;background:white;cursor:pointer;color:#666;">Cancel</button>
@@ -72,12 +76,32 @@
 
         <!-- Post Actions -->
         <div class="post-actions">
-          <!-- Like -->
-          <button class="action-btn" [style.color]="post.liked ? '#E61920' : ''" (click)="toggleLike(post)">
-            <svg [attr.fill]="post.liked ? '#E61920' : 'none'" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <!-- Like Button -->
+          <button class="action-btn" 
+                  [style.color]="post.liked ? '#E61920' : ''" 
+                  (click)="toggleLike(post)"
+                  [disabled]="likeInProgress[post.id]"
+                  [title]="likeInProgress[post.id] ? 'Processing...' : (post.liked ? 'Unlike this post' : 'Like this post')"
+                  [style.opacity]="likeInProgress[post.id] ? '0.6' : '1'"
+                  [style.cursor]="likeInProgress[post.id] ? 'not-allowed' : 'pointer'"
+                  style="position:relative;transition:all 0.2s ease;">
+            <svg [attr.fill]="post.liked ? '#E61920' : 'none'" 
+                 stroke="currentColor" 
+                 viewBox="0 0 24 24" 
+                 stroke-width="2"
+                 [style.transition]="'all 0.3s ease'"
+                 [style.transform]="likeInProgress[post.id] ? 'scale(1.1)' : 'scale(1)'">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
             </svg>
             <span>{{ post.likes || 0 }}</span>
+            <small *ngIf="post.liked && !likeInProgress[post.id]" 
+                   style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#E61920;color:white;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;animation:fadeIn 0.3s ease;">
+              ❤️ Liked
+            </small>
+            <small *ngIf="likeInProgress[post.id]" 
+                   style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#606078;color:white;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;">
+              ⏳ Processing...
+            </small>
           </button>
 
           <!-- Comment toggle -->
@@ -87,9 +111,7 @@
             </svg>
             <span>{{ post.comments?.length || 0 }}</span>
           </button>
-        </div>
-
-        <!-- Comments Section -->
+        </div>        <!-- Comments Section -->
         <div *ngIf="post.showComments" style="margin-top:1rem;border-top:1px solid #f0f0f0;padding-top:1rem;">
 
           <!-- Liste des commentaires -->
@@ -116,10 +138,14 @@
           </div>
 
           <!-- Ajouter un commentaire inline -->
-          <div style="display:flex;gap:0.75rem;margin-top:0.75rem;">
-            <input [(ngModel)]="newComment[post.id]" placeholder="Write a comment..."
-              style="flex:1;padding:0.6rem 1rem;border:1px solid #ddd;border-radius:8px;background:white;color:#333;font-size:0.87rem;outline:none;"/>
-            <button (click)="addComment(post)" style="padding:0.6rem 1.2rem;background:#E61920;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.87rem;">Send</button>
+          <div style="display:flex;gap:0.75rem;margin-top:0.75rem;flex-direction: column;">
+            <div style="display:flex;gap:0.75rem;">
+              <input [(ngModel)]="newComment[post.id]" placeholder="Write a comment..."
+                style="flex:1;padding:0.6rem 1rem;border:1px solid #ddd;border-radius:8px;background:white;color:#333;font-size:0.87rem;outline:none;"/>
+              <button (click)="addComment(post)" style="padding:0.6rem 1.2rem;background:#E61920;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.87rem;">Send</button>
+            </div>
+            <small *ngIf="showCommentError[post.id]" style="color:#E61920;font-weight:600;font-size:0.8rem;">⚠️ {{ commentErrorMessage[post.id] }}</small>
+            <small style="color:#999;font-size:0.8rem;">{{ newComment[post.id]?.length || 0 }}/500 characters</small>
           </div>
         </div>
 

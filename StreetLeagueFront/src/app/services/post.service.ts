@@ -31,4 +31,8 @@ export class PostService {
   likePost(id: number): Observable<any> {
     return this.http.post(`${this.apiUrl}/posts/like/${id}`, {});
   }
+
+  dislikePost(id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/posts/dislike/${id}`, {});
+  }
 }

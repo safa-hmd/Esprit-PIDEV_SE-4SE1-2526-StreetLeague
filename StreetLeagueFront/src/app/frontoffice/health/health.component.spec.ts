@@ -4,7 +4,7 @@ import { HealthComponent } from './health.component';
 import { HealthService } from '../../services/health.service';
 import { of } from 'rxjs';
 
-describe('HealthComponent (Frontoffice) - Contrôles de Saisie', () => {
+describe('HealthComponent (Frontoffice) - Input Validation', () => {
   let component: HealthComponent;
   let fixture: ComponentFixture<HealthComponent>;
   let healthService: jasmine.SpyObj<HealthService>;
@@ -25,8 +25,8 @@ describe('HealthComponent (Frontoffice) - Contrôles de Saisie', () => {
     component = fixture.componentInstance;
   });
 
-  describe('Validation - Calcul du BMI', () => {
-    it('devrait calculer le BMI correctement', () => {
+  describe('Validation - BMI Calculation', () => {
+    it('should calculate BMI correctly', () => {
       component.weight = 70;
       component.height = 175;
       component.calculateBMI();
@@ -34,7 +34,7 @@ describe('HealthComponent (Frontoffice) - Contrôles de Saisie', () => {
       expect(component.bmiResult).toBe('22.9');
     });
 
-    it('ne devrait pas calculer si poids absent', () => {
+    it('should not calculate if weight is missing', () => {
       component.weight = 0;
       component.height = 175;
       component.calculateBMI();
@@ -42,7 +42,27 @@ describe('HealthComponent (Frontoffice) - Contrôles de Saisie', () => {
       expect(component.bmiResult).toBe('');
     });
 
-    it('devrait catégoriser BMI insuffisant', () => {
+    it('should reject negative weight values', () => {
+      component.weight = -70;
+      component.height = 175;
+      component.calculateBMI();
+
+      expect(component.bmiResult).toBe('');
+      expect(component.showNotification).toBe(true);
+      expect(component.notificationMessage).toContain('Weight must be positive');
+    });
+
+    it('should reject negative height values', () => {
+      component.weight = 70;
+      component.height = -175;
+      component.calculateBMI();
+
+      expect(component.bmiResult).toBe('');
+      expect(component.showNotification).toBe(true);
+      expect(component.notificationMessage).toContain('Height must be positive');
+    });
+
+    it('should categorize BMI as Underweight', () => {
       component.weight = 50;
       component.height = 175;
       component.calculateBMI();
@@ -50,7 +70,7 @@ describe('HealthComponent (Frontoffice) - Contrôles de Saisie', () => {
       expect(component.bmiLabel).toBe('Insuffisant');
     });
 
-    it('devrait catégoriser BMI normal', () => {
+    it('should categorize BMI as Normal', () => {
       component.weight = 70;
       component.height = 175;
       component.calculateBMI();
@@ -58,7 +78,7 @@ describe('HealthComponent (Frontoffice) - Contrôles de Saisie', () => {
       expect(component.bmiLabel).toBe('Normal');
     });
 
-    it('devrait catégoriser BMI surpoids', () => {
+    it('should categorize BMI as Overweight', () => {
       component.weight = 85;
       component.height = 175;
       component.calculateBMI();
@@ -66,7 +86,7 @@ describe('HealthComponent (Frontoffice) - Contrôles de Saisie', () => {
       expect(component.bmiLabel).toBe('Surpoids');
     });
 
-    it('devrait catégoriser BMI obésité', () => {
+    it('should categorize BMI as Obesity', () => {
       component.weight = 100;
       component.height = 175;
       component.calculateBMI();
@@ -75,40 +95,40 @@ describe('HealthComponent (Frontoffice) - Contrôles de Saisie', () => {
     });
   });
 
-  describe('Validation - Quantité d\'eau', () => {
+  describe('Validation - Water Quantity', () => {
     beforeEach(() => {
       component.amountPerReminder = 250;
     });
 
-    it('devrait augmenter la quantité', () => {
+    it('should increase quantity', () => {
       component.changeQuantity(50);
       expect(component.amountPerReminder).toBe(300);
     });
 
-    it('devrait diminuer la quantité', () => {
+    it('should decrease quantity', () => {
       component.changeQuantity(-50);
       expect(component.amountPerReminder).toBe(200);
     });
 
-    it('ne devrait pas descendre en dessous de 100 ml', () => {
+    it('should not go below 100 ml', () => {
       component.changeQuantity(-200);
       expect(component.amountPerReminder).toBeGreaterThanOrEqual(100);
     });
 
-    it('ne devrait pas dépasser 2000 ml', () => {
+    it('should not exceed 2000 ml', () => {
       component.changeQuantity(2000);
       expect(component.amountPerReminder).toBeLessThanOrEqual(2000);
     });
   });
 
-  describe('Validation - Fréquence', () => {
-    it('devrait changer la fréquence', () => {
+  describe('Validation - Reminder Frequency', () => {
+    it('should change reminder frequency', () => {
       component.setFrequency(30);
       expect(component.reminderFrequency).toBe(30);
     });
   });
 
-  describe('Validation - Historique d\'hydratation', () => {
+  describe('Validation - Hydration History', () => {
     beforeEach(() => {
       component.glassCount = 0;
       component.glassTarget = 8;
@@ -116,13 +136,13 @@ describe('HealthComponent (Frontoffice) - Contrôles de Saisie', () => {
       component.drinkHistory = [];
     });
 
-    it('devrait incrémenter les verres', () => {
+    it('should increment glass count', () => {
       component.drinkNow();
       expect(component.glassCount).toBe(1);
       expect(component.drinkHistory.length).toBe(1);
     });
 
-    it('devrait calculer le pourcentage d\'hydration', () => {
+    it('should calculate hydration percentage', () => {
       component.glassCount = 4;
       component.glassTarget = 8;
       component.updateProgress();
@@ -130,7 +150,7 @@ describe('HealthComponent (Frontoffice) - Contrôles de Saisie', () => {
       expect(component.hydrationPercentage).toBe(50);
     });
 
-    it('devrait charger l\'historique du jour', () => {
+    it('should load today history', () => {
       const today = new Date().toDateString();
       const stored = [{ time: '10:30', quantity: 250 }];
       spyOn(localStorage, 'getItem').and.returnValue(JSON.stringify(stored));
@@ -141,20 +161,21 @@ describe('HealthComponent (Frontoffice) - Contrôles de Saisie', () => {
     });
   });
 
-  describe('Validation - Différence de poids', () => {
-    it('devrait identifier différence positive', () => {
+  describe('Validation - Weight Difference', () => {
+    it('should identify positive weight difference', () => {
       component.weightDifference = '5.0';
       expect(component.isWeightDifferencePositive()).toBe(true);
       expect(component.getWeightDifferenceDisplay()).toBe('+5.0');
     });
 
-    it('devrait identifier différence négative', () => {
+    it('should identify negative weight difference', () => {
       component.weightDifference = '-3.5';
       expect(component.isWeightDifferenceNegative()).toBe(true);
     });
   });
 
-  it('devrait être créé', () => {
+  it('should create component', () => {
     expect(component).toBeTruthy();
+  });
   });
 });

@@ -8,17 +8,23 @@
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Title</label>
       <input [(ngModel)]="newPost.title" placeholder="Post title..." style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"/>
+      <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ (newPost.title?.length || 0) }}/100 characters</small>
     </div>
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Description</label>
       <textarea [(ngModel)]="newPost.description" placeholder="Post content..." rows="4" style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"></textarea>
+      <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ (newPost.description?.length || 0) }}/500 characters</small>
     </div>
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Image</label>
       <input type="file" accept="image/*" (change)="onImageSelected($event)" style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"/>
+      <small *ngIf="showAddPostError" style="display:block;margin-top:0.25rem;color:#E61920;font-weight:600;">Error: {{ addPostErrorMessage }}</small>
     </div>
     <div *ngIf="imagePreview" style="margin-bottom:1rem;">
       <img [src]="imagePreview" style="width:100%;max-height:200px;border-radius:8px;object-fit:cover;"/>
+    </div>
+    <div *ngIf="showAddPostError" style="margin-bottom:1rem;padding:0.75rem;background:#E61920;border-radius:8px;color:white;font-weight:600;font-size:0.9rem;">
+      ⚠️ {{ addPostErrorMessage }}
     </div>
     <div style="display:flex;gap:1rem;justify-content:flex-end;">
       <button type="button" (click)="closeModal()" style="padding:0.75rem 1.5rem;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a24;cursor:pointer;color:#9090a8;" [disabled]="isLoading" [style.opacity]="isLoading ? 0.6 : 1">Cancel</button>
@@ -39,10 +45,15 @@
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Title</label>
       <input [(ngModel)]="editPost.title" placeholder="Post title..." style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"/>
+      <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ (editPost.title?.length || 0) }}/100 characters</small>
     </div>
     <div style="margin-bottom:1.5rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Description</label>
       <textarea [(ngModel)]="editPost.description" placeholder="Post content..." rows="4" style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"></textarea>
+      <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ (editPost.description?.length || 0) }}/500 characters</small>
+    </div>
+    <div *ngIf="showEditPostError" style="margin-bottom:1rem;padding:0.75rem;background:#E61920;border-radius:8px;color:white;font-weight:600;font-size:0.9rem;">
+      ⚠️ {{ editPostErrorMessage }}
     </div>
     <div style="display:flex;gap:1rem;justify-content:flex-end;">
       <button (click)="showEditForm = false" style="padding:0.75rem 1.5rem;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a24;cursor:pointer;color:#9090a8;">Cancel</button>
@@ -75,6 +86,14 @@
     <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:1.5rem;border-left:4px solid #F59E0B;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
       <div style="font-size:0.85rem;color:#9090a8;font-weight:600;text-transform:uppercase;margin-bottom:0.5rem;">Total Likes</div>
       <div style="font-size:2.5rem;font-weight:800;color:#F59E0B;">{{ totalLikes }}</div>
+    </div>
+  </div>
+
+  <!-- STATISTICS CHART -->
+  <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:1.5rem;margin-bottom:2rem;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
+    <h3 style="color:#f0f0f5;margin-top:0;margin-bottom:1rem;">Engagement Overview</h3>
+    <div style="position:relative;height:300px;">
+      <canvas id="statsChart"></canvas>
     </div>
   </div>
 
@@ -130,7 +149,7 @@
           </button>
         </div>
 
-        <!-- ✅ COMMENTAIRES LECTURE SEULE -->
+        <!-- COMMENTAIRES LECTURE SEULE -->
 <div *ngIf="(commentsByPost[post.id] || []).length > 0"             style="margin-top:1rem;border-top:1px solid #2a2a3a;padding-top:1rem;">
           <div *ngFor="let comment of commentsByPost[post.id]"
                style="display:flex;gap:0.75rem;margin-bottom:0.75rem;">

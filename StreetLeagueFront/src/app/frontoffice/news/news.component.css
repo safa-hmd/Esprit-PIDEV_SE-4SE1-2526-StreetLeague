@@ -140,3 +140,14 @@
 }
 .btn-outline:hover { background: #E61920; color: white; }
 .btn-full { width: 100%; box-sizing: border-box; }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

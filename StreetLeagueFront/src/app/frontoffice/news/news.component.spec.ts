@@ -5,7 +5,7 @@ import { PostService } from '../../services/post.service';
 import { CommentService } from '../../services/comment.service';
 import { of, throwError } from 'rxjs';
 
-describe('NewsComponent (Frontoffice) - Contrôles de Saisie', () => {
+describe('NewsComponent (Frontoffice) - Input Validation', () => {
   let component: NewsComponent;
   let fixture: ComponentFixture<NewsComponent>;
   let postService: jasmine.SpyObj<PostService>;
@@ -29,7 +29,6 @@ describe('NewsComponent (Frontoffice) - Contrôles de Saisie', () => {
     postService = TestBed.inject(PostService) as jasmine.SpyObj<PostService>;
     commentService = TestBed.inject(CommentService) as jasmine.SpyObj<CommentService>;
 
-    // ✅ setup قبل detectChanges
     postService.getAllPosts.and.returnValue(of([]));
     commentService.getCommentsByPost.and.returnValue(of([]));
 
@@ -38,8 +37,8 @@ describe('NewsComponent (Frontoffice) - Contrôles de Saisie', () => {
     fixture.detectChanges();
   });
 
-  describe('Validation - Chargement des posts', () => {
-    it('devrait charger tous les posts au démarrage', (done) => {
+  describe('Validation - Post Loading', () => {
+    it('should load all posts on startup', (done) => {
       const mockPosts = [
         { id: 1, title: 'Post 1', description: 'Desc 1', comments: [] },
         { id: 2, title: 'Post 2', description: 'Desc 2', comments: [] }
@@ -55,7 +54,7 @@ describe('NewsComponent (Frontoffice) - Contrôles de Saisie', () => {
       }, 100);
     });
 
-    it('devrait gérer les erreurs lors du chargement', () => {
+    it('should handle errors during loading', () => {
       postService.getAllPosts.and.returnValue(throwError(() => ({ status: 500 })));
       spyOn(console, 'error');
 
@@ -65,16 +64,16 @@ describe('NewsComponent (Frontoffice) - Contrôles de Saisie', () => {
     });
   });
 
-  describe('Validation - Commentaires', () => {
+  describe('Validation - Comments', () => {
     beforeEach(() => {
       component.posts = [
         { id: 1, title: 'Post 1', comments: [], showComments: false }
       ];
     });
 
-    it('devrait basculer l\'affichage des commentaires', () => {
+    it('should toggle comments display', () => {
       const post = component.posts[0];
-      commentService.getCommentsByPost.and.returnValue(of([])); // ✅
+      commentService.getCommentsByPost.and.returnValue(of([]));
 
       component.toggleComments(post);
       expect(post.showComments).toBe(true);
@@ -83,7 +82,7 @@ describe('NewsComponent (Frontoffice) - Contrôles de Saisie', () => {
       expect(post.showComments).toBe(false);
     });
 
-    it('deve charger commentaires lors du basculer', () => {
+    it('should load comments when toggled', () => {
       const post = component.posts[0];
       commentService.getCommentsByPost.and.returnValue(of([]));
 
@@ -92,54 +91,93 @@ describe('NewsComponent (Frontoffice) - Contrôles de Saisie', () => {
       expect(commentService.getCommentsByPost).toHaveBeenCalledWith(1);
     });
 
-    it('devrait ajouter un commentaire valide', () => {
+    it('should add valid comment', () => {
       const post = component.posts[0];
-      component.newComment[1] = 'Commentaire test';
+      component.newComment[1] = 'Test comment';
       commentService.addComment.and.returnValue(of({}));
       commentService.getCommentsByPost.and.returnValue(of([]));
 
       component.addComment(post);
 
       expect(commentService.addComment).toHaveBeenCalledWith({
-        content: 'Commentaire test',
+        content: 'Test comment',
         postId: 1
       });
     });
 
-    it('ne devrait pas ajouter un commentaire vide', () => {
+    it('should reject empty comment', () => {
       const post = component.posts[0];
       component.newComment[1] = '';
 
       component.addComment(post);
 
       expect(commentService.addComment).not.toHaveBeenCalled();
+      expect(component.showCommentError[1]).toBe(true);
+      expect(component.commentErrorMessage[1]).toBe('Comment cannot be empty');
     });
 
-    it('ne devrait pas ajouter un commentaire avec espaces seulement', () => {
+    it('should reject comment with only spaces', () => {
       const post = component.posts[0];
       component.newComment[1] = '   ';
 
       component.addComment(post);
 
       expect(commentService.addComment).not.toHaveBeenCalled();
+      expect(component.showCommentError[1]).toBe(true);
     });
 
-    it('devrait ouvrir le formulaire d\'édition de commentaire', () => {
-      const comment = { id: 1, content: 'Ancien texte' };
+    it('should reject comment with less than 2 characters', () => {
+      const post = component.posts[0];
+      component.newComment[1] = 'a';
+
+      component.addComment(post);
+
+      expect(commentService.addComment).not.toHaveBeenCalled();
+      expect(component.showCommentError[1]).toBe(true);
+      expect(component.commentErrorMessage[1]).toBe('Comment must be at least 2 characters');
+    });
+
+    it('should reject comment exceeding 500 characters', () => {
+      const post = component.posts[0];
+      component.newComment[1] = 'a'.repeat(501);
+
+      component.addComment(post);
+
+      expect(commentService.addComment).not.toHaveBeenCalled();
+      expect(component.showCommentError[1]).toBe(true);
+      expect(component.commentErrorMessage[1]).toBe('Comment must not exceed 500 characters');
+    });
+
+    it('should display error message for failed comment addition', (done) => {
+      const post = component.posts[0];
+      component.newComment[1] = 'Test comment';
+      commentService.addComment.and.returnValue(throwError(() => ({ status: 500 })));
+
+      component.addComment(post);
+
+      setTimeout(() => {
+        expect(component.showCommentError[1]).toBe(true);
+        expect(component.commentErrorMessage[1]).toContain('Failed');
+        done();
+      }, 100);
+    });
+
+    it('should open edit comment form', () => {
+      const comment = { id: 1, content: 'Old text' };
       const post = component.posts[0];
 
       component.openEditComment(comment, post);
 
       expect(component.editingComment).toBe(comment);
-      expect(component.editCommentContent).toBe('Ancien texte');
+      expect(component.editCommentContent).toBe('Old text');
       expect(component.showEditCommentForm).toBe(true);
     });
 
-    it('devrait mettre à jour un commentaire valide', () => {
-      const comment = { id: 1, content: 'Ancien texte' };
+    it('should update valid comment', () => {
+      const comment = { id: 1, content: 'Old text' };
       const post = component.posts[0];
       component.editingComment = comment;
-      component.editCommentContent = 'Nouveau texte';
+      component.editCommentContent = 'New text';
       commentService.updateComment.and.returnValue(of({}));
       commentService.getCommentsByPost.and.returnValue(of([]));
 
@@ -149,16 +187,40 @@ describe('NewsComponent (Frontoffice) - Contrôles de Saisie', () => {
       expect(component.showEditCommentForm).toBe(false);
     });
 
-    it('ne devrait pas mettre à jour avec texte vide', () => {
+    it('should reject empty edit comment', () => {
       const post = component.posts[0];
       component.editCommentContent = '';
 
       component.saveEditComment(post);
 
       expect(commentService.updateComment).not.toHaveBeenCalled();
+      expect(component.showEditError).toBe(true);
+      expect(component.editErrorMessage).toBe('Comment cannot be empty');
     });
 
-    it('devrait supprimer un commentaire', () => {
+    it('should reject edit comment with less than 2 characters', () => {
+      const post = component.posts[0];
+      component.editCommentContent = 'a';
+
+      component.saveEditComment(post);
+
+      expect(commentService.updateComment).not.toHaveBeenCalled();
+      expect(component.showEditError).toBe(true);
+      expect(component.editErrorMessage).toBe('Comment must be at least 2 characters');
+    });
+
+    it('should reject edit comment exceeding 500 characters', () => {
+      const post = component.posts[0];
+      component.editCommentContent = 'a'.repeat(501);
+
+      component.saveEditComment(post);
+
+      expect(commentService.updateComment).not.toHaveBeenCalled();
+      expect(component.showEditError).toBe(true);
+      expect(component.editErrorMessage).toBe('Comment must not exceed 500 characters');
+    });
+
+    it('should delete comment', () => {
       const post = component.posts[0];
       commentService.deleteComment.and.returnValue(of({}));
       commentService.getCommentsByPost.and.returnValue(of([]));
@@ -169,14 +231,14 @@ describe('NewsComponent (Frontoffice) - Contrôles de Saisie', () => {
     });
   });
 
-  describe('Validation - Like de post', () => {
+  describe('Validation - Post Likes', () => {
     beforeEach(() => {
       component.posts = [
         { id: 1, title: 'Post 1', liked: false, likes: 5 }
       ];
     });
 
-    it('devrait liker un post', () => {
+    it('should like a post', () => {
       const post = component.posts[0];
       postService.likePost.and.returnValue(of({ likes: 6 }));
 
@@ -186,7 +248,7 @@ describe('NewsComponent (Frontoffice) - Contrôles de Saisie', () => {
       expect(post.liked).toBe(true);
     });
 
-    it('devrait enlever le like si déjà liké', () => {
+    it('should remove like if already liked', () => {
       const post = component.posts[0];
       post.liked = true;
       post.likes = 6;
@@ -198,30 +260,30 @@ describe('NewsComponent (Frontoffice) - Contrôles de Saisie', () => {
     });
   });
 
-  describe('Validation - Formatage des initiales', () => {
-    it('devrait formater le nom complet en initiales', () => {
+  describe('Validation - Initial Format', () => {
+    it('should format full name as initials', () => {
       expect(component.getInitials('John Doe')).toBe('JD');
       expect(component.getInitials('Alice Johnson')).toBe('AJ');
     });
 
-    it('devrait gérer un seul nom', () => {
+    it('should handle single name', () => {
       expect(component.getInitials('Alice')).toBe('A');
     });
 
-    it('devrait retourner ?? si nom invalide', () => {
+    it('should return ?? if invalid name', () => {
       expect(component.getInitials(null as any)).toBe('??');
     });
   });
 
-  describe('Validation - URL de l\'image', () => {
-    it('devrait générer l\'URL correcte de l\'image', () => {
+  describe('Validation - Image URL', () => {
+    it('should generate correct image URL', () => {
       const url = component.getImageUrl(5);
       expect(url).toContain('http://localhost:8086');
       expect(url).toContain('/posts/image/5');
     });
   });
 
-  it('devrait être créé', () => {
+  it('should create component', () => {
     expect(component).toBeTruthy();
   });
 });
