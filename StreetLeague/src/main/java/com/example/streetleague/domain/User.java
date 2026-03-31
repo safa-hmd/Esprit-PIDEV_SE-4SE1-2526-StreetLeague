@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Data
+@Getter          // ← @Getter + @Setter au lieu de @Data
+@Setter          // ← @Data cause des conflits avec @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -42,8 +43,7 @@ public class User {
     @Builder.Default
     boolean enabled = true;
 
-    // ── Relations existantes (branche HEAD) ──────────────────────────────────
-
+    // ── Relations team ────────────────────────────────────────
     @OneToMany(mappedBy = "captain", cascade = CascadeType.ALL)
     @JsonIgnore
     List<Team> captainedTeams;
@@ -69,8 +69,7 @@ public class User {
     @Column(name = "team_id")
     Long teamId;
 
-    // ── Nouvelles relations (branche newsHealth) ──────────────────────────────
-
+    // ── Nouvelles relations (newsHealth) ──────────────────────
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     List<Post> posts;

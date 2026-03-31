@@ -7,23 +7,20 @@ import com.example.streetleague.domain.Role;
 import com.example.streetleague.domain.User;
 import com.example.streetleague.dto.TeamRequest;
 import com.example.streetleague.dto.TeamResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/team")
 public class TeamController {
 
-    private final IteamService teamService;
-    private final UserRepository userRepository;
-
-    public TeamController(IteamService teamService, 
-                          UserRepository userRepository) {
-        this.teamService = teamService;
-        this.userRepository = userRepository;
-    }
+    IteamService   teamService;
+    UserRepository userRepository;
+    TeamRepository teamRepository;
 
     // POST /team/add?email=captain@mail.com
     @PostMapping("/add")
@@ -84,11 +81,5 @@ public class TeamController {
         User captain = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
         return teamService.getTeamsByCaptain(captain.getIdUser());
-    }
-
-    // GET /team/my-teams?captainId=7
-    @GetMapping("my-teams")
-    public List<TeamResponse> getMyTeamsByCaptain(@RequestParam Long captainId) {
-        return teamService.getTeamsByCaptain(captainId);
     }
 }
