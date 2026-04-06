@@ -14,6 +14,7 @@ import com.example.streetleague.dto.MatchResponse;
 import com.example.streetleague.dto.MatchUpdateRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,7 +27,9 @@ public class MatchServiceImpl implements ImatchService {
     TeamRepository  teamRepository;
     UserRepository  userRepository;
 
+    // ── ADD ───────────────────────────────────────────────────────────────
     @Override
+    @Transactional
     public MatchResponse addMatch(MatchRequest dto, Long teamAId, Long teamBId, Long captainId) {
         Team teamA = teamRepository.findById(teamAId)
                 .orElseThrow(() -> new RuntimeException("TeamA not found: " + teamAId));
@@ -45,10 +48,6 @@ public class MatchServiceImpl implements ImatchService {
             throw new RuntimeException("Location is required");
         if (dto.location().length() < 3 || dto.location().length() > 100)
             throw new RuntimeException("Location must be between 3 and 100 characters");
-//        if (dto.matchDate() == null)
-//            throw new RuntimeException("Match date is required");
-//        if (dto.matchDate().isBefore(LocalDateTime.now()))
-//            throw new RuntimeException("Match date must be in the future");
 
         boolean alreadyExists = matchRepository.findAll().stream().anyMatch(e ->
                 e.getTeamA().getIdTeam().equals(teamAId) &&
@@ -57,7 +56,6 @@ public class MatchServiceImpl implements ImatchService {
         if (alreadyExists)
             throw new RuntimeException("A pending/accepted match already exists between these teams");
 
-        // Conversion DTO → Entity + injection des relations
         Match m = new Match();
         m.setMatchDate(dto.matchDate());
         m.setLocation(dto.location());
@@ -69,7 +67,9 @@ public class MatchServiceImpl implements ImatchService {
         return MatchResponse.fromEntity(matchRepository.save(m));
     }
 
+    // ── UPDATE ────────────────────────────────────────────────────────────
     @Override
+    @Transactional
     public MatchResponse updateMatch(MatchUpdateRequest dto, Long captainId) {
         Match existing = matchRepository.findById(dto.idMatch())
                 .orElseThrow(() -> new RuntimeException("Match not found: " + dto.idMatch()));
@@ -105,7 +105,9 @@ public class MatchServiceImpl implements ImatchService {
         return MatchResponse.fromEntity(matchRepository.save(existing));
     }
 
+    // ── DELETE ────────────────────────────────────────────────────────────
     @Override
+    @Transactional
     public void deleteMatch(Long idMatch, Long userId) {
         Match match = matchRepository.findById(idMatch)
                 .orElseThrow(() -> new RuntimeException("Match not found: " + idMatch));
@@ -113,29 +115,29 @@ public class MatchServiceImpl implements ImatchService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
-        // ✅ ADMIN peut supprimer n'importe quel match
-        boolean isAdmin = user.getRole() == Role.ADMIN;
-
+        boolean isAdmin   = user.getRole() == Role.ADMIN;
         boolean isCaptainA = match.getTeamA().getCaptain().getIdUser().equals(userId);
         boolean isCaptainB = match.getTeamB().getCaptain().getIdUser().equals(userId);
 
         if (!isAdmin && !isCaptainA && !isCaptainB)
             throw new RuntimeException("Only the captain of TeamA or TeamB can delete this match");
-
         if (match.getStatus() == MatchStatus.FINISHED)
             throw new RuntimeException("Cannot delete a finished match");
 
         matchRepository.deleteById(idMatch);
     }
 
-
+    // ── SHOW ALL ──────────────────────────────────────────────────────────
     @Override
+    @Transactional(readOnly = true)
     public List<MatchResponse> ShowMatchs() {
         return matchRepository.findAll().stream()
                 .map(MatchResponse::fromEntity).toList();
     }
 
+    // ── SHOW ONE ──────────────────────────────────────────────────────────
     @Override
+    @Transactional(readOnly = true)
     public MatchResponse ShowMatch(Long idMatch) {
         return MatchResponse.fromEntity(
                 matchRepository.findById(idMatch)

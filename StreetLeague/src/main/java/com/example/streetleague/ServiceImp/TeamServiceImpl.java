@@ -11,6 +11,7 @@ import com.example.streetleague.dto.TeamRequest;
 import com.example.streetleague.dto.TeamResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,6 +31,7 @@ public class TeamServiceImpl implements IteamService {
         this.matchRepository = matchRepository;
     }
 
+    @Transactional
     @Override
     public TeamResponse addTeam(TeamRequest dto, Long captainId) {
         User captain = userRepository.findById(captainId)
@@ -67,6 +69,7 @@ public class TeamServiceImpl implements IteamService {
     }
 
     @Override
+    @Transactional
     public TeamResponse updateTeam(Long teamId, TeamRequest dto, Long captainId) {
         Team existing = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + teamId));
@@ -104,7 +107,9 @@ public class TeamServiceImpl implements IteamService {
         return TeamResponse.fromEntity(teamRepository.save(existing));
     }
 
+
     @Override
+    @Transactional
     public void deleteTeam(Long idTeam, Long userId) {
         Team team = teamRepository.findById(idTeam)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + idTeam));
@@ -128,12 +133,14 @@ public class TeamServiceImpl implements IteamService {
         teamRepository.deleteById(idTeam);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<TeamResponse> ShowTeams() {
         return teamRepository.findAll().stream()
                 .map(TeamResponse::fromEntity).toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public TeamResponse ShowTeam(Long idTeam) {
         return TeamResponse.fromEntity(
@@ -142,6 +149,7 @@ public class TeamServiceImpl implements IteamService {
     }
 
     @Override
+    @Transactional
     public List<TeamResponse> getTeamsByCaptain(Long captainId) {
         return teamRepository.findAll().stream()
                 .filter(t -> t.getCaptain().getIdUser().equals(captainId))
@@ -150,6 +158,7 @@ public class TeamServiceImpl implements IteamService {
     }
 
     @Override
+    @Transactional
     public TeamResponse joinTeam(Long teamId, Long playerId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + teamId));
@@ -168,6 +177,7 @@ public class TeamServiceImpl implements IteamService {
     }
 
     @Override
+    @Transactional
     public TeamResponse leaveTeam(Long teamId, Long playerId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + teamId));

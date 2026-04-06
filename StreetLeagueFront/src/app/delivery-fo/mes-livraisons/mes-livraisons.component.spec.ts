@@ -12,7 +12,7 @@ describe('MesLivraisonsComponent', () => {
   let livraisonServiceSpy: jasmine.SpyObj<LivraisonService>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
 
-  const CURRENT_USER_ID = 42;
+  const CURRENT_USER_ID = '42';
 
   const mockApiResponse: Livraison[] = [
     {

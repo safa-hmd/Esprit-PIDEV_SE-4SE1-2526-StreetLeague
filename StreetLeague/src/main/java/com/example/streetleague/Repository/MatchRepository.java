@@ -13,14 +13,9 @@ import java.util.List;
 @Repository
 public interface MatchRepository extends JpaRepository<Match, Long> {
 
+    // ✅ Une seule méthode, un seul paramètre
     @Modifying
     @Transactional
-    @Query("DELETE FROM Match m WHERE m.teamA.idTeam = :teamId1 OR m.teamB.idTeam = :teamId2")
-    void deleteByTeamAIdOrTeamBId(
-            @Param("teamId1") Long teamId1,
-            @Param("teamId2") Long teamId2
-    );
-
     @Query("DELETE FROM Match m WHERE m.teamA.idTeam = :teamId OR m.teamB.idTeam = :teamId")
     void deleteByTeamAIdOrTeamBId(@Param("teamId") Long teamId);
 

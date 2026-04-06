@@ -14,6 +14,7 @@ import com.example.streetleague.dto.TrainingResponse;
 import com.example.streetleague.dto.TrainingUpdateRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,16 +29,15 @@ public class TrainingServiceImpl implements ItrainingService {
 
     // ── ADD ───────────────────────────────────────────────────────────────
     @Override
+    @Transactional
     public TrainingResponse addTraining(TrainingRequest dto, Long teamId, Long coachId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + teamId));
         User coach = userRepository.findById(coachId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + coachId));
 
-        // ✅ Role.COACH (pas ROLE_COACH)
         if (coach.getRole() != Role.COACH)
             throw new RuntimeException("Only a COACH can create a training session");
-
         if (dto.title() == null || dto.title().isBlank())
             throw new RuntimeException("Title is required");
         if (dto.title().length() < 3 || dto.title().length() > 100)
@@ -74,16 +74,15 @@ public class TrainingServiceImpl implements ItrainingService {
 
     // ── UPDATE ────────────────────────────────────────────────────────────
     @Override
+    @Transactional
     public TrainingResponse updateTraining(TrainingUpdateRequest dto, Long coachId) {
         Training existing = trainingRepo.findById(dto.idTraining())
                 .orElseThrow(() -> new RuntimeException("Training not found: " + dto.idTraining()));
         User coach = userRepository.findById(coachId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + coachId));
 
-        // ✅ Role.COACH
         if (coach.getRole() != Role.COACH)
             throw new RuntimeException("Only a COACH can update a training session");
-
         if (existing.getStatus() == TrainingStatus.CANCELLED)
             throw new RuntimeException("Cannot edit a cancelled training session");
 
@@ -126,26 +125,30 @@ public class TrainingServiceImpl implements ItrainingService {
 
     // ── DELETE ────────────────────────────────────────────────────────────
     @Override
+    @Transactional
     public void deleteTraining(Long idTraining, Long userId) {
         Training training = trainingRepo.findById(idTraining)
                 .orElseThrow(() -> new RuntimeException("Training not found: " + idTraining));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
-        // ✅ ADMIN peut supprimer, sinon seulement un COACH
         boolean isAdmin = user.getRole() == Role.ADMIN;
 
         if (!isAdmin && user.getRole() != Role.COACH)
             throw new RuntimeException("Only a COACH or ADMIN can delete a training session");
-
         if (!isAdmin && training.getStatus() == TrainingStatus.COMPLETED)
             throw new RuntimeException("Cannot delete a completed training session");
+
+        // Vider les participants avant suppression (évite contrainte FK)
+        training.getParticipants().clear();
+        trainingRepo.saveAndFlush(training);
 
         trainingRepo.deleteById(idTraining);
     }
 
     // ── SHOW ALL ──────────────────────────────────────────────────────────
     @Override
+    @Transactional(readOnly = true)
     public List<TrainingResponse> ShowTrainings() {
         return trainingRepo.findAll().stream()
                 .map(TrainingResponse::fromEntity).toList();
@@ -153,6 +156,7 @@ public class TrainingServiceImpl implements ItrainingService {
 
     // ── SHOW ONE ──────────────────────────────────────────────────────────
     @Override
+    @Transactional(readOnly = true)
     public TrainingResponse ShowTraining(Long idTraining) {
         return TrainingResponse.fromEntity(
                 trainingRepo.findById(idTraining)
@@ -161,16 +165,15 @@ public class TrainingServiceImpl implements ItrainingService {
 
     // ── JOIN ──────────────────────────────────────────────────────────────
     @Override
+    @Transactional
     public TrainingResponse joinTraining(Long trainingId, Long playerId) {
         Training training = trainingRepo.findById(trainingId)
                 .orElseThrow(() -> new RuntimeException("Training not found: " + trainingId));
         User player = userRepository.findById(playerId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + playerId));
 
-        // ✅ Role.PLAYER (pas ROLE_PLAYER)
         if (player.getRole() != Role.PLAYER)
             throw new RuntimeException("Only a PLAYER can join a training session");
-
         if (training.getStatus() != TrainingStatus.PLANNED)
             throw new RuntimeException("Can only join PLANNED training sessions");
         if (training.getParticipants().contains(player))
@@ -182,6 +185,7 @@ public class TrainingServiceImpl implements ItrainingService {
 
     // ── LEAVE ─────────────────────────────────────────────────────────────
     @Override
+    @Transactional
     public TrainingResponse leaveTraining(Long trainingId, Long playerId) {
         Training training = trainingRepo.findById(trainingId)
                 .orElseThrow(() -> new RuntimeException("Training not found: " + trainingId));
@@ -195,8 +199,9 @@ public class TrainingServiceImpl implements ItrainingService {
         return TrainingResponse.fromEntity(trainingRepo.save(training));
     }
 
-
+    // ── BY COACH ──────────────────────────────────────────────────────────
     @Override
+    @Transactional(readOnly = true)
     public List<TrainingResponse> getTrainingsByCoach(Long coachId) {
         return trainingRepo.findAll().stream()
                 .filter(t -> t.getTeam() != null
