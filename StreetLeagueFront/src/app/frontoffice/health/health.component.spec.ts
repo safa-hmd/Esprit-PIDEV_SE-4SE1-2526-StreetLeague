@@ -178,4 +178,4 @@ describe('HealthComponent (Frontoffice) - Input Validation', () => {
     expect(component).toBeTruthy();
   });
   });
-});
+

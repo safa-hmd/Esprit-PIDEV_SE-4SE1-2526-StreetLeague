@@ -33,14 +33,13 @@ public class Post {
     @Builder.Default
     private int likes = 0;
 
-    // ✅ Baddel hadha men String l byte[] w zid imageType
     @JsonIgnore
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] imageData;
 
-    private String imageType; // Store MIME type (image/jpeg, image/png, etc.)
+    private String imageType;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
