@@ -4,6 +4,7 @@ import com.example.streetleague.Repository.CategoryRepository;
 import com.example.streetleague.domain.Category;
 import com.example.streetleague.dto.CategoryDTO;
 import com.example.streetleague.ServiceInterface.CategoryService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -63,6 +64,7 @@ public class CategoryServiceImp implements CategoryService {
         return mapToDTO(category);
     }
 
+    @Transactional
     @Override
     public List<CategoryDTO> getAll() {
         return categoryRepository.findAll()

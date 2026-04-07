@@ -30,7 +30,7 @@
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#333;">Comment</label>
       <textarea [(ngModel)]="editCommentContent" placeholder="Edit your comment..." rows="4"
         style="width:100%;padding:0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;color:#333;"></textarea>
-      <small style="display:block;margin-top:0.25rem;color:#999;">{{ editCommentContent?.length || 0 }}/500 characters</small>
+      <small style="display:block;margin-top:0.25rem;color:#999;">{{ editCommentContent.length || 0 }}/500 characters</small>
       <small *ngIf="showEditError" style="display:block;margin-top:0.25rem;color:#E61920;font-weight:600;">Error: {{ editErrorMessage }}</small>
     </div>
     <div style="display:flex;gap:1rem;justify-content:flex-end;">
@@ -145,7 +145,7 @@
               <button (click)="addComment(post)" style="padding:0.6rem 1.2rem;background:#E61920;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.87rem;">Send</button>
             </div>
             <small *ngIf="showCommentError[post.id]" style="color:#E61920;font-weight:600;font-size:0.8rem;">⚠️ {{ commentErrorMessage[post.id] }}</small>
-            <small style="color:#999;font-size:0.8rem;">{{ newComment[post.id]?.length || 0 }}/500 characters</small>
+            <small style="color:#999;font-size:0.8rem;">{{ newComment[post.id].length || 0 }}/500 characters</small>
           </div>
         </div>
 

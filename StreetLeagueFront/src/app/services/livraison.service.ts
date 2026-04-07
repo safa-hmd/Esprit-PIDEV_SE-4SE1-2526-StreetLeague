@@ -6,25 +6,25 @@ import { Livraison, Transporteur } from '../models/livraison.model';
 
 @Injectable({ providedIn: 'root' })
 export class LivraisonService {
-  private base = 'http://localhost:8086/StreetLeague/api';
+  private base = 'http://localhost:8086/StreetLeague/livraisons';
 
   constructor(private http: HttpClient) {}
 
   // ── Livraisons ────────────────────────────────────────
   getAllLivraisons(): Observable<Livraison[]> {
-    return this.http.get<Livraison[]>(`${this.base}/livraisons`);
+    return this.http.get<Livraison[]>(`${this.base}`); // ✅ correct
   }
 
   getLivraisonById(id: number): Observable<Livraison> {
-    return this.http.get<Livraison>(`${this.base}/livraisons/${id}`);
+    return this.http.get<Livraison>(`${this.base}/${id}`); // ✅ supprime /livraisons/
   }
 
   createLivraison(dto: any): Observable<Livraison> {
-    return this.http.post<Livraison>(`${this.base}/livraisons`, dto);
+    return this.http.post<Livraison>(`${this.base}`, dto); // ✅ supprime /livraisons
   }
 
   updateStatus(id: number, dto: any): Observable<Livraison> {
-    return this.http.put<Livraison>(`${this.base}/livraisons/${id}/status`, dto);
+    return this.http.put<Livraison>(`${this.base}/${id}/status`, dto); // ✅ supprime /livraisons/
   }
 
   // ── Transporteurs ─────────────────────────────────────
@@ -47,14 +47,11 @@ export class LivraisonService {
     );
   }
 
-  // ── Livreurs : GET tous les users puis filtre DELIVERY ─
   getAllDeliveryUsers(): Observable<any[]> {
     return this.http.get<any[]>(`${this.base}/users`).pipe(
-      // Filtre côté Angular : garde uniquement les users avec rôle DELIVERY
       map((users: any[]) => users.filter(u =>
         u.role === 'DELIVERY' || u.role === 'ROLE_DELIVERY'
       )),
-      // Si /api/users n'existe pas → retourne liste vide sans planter
       catchError(() => of([]))
     );
   }

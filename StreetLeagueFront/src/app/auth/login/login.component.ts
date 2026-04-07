@@ -60,7 +60,7 @@ private emailPlaceholders: Record<Role, string> = {
     this.authService.login({ email, password }).subscribe({
       next: (response) => {
         this.isLoading = false;
-
+ console.log('ROLE RECU DU BACKEND:', response.role);
         // ✅ Sauvegarde sans JSON.stringify
         localStorage.setItem('TokenUserConnect', response.token);
         localStorage.setItem('EmailUserConnect', response.email);
@@ -86,9 +86,11 @@ private emailPlaceholders: Record<Role, string> = {
       case 'SPONSOR':
         this.router.navigateByUrl('/client');   
         break;
-      case 'DELIVERY':
-        this.router.navigateByUrl('/client');   
-        break;
+
+    case 'ROLE_DELIVERY':
+    case 'DELIVERY':
+      this.router.navigateByUrl('/delivery'); break; // ✅ les deux formats
+
       case 'PLAYER':
       default:
         this.router.navigateByUrl('/client');

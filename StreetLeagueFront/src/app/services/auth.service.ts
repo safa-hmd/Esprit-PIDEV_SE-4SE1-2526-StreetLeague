@@ -38,6 +38,29 @@ export class AuthService {
     );
   }
 
+  isLoggedIn(): boolean {
+  const token = localStorage.getItem('TokenUserConnect');
+  if (!token) return false;
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const isExpired = payload.exp * 1000 < Date.now();
+    if (isExpired) {
+      this.logout(); // nettoie automatiquement
+      return false;
+    }
+    return true;
+  } catch (e) {
+    this.logout(); // token corrompu → nettoie
+    return false;
+  }
+}
+
+getToken(): string | null {
+  if (!this.isLoggedIn()) return null; // vérifie expiration
+  return localStorage.getItem('TokenUserConnect');
+}
+
   login(req: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
       `http://localhost:8086/StreetLeague/auth/login`, req
@@ -59,17 +82,13 @@ export class AuthService {
     localStorage.removeItem('UserIdConnect');
   }
 
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('TokenUserConnect');
-  }
+
 
   getRole(): string | null {
     return localStorage.getItem('RoleUserConnect');
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('TokenUserConnect');
-  }
+
 
   getEmail(): string | null {
     return localStorage.getItem('EmailUserConnect');
@@ -85,6 +104,8 @@ export class AuthService {
   window.location.href = 
     'http://localhost:8086/StreetLeague/oauth2/authorization/google';
 }
+
+
 
 forgotPassword(email: string): Observable<string> {
   return this.http.post(

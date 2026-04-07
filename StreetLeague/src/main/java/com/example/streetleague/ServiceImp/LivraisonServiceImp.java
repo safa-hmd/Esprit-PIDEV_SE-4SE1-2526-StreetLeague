@@ -10,6 +10,7 @@ import com.example.streetleague.Repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -46,6 +47,7 @@ public class LivraisonServiceImp implements LivraisonService {
         return livraisonRepository.save(livraison);
     }
 
+    @Transactional
     @Override
     public Livraison updateLivraisonStatus(Long id, @Valid LivraisonDTO dto) {
         Livraison livraison = livraisonRepository.findById(id)
@@ -54,12 +56,14 @@ public class LivraisonServiceImp implements LivraisonService {
         return livraisonRepository.save(livraison);
     }
 
+    @Transactional
     @Override
     public Livraison getLivraisonById(Long id) {
         return livraisonRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Livraison introuvable"));
     }
 
+    @Transactional
     @Override
     public List<Livraison> getAllLivraisons() {
         return livraisonRepository.findAll();
