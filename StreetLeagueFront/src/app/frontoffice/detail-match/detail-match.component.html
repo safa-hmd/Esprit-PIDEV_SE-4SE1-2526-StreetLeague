@@ -1,35 +1,58 @@
 <div class="page-content">
 
-     <button class="btn btn-outline btn-sm" (click)="goBack()">← Back</button>
-  <div class="page-header">
+  <button class="btn btn-outline btn-sm" (click)="goBack()">← Back</button>
+
+  <!-- Header + bouton Edit -->
+  <div class="page-header" style="display:flex;justify-content:space-between;
+                                   align-items:center;flex-wrap:wrap;gap:1rem;">
     <h1 class="page-title">Match Details</h1>
+
+    <!-- Bouton visible seulement pour le créateur, match non terminé -->
+    <button class="btn btn-primary btn-sm"
+            *ngIf="match && isCreator() &&
+                   match.status !== 'FINISHED' &&
+                   match.status !== 'CANCELLED' &&
+                   match.status !== 'REJECTED'"
+            (click)="openEditModal()">
+      ✏️ Edit Match
+    </button>
   </div>
 
-  <!-- Loading -->
+  <div *ngIf="editMsg"  class="alert alert-success">{{ editMsg }}</div>
   <div *ngIf="isLoading" class="empty-state">Loading...</div>
+  <div *ngIf="errorMsg"  class="alert alert-danger">{{ errorMsg }}</div>
 
-  <!-- Error -->
-  <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
-
-  <!-- Content -->
   <div *ngIf="!isLoading && !errorMsg && match">
 
     <!-- Score Card -->
-    <div class="match-score-card">
-      <div class="team-side">
-        <div class="team-name-lg">{{ match.teamAName }}</div>
-        <div class="score" *ngIf="match.status === 'FINISHED'">{{ match.scoreTeamA }}</div>
+    <div style="background:white;border:1.5px solid #eee;border-radius:16px;
+                padding:2rem;margin-bottom:1.5rem;display:flex;
+                align-items:center;justify-content:space-between;gap:1rem;">
+
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:800;">{{ match.teamAName }}</div>
+        <div *ngIf="match.status === 'FINISHED'"
+             style="font-size:3rem;font-weight:900;color:var(--red);">
+          {{ match.scoreTeamA }}
+        </div>
       </div>
 
-      <div class="vs-center">
+      <div style="text-align:center;min-width:80px;">
         <span class="badge" [ngClass]="getStatusClass(match.status)">{{ match.status }}</span>
-        <div class="vs-text" *ngIf="match.status !== 'FINISHED'">VS</div>
-        <div class="score-sep" *ngIf="match.status === 'FINISHED'">–</div>
+        <div *ngIf="match.status !== 'FINISHED'"
+             style="font-size:1.5rem;font-weight:700;color:var(--gray-text);margin-top:0.5rem;">
+          VS
+        </div>
+        <div *ngIf="match.status === 'FINISHED'"
+             style="font-size:2rem;font-weight:700;color:var(--gray-text);">–</div>
       </div>
 
-      <div class="team-side">
-        <div class="team-name-lg">{{ match.teamBName }}</div>
-        <div class="score" *ngIf="match.status === 'FINISHED'">{{ match.scoreTeamB }}</div>
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:800;">{{ match.teamBName }}</div>
+        <div *ngIf="match.status === 'FINISHED'"
+             style="font-size:3rem;font-weight:900;color:#3b82f6;">
+          {{ match.scoreTeamB }}
+        </div>
       </div>
     </div>
 
@@ -43,36 +66,108 @@
         <span class="info-label">📍 Location</span>
         <span class="info-value">{{ match.location || 'Not defined' }}</span>
       </div>
-
-
-<!-- Par ceci : -->
-<div class="info-row">
-  <span class="info-label">👑 Captain A</span>
-  <span class="info-value" style="display:flex;align-items:center;gap:0.5rem;">
-    <span style="width:28px;height:28px;border-radius:50%;background:var(--red);
-                 display:inline-flex;align-items:center;justify-content:center;
-                 color:white;font-weight:800;font-size:0.8rem;">
-      {{ (match.captainAName || 'A')[0] }}
-    </span>
-    {{ match.captainAName || 'Not defined' }}
-  </span>
-</div>
-
-<div class="info-row">
-  <span class="info-label">👑 Captain B</span>
-  <span class="info-value" style="display:flex;align-items:center;gap:0.5rem;">
-    <span style="width:28px;height:28px;border-radius:50%;background:#3b82f6;
-                 display:inline-flex;align-items:center;justify-content:center;
-                 color:white;font-weight:800;font-size:0.8rem;">
-      {{ (match.captainBName || 'B')[0] }}
-    </span>
-    {{ match.captainBName || 'Not defined' }}
-  </span>
-</div>
+      <div class="info-row">
+        <span class="info-label">👑 Captain A</span>
+        <span class="info-value" style="display:flex;align-items:center;gap:0.5rem;">
+          <span style="width:28px;height:28px;border-radius:50%;background:var(--red);
+                       display:inline-flex;align-items:center;justify-content:center;
+                       color:white;font-weight:800;font-size:0.8rem;">
+            {{ (match.captainAName || 'A')[0] }}
+          </span>
+          {{ match.captainAName || 'Not defined' }}
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">👑 Captain B</span>
+        <span class="info-value" style="display:flex;align-items:center;gap:0.5rem;">
+          <span style="width:28px;height:28px;border-radius:50%;background:#3b82f6;
+                       display:inline-flex;align-items:center;justify-content:center;
+                       color:white;font-weight:800;font-size:0.8rem;">
+            {{ (match.captainBName || 'B')[0] }}
+          </span>
+          {{ match.captainBName || 'Not defined' }}
+        </span>
+      </div>
       <div class="info-row">
         <span class="info-label">🏆 Status</span>
         <span class="badge" [ngClass]="getStatusClass(match.status)">{{ match.status }}</span>
       </div>
     </div>
+
+  </div>
+</div>
+
+<!-- ══ MODAL: Edit Match ══ -->
+<div *ngIf="showEditModal"
+     style="position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.5);z-index:1000;
+            display:flex;align-items:center;justify-content:center;"
+     (click)="showEditModal=false">
+
+  <div style="background:#fff;border-radius:12px;padding:2rem;
+              width:480px;max-width:90%;max-height:90vh;overflow-y:auto;"
+       (click)="$event.stopPropagation()">
+
+    <div style="display:flex;justify-content:space-between;
+                align-items:center;margin-bottom:1.25rem;">
+      <span style="font-weight:700;font-size:1.1rem;">✏️ Edit Match</span>
+      <button (click)="showEditModal=false"
+              style="background:none;border:none;cursor:pointer;font-size:1.2rem;">✕</button>
+    </div>
+
+    <div *ngIf="editError" class="alert alert-danger" style="margin-bottom:1rem;">
+      {{ editError }}
+    </div>
+
+    <form [formGroup]="editForm">
+
+      <!-- Location -->
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label class="form-label">📍 Location</label>
+        <input class="form-control" formControlName="location"
+               placeholder="e.g. Riverside Park"/>
+      </div>
+
+      <!-- Date -->
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label class="form-label">📅 Match Date</label>
+        <input type="datetime-local" class="form-control" formControlName="matchDate"/>
+      </div>
+
+      <!-- Status -->
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label class="form-label">🏆 Status</label>
+        <select class="form-control" formControlName="status">
+          <option value="PENDING">PENDING</option>
+          <option value="ACCEPTED">ACCEPTED</option>
+          <option value="REJECTED">REJECTED</option>
+          <option value="CANCELLED">CANCELLED</option>
+          <option value="FINISHED">FINISHED</option>
+        </select>
+      </div>
+
+      <!-- Scores — seulement si FINISHED -->
+      <div *ngIf="editForm.get('status')?.value === 'FINISHED'"
+           style="display:grid;grid-template-columns:1fr 1fr;
+                  gap:1rem;margin-bottom:1rem;">
+        <div class="form-group">
+          <label class="form-label">⚽ {{ match.teamAName }}</label>
+          <input type="number" class="form-control" min="0"
+                 formControlName="scoreTeamA"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">⚽ {{ match.teamBName }}</label>
+          <input type="number" class="form-control" min="0"
+                 formControlName="scoreTeamB"/>
+        </div>
+      </div>
+
+    </form>
+
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.25rem;">
+      <button class="btn btn-gray"    (click)="showEditModal=false">Cancel</button>
+      <button class="btn btn-primary" (click)="updateMatch()">Save Changes</button>
+    </div>
+
   </div>
 </div>

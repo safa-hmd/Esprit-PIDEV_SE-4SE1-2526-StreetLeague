@@ -41,6 +41,8 @@ public class MatchServiceImpl implements ImatchService {
             throw new RuntimeException("Only the captain of TeamA can send a match request");
         if (teamAId.equals(teamBId))
             throw new RuntimeException("A team cannot play against itself");
+        if (teamA.getSport() == null || !teamA.getSport().equalsIgnoreCase(teamB.getSport()))
+            throw new RuntimeException("Both teams must play the same sport to create a match");
         if (dto.location() == null || dto.location().isBlank())
             throw new RuntimeException("Location is required");
         if (dto.location().length() < 3 || dto.location().length() > 100)

@@ -7,6 +7,7 @@ export interface Team {
   creationDate?: string;
   captainEmail?: string;      
   captainFullName?: string; 
+  captainRole?: string;
    captainId?: number;  
   playerCount?: number;       
   victories?: number;

@@ -12,6 +12,10 @@ public interface IteamService {
     List<TeamResponse> ShowTeams();
     TeamResponse ShowTeam(Long idTeam);
     List<TeamResponse> getTeamsByCaptain(Long captainId);
+    TeamResponse updateTeamStats(Long teamId, int victories, int defeats, int matches, Long captainId);
+
+    // Leaderboard
+    List<TeamResponse> getLeaderboard(String sport);
 
     TeamResponse joinTeam(Long teamId, Long playerId);
     TeamResponse leaveTeam(Long teamId, Long playerId);

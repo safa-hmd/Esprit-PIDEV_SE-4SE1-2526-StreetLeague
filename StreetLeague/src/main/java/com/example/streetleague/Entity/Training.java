@@ -41,6 +41,11 @@ public class Training {
     @JoinColumn(name = "team_id", nullable = false)
     Team team;
 
+    // Coach who created and manages this training
+    @ManyToOne
+    @JoinColumn(name = "coach_id", nullable = true)
+    User coach;
+
     // Players who joined this training session
     @ManyToMany
     @JoinTable(

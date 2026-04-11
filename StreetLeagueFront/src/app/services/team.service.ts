@@ -81,4 +81,31 @@ getTeamsByCoach(): Observable<Team[]> {
     { headers: this.getHeaders() }
   );
 }
+
+// Ajouter update stats dans team.service.ts
+// team.service.ts  ← dans cette fonction existante
+updateTeamStats(idTeam: number, victories: number, defeats: number, matches: number): Observable<Team> {
+  const email = localStorage.getItem('EmailUserConnect');  // ligne ~85 de ton fichier
+  
+  if (!email) {
+    console.error('❌ No email found in localStorage!');
+  }
+  
+  const body = { victories, defeats, matches, email };
+  console.log('📤 Sending stats update:', body); // ← tu verras le body dans la console
+  
+  return this.http.put<Team>(
+    `${this.base}/updateStats/${idTeam}`,
+    body,
+    { headers: this.getHeaders() }
+  );
+}
+
+// Ajouter le leaderboard dans team.service.ts
+getLeaderboard(sport: string): Observable<Team[]> {
+  return this.http.get<Team[]>(
+    `${this.base}/leaderboard?sport=${sport}`,
+    { headers: this.getHeaders() }
+  );
+}
 }

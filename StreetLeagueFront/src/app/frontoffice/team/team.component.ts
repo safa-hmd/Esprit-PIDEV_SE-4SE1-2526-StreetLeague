@@ -24,6 +24,8 @@ export class TeamComponent implements OnInit {
   activeTab  = 'my-teams';
   searchQuery      = '';
   searchMatchQuery = '';
+  availableSports = ['Football', 'Basketball', 'Volleyball', 'Tennis', 'Handball', 'Rugby', 'Baseball', 'Cricket', 'Padel'];
+  selectedSportFilter = 'All';
 
   showCreateTeamModal  = false;
   showEditTeamModal    = false;
@@ -57,7 +59,6 @@ export class TeamComponent implements OnInit {
   ngOnInit(): void {
     this.currentUserEmail = localStorage.getItem('EmailUserConnect') || '';
     this.loadTeams();
-    this.loadMatches();
 
     this.route.queryParams.subscribe(params => {
       if (params['tab']) this.activeTab = params['tab'];
@@ -66,7 +67,7 @@ export class TeamComponent implements OnInit {
     // ── Init Create Team Form ──────────────────────────────
     this.createTeamForm = this.fb.group({
       name:        ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-      sport:       ['Soccer', Validators.required],
+      sport:       ['Football', Validators.required],
       level:       ['BEGINNER', Validators.required],
       description: ['', Validators.maxLength(255)]
     });
@@ -97,11 +98,12 @@ export class TeamComponent implements OnInit {
     this.teamService.getAllTeams().subscribe({
       next: (data) => {
         this.teams           = data;
-        this.filteredTeams   = data;
+        this.applyFilters();
         this.myTeams         = data.filter(t => this.isMyTeam(t));
         this.otherTeams      = data.filter(t => !this.isMyTeam(t));
         this.availableTeamsB = this.otherTeams;
         this.isCaptain       = this.myTeams.length > 0;
+        this.loadMatches();
       },
       error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
     });
@@ -111,9 +113,15 @@ export class TeamComponent implements OnInit {
     this.isLoadingMatches = true;
     this.matchService.getAllMatchs().subscribe({
       next: (data) => {
-        this.matches         = data;
-        this.filteredMatches = data;
+        const userTeams = this.teams.filter(t => this.isMyTeam(t) || this.isPlayerInTeam(t)).map(t => t.name.toLowerCase());
+        const userMatches = data.filter(m => 
+          userTeams.includes(m.teamAName.toLowerCase()) || 
+          userTeams.includes(m.teamBName.toLowerCase())
+        );
+        this.matches         = userMatches;
+        this.filteredMatches = userMatches;
         this.isLoadingMatches = false;
+        this.onSearchMatch(this.searchMatchQuery);
       },
       error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; this.isLoadingMatches = false; }
     });
@@ -123,15 +131,25 @@ export class TeamComponent implements OnInit {
     return team.captainEmail?.toLowerCase() === this.currentUserEmail?.toLowerCase();
   }
 
-  // ── Search ────────────────────────────────────────────────
+  // ── Search & Filter ───────────────────────────────────────
   onSearch(query: string): void {
-    this.searchQuery   = query;
-    const q = query.toLowerCase();
-    this.filteredTeams = this.teams.filter(t =>
-      t.name.toLowerCase().includes(q) ||
-      t.sport.toLowerCase().includes(q) ||
-      (t.description || '').toLowerCase().includes(q)
-    );
+    this.searchQuery = query;
+    this.applyFilters();
+  }
+
+  setSportFilter(sport: string): void {
+    this.selectedSportFilter = sport;
+    this.applyFilters();
+  }
+
+  applyFilters(): void {
+    const q = this.searchQuery.toLowerCase();
+    this.filteredTeams = this.teams.filter(t => {
+      const matchQuery = t.name.toLowerCase().includes(q) ||
+        (t.description || '').toLowerCase().includes(q);
+      const matchSport = this.selectedSportFilter === 'All' || t.sport.toLowerCase() === this.selectedSportFilter.toLowerCase();
+      return matchQuery && matchSport;
+    });
   }
 
   onSearchMatch(query: string): void {
@@ -162,7 +180,7 @@ export class TeamComponent implements OnInit {
       next: (created) => {
         this.successMsg = `Team "${created.name}" created!`;
         this.showCreateTeamModal = false;
-        this.createTeamForm.reset({ sport: 'Soccer', level: 'BEGINNER' });
+        this.createTeamForm.reset({ sport: 'Football', level: 'BEGINNER' });
         this.loadTeams();
         setTimeout(() => this.successMsg = '', 4000);
       },
@@ -285,7 +303,11 @@ export class TeamComponent implements OnInit {
   onTeamAChange(): void {
     const team = this.myTeams.find(t => t.idTeam === Number(this.teamAId));
     this.captainAName    = team?.captainFullName || '';
-    this.availableTeamsB = this.teams.filter(t => t.idTeam !== Number(this.teamAId) && !this.isMyTeam(t));
+    if (team) {
+      this.availableTeamsB = this.teams.filter(t => t.idTeam !== Number(this.teamAId) && !this.isMyTeam(t) && t.sport === team.sport);
+    } else {
+      this.availableTeamsB = this.teams.filter(t => t.idTeam !== Number(this.teamAId) && !this.isMyTeam(t));
+    }
     this.teamBId      = 0;
     this.captainBName = '';
   }

@@ -65,4 +65,20 @@ getMatchById(id: number): Observable<MatchResponse> {
     { headers: this.getHeaders() }
   );
 }
+
+
+
+// AJOUTER dans MatchService — ne pas toucher addMatch() existant
+addMatchByEmail(
+  match: any,
+  teamAId: number,
+  teamBId: number,
+  email: string
+): Observable<any> {
+  return this.http.post(
+    `${this.base}/add-by-email?teamAId=${teamAId}&teamBId=${teamBId}&email=${email}`,
+    match,
+    { headers: this.getHeaders() }
+  );
+}
 }

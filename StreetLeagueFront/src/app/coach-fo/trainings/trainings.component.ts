@@ -23,6 +23,7 @@ export class TrainingsComponent implements OnInit {
   showEditModal   = false;
 
   selectedTeamId: number = 0;
+  currentUserEmail = '';
 
   // ── Reactive Forms ────────────────────────────────────────
   createTrainingForm!: FormGroup;
@@ -36,7 +37,7 @@ export class TrainingsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadTrainings();
+    this.currentUserEmail = localStorage.getItem('EmailUserConnect') || '';
     this.loadTeams();
 
     // ── Init Create Form ───────────────────────────────────
@@ -68,7 +69,10 @@ export class TrainingsComponent implements OnInit {
 
   loadTeams(): void {
     this.teamService.getAllTeams().subscribe({
-      next: (data) => { this.teams = data; },
+      next: (data) => { 
+        this.teams = data.filter(t => t.captainRole === 'PLAYER'); 
+        this.loadTrainings();
+      },
       error: (err)  => { console.error('Error loading teams', err); }
     });
   }
@@ -76,8 +80,11 @@ export class TrainingsComponent implements OnInit {
   loadTrainings(): void {
     this.isLoading = true;
     this.errorMsg  = '';
-    this.trainingService.getAllTrainings().subscribe({
-      next: (data) => { this.trainings = data; this.isLoading = false; },
+    this.trainingService.getTrainingsByCoach().subscribe({
+      next: (data) => { 
+        this.trainings = data; 
+        this.isLoading = false; 
+      },
       error: (err)  => { this.errorMsg = `Error loading trainings (${err.status})`; this.isLoading = false; }
     });
   }

@@ -74,5 +74,41 @@
         <span class="badge" [ngClass]="getStatusClass(match.status)">{{ match.status }}</span>
       </div>
     </div>
+
+    <!-- Juste après </div> de la info-card, avant </div> du *ngIf principal -->
+
+<!-- ── Post-Match Training Trigger ── -->
+<div *ngIf="match.status === 'FINISHED'"
+     style="margin-top:1.5rem;background:white;border:1.5px solid #eee;
+            border-radius:12px;padding:1.5rem;">
+
+  <h3 style="font-weight:700;font-size:1rem;margin-bottom:0.5rem;">
+    🏋️ Post-Match Training
+  </h3>
+  <p style="font-size:0.85rem;color:var(--gray-text);margin-bottom:1rem;">
+    Automatically generate a training session based on this match's performance analysis.
+  </p>
+
+  <div *ngIf="generateMsg"
+       class="alert alert-success" style="margin-bottom:1rem;">
+    {{ generateMsg }}
+  </div>
+  <div *ngIf="generateError"
+       class="alert alert-danger" style="margin-bottom:1rem;">
+    {{ generateError }}
+  </div>
+
+  <button class="btn btn-primary"
+          (click)="onGenerateTraining()"
+          [disabled]="isGenerating || !!generateMsg">
+    <svg *ngIf="!isGenerating" fill="none" stroke="currentColor"
+         viewBox="0 0 24 24" stroke-width="2"
+         style="width:16px;height:16px;margin-right:6px;">
+      <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+    </svg>
+    {{ isGenerating ? 'Generating...' : '⚡ Generate Training Session' }}
+  </button>
+
+</div>
   </div>
 </div>

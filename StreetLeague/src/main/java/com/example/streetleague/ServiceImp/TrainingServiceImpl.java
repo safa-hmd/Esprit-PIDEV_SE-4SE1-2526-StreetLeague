@@ -1,8 +1,7 @@
 package com.example.streetleague.ServiceImp;
 
-import com.example.streetleague.Entity.Team;
-import com.example.streetleague.Entity.Training;
-import com.example.streetleague.Entity.TrainingStatus;
+import com.example.streetleague.Entity.*;
+import com.example.streetleague.Repository.MatchRepository;
 import com.example.streetleague.Repository.TeamRepository;
 import com.example.streetleague.Repository.TrainingRepository;
 import com.example.streetleague.Repository.UserRepository;
@@ -14,8 +13,10 @@ import com.example.streetleague.dto.TrainingResponse;
 import com.example.streetleague.dto.TrainingUpdateRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,8 +26,10 @@ public class TrainingServiceImpl implements ItrainingService {
     TrainingRepository trainingRepo;
     TeamRepository     teamRepository;
     UserRepository     userRepository;
-
+    MatchRepository matchRepository;
+    private final com.example.streetleague.ServiceInterface.InotificationService notificationService;
     // ── ADD ───────────────────────────────────────────────────────────────
+    @Transactional
     @Override
     public TrainingResponse addTraining(TrainingRequest dto, Long teamId, Long coachId) {
         Team team = teamRepository.findById(teamId)
@@ -67,9 +70,33 @@ public class TrainingServiceImpl implements ItrainingService {
         t.setLocation(dto.location());
         t.setExercises(dto.exercises());
         t.setTeam(team);
+        t.setCoach(coach);
         t.setStatus(TrainingStatus.PLANNED);
 
-        return TrainingResponse.fromEntity(trainingRepo.save(t));
+        Training savedTraining = trainingRepo.save(t);
+
+        // --- DISPATCH NOTIFICATION ---
+        String notifMsg = "Coach " + coach.getFullName() + 
+                          " has scheduled a new training session ('" + dto.title() + "') " +
+                          "for your team on " + dto.trainingDate().toLocalDate().toString();
+
+// ✅ NOUVEAU CODE
+        List<User> targetUsers = new ArrayList<>(team.getPlayers());
+
+// Ajouter le capitaine s'il n'est pas déjà dans les players
+        if (team.getCaptain() != null && !targetUsers.contains(team.getCaptain())) {
+            targetUsers.add(team.getCaptain());
+        }
+
+// ✅ Exclure le coach — il ne doit pas recevoir sa propre notification
+        targetUsers.removeIf(u -> u.getIdUser().equals(coach.getIdUser()));
+
+// ✅ Envoyer seulement si la liste n'est pas vide
+        if (!targetUsers.isEmpty()) {
+            notificationService.createNotificationForUsers(targetUsers, notifMsg);
+        }
+
+        return TrainingResponse.fromEntity(savedTraining);
     }
 
     // ── UPDATE ────────────────────────────────────────────────────────────
@@ -199,10 +226,90 @@ public class TrainingServiceImpl implements ItrainingService {
     @Override
     public List<TrainingResponse> getTrainingsByCoach(Long coachId) {
         return trainingRepo.findAll().stream()
-                .filter(t -> t.getTeam() != null
-                        && t.getTeam().getCaptain() != null
-                        && t.getTeam().getCaptain().getIdUser().equals(coachId))
+                .filter(t -> t.getCoach() != null && t.getCoach().getIdUser().equals(coachId))
                 .map(TrainingResponse::fromEntity)
                 .toList();
+    }
+
+    @Override
+    public List<TrainingResponse> getMyTeamTrainings(Long playerId) {
+        User player = userRepository.findById(playerId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + playerId));
+
+        return trainingRepo.findAll().stream()
+                .filter(t -> t.getTeam() != null && 
+                             (t.getTeam().getPlayers().contains(player) || 
+                              (t.getTeam().getCaptain() != null && t.getTeam().getCaptain().getIdUser().equals(playerId))))
+                .map(TrainingResponse::fromEntity)
+                .toList();
+    }
+
+
+
+    // ── POST-MATCH TRAINING TRIGGER ───────────────────────────────────────────
+    @Override
+    public TrainingResponse generateTrainingFromMatch(Long matchId) {
+
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("Match not found: " + matchId));
+
+        if (match.getStatus() != MatchStatus.FINISHED)
+            throw new RuntimeException("Match must be FINISHED to generate a training session");
+
+        // ── 1. Récupérer les stats du match ──────────────────────────────
+        int goalsConceeded = match.getScoreTeamB() != null ? match.getScoreTeamB() : 0;
+        int scoreTeamA     = match.getScoreTeamA() != null ? match.getScoreTeamA() : 0;
+
+        // Calculer la moyenne des buts encaissés de l'équipe A (sur tous ses matchs finis)
+        List<Match> finishedMatches = matchRepository.findAll().stream()
+                .filter(m -> m.getStatus() == MatchStatus.FINISHED
+                        && m.getTeamA().getIdTeam().equals(match.getTeamA().getIdTeam()))
+                .toList();
+
+        double avgGoalsConceded = finishedMatches.stream()
+                .mapToInt(m -> m.getScoreTeamB() != null ? m.getScoreTeamB() : 0)
+                .average().orElse(0.0);
+
+        double stdDev = Math.sqrt(finishedMatches.stream()
+                .mapToDouble(m -> {
+                    double diff = (m.getScoreTeamB() != null ? m.getScoreTeamB() : 0) - avgGoalsConceded;
+                    return diff * diff;
+                }).average().orElse(0.0));
+
+        // ── 2. Rule Engine ────────────────────────────────────────────────
+        List<String> weaknesses = new ArrayList<>();
+
+        // Règle 1 : trop de buts encaissés
+        if (goalsConceeded > avgGoalsConceded + stdDev)
+            weaknesses.add("Defensive Positioning Drills");
+
+        // Règle 2 : score faible = problème offensif/passe
+        if (scoreTeamA < 1)
+            weaknesses.add("Short Passing & Combination Play");
+
+        // Règle 3 : défaite nette = conditionnement physique
+        if (goalsConceeded - scoreTeamA >= 2)
+            weaknesses.add("Physical Conditioning & Strength Training");
+
+        // Fallback si aucune faiblesse détectée
+        if (weaknesses.isEmpty())
+            weaknesses.add("General Technical Review");
+
+        // ── 3. Top 3 ──────────────────────────────────────────────────────
+        List<String> top3 = weaknesses.stream().limit(3).toList();
+        String exercises  = String.join(", ", top3);
+
+        // ── 4. Construire la séance ───────────────────────────────────────
+        Training session = new Training();
+        session.setTitle("Post-Match Training — " + match.getTeamA().getName());
+        session.setDescription("Auto-generated session based on match analysis.");
+        session.setTrainingDate(match.getMatchDate().plusDays(2));
+        session.setDurationInMinutes(75);
+        session.setLocation(match.getLocation());
+        session.setExercises(exercises);
+        session.setTeam(match.getTeamA());
+        session.setStatus(TrainingStatus.PLANNED);
+
+        return TrainingResponse.fromEntity(trainingRepo.save(session));
     }
 }

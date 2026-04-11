@@ -25,7 +25,7 @@ export class TrainingComponent implements OnInit {
   loadTrainings(): void {
     this.isLoading = true;
     this.errorMsg  = '';
-    this.trainingService.getAllTrainings().subscribe({
+    this.trainingService.getMyTeamTrainings().subscribe({
       next: (data) => {
         this.trainings = data;
         this.isLoading = false;

@@ -29,6 +29,13 @@ public class Team {
     String description;
     LocalDate creationDate;
 
+    int victories = 0;
+    int defeats = 0;
+    int matches = 0;
+
+    @Builder.Default
+    Integer eloScore = 1000;
+
     @Enumerated(EnumType.STRING)
     Level level;
 

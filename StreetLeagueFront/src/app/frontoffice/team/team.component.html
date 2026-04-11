@@ -26,6 +26,12 @@
       </div>
     </div>
 
+    <!-- Sport Filters -->
+    <div class="sport-filters" style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap;">
+      <button class="btn btn-sm" [ngClass]="selectedSportFilter === 'All' ? 'btn-primary' : 'btn-outline'" (click)="setSportFilter('All')">All</button>
+      <button *ngFor="let s of availableSports" class="btn btn-sm" [ngClass]="selectedSportFilter === s ? 'btn-primary' : 'btn-outline'" (click)="setSportFilter(s)">{{ s }}</button>
+    </div>
+
     <div *ngIf="filteredTeams.length > 0; else noTeams" class="grid-3">
       <div *ngFor="let team of filteredTeams" class="team-card">
 
@@ -214,8 +220,7 @@
         <div class="form-group" style="margin-bottom:1rem;">
           <label class="form-label">Sport *</label>
           <select class="form-control" formControlName="sport">
-            <option>Soccer</option><option>Basketball</option>
-            <option>Volleyball</option><option>Tennis</option><option>Football</option>
+            <option *ngFor="let s of availableSports" [value]="s">{{ s }}</option>
           </select>
         </div>
 
@@ -282,8 +287,7 @@
         <div class="form-group" style="margin-bottom:1rem;">
           <label class="form-label">Sport *</label>
           <select class="form-control" formControlName="sport">
-            <option>Soccer</option><option>Basketball</option>
-            <option>Volleyball</option><option>Tennis</option><option>Football</option>
+            <option *ngFor="let s of availableSports" [value]="s">{{ s }}</option>
           </select>
         </div>
 

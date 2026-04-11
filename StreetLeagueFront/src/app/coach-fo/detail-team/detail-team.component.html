@@ -42,22 +42,40 @@
       </div>
     </div>
 
-    <!-- Stats Row -->
+    <!-- Stats Row + Edit Logic -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+      <h3 style="font-weight:700; margin:0; font-size:1.2rem;">Team Statistics</h3>
+      <button *ngIf="!isEditingStats" class="btn btn-blue" (click)="toggleEditStats()">Edit Stats</button>
+      <div *ngIf="isEditingStats" style="display:flex; gap:0.5rem;">
+        <button class="btn btn-green" (click)="saveStats()">Save</button>
+        <button class="btn btn-gray" (click)="toggleEditStats()">Cancel</button>
+      </div>
+    </div>
+
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;">
       <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
         <div style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.playerCount || 0 }}</div>
         <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Members</div>
       </div>
+      
+      <!-- Wins -->
       <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
-        <div style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.victories || 0 }}</div>
+        <div *ngIf="!isEditingStats" style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.victories || 0 }}</div>
+        <input *ngIf="isEditingStats" type="number" [(ngModel)]="editVictories" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
         <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Wins</div>
       </div>
+      
+      <!-- Losses -->
       <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
-        <div style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.defeats || 0 }}</div>
+        <div *ngIf="!isEditingStats" style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.defeats || 0 }}</div>
+        <input *ngIf="isEditingStats" type="number" [(ngModel)]="editDefeats" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
         <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Losses</div>
       </div>
+      
+      <!-- Matches -->
       <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
-        <div style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.matches || 0 }}</div>
+        <div *ngIf="!isEditingStats" style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.matches || 0 }}</div>
+        <input *ngIf="isEditingStats" type="number" [(ngModel)]="editMatches" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
         <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Matches</div>
       </div>
     </div>
@@ -101,6 +119,118 @@
         </div>
       </div>
     </div>
+
+    <!-- SMART OPPONENT ENGINE UI -->
+    <div style="margin-top:2.5rem; background:linear-gradient(135deg, #111, #1a1a24); border:1px solid #333; border-radius:16px; padding:2rem; color:white; overflow:hidden; position:relative;">
+      <!-- Glowing background decoration -->
+      <div style="position:absolute; top:-50px; right:-50px; width:150px; height:150px; background:rgba(255,61,68,0.2); filter:blur(50px); border-radius:50%;"></div>
+      
+      <div style="position:relative; z-index:2; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h2 style="font-weight:800; font-size:1.8rem; margin:0; display:flex; align-items:center; gap:0.5rem;">
+             Smart Opponent Engine
+          </h2>
+          <p style="color:#aaa; font-size:0.95rem; margin-top:0.5rem; max-width:600px;">
+            Notre IA analyse le score ELO et l'historique des matchs (H2H) pour vous trouver des adversaires équitables et inédits de même sport.
+          </p>
+        </div>
+        <button class="btn btn-red" (click)="findSmartOpponents()" [disabled]="isLoadingOpponents" style="padding:0.8rem 1.5rem; font-size:1rem; font-weight:700; border-radius:8px; display:flex; align-items:center; gap:0.5rem;">
+          <svg *ngIf="!isLoadingOpponents" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="width:20px;height:20px;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span *ngIf="isLoadingOpponents" class="spinner">↻</span>
+          {{ isLoadingOpponents ? 'Calculating ELO Match...' : 'Find Smart Matches' }}
+        </button>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="opponentErrorMsg" style="margin-top:1.5rem; background:rgba(255,0,0,0.1); border:1px solid rgba(255,0,0,0.3); padding:1rem; border-radius:8px; color:#ffb3b3;">
+        {{ opponentErrorMsg }}
+      </div>
+
+      <!-- Success State -->
+      <div *ngIf="challengeSuccessMsg" style="margin-top:1.5rem; background:rgba(0,255,0,0.1); border:1px solid rgba(0,255,0,0.3); padding:1rem; border-radius:8px; color:#b3ffb3;">
+        {{ challengeSuccessMsg }}
+      </div>
+
+      <!-- Results Grid -->
+      <div *ngIf="suggestedOpponents.length > 0" style="margin-top:2rem;">
+        <h3 style="font-size:1.1rem; color:#ccc; margin-bottom:1rem; font-weight:600;">Top 5 Suggestions</h3>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem;">
+          
+        <div *ngFor="let opp of suggestedOpponents; let i = index"
+     style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+            border-radius:12px; padding:1.25rem; transition:transform 0.2s, background 0.2s; cursor:pointer;"
+     onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.transform='translateY(-3px)'"
+     onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.transform='translateY(0)'">
+
+  <!-- Header : rank + nom + badge score global -->
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+    <div style="display:flex; align-items:center; gap:0.5rem;">
+      <div style="width:28px; height:28px; border-radius:50%; background:#333;
+                  display:flex; align-items:center; justify-content:center;
+                  font-size:0.8rem; font-weight:700;">#{{i+1}}</div>
+      <div style="font-weight:700; font-size:1.05rem;">{{ opp.teamName }}</div>
+    </div>
+    <span style="background:rgba(255,61,68,0.2); color:#ff6b6b;
+                 border:1px solid rgba(255,61,68,0.3);
+                 padding:0.2rem 0.6rem; border-radius:6px; font-size:0.8rem; font-weight:700;">
+      {{ opp.matchCompatibilityScore }}% FIT
+    </span>
+  </div>
+
+  <!-- ELO principal -->
+  <div style="font-size:0.85rem; color:#aaa; margin-bottom:0.75rem;">
+    Sport : <span style="color:white; font-weight:600;">{{ opp.sport }}</span>
+    &nbsp;·&nbsp;
+    ELO : <span style="color:white; font-weight:600;">{{ opp.eloScore }}</span>
+  </div>
+
+  <!-- Barres de progression ELO Fit + H2H -->
+  <div style="display:flex; flex-direction:column; gap:0.45rem; margin-bottom:1rem;">
+
+    <!-- ELO Fit -->
+    <div>
+      <div style="display:flex; justify-content:space-between;
+                  font-size:0.75rem; color:#888; margin-bottom:3px;">
+        <span>ELO Fit (×0.70)</span>
+        <span style="color:white;">{{ opp.eloFitScore }}%</span>
+      </div>
+      <div style="background:rgba(255,255,255,0.1); border-radius:4px; height:6px; overflow:hidden;">
+        <div [style.width.%]="opp.eloFitScore"
+             style="height:100%; background:#ff3d44; border-radius:4px; transition:width 0.6s;"></div>
+      </div>
+    </div>
+
+    <!-- H2H Balance -->
+    <div>
+      <div style="display:flex; justify-content:space-between;
+                  font-size:0.75rem; color:#888; margin-bottom:3px;">
+        <span>H2H Novelty (×0.30)</span>
+        <span style="color:white;">{{ opp.h2hScore }}%</span>
+      </div>
+      <div style="background:rgba(255,255,255,0.1); border-radius:4px; height:6px; overflow:hidden;">
+        <div [style.width.%]="opp.h2hScore"
+             style="height:100%; background:#4fc3f7; border-radius:4px; transition:width 0.6s;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bouton Challenge -->
+  <button class="btn btn-outline"
+          (click)="challengeTeam(opp.teamId)"
+          [disabled]="isChallenging"
+          style="width:100%; padding:0.5rem; font-size:0.85rem;
+                 border-color:#555; color:white; transition:0.3s;"
+          onmouseover="this.style.background='white';this.style.color='black'"
+          onmouseout="this.style.background='transparent';this.style.color='white'">
+    {{ isChallenging ? 'Programmation...' : 'Challenge Team' }}
+  </button>
+</div>
+          
+        </div>
+      </div>
+    </div>
+    <!-- END SMART OPPONENT ENGINE -->
 
   </div>
 </div>

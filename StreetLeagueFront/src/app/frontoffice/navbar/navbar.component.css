@@ -249,3 +249,28 @@
   .navbar-mobile-btn { display: flex; }
   .account-info { display: none; }
 }
+
+.notif-menu.open .notif-dropdown { display: flex !important; }
+.notif-trigger:hover { background: rgba(0,0,0,0.05) !important; color: #111 !important; }
+
+/* ── Notification Bell ── */
+.notif-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f5f5f5;        /* ← fond gris clair au lieu de rgba blanc */
+  color: #333;                 /* ← icône sombre visible sur blanc */
+  border: 1.5px solid #eee;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.notif-trigger:hover {
+  background: #e61920 !important;
+  color: white !important;
+  border-color: #e61920;
+}

@@ -91,4 +91,22 @@ export class TrainingService {
     { headers: this.getHeaders() }
   );
 }
+
+  getMyTeamTrainings(): Observable<TrainingResponse[]> {
+    const email = localStorage.getItem('EmailUserConnect');
+    return this.http.get<TrainingResponse[]>(
+      `${this.base}/myTeamTrainings?email=${email}`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // POST /training/generate-from-match/:matchId?email=
+generateFromMatch(matchId: number): Observable<TrainingResponse> {
+  const email = localStorage.getItem('EmailUserConnect');
+  return this.http.post<TrainingResponse>(
+    `${this.base}/generate-from-match/${matchId}?email=${email}`,
+    {},
+    { headers: this.getHeaders() }
+  );
+}
 }

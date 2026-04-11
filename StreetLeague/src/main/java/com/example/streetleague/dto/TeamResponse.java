@@ -17,8 +17,12 @@ public record TeamResponse(
         String captainEmail,
         Long captainId,
         String captainFullName,
+        com.example.streetleague.domain.Role captainRole,
         int playerCount,
-        List<String> playerEmails
+        List<String> playerEmails,
+        int victories,
+        int defeats,
+        int matches
 ) {
     public static TeamResponse fromEntity(Team team) {
         return new TeamResponse(
@@ -31,12 +35,16 @@ public record TeamResponse(
                 team.getCaptain().getEmail(),
                 team.getCaptain().getIdUser(),
                 team.getCaptain().getFullName(),
+                team.getCaptain().getRole(),
                 team.getPlayers() == null ? 0 : team.getPlayers().size(),
                 team.getPlayers() != null                          // ← null check
                         ? team.getPlayers().stream()
                         .map(User::getEmail)
                         .toList()
-                        : List.of()
+                        : List.of(),
+                team.getVictories(),
+                team.getDefeats(),
+                team.getMatches()
         );
     }
 }
