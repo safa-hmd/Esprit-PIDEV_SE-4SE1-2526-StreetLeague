@@ -6,6 +6,7 @@ import com.example.streetleague.Repository.TeamRepository;
 import com.example.streetleague.Repository.TrainingRepository;
 import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.ItrainingService;
+import com.example.streetleague.ServiceInterface.InotificationService;
 import com.example.streetleague.domain.Role;
 import com.example.streetleague.domain.User;
 import com.example.streetleague.dto.TrainingRequest;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,8 +28,9 @@ public class TrainingServiceImpl implements ItrainingService {
     TrainingRepository trainingRepo;
     TeamRepository     teamRepository;
     UserRepository     userRepository;
-    MatchRepository matchRepository;
-    private final com.example.streetleague.ServiceInterface.InotificationService notificationService;
+    MatchRepository    matchRepository;
+    private final InotificationService notificationService;
+
     // ── ADD ───────────────────────────────────────────────────────────────
     @Transactional
     @Override
@@ -37,7 +40,6 @@ public class TrainingServiceImpl implements ItrainingService {
         User coach = userRepository.findById(coachId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + coachId));
 
-        // ✅ Role.COACH (pas ROLE_COACH)
         if (coach.getRole() != Role.COACH)
             throw new RuntimeException("Only a COACH can create a training session");
 
@@ -75,31 +77,46 @@ public class TrainingServiceImpl implements ItrainingService {
 
         Training savedTraining = trainingRepo.save(t);
 
-        // --- DISPATCH NOTIFICATION ---
-        String notifMsg = "Coach " + coach.getFullName() + 
-                          " has scheduled a new training session ('" + dto.title() + "') " +
-                          "for your team on " + dto.trainingDate().toLocalDate().toString();
+        // ══════════════════════════════════════════════════════════════════
+        // ✅ NOTIFICATION — Message détaillé avec lieu, heure, durée
+        // ══════════════════════════════════════════════════════════════════
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
-// ✅ NOUVEAU CODE
+        String notifMsg = String.format(
+                "🏋️ New Training: %s\n" +
+                        "📅 Date: %s at %s\n" +
+                        "📍 Location: %s\n" +
+                        "⏱ Duration: %d min\n" +
+                        "👨‍🏫 Coach: %s\n" +
+                        "🏟 Team: %s",
+                dto.title(),
+                dto.trainingDate().format(dateFormatter),
+                dto.trainingDate().format(timeFormatter),
+                dto.location(),
+                dto.durationInMinutes(),
+                coach.getFullName(),
+                team.getName()
+        );
+
         List<User> targetUsers = new ArrayList<>(team.getPlayers());
 
-// Ajouter le capitaine s'il n'est pas déjà dans les players
         if (team.getCaptain() != null && !targetUsers.contains(team.getCaptain())) {
             targetUsers.add(team.getCaptain());
         }
 
-// ✅ Exclure le coach — il ne doit pas recevoir sa propre notification
         targetUsers.removeIf(u -> u.getIdUser().equals(coach.getIdUser()));
 
-// ✅ Envoyer seulement si la liste n'est pas vide
         if (!targetUsers.isEmpty()) {
             notificationService.createNotificationForUsers(targetUsers, notifMsg);
         }
+        // ══════════════════════════════════════════════════════════════════
 
         return TrainingResponse.fromEntity(savedTraining);
     }
 
     // ── UPDATE ────────────────────────────────────────────────────────────
+    @Transactional
     @Override
     public TrainingResponse updateTraining(TrainingUpdateRequest dto, Long coachId) {
         Training existing = trainingRepo.findById(dto.idTraining())
@@ -107,7 +124,6 @@ public class TrainingServiceImpl implements ItrainingService {
         User coach = userRepository.findById(coachId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + coachId));
 
-        // ✅ Role.COACH
         if (coach.getRole() != Role.COACH)
             throw new RuntimeException("Only a COACH can update a training session");
 
@@ -146,9 +162,45 @@ public class TrainingServiceImpl implements ItrainingService {
             existing.setDescription(dto.description());
         }
         if (dto.exercises() != null) existing.setExercises(dto.exercises());
-        if (dto.status()    != null) existing.setStatus(dto.status());
+        if (dto.status() != null) existing.setStatus(dto.status());
 
-        return TrainingResponse.fromEntity(trainingRepo.save(existing));
+        Training saved = trainingRepo.save(existing);
+
+        // ══════════════════════════════════════════════════════════════════
+        // ✅ NOTIFICATION — Prévenir les membres que le training a changé
+        // ══════════════════════════════════════════════════════════════════
+        Team team = existing.getTeam();
+        if (team != null) {
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+            String updateMsg = String.format(
+                    "📝 Training Updated: %s\n" +
+                            "📅 Date: %s at %s\n" +
+                            "📍 Location: %s\n" +
+                            "⏱ Duration: %d min\n" +
+                            "👨‍🏫 Coach: %s",
+                    saved.getTitle(),
+                    saved.getTrainingDate().format(dateFormatter),
+                    saved.getTrainingDate().format(timeFormatter),
+                    saved.getLocation(),
+                    saved.getDurationInMinutes(),
+                    coach.getFullName()
+            );
+
+            List<User> targetUsers = new ArrayList<>(team.getPlayers());
+            if (team.getCaptain() != null && !targetUsers.contains(team.getCaptain())) {
+                targetUsers.add(team.getCaptain());
+            }
+            targetUsers.removeIf(u -> u.getIdUser().equals(coach.getIdUser()));
+
+            if (!targetUsers.isEmpty()) {
+                notificationService.createNotificationForUsers(targetUsers, updateMsg);
+            }
+        }
+        // ══════════════════════════════════════════════════════════════════
+
+        return TrainingResponse.fromEntity(saved);
     }
 
     // ── DELETE ────────────────────────────────────────────────────────────
@@ -159,7 +211,6 @@ public class TrainingServiceImpl implements ItrainingService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
-        // ✅ ADMIN peut supprimer, sinon seulement un COACH
         boolean isAdmin = user.getRole() == Role.ADMIN;
 
         if (!isAdmin && user.getRole() != Role.COACH)
@@ -167,6 +218,32 @@ public class TrainingServiceImpl implements ItrainingService {
 
         if (!isAdmin && training.getStatus() == TrainingStatus.COMPLETED)
             throw new RuntimeException("Cannot delete a completed training session");
+
+        // ══════════════════════════════════════════════════════════════════
+        // ✅ NOTIFICATION — Prévenir que le training est annulé
+        // ══════════════════════════════════════════════════════════════════
+        Team team = training.getTeam();
+        if (team != null) {
+            String cancelMsg = String.format(
+                    "❌ Training Cancelled: %s\n" +
+                            "📅 Was scheduled for: %s\n" +
+                            "📍 Location: %s",
+                    training.getTitle(),
+                    training.getTrainingDate().toString(),
+                    training.getLocation()
+            );
+
+            List<User> targetUsers = new ArrayList<>(team.getPlayers());
+            if (team.getCaptain() != null && !targetUsers.contains(team.getCaptain())) {
+                targetUsers.add(team.getCaptain());
+            }
+            targetUsers.removeIf(u -> u.getIdUser().equals(user.getIdUser()));
+
+            if (!targetUsers.isEmpty()) {
+                notificationService.createNotificationForUsers(targetUsers, cancelMsg);
+            }
+        }
+        // ══════════════════════════════════════════════════════════════════
 
         trainingRepo.deleteById(idTraining);
     }
@@ -194,7 +271,6 @@ public class TrainingServiceImpl implements ItrainingService {
         User player = userRepository.findById(playerId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + playerId));
 
-        // ✅ Role.PLAYER (pas ROLE_PLAYER)
         if (player.getRole() != Role.PLAYER)
             throw new RuntimeException("Only a PLAYER can join a training session");
 
@@ -222,7 +298,6 @@ public class TrainingServiceImpl implements ItrainingService {
         return TrainingResponse.fromEntity(trainingRepo.save(training));
     }
 
-
     @Override
     public List<TrainingResponse> getTrainingsByCoach(Long coachId) {
         return trainingRepo.findAll().stream()
@@ -237,16 +312,14 @@ public class TrainingServiceImpl implements ItrainingService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + playerId));
 
         return trainingRepo.findAll().stream()
-                .filter(t -> t.getTeam() != null && 
-                             (t.getTeam().getPlayers().contains(player) || 
-                              (t.getTeam().getCaptain() != null && t.getTeam().getCaptain().getIdUser().equals(playerId))))
+                .filter(t -> t.getTeam() != null &&
+                        (t.getTeam().getPlayers().contains(player) ||
+                                (t.getTeam().getCaptain() != null && t.getTeam().getCaptain().getIdUser().equals(playerId))))
                 .map(TrainingResponse::fromEntity)
                 .toList();
     }
 
-
-
-    // ── POST-MATCH TRAINING TRIGGER ───────────────────────────────────────────
+    // ── POST-MATCH TRAINING TRIGGER ───────────────────────────────────────
     @Override
     public TrainingResponse generateTrainingFromMatch(Long matchId) {
 
@@ -256,11 +329,9 @@ public class TrainingServiceImpl implements ItrainingService {
         if (match.getStatus() != MatchStatus.FINISHED)
             throw new RuntimeException("Match must be FINISHED to generate a training session");
 
-        // ── 1. Récupérer les stats du match ──────────────────────────────
         int goalsConceeded = match.getScoreTeamB() != null ? match.getScoreTeamB() : 0;
         int scoreTeamA     = match.getScoreTeamA() != null ? match.getScoreTeamA() : 0;
 
-        // Calculer la moyenne des buts encaissés de l'équipe A (sur tous ses matchs finis)
         List<Match> finishedMatches = matchRepository.findAll().stream()
                 .filter(m -> m.getStatus() == MatchStatus.FINISHED
                         && m.getTeamA().getIdTeam().equals(match.getTeamA().getIdTeam()))
@@ -276,30 +347,20 @@ public class TrainingServiceImpl implements ItrainingService {
                     return diff * diff;
                 }).average().orElse(0.0));
 
-        // ── 2. Rule Engine ────────────────────────────────────────────────
         List<String> weaknesses = new ArrayList<>();
 
-        // Règle 1 : trop de buts encaissés
         if (goalsConceeded > avgGoalsConceded + stdDev)
             weaknesses.add("Defensive Positioning Drills");
-
-        // Règle 2 : score faible = problème offensif/passe
         if (scoreTeamA < 1)
             weaknesses.add("Short Passing & Combination Play");
-
-        // Règle 3 : défaite nette = conditionnement physique
         if (goalsConceeded - scoreTeamA >= 2)
             weaknesses.add("Physical Conditioning & Strength Training");
-
-        // Fallback si aucune faiblesse détectée
         if (weaknesses.isEmpty())
             weaknesses.add("General Technical Review");
 
-        // ── 3. Top 3 ──────────────────────────────────────────────────────
         List<String> top3 = weaknesses.stream().limit(3).toList();
         String exercises  = String.join(", ", top3);
 
-        // ── 4. Construire la séance ───────────────────────────────────────
         Training session = new Training();
         session.setTitle("Post-Match Training — " + match.getTeamA().getName());
         session.setDescription("Auto-generated session based on match analysis.");
@@ -310,6 +371,36 @@ public class TrainingServiceImpl implements ItrainingService {
         session.setTeam(match.getTeamA());
         session.setStatus(TrainingStatus.PLANNED);
 
-        return TrainingResponse.fromEntity(trainingRepo.save(session));
+        Training saved = trainingRepo.save(session);
+
+        // ══════════════════════════════════════════════════════════════════
+        // ✅ NOTIFICATION — Post-match auto training
+        // ══════════════════════════════════════════════════════════════════
+        Team team = match.getTeamA();
+        if (team != null) {
+            String autoMsg = String.format(
+                    "🤖 Auto Training Generated from Match!\n" +
+                            "🏋️ %s\n" +
+                            "📅 Date: %s\n" +
+                            "📍 Location: %s\n" +
+                            "💪 Exercises: %s",
+                    saved.getTitle(),
+                    saved.getTrainingDate().toString(),
+                    saved.getLocation(),
+                    exercises
+            );
+
+            List<User> targetUsers = new ArrayList<>(team.getPlayers());
+            if (team.getCaptain() != null && !targetUsers.contains(team.getCaptain())) {
+                targetUsers.add(team.getCaptain());
+            }
+
+            if (!targetUsers.isEmpty()) {
+                notificationService.createNotificationForUsers(targetUsers, autoMsg);
+            }
+        }
+        // ══════════════════════════════════════════════════════════════════
+
+        return TrainingResponse.fromEntity(saved);
     }
 }

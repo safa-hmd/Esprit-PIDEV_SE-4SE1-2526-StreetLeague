@@ -20,7 +20,7 @@ public class NotificationServiceImpl implements InotificationService {
     @Override
     public void createNotificationForUsers(List<User> users, String message) {
         if (users == null || users.isEmpty()) return;
-        
+
         List<Notification> notifications = users.stream()
                 .filter(u -> u != null)
                 .map(user -> Notification.builder()
@@ -35,8 +35,8 @@ public class NotificationServiceImpl implements InotificationService {
     }
 
     @Override
-    public List<NotificationResponse> getMyNotifications(String email) {
-        return notificationRepository.findByUserEmailOrderByCreatedAtDesc(email)
+    public List<NotificationResponse> getMyNotifications(Long userId) {
+        return notificationRepository.findByUser_IdUserOrderByCreatedAtDesc(userId)
                 .stream()
                 .map(NotificationResponse::fromEntity)
                 .toList();
@@ -46,11 +46,11 @@ public class NotificationServiceImpl implements InotificationService {
     public void markAsRead(Long idNotification, String email) {
         Notification notification = notificationRepository.findById(idNotification)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
-                
+
         if (!notification.getUser().getEmail().equalsIgnoreCase(email)) {
             throw new RuntimeException("You do not have permission to modify this notification");
         }
-        
+
         notification.setRead(true);
         notificationRepository.save(notification);
     }

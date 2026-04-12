@@ -11,7 +11,5 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    @Query("SELECT n FROM Notification n WHERE n.user.email = :email ORDER BY n.createdAt DESC")
-    List<Notification> findByUserEmailOrderByCreatedAtDesc(@Param("email") String email);
-
+    List<Notification> findByUser_IdUserOrderByCreatedAtDesc(Long idUser);
 }

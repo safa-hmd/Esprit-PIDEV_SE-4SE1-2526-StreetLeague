@@ -1,5 +1,7 @@
 package com.example.streetleague.Controller;
 
+import com.example.streetleague.Repository.UserRepository;
+import com.example.streetleague.domain.User;
 import com.example.streetleague.ServiceInterface.InotificationService;
 import com.example.streetleague.dto.NotificationResponse;
 import lombok.AllArgsConstructor;
@@ -14,11 +16,14 @@ import java.util.List;
 public class NotificationController {
 
     private final InotificationService notificationService;
+    private final UserRepository userRepository;
 
     // GET /notification/my?email=player@mail.com
     @GetMapping("my")
     public List<NotificationResponse> getMyNotifications(@RequestParam String email) {
-        return notificationService.getMyNotifications(email);
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) return List.of();
+        return notificationService.getMyNotifications(user.getIdUser());
     }
 
     // PUT /notification/1/read?email=player@mail.com

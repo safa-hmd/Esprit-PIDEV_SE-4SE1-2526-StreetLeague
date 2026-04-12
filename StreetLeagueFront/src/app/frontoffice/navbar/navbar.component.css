@@ -1,4 +1,8 @@
-/* ── Navbar de base ── */
+/* ═══════════════════════════════════════════════════════════════
+   NAVBAR — THEME LIGHT (fond blanc, accent rouge #e61920)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Base ── */
 .navbar {
   background: white;
   border-bottom: 2px solid #eee;
@@ -17,6 +21,7 @@
   gap: 1.5rem;
 }
 
+/* ── Logo ── */
 .navbar-logo {
   display: flex;
   align-items: center;
@@ -77,7 +82,7 @@
   color: white;
 }
 
-/* ── Navbar Actions ── */
+/* ── Navbar Actions (une seule fois !) ── */
 .navbar-actions {
   display: flex;
   align-items: center;
@@ -85,7 +90,222 @@
   flex-shrink: 0;
 }
 
-/* ── Account Menu ── */
+/* ═══════════════════════════════════════════════════════════════
+   NOTIFICATION BELL & DROPDOWN
+   ═══════════════════════════════════════════════════════════════ */
+.notif-menu {
+  position: relative;
+}
+
+/* ── Bell Button (une seule fois !) ── */
+.notif-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  color: #555;
+  border: 1.5px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.notif-trigger:hover {
+  background: #e61920;
+  color: white;
+  border-color: #e61920;
+}
+
+.notif-trigger svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ── Red Badge ── */
+.notif-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  background: #e61920;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 2px 5px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1.2;
+  border: 2px solid white;
+  animation: notifPulse 2s ease-in-out infinite;
+}
+
+@keyframes notifPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* ── Dropdown Panel (THEME LIGHT !) ── */
+.notif-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 380px;
+  background: white;
+  border: 1.5px solid #eee;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  display: none;
+  flex-direction: column;
+  z-index: 900;
+  overflow: hidden;
+  animation: fadeDown 0.15s ease;
+}
+
+.notif-menu.open .notif-dropdown {
+  display: flex;
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Dropdown Header ── */
+.notif-header {
+  padding: 0.9rem 1.2rem;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notif-header span {
+  font-weight: 700;
+  color: #111;
+  font-size: 0.95rem;
+}
+
+.mark-all-btn {
+  background: none;
+  border: none;
+  color: #e61920;
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.mark-all-btn:hover {
+  color: #b91318;
+  text-decoration: underline;
+}
+
+/* ── Notification List ── */
+.notif-list {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.notif-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notif-list::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+}
+
+/* ── Empty State ── */
+.notif-empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* ── Notification Item ── */
+.notif-item {
+  padding: 0.85rem 1.2rem;
+  display: flex;
+  gap: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+.notif-item:hover {
+  background: #f9f9f9;
+}
+
+/* Unread = fond rose très léger */
+.notif-item.unread {
+  background: rgba(230, 25, 32, 0.04);
+}
+
+.notif-item.unread:hover {
+  background: rgba(230, 25, 32, 0.08);
+}
+
+/* ── Notification Icon Circle ── */
+.notif-icon {
+  min-width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notif-item.unread .notif-icon {
+  background: rgba(230, 25, 32, 0.1);
+  color: #e61920;
+}
+
+.notif-item:not(.unread) .notif-icon {
+  background: #f0f0f0;
+  color: #999;
+}
+
+/* ── Notification Content ── */
+.notif-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-message {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: #666;
+  white-space: pre-line;
+  word-wrap: break-word;
+}
+
+/* Unread text = plus foncé et bold */
+.notif-unread-text {
+  color: #111 !important;
+  font-weight: 600 !important;
+}
+
+.notif-time {
+  font-size: 0.72rem;
+  color: #aaa;
+  margin-top: 4px;
+  display: block;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ACCOUNT DROPDOWN
+   ═══════════════════════════════════════════════════════════════ */
 .account-menu {
   position: relative;
   cursor: pointer;
@@ -150,7 +370,6 @@
   flex-shrink: 0;
 }
 
-/* Dropdown ouvert */
 .account-menu.open .chevron {
   transform: rotate(180deg);
 }
@@ -159,7 +378,7 @@
   display: block;
 }
 
-/* ── Dropdown Panel ── */
+/* ── Account Dropdown Panel ── */
 .account-dropdown {
   display: none;
   position: absolute;
@@ -173,11 +392,6 @@
   z-index: 999;
   overflow: hidden;
   animation: fadeDown 0.15s ease;
-}
-
-@keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
 }
 
 .dropdown-divider {
@@ -228,7 +442,9 @@
   background: rgba(230, 25, 32, 0.06);
 }
 
-/* ── Mobile ── */
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
 .navbar-mobile-btn {
   display: none;
   background: none;
@@ -244,33 +460,33 @@
 }
 
 @media (max-width: 768px) {
-  .navbar-links { display: none; }
-  .navbar-links.open { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: white; padding: 1rem; border-bottom: 2px solid #eee; }
-  .navbar-mobile-btn { display: flex; }
-  .account-info { display: none; }
-}
+  .navbar-links {
+    display: none;
+  }
 
-.notif-menu.open .notif-dropdown { display: flex !important; }
-.notif-trigger:hover { background: rgba(0,0,0,0.05) !important; color: #111 !important; }
+  .navbar-links.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 1rem;
+    border-bottom: 2px solid #eee;
+    z-index: 99;
+  }
 
-/* ── Notification Bell ── */
-.notif-trigger {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #f5f5f5;        /* ← fond gris clair au lieu de rgba blanc */
-  color: #333;                 /* ← icône sombre visible sur blanc */
-  border: 1.5px solid #eee;
-  transition: 0.2s;
-  cursor: pointer;
-}
+  .navbar-mobile-btn {
+    display: flex;
+  }
 
-.notif-trigger:hover {
-  background: #e61920 !important;
-  color: white !important;
-  border-color: #e61920;
+  .account-info {
+    display: none;
+  }
+
+  .notif-dropdown {
+    width: 320px;
+    right: -60px;
+  }
 }

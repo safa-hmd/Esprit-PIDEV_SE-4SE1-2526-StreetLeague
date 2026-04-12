@@ -1,5 +1,6 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription, interval } from 'rxjs';
 import { UserService } from 'src/app/services/user.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationResponse } from 'src/app/models/notification.model';
@@ -9,7 +10,7 @@ import { NotificationResponse } from 'src/app/models/notification.model';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
   userName: string = '';
   userRole: string = '';
   dropdownOpen: boolean = false;
@@ -18,8 +19,10 @@ export class NavbarComponent implements OnInit {
   notifications: NotificationResponse[] = [];
   unreadCount: number = 0;
 
+  private notifPollSub?: Subscription;
+
   constructor(
-    private router: Router, 
+    private router: Router,
     private userService: UserService,
     private notificationService: NotificationService
   ) {}
@@ -29,17 +32,26 @@ export class NavbarComponent implements OnInit {
       next: (profile) => {
         this.userName = profile.fullName;
         this.userRole = profile.role;
-        // Mettre à jour le localStorage aussi
         localStorage.setItem('userName', profile.fullName);
         localStorage.setItem('userRole', profile.role);
       },
       error: () => {
-        // Fallback sur le localStorage si l'appel échoue
         this.userName = localStorage.getItem('userName') ?? 'Player';
         this.userRole = localStorage.getItem('userRole') ?? '';
       }
     });
+
+    // Charger immédiatement
     this.loadNotifications();
+
+    // Polling toutes les 30 secondes pour les nouvelles notifications
+    this.notifPollSub = interval(30000).subscribe(() => {
+      this.loadNotifications();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.notifPollSub?.unsubscribe();
   }
 
   loadNotifications(): void {
@@ -48,7 +60,7 @@ export class NavbarComponent implements OnInit {
         this.notifications = data;
         this.unreadCount = data.filter(n => !n.isRead).length;
       },
-      error: (err) => console.error("Error loading notifications", err)
+      error: (err) => console.error('Error loading notifications', err)
     });
   }
 
@@ -65,15 +77,30 @@ export class NavbarComponent implements OnInit {
         notification.isRead = true;
         this.unreadCount = this.notifications.filter(n => !n.isRead).length;
       },
-      error: (err) => console.error("Error marking as read", err)
+      error: (err) => console.error('Error marking as read', err)
     });
   }
 
-  toggleDropdown(): void { 
-    this.dropdownOpen = !this.dropdownOpen; 
+  markAllAsRead(): void {
+    const unread = this.notifications.filter(n => !n.isRead);
+    unread.forEach(n => {
+      this.notificationService.markAsRead(n.idNotification).subscribe({
+        next: () => {
+          n.isRead = true;
+          this.unreadCount = this.notifications.filter(notif => !notif.isRead).length;
+        }
+      });
+    });
+  }
+
+  toggleDropdown(): void {
+    this.dropdownOpen = !this.dropdownOpen;
     if (this.dropdownOpen) this.notifOpen = false;
   }
-  toggleMenu(): void { this.menuOpen = !this.menuOpen; }
+
+  toggleMenu(): void {
+    this.menuOpen = !this.menuOpen;
+  }
 
   logout(): void {
     localStorage.clear();
