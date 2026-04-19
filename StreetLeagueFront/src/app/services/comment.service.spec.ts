@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+/*import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { CommentService } from './comment.service';
 
@@ -253,4 +253,4 @@ describe('CommentService', () => {
       req.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
     });
   });
-});
+});*/

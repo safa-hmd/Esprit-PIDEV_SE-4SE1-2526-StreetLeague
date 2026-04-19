@@ -26,22 +26,16 @@ public class Post {
 
     private String title;
     private String description;
-
+    private String category;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate publishDate;
 
     @Builder.Default
     private int likes = 0;
 
-    @JsonIgnore
 
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] imageData;
-
-    private String imageType;
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private String imageUrl;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     @JsonIgnore
     private List<Comment> comments;

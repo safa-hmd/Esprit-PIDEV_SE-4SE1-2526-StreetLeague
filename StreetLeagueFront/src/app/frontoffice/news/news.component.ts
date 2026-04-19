@@ -9,7 +9,14 @@ import { CommentService } from '../../services/comment.service';
 })
 export class NewsComponent implements OnInit {
   posts: any[] = [];
+page = 0;
+size = 5;
+totalPages = 0;
 
+searchKeyword = '';
+searchCategory = '';
+searchSort = 'date';
+isSearching = false;
   // Comments
   newComment: { [postId: number]: string } = {};
   editingComment: any = null;
@@ -66,11 +73,14 @@ export class NewsComponent implements OnInit {
   }
 
   loadComments(post: any) {
-    this.commentService.getCommentsByPost(post.id).subscribe({
-      next: (data) => post.comments = data,
-      error: (err) => console.error(err)
-    });
-  }
+  this.commentService.getCommentsByPost(post.id).subscribe({
+    next: (data) => {
+      post.comments = data;
+      post.commentCount = data.length;
+    },
+    error: (err) => console.error(err)
+  });
+}
 
   addComment(post: any) {
     const content = this.newComment[post.id]?.trim();
@@ -182,25 +192,23 @@ export class NewsComponent implements OnInit {
   getInitials(name: string): string {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
   }
-
-  loadPosts() {
-  console.log('loadPosts called'); 
-  this.postService.getAllPosts().subscribe({
+loadPosts() {
+  this.postService.getAllPosts(this.page, this.size).subscribe({
     next: (data) => {
-      console.log('data:', data); 
-      this.posts = data.map(p => ({ 
-        ...p, 
-        comments: [], 
-        showComments: false, 
+      const list = Array.isArray(data) ? data : (data.content || []);
+      this.posts = list.map((p: any) => ({
+        ...p,
+        comments: [],
+        showComments: false,
         liked: p.liked || false,
-        likes: p.likes || 0
+        likes: p.likes || 0,
+        commentCount: p.commentCount ?? p.comments?.length ?? 0
       }));
-      console.log('posts array:', this.posts); 
+      this.totalPages = data.totalPages || 1;
     },
     error: (err) => console.error('Error:', err)
   });
 }
-
 toggleLike(post: any) {
   // Prevent multiple rapid clicks
   if (this.likeInProgress[post.id]) {
@@ -235,7 +243,85 @@ toggleLike(post: any) {
     }
   });
 }
-getImageUrl(postId: number): string {
-  return `http://localhost:8086/StreetLeague/posts/image/${postId}`;
+getImageUrl(post: any): string {
+  return post.imageUrl || 'assets/placeholder.png';
 }
+
+onSearch() {
+  this.page = 0;
+  const hasKeyword = this.searchKeyword.trim().length > 0;
+  const hasCategory = this.searchCategory.trim().length > 0;
+
+  if (hasKeyword || hasCategory) {
+    this.isSearching = true;
+    this.loadSearchResults();
+  } else {
+    this.isSearching = false;
+    this.loadPosts(); // yarja3 kol el posts
+  }
+}
+
+loadSearchResults() {
+  this.postService.searchPosts(
+    this.searchKeyword,
+    this.searchCategory,
+    this.searchSort,
+    this.page,
+    this.size
+  ).subscribe({
+    next: (data) => {
+      const list = Array.isArray(data) ? data : (data.content || []);
+      this.posts = list.map((p: any) => ({
+        ...p,
+        comments: [],
+        showComments: false,
+        liked: p.liked || false,
+        likes: p.likes || 0,
+        commentCount: p.commentCount ?? p.comments?.length ?? 0
+      }));
+      this.totalPages = data.totalPages || 1;
+    },
+    error: (err) => console.error(err)
+  });
+}
+
+onSortChange() {
+  this.page = 0;
+  if (this.isSearching) {
+    this.loadSearchResults();
+  } else {
+    this.loadPosts();
+  }
+}
+
+clearSearch() {
+  this.searchKeyword = '';
+  this.searchCategory = '';
+  this.searchSort = 'date';
+  this.isSearching = false;
+  this.page = 0;
+  this.loadPosts();
+}
+nextPage() {
+  if (this.page < this.totalPages - 1) {
+    this.page++;
+    if (this.isSearching) {
+      this.loadSearchResults();
+    } else {
+      this.loadPosts();
+    }
+  }
+}
+
+prevPage() {
+  if (this.page > 0) {
+    this.page--;
+    if (this.isSearching) {
+      this.loadSearchResults();
+    } else {
+      this.loadPosts();
+    }
+  }
+}
+
 }

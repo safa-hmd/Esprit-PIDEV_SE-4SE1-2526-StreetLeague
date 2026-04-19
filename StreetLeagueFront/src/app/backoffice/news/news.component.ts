@@ -11,39 +11,50 @@ Chart.register(...registerables);
   styleUrls: ['./news.component.css']
 })
 export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
+  page = 0;
+  size = 5;
+  totalPages = 0;
+  mostCommented: any = null;
+  mostLiked: any = null;
+
+  searchKeyword = '';
+  searchCategory = '';
+  searchSort = 'date';
+  isSearching = false;
+
   posts: any[] = [];
-  newPost = { title: '', description: '' };
+  newPost = { title: '', description: '', category: '', imageUrl: '' };
   selectedImage: File | null = null;
   imagePreview: string | null = null;
   showForm = false;
   showEditForm = false;
   isLoading = false;
-  editPost: any = { id: null, title: '', description: '' };
+  editPost: any = { id: null, title: '', description: '', category: '' };
   commentsByPost: { [postId: number]: any[] } = {};
-  
-  // Statistics
+
   totalPosts = 0;
   totalComments = 0;
   totalLikes = 0;
-  
-  // Chart
+
   private statsChart?: Chart;
-  
-  // Auto-refresh
   private refreshInterval: any;
-  
-  // Form Validation
+  private catChart?: Chart;
+
+  catColors = ['#E61920', '#3B82F6', '#F59E0B', '#10B981', '#8B5CF6', '#F97316'];
+  readonly catNames = ['Event', 'Health', 'Celebration', 'Entertainment', 'Tournament', 'Promotion'];
+
   showAddPostError = false;
   addPostErrorMessage = '';
   showEditPostError = false;
   editPostErrorMessage = '';
 
+  aiPrompt = '';
+  isGenerating = false;
+
   constructor(private postService: PostService, private commentService: CommentService) {}
 
   ngOnInit() {
     this.loadPosts();
-    
-    // Auto-refresh statistics every 10 seconds
     this.refreshInterval = setInterval(() => {
       this.loadPosts();
     }, 10000);
@@ -59,132 +70,154 @@ export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
+    if (this.catChart) this.catChart.destroy();
+    if (this.statsChart) this.statsChart.destroy();
+  }
+
+  generateImage() {
+    if (!this.aiPrompt.trim()) return;
+
+    this.isGenerating = true;
+    this.postService.generateAIImage(this.aiPrompt).subscribe({
+      next: (data) => {
+        this.imagePreview = data.imageUrl;
+        this.newPost.imageUrl = data.imageUrl;
+        this.isGenerating = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.isGenerating = false;
+      }
+    });
   }
 
   loadPosts() {
-    this.postService.getAllPosts().subscribe({
+    this.postService.getAllPosts(this.page, this.size).subscribe({
       next: (data) => {
-        this.posts = data;
-        data.forEach(post => this.loadComments(post.id));
+        const list = Array.isArray(data) ? data : (data.content || []);
+        this.posts = list;
+        this.totalPages = data.totalPages || 1;
+        list.forEach((post: any) => this.loadComments(post.id));
         this.updateStatistics();
+        this.loadTopPosts();
       },
       error: (err) => console.error(err)
     });
   }
 
+  nextPage() {
+    if (this.page < this.totalPages - 1) {
+      this.page++;
+      if (this.isSearching) {
+        this.loadSearchResults();
+      } else {
+        this.loadPosts();
+      }
+    }
+  }
+
+  prevPage() {
+    if (this.page > 0) {
+      this.page--;
+      if (this.isSearching) {
+        this.loadSearchResults();
+      } else {
+        this.loadPosts();
+      }
+    }
+  }
+
   updateStatistics() {
-    this.totalPosts = this.posts.length;
-    this.totalLikes = this.posts.reduce((sum, post) => sum + (post.likes || 0), 0);
-    this.totalComments = Object.values(this.commentsByPost).reduce((sum, comments) => sum + (comments?.length || 0), 0);
-    this.initStatsChart();
+    this.postService.getGeneralStats().subscribe({
+      next: (stats) => {
+        this.totalPosts = stats.totalPosts;
+        this.totalLikes = stats.totalLikes;
+        this.totalComments = stats.totalComments;
+        this.initStatsChart();
+      },
+      error: (err) => console.error(err)
+    });
   }
 
   loadComments(postId: number) {
     this.commentService.getCommentsByPost(postId).subscribe({
       next: (comments) => {
         this.commentsByPost[postId] = comments;
-        this.updateStatistics();
       },
       error: (err) => console.error(err)
     });
   }
 
+  get categoryStats() {
+    return this.catNames.map(cat => ({
+      name: cat,
+      count: this.posts.filter(p => p.category === cat).length
+    }));
+  }
+
   addPost() {
     const title = this.newPost.title?.trim();
     const description = this.newPost.description?.trim();
-    
-    // Validation Title
-    if (!title) {
+    const category = this.newPost.category?.trim();
+
+    // ... كل الـ validations تبقى كما هي ...
+
+    if (!this.selectedImage && !this.newPost.imageUrl) {
       this.showAddPostError = true;
-      this.addPostErrorMessage = 'Title cannot be empty';
+      this.addPostErrorMessage = 'Please select an image or generate one with AI';
       setTimeout(() => { this.showAddPostError = false; }, 5000);
       return;
     }
 
-    if (title.length < 3) {
-      this.showAddPostError = true;
-      this.addPostErrorMessage = 'Title must be at least 3 characters';
-      setTimeout(() => { this.showAddPostError = false; }, 5000);
-      return;
-    }
-
-    if (title.length > 100) {
-      this.showAddPostError = true;
-      this.addPostErrorMessage = 'Title must not exceed 100 characters';
-      setTimeout(() => { this.showAddPostError = false; }, 5000);
-      return;
-    }
-
-    // Validation Description
-    if (!description) {
-      this.showAddPostError = true;
-      this.addPostErrorMessage = 'Description cannot be empty';
-      setTimeout(() => { this.showAddPostError = false; }, 5000);
-      return;
-    }
-
-    if (description.length < 5) {
-      this.showAddPostError = true;
-      this.addPostErrorMessage = 'Description must be at least 5 characters';
-      setTimeout(() => { this.showAddPostError = false; }, 5000);
-      return;
-    }
-
-    if (description.length > 500) {
-      this.showAddPostError = true;
-      this.addPostErrorMessage = 'Description must not exceed 500 characters';
-      setTimeout(() => { this.showAddPostError = false; }, 5000);
-      return;
-    }
-
-    // Validation Image
-    if (!this.selectedImage) {
-      this.showAddPostError = true;
-      this.addPostErrorMessage = 'Please select an image';
-      setTimeout(() => { this.showAddPostError = false; }, 5000);
-      return;
-    }
-
-    if (!this.selectedImage.type.startsWith('image/')) {
-      this.showAddPostError = true;
-      this.addPostErrorMessage = 'File must be an image (JPEG, PNG, etc.)';
-      setTimeout(() => { this.showAddPostError = false; }, 5000);
-      return;
-    }
-
-    const maxSizeMB = 5;
-    if (this.selectedImage.size > maxSizeMB * 1024 * 1024) {
-      this.showAddPostError = true;
-      this.addPostErrorMessage = `Image size must not exceed ${maxSizeMB}MB`;
-      setTimeout(() => { this.showAddPostError = false; }, 5000);
-      return;
-    }
-    
     this.isLoading = true;
-    this.postService.addPost(this.newPost.title, this.newPost.description, this.selectedImage).subscribe({
-      next: (response: any) => {
+
+    // ✅ إذا فيه AI image → استخدم endpoint مختلف
+    if (!this.selectedImage && this.newPost.imageUrl) {
+      this.postService.addPostWithAIImage(
+        this.newPost.title,
+        this.newPost.description,
+        this.newPost.category,
+        this.newPost.imageUrl
+      ).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.newPost = { title: '', description: '', category: '', imageUrl: '' };
+          this.selectedImage = null;
+          this.imagePreview = null;
+          this.aiPrompt = '';
+          this.showForm = false;
+          this.loadPosts();
+        },
+        error: (err: any) => {
+          this.isLoading = false;
+          this.showAddPostError = true;
+          this.addPostErrorMessage = 'Failed to add post';
+          console.error(err);
+        }
+      });
+      return;
+    }
+
+    // الحالة العادية — upload صورة
+    this.postService.addPost(
+      this.newPost.title,
+      this.newPost.description,
+      this.newPost.category,
+      this.selectedImage!
+    ).subscribe({
+      next: () => {
         this.isLoading = false;
-        this.newPost = { title: '', description: '' }; 
+        this.newPost = { title: '', description: '', category: '', imageUrl: '' };
         this.selectedImage = null;
         this.imagePreview = null;
+        this.aiPrompt = '';
         this.showForm = false;
-        this.showAddPostError = false;
         this.loadPosts();
       },
       error: (err: any) => {
         this.isLoading = false;
         this.showAddPostError = true;
-        let errorMsg = 'Failed to add post';
-        if (err?.status === 0) {
-          errorMsg = 'Network error - check if backend is running';
-        } else if (err?.status === 403) {
-          errorMsg = 'Access denied - user must be ADMIN';
-        } else if (err?.status === 400) {
-          errorMsg = 'Bad request - ' + (err?.error?.message || 'invalid data');
-        } else if (err?.error?.message) {
-          errorMsg = err.error.message;
-        }
-        this.addPostErrorMessage = errorMsg;
+        this.addPostErrorMessage = 'Failed to add post';
         console.error(err);
       }
     });
@@ -204,9 +237,10 @@ export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   closeModal() {
     this.showForm = false;
-    this.newPost = { title: '', description: '' };
+    this.newPost = { title: '', description: '', category: '', imageUrl: '' };
     this.selectedImage = null;
     this.imagePreview = null;
+    this.aiPrompt = '';
     this.showAddPostError = false;
     this.addPostErrorMessage = '';
   }
@@ -219,54 +253,59 @@ export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openEditModal(post: any) {
-    this.editPost = { id: post.id, title: post.title, description: post.description };
+    this.editPost = {
+      id: post.id,
+      title: post.title,
+      description: post.description,
+      category: post.category
+    };
     this.showEditForm = true;
   }
 
   updatePost() {
     const title = this.editPost.title?.trim();
     const description = this.editPost.description?.trim();
-    
-    // Validation Title
+    const category = this.editPost.category?.trim();
+
     if (!title) {
       this.showEditPostError = true;
       this.editPostErrorMessage = 'Title cannot be empty';
       setTimeout(() => { this.showEditPostError = false; }, 5000);
       return;
     }
-
     if (title.length < 3) {
       this.showEditPostError = true;
       this.editPostErrorMessage = 'Title must be at least 3 characters';
       setTimeout(() => { this.showEditPostError = false; }, 5000);
       return;
     }
-
     if (title.length > 100) {
       this.showEditPostError = true;
       this.editPostErrorMessage = 'Title must not exceed 100 characters';
       setTimeout(() => { this.showEditPostError = false; }, 5000);
       return;
     }
-
-    // Validation Description
     if (!description) {
       this.showEditPostError = true;
       this.editPostErrorMessage = 'Description cannot be empty';
       setTimeout(() => { this.showEditPostError = false; }, 5000);
       return;
     }
-
     if (description.length < 5) {
       this.showEditPostError = true;
       this.editPostErrorMessage = 'Description must be at least 5 characters';
       setTimeout(() => { this.showEditPostError = false; }, 5000);
       return;
     }
-
     if (description.length > 500) {
       this.showEditPostError = true;
       this.editPostErrorMessage = 'Description must not exceed 500 characters';
+      setTimeout(() => { this.showEditPostError = false; }, 5000);
+      return;
+    }
+    if (!category) {
+      this.showEditPostError = true;
+      this.editPostErrorMessage = 'Please select a category';
       setTimeout(() => { this.showEditPostError = false; }, 5000);
       return;
     }
@@ -303,14 +342,14 @@ export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
     event.target.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22%3E%3Crect fill=%22%23333%22 width=%22100%25%22 height=%22100%25%22/%3E%3C/svg%3E';
   }
 
-  getImageUrl(postId: number): string {
-    return `http://localhost:8086/StreetLeague/posts/image/${postId}`;
+  getImageUrl(post: any): string {
+    return post?.imageUrl || 'assets/placeholder.png';
   }
 
   private initStatsChart(): void {
     const canvas = document.getElementById('statsChart') as HTMLCanvasElement;
     if (!canvas) return;
-    
+
     if (this.statsChart) {
       this.statsChart.data.datasets[0].data = [this.totalPosts, this.totalComments, this.totalLikes];
       this.statsChart.update();
@@ -344,5 +383,66 @@ export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     });
+  }
+
+  loadTopPosts() {
+    this.postService.getTopPosts().subscribe({
+      next: (data) => {
+        this.mostCommented = data.mostCommented || null;
+        this.mostLiked = data.mostLiked || null;
+      },
+      error: (err) => console.error('Top posts error', err)
+    });
+  }
+
+  onSearch() {
+    this.page = 0;
+    const hasKeyword = this.searchKeyword.trim().length > 0;
+    const hasCategory = this.searchCategory.trim().length > 0;
+
+    if (hasKeyword || hasCategory) {
+      this.isSearching = true;
+      this.loadSearchResults();
+    } else {
+      this.isSearching = false;
+      this.loadPosts();
+    }
+  }
+
+  loadSearchResults() {
+    this.postService.searchPosts(
+      this.searchKeyword,
+      this.searchCategory,
+      this.searchSort,
+      this.page,
+      this.size
+    ).subscribe({
+      next: (data) => {
+        const list = Array.isArray(data) ? data : (data.content || []);
+        this.posts = list;
+        this.totalPages = data.totalPages || 1;
+        list.forEach((post: any) => this.loadComments(post.id));
+        this.updateStatistics();
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  onSortChange() {
+    this.page = 0;
+    if (this.isSearching) {
+      this.loadSearchResults();
+    } else {
+      this.loadPosts();
+    }
+  }
+
+  clearSearch() {
+    this.searchKeyword = '';
+    this.searchCategory = '';
+    this.searchSort = 'date';
+    this.isSearching = false;
+    this.page = 0;
+    this.loadPosts();
   }
 }

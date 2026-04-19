@@ -1,11 +1,14 @@
 package com.example.streetleague.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class postDTO {
     private Long id;
@@ -18,9 +21,27 @@ public class postDTO {
     @Size(min = 10, max = 1000, message = "Description must be between 10 and 1000 characters")
     private String description;
 
+    @NotBlank(message = "Categorie is required")
+    private String category;
+
     private Long userId;
 
-    // ✅ Zid hadhouma bach t5azen l'image
-    private byte[] imageData;
-    private String imageType;
+    private String imageUrl;
+    private String adminName;
+    private Long commentCount;
+    private Integer likes;
+
+    public postDTO(Long id, String title, String description, String category,
+                   Long userId, String imageUrl, String adminName,
+                   Long commentCount, Long likes) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.category = category;
+        this.userId = userId;
+        this.imageUrl = imageUrl;
+        this.adminName = adminName;
+        this.commentCount = commentCount;
+        this.likes = likes != null ? likes.intValue() : 0;
+    }
 }

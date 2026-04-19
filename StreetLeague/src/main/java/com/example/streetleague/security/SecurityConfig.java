@@ -74,15 +74,19 @@ public class SecurityConfig {
                 // Règles d'autorisation des endpoints
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints publics (login, register, forgot/reset password)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         // Endpoints protégés par rôle
                         // Posts
                         .requestMatchers(HttpMethod.GET,    "/posts/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/posts/like/**").hasRole("PLAYER")
+                        .requestMatchers(HttpMethod.POST, "/posts/dislike/**").hasRole("PLAYER")
                         .requestMatchers(HttpMethod.POST,   "/posts/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/posts/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/posts/**").hasRole("ADMIN")
 
+
+                        .requestMatchers("/health/**").permitAll()
 
                         // Comments - PLAYER
                         .requestMatchers(HttpMethod.GET,    "/comments/**").hasAnyRole("ADMIN", "PLAYER") //

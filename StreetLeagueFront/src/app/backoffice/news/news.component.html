@@ -1,64 +1,153 @@
 <!-- Modal Add Post -->
 <div *ngIf="showForm" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;display:flex;align-items:center;justify-content:center;">
   <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:2rem;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,0.6);max-height:90vh;overflow-y:auto;">
+
+    <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
       <h3 style="margin:0;color:#f0f0f5;">✍️ New Post</h3>
       <button (click)="closeModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#606078;">&times;</button>
     </div>
+
+    <!-- Title -->
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Title</label>
-      <input [(ngModel)]="newPost.title" placeholder="Post title..." style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"/>
-      <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ (newPost.title?.length || 0) }}/100 characters</small>
+      <input [(ngModel)]="newPost.title" placeholder="Post title..."
+             style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"/>
+      <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ newPost.title.length }}/100 characters</small>
     </div>
+
+    <!-- Description -->
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Description</label>
-      <textarea [(ngModel)]="newPost.description" placeholder="Post content..." rows="4" style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"></textarea>
-      <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ (newPost.description?.length || 0) }}/500 characters</small>
+      <textarea [(ngModel)]="newPost.description" placeholder="Post content..." rows="4"
+                style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"></textarea>
+      <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ newPost.description.length }}/500 characters</small>
     </div>
+
+    <!-- Category -->
+    <div style="margin-bottom:1rem;">
+      <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Category</label>
+      <select [(ngModel)]="newPost.category"
+              style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;">
+        <option value="" disabled>Select a category...</option>
+        <option value="Event">Event</option>
+        <option value="Health">Health</option>
+        <option value="Celebration">Celebration</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Tournament">Tournament</option>
+        <option value="Promotion">Promotion</option>
+      </select>
+    </div>
+
+    <!-- AI Image Generator -->
+    <div style="margin-bottom:1rem;padding:1rem;background:#0f0f13;border:1px solid #2a2a3a;border-radius:8px;">
+      <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:#8B5CF6;">🤖 Generate Image with AI</label>
+      <div style="display:flex;gap:0.5rem;">
+        <input [(ngModel)]="aiPrompt"
+               placeholder="e.g. football event poster..."
+               style="flex:1;padding:0.65rem;border:1px solid #2a2a3a;
+                      border-radius:8px;font-size:0.9rem;
+                      background:#1e1e2a;color:#f0f0f5;outline:none;"/>
+        <button (click)="generateImage()"
+                [disabled]="isGenerating"
+                style="padding:0.65rem 1rem;background:#8B5CF6;
+                       color:white;border:none;border-radius:8px;
+                       cursor:pointer;font-weight:600;white-space:nowrap;"
+                [style.opacity]="isGenerating ? '0.6' : '1'">
+          {{ isGenerating ? '⏳...' : '✨ Generate' }}
+        </button>
+      </div>
+      <small style="display:block;margin-top:0.4rem;color:#606078;">
+        Or upload your own image below
+      </small>
+    </div>
+
+    <!-- Image Upload -->
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Image</label>
-      <input type="file" accept="image/*" (change)="onImageSelected($event)" style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"/>
-      <small *ngIf="showAddPostError" style="display:block;margin-top:0.25rem;color:#E61920;font-weight:600;">Error: {{ addPostErrorMessage }}</small>
+      <input type="file" accept="image/*" (change)="onImageSelected($event)"
+             style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"/>
     </div>
+
+    <!-- Image Preview -->
     <div *ngIf="imagePreview" style="margin-bottom:1rem;">
       <img [src]="imagePreview" style="width:100%;max-height:200px;border-radius:8px;object-fit:cover;"/>
     </div>
+
+    <!-- Error -->
     <div *ngIf="showAddPostError" style="margin-bottom:1rem;padding:0.75rem;background:#E61920;border-radius:8px;color:white;font-weight:600;font-size:0.9rem;">
       ⚠️ {{ addPostErrorMessage }}
     </div>
+
+    <!-- Buttons -->
     <div style="display:flex;gap:1rem;justify-content:flex-end;">
-      <button type="button" (click)="closeModal()" style="padding:0.75rem 1.5rem;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a24;cursor:pointer;color:#9090a8;" [disabled]="isLoading" [style.opacity]="isLoading ? 0.6 : 1">Cancel</button>
-      <button type="button" (click)="addPost()" [disabled]="isLoading" style="padding:0.75rem 1.5rem;border:none;border-radius:8px;background:#E61920;color:white;cursor:pointer;font-weight:600;transition:all 0.3s;" [style.opacity]="isLoading ? 0.6 : 1">
+      <button type="button" (click)="closeModal()"
+              style="padding:0.75rem 1.5rem;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a24;cursor:pointer;color:#9090a8;"
+              [disabled]="isLoading" [style.opacity]="isLoading ? 0.6 : 1">Cancel</button>
+      <button type="button" (click)="addPost()"
+              style="padding:0.75rem 1.5rem;border:none;border-radius:8px;background:#E61920;color:white;cursor:pointer;font-weight:600;"
+              [disabled]="isLoading" [style.opacity]="isLoading ? 0.6 : 1">
         {{ isLoading ? '⏳ Adding...' : '✅ Add' }}
       </button>
     </div>
+
   </div>
 </div>
 
 <!-- Modal Edit Post -->
 <div *ngIf="showEditForm" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;display:flex;align-items:center;justify-content:center;">
   <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:2rem;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+
+    <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
       <h3 style="margin:0;color:#f0f0f5;">✏️ Edit Post</h3>
       <button (click)="showEditForm = false" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#606078;">&times;</button>
     </div>
+
+    <!-- Title -->
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Title</label>
-      <input [(ngModel)]="editPost.title" placeholder="Post title..." style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"/>
+      <input [(ngModel)]="editPost.title" placeholder="Post title..."
+             style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"/>
       <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ (editPost.title?.length || 0) }}/100 characters</small>
     </div>
-    <div style="margin-bottom:1.5rem;">
+
+    <!-- Description -->
+    <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Description</label>
-      <textarea [(ngModel)]="editPost.description" placeholder="Post content..." rows="4" style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"></textarea>
+      <textarea [(ngModel)]="editPost.description" placeholder="Post content..." rows="4"
+                style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"></textarea>
       <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ (editPost.description?.length || 0) }}/500 characters</small>
     </div>
+
+    <!-- Category -->
+    <div style="margin-bottom:1.5rem;">
+      <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Category</label>
+      <select [(ngModel)]="editPost.category"
+              style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;">
+        <option value="" disabled>Select a category...</option>
+        <option value="Event">Event</option>
+        <option value="Health">Health</option>
+        <option value="Celebration">Celebration</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Tournament">Tournament</option>
+        <option value="Promotion">Promotion</option>
+      </select>
+    </div>
+
+    <!-- Error -->
     <div *ngIf="showEditPostError" style="margin-bottom:1rem;padding:0.75rem;background:#E61920;border-radius:8px;color:white;font-weight:600;font-size:0.9rem;">
       ⚠️ {{ editPostErrorMessage }}
     </div>
+
+    <!-- Buttons -->
     <div style="display:flex;gap:1rem;justify-content:flex-end;">
-      <button (click)="showEditForm = false" style="padding:0.75rem 1.5rem;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a24;cursor:pointer;color:#9090a8;">Cancel</button>
-      <button (click)="updatePost()" style="padding:0.75rem 1.5rem;border:none;border-radius:8px;background:#E61920;color:white;cursor:pointer;font-weight:600;">Save</button>
+      <button (click)="showEditForm = false"
+              style="padding:0.75rem 1.5rem;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a24;cursor:pointer;color:#9090a8;">Cancel</button>
+      <button (click)="updatePost()"
+              style="padding:0.75rem 1.5rem;border:none;border-radius:8px;background:#E61920;color:white;cursor:pointer;font-weight:600;">Save</button>
     </div>
+
   </div>
 </div>
 
@@ -75,25 +164,89 @@
 
   <!-- STATISTICS -->
   <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem;margin-bottom:2rem;margin-top:2rem;">
-    <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:1.5rem;border-left:4px solid #E61920;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
+    <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:1.5rem;border-left:4px solid #E61920;">
       <div style="font-size:0.85rem;color:#9090a8;font-weight:600;text-transform:uppercase;margin-bottom:0.5rem;">Total Posts</div>
       <div style="font-size:2.5rem;font-weight:800;color:#E61920;">{{ totalPosts }}</div>
     </div>
-    <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:1.5rem;border-left:4px solid #3B82F6;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
+    <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:1.5rem;border-left:4px solid #3B82F6;">
       <div style="font-size:0.85rem;color:#9090a8;font-weight:600;text-transform:uppercase;margin-bottom:0.5rem;">Comments</div>
       <div style="font-size:2.5rem;font-weight:800;color:#3B82F6;">{{ totalComments }}</div>
     </div>
-    <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:1.5rem;border-left:4px solid #F59E0B;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
+    <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:1.5rem;border-left:4px solid #F59E0B;">
       <div style="font-size:0.85rem;color:#9090a8;font-weight:600;text-transform:uppercase;margin-bottom:0.5rem;">Total Likes</div>
       <div style="font-size:2.5rem;font-weight:800;color:#F59E0B;">{{ totalLikes }}</div>
     </div>
   </div>
 
-  <!-- STATISTICS CHART -->
-  <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:1.5rem;margin-bottom:2rem;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
+  <!-- CHART -->
+  <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:1.5rem;margin-bottom:2rem;">
     <h3 style="color:#f0f0f5;margin-top:0;margin-bottom:1rem;">Engagement Overview</h3>
     <div style="position:relative;height:300px;">
       <canvas id="statsChart"></canvas>
+    </div>
+  </div>
+
+  <!-- TOP POSTS -->
+  <div *ngIf="mostCommented || mostLiked"
+       style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:2rem;">
+
+    <div *ngIf="mostCommented"
+         style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;overflow:hidden;border-top:4px solid #3B82F6;">
+      <img [src]="mostCommented.imageUrl || 'assets/placeholder.png'"
+           style="width:100%;height:160px;object-fit:cover;" alt="Most commented"/>
+      <div style="padding:1rem;">
+        <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:#3B82F6;margin-bottom:0.4rem;">💬 Most Commented</div>
+        <div style="font-weight:700;color:#f0f0f5;font-size:1rem;margin-bottom:0.25rem;">{{ mostCommented.title }}</div>
+        <div style="font-size:0.82rem;color:#9090a8;margin-bottom:0.5rem;">
+          By <strong style="color:#f0f0f5;">{{ mostCommented.adminName }}</strong>
+          &nbsp;·&nbsp;
+          <span style="background:#3B82F6;color:white;padding:2px 8px;border-radius:999px;font-size:0.75rem;">{{ mostCommented.category }}</span>
+        </div>
+        <div style="font-size:1.4rem;font-weight:800;color:#3B82F6;">{{ mostCommented.commentCount }} comments</div>
+      </div>
+    </div>
+
+    <div *ngIf="mostLiked"
+         style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;overflow:hidden;border-top:4px solid #F59E0B;">
+      <img [src]="mostLiked.imageUrl || 'assets/placeholder.png'"
+           style="width:100%;height:160px;object-fit:cover;" alt="Most liked"/>
+      <div style="padding:1rem;">
+        <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:#F59E0B;margin-bottom:0.4rem;">❤️ Most Liked</div>
+        <div style="font-weight:700;color:#f0f0f5;font-size:1rem;margin-bottom:0.25rem;">{{ mostLiked.title }}</div>
+        <div style="font-size:0.82rem;color:#9090a8;margin-bottom:0.5rem;">
+          By <strong style="color:#f0f0f5;">{{ mostLiked.adminName }}</strong>
+          &nbsp;·&nbsp;
+          <span style="background:#F59E0B;color:#0f0f13;padding:2px 8px;border-radius:999px;font-size:0.75rem;">{{ mostLiked.category }}</span>
+        </div>
+        <div style="font-size:1.4rem;font-weight:800;color:#F59E0B;">{{ mostLiked.likes }} likes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH BAR -->
+  <div style="background:#1e1e2a;border:1px solid #2a2a3a;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;">
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+      <input [(ngModel)]="searchKeyword" (input)="onSearch()" placeholder="🔍 Search posts..."
+             style="flex:1;min-width:200px;padding:0.65rem 1rem;border:1px solid #2a2a3a;border-radius:8px;font-size:0.9rem;color:#f0f0f5;background:#0f0f13;outline:none;"/>
+      <select [(ngModel)]="searchCategory" (change)="onSearch()"
+              style="padding:0.65rem 1rem;border:1px solid #2a2a3a;border-radius:8px;font-size:0.9rem;color:#f0f0f5;background:#0f0f13;min-width:150px;">
+        <option value="">All Categories</option>
+        <option value="Event">Event</option>
+        <option value="Health">Health</option>
+        <option value="Celebration">Celebration</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Tournament">Tournament</option>
+        <option value="Promotion">Promotion</option>
+      </select>
+      <button *ngIf="isSearching" (click)="clearSearch()"
+              style="padding:0.65rem 1rem;background:#E61920;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">
+        ✕ Clear
+      </button>
+    </div>
+    <div *ngIf="isSearching" style="margin-top:0.75rem;font-size:0.85rem;color:#9090a8;">
+      Found <strong style="color:#E61920;">{{ posts.length }}</strong> results
+      <span *ngIf="searchKeyword"> for <strong style="color:#f0f0f5;">"{{ searchKeyword }}"</strong></span>
+      <span *ngIf="searchCategory"> in <strong style="color:#f0f0f5;">{{ searchCategory }}</strong></span>
     </div>
   </div>
 
@@ -106,16 +259,15 @@
             <div class="post-author">StreetLeague Official</div>
             <div class="post-time">{{ post.publishDate | date:'dd/MM/yyyy' }}</div>
           </div>
-          <span class="badge badge-red" style="margin-left:auto;">Ad</span>
+          <span class="badge badge-red" style="margin-left:auto;">{{ post.category }}</span>
         </div>
 
-        <!-- IMAGE DISPLAY -->
-   <div *ngIf="post.imageType" ...>
-  <img [src]="getImageUrl(post.id)" 
-       style="width:100%;max-height:300px;object-fit:cover;border-radius:8px;"
-       alt="Post image"
-       (error)="onImageError($event)"/>
-</div>
+        <div *ngIf="post.imageUrl">
+          <img [src]="getImageUrl(post)"
+               style="width:100%;max-height:300px;object-fit:cover;border-radius:8px;margin-bottom:0.75rem;"
+               alt="Post image" (error)="onImageError($event)"/>
+        </div>
+
         <div class="post-content">
           <strong>{{ post.title }}</strong><br/>
           {{ post.description }}
@@ -143,33 +295,45 @@
           </button>
           <button class="action-btn" style="margin-left:auto;color:#E61920;" (click)="deletePost(post.id)">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6"/><path d="M14 11v6"/>
             </svg>
             <span>Delete</span>
           </button>
         </div>
 
-        <!-- COMMENTAIRES LECTURE SEULE -->
-<div *ngIf="(commentsByPost[post.id] || []).length > 0"             style="margin-top:1rem;border-top:1px solid #2a2a3a;padding-top:1rem;">
+        <div *ngIf="(commentsByPost[post.id] || []).length > 0"
+             style="margin-top:1rem;border-top:1px solid #2a2a3a;padding-top:1rem;">
           <div *ngFor="let comment of commentsByPost[post.id]"
                style="display:flex;gap:0.75rem;margin-bottom:0.75rem;">
             <div style="width:32px;height:32px;border-radius:50%;background:#2a2a3a;color:#f0f0f5;
-                        display:flex;align-items:center;justify-content:center;
-                        font-weight:700;font-size:0.75rem;flex-shrink:0;">
+                        display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">
               {{ getInitials(comment.user?.fullName) }}
             </div>
             <div style="flex:1;background:#1a1a24;border-radius:8px;padding:0.6rem 0.9rem;border:1px solid #2a2a3a;">
-              <span style="font-weight:700;font-size:0.82rem;color:#f0f0f5;">
-                {{ comment.user?.fullName || 'Player' }}
-              </span>
+              <span style="font-weight:700;font-size:0.82rem;color:#f0f0f5;">{{ comment.user?.fullName || 'Player' }}</span>
               <p style="margin:0.2rem 0 0;font-size:0.85rem;color:#9090a8;">{{ comment.content }}</p>
             </div>
           </div>
         </div>
-
       </div>
+
       <div *ngIf="posts.length === 0" style="text-align:center;color:#606078;padding:2rem;">
         No posts available.
+      </div>
+
+      <!-- PAGINATION -->
+      <div *ngIf="totalPages > 1"
+           style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:2rem;padding:1rem;">
+        <button (click)="prevPage()" [disabled]="page === 0"
+                style="padding:0.6rem 1.2rem;border:1px solid #2a2a3a;border-radius:8px;background:#1e1e2a;color:#f0f0f5;cursor:pointer;font-weight:600;"
+                [style.opacity]="page === 0 ? '0.4' : '1'">← Prev</button>
+        <span style="color:#9090a8;font-size:0.9rem;">
+          Page <strong style="color:#f0f0f5;">{{ page + 1 }}</strong> / {{ totalPages }}
+        </span>
+        <button (click)="nextPage()" [disabled]="page === totalPages - 1"
+                style="padding:0.6rem 1.2rem;border:none;border-radius:8px;background:#E61920;color:white;cursor:pointer;font-weight:600;"
+                [style.opacity]="page === totalPages - 1 ? '0.4' : '1'">Next →</button>
       </div>
     </div>
 

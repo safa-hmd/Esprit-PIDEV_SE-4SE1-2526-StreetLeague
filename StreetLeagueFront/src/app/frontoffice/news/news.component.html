@@ -30,7 +30,7 @@
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#333;">Comment</label>
       <textarea [(ngModel)]="editCommentContent" placeholder="Edit your comment..." rows="4"
         style="width:100%;padding:0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;color:#333;"></textarea>
-      <small style="display:block;margin-top:0.25rem;color:#999;">{{ editCommentContent?.length || 0 }}/500 characters</small>
+      <small style="display:block;margin-top:0.25rem;color:#999;">{{ editCommentContent.length || 0 }}/500 characters</small>
       <small *ngIf="showEditError" style="display:block;margin-top:0.25rem;color:#E61920;font-weight:600;">Error: {{ editErrorMessage }}</small>
     </div>
     <div style="display:flex;gap:1rem;justify-content:flex-end;">
@@ -41,10 +41,64 @@
 </div>
 
 <div class="page-content" style="background:#f8f8f8;min-height:100vh;padding:2rem;">
+  
+  <!-- PAGE HEADER -->
   <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
     <div>
       <h1 class="page-title">News Feed</h1>
       <p class="page-subtitle">The latest news from your sports community</p>
+    </div>
+  </div>
+
+  <!-- SEARCH BAR -->
+  <div style="background:#ffffff;border:1px solid #eee;border-radius:12px;
+              padding:1.25rem;margin-bottom:1.5rem;
+              box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+      
+      <!-- Keyword -->
+      <input [(ngModel)]="searchKeyword"
+             (input)="onSearch()"
+             placeholder="🔍 Search posts..."
+             style="flex:1;min-width:200px;padding:0.65rem 1rem;
+                    border:1px solid #ddd;border-radius:8px;
+                    font-size:0.9rem;color:#333;outline:none;"/>
+
+      <!-- Category Filter -->
+      <select [(ngModel)]="searchCategory"
+              (change)="onSearch()"
+              style="padding:0.65rem 1rem;border:1px solid #ddd;
+                     border-radius:8px;font-size:0.9rem;
+                     color:#333;background:white;min-width:150px;">
+        <option value="">All Categories</option>
+        <option value="Event">Event</option>
+        <option value="Health">Health</option>
+        <option value="Celebration">Celebration</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Tournament">Tournament</option>
+        <option value="Promotion">Promotion</option>
+      </select>
+
+
+
+      <!-- Clear Button -->
+      <button *ngIf="isSearching"
+              (click)="clearSearch()"
+              style="padding:0.65rem 1rem;background:#E61920;
+                     color:white;border:none;border-radius:8px;
+                     cursor:pointer;font-weight:600;font-size:0.9rem;">
+        ✕ Clear
+      </button>
+    </div>
+
+    <!-- Search info -->
+    <div *ngIf="isSearching"
+         style="margin-top:0.75rem;font-size:0.85rem;color:#666;">
+      Found <strong style="color:#E61920;">{{ posts.length }}</strong>
+      results
+      <span *ngIf="searchKeyword"> for <strong>"{{ searchKeyword }}"</strong></span>
+      <span *ngIf="searchCategory"> in <strong>{{ searchCategory }}</strong></span>
     </div>
   </div>
 
@@ -59,14 +113,14 @@
             <div class="post-author">StreetLeague Official</div>
             <div class="post-time">{{ post.publishDate | date:'dd/MM/yyyy' }}</div>
           </div>
-          <span class="badge badge-red" style="margin-left:auto;">Announcement</span>
+          <span class="badge badge-red" style="margin-left:auto;">{{ post.category }}</span>
         </div>
-        <!-- ✅ IMAGE DU POST -->
-<div *ngIf="post.imageType" style="margin-bottom:1rem;border-radius:8px;overflow:hidden;">
-  <img [src]="getImageUrl(post.id)" 
-       style="width:100%;max-height:300px;object-fit:cover;border-radius:8px;"
-       alt="Post image"/>
-</div>
+
+        <!-- Image -->
+        <img [src]="post.imageUrl"
+             (error)="post.imageUrl = 'assets/placeholder.png'"
+             style="width:100%;max-height:300px;object-fit:cover;border-radius:8px;margin-bottom:0.75rem;"
+             alt="Post image"/>
 
         <!-- Post Content -->
         <div class="post-content">
@@ -77,44 +131,44 @@
         <!-- Post Actions -->
         <div class="post-actions">
           <!-- Like Button -->
-          <button class="action-btn" 
-                  [style.color]="post.liked ? '#E61920' : ''" 
+          <button class="action-btn"
+                  [style.color]="post.liked ? '#E61920' : ''"
                   (click)="toggleLike(post)"
                   [disabled]="likeInProgress[post.id]"
-                  [title]="likeInProgress[post.id] ? 'Processing...' : (post.liked ? 'Unlike this post' : 'Like this post')"
                   [style.opacity]="likeInProgress[post.id] ? '0.6' : '1'"
                   [style.cursor]="likeInProgress[post.id] ? 'not-allowed' : 'pointer'"
                   style="position:relative;transition:all 0.2s ease;">
-            <svg [attr.fill]="post.liked ? '#E61920' : 'none'" 
-                 stroke="currentColor" 
-                 viewBox="0 0 24 24" 
+            <svg [attr.fill]="post.liked ? '#E61920' : 'none'"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24"
                  stroke-width="2"
                  [style.transition]="'all 0.3s ease'"
                  [style.transform]="likeInProgress[post.id] ? 'scale(1.1)' : 'scale(1)'">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
             </svg>
             <span>{{ post.likes || 0 }}</span>
-            <small *ngIf="post.liked && !likeInProgress[post.id]" 
-                   style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#E61920;color:white;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;animation:fadeIn 0.3s ease;">
+            <small *ngIf="post.liked && !likeInProgress[post.id]"
+                   style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#E61920;color:white;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;">
               ❤️ Liked
             </small>
-            <small *ngIf="likeInProgress[post.id]" 
+            <small *ngIf="likeInProgress[post.id]"
                    style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#606078;color:white;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;">
               ⏳ Processing...
             </small>
           </button>
 
           <!-- Comment toggle -->
-          <button class="action-btn" (click)="toggleComments(post)">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            <span>{{ post.comments?.length || 0 }}</span>
-          </button>
-        </div>        <!-- Comments Section -->
+        <button class="action-btn" (click)="toggleComments(post)">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+  <span>{{ post.commentCount }}</span>
+</button>
+        </div>
+
+        <!-- Comments Section -->
         <div *ngIf="post.showComments" style="margin-top:1rem;border-top:1px solid #f0f0f0;padding-top:1rem;">
 
-          <!-- Liste des commentaires -->
           <div *ngFor="let comment of post.comments" style="display:flex;gap:0.75rem;margin-bottom:1rem;">
             <div style="width:36px;height:36px;border-radius:50%;background:#f0f0f0;color:#1a1a2e;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">
               {{ getInitials(comment.user?.fullName) }}
@@ -132,13 +186,11 @@
             </div>
           </div>
 
-          <!-- Aucun commentaire -->
           <div *ngIf="post.comments?.length === 0" style="text-align:center;color:#999;font-size:0.85rem;padding:0.5rem;">
             No comments yet. Be the first!
           </div>
 
-          <!-- Ajouter un commentaire inline -->
-          <div style="display:flex;gap:0.75rem;margin-top:0.75rem;flex-direction: column;">
+          <div style="display:flex;gap:0.75rem;margin-top:0.75rem;flex-direction:column;">
             <div style="display:flex;gap:0.75rem;">
               <input [(ngModel)]="newComment[post.id]" placeholder="Write a comment..."
                 style="flex:1;padding:0.6rem 1rem;border:1px solid #ddd;border-radius:8px;background:white;color:#333;font-size:0.87rem;outline:none;"/>
@@ -151,9 +203,35 @@
 
       </div>
 
+      <!-- No posts -->
       <div *ngIf="posts.length === 0" style="text-align:center;color:#999;padding:2rem;">
-        No posts available.
+        <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+        <p *ngIf="isSearching">No results found. Try different keywords.</p>
+        <p *ngIf="!isSearching">No posts available.</p>
       </div>
+
+      <!-- PAGINATION -->
+      <div *ngIf="totalPages > 1"
+           style="display:flex;align-items:center;justify-content:center;
+                  gap:1rem;margin-top:2rem;padding:1rem;">
+        <button (click)="prevPage()" [disabled]="page === 0"
+                style="padding:0.6rem 1.2rem;border:1px solid #ddd;
+                       border-radius:8px;background:white;color:#333;
+                       cursor:pointer;font-weight:600;"
+                [style.opacity]="page === 0 ? '0.4' : '1'">
+          ← Prev
+        </button>
+        <span style="color:#666;font-size:0.9rem;">
+          Page <strong>{{ page + 1 }}</strong> / {{ totalPages }}
+        </span>
+        <button (click)="nextPage()" [disabled]="page === totalPages - 1"
+                style="padding:0.6rem 1.2rem;border:none;border-radius:8px;
+                       background:#E61920;color:white;cursor:pointer;font-weight:600;"
+                [style.opacity]="page === totalPages - 1 ? '0.4' : '1'">
+          Next →
+        </button>
+      </div>
+
     </div>
 
     <!-- Sidebar -->
