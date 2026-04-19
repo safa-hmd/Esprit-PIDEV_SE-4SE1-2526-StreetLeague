@@ -10,4 +10,6 @@ public interface InotificationService {
     List<NotificationResponse> getMyNotifications(Long userId);
     void markAsRead(Long idNotification, String email);
     void deleteNotification(Long idNotification, String email);
+
+    NotificationResponse getNotificationById(Long idNotification);
 }

@@ -67,6 +67,7 @@ public class SecurityConfig {
                         .requestMatchers("/match/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
                         .requestMatchers("/match/showMatchs", "/match/showMatchById/**").permitAll()
                         .requestMatchers("/matches-history/**").permitAll()
+                        .requestMatchers("/match/*/respond").permitAll()
                         .requestMatchers("/training/add", "/training/update").hasRole("COACH")
                         .requestMatchers("/training/delete/**").hasAnyRole("COACH", "ADMIN")
                         .requestMatchers("/training/showTrainings", "/training/showTrainingById/**").permitAll()

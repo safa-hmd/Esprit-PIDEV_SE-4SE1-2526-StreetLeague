@@ -153,32 +153,52 @@
     <div *ngIf="isLoadingMatches" class="empty-state">Loading matches...</div>
     <div *ngIf="!isLoadingMatches" style="display:flex;flex-direction:column;gap:0.75rem;">
       <div *ngFor="let match of filteredMatches" class="match-row">
-        <div style="flex:1;">
-          <div class="match-teams-inline">
-            {{ match.teamAName }}
-            <span style="color:var(--gray-text);margin:0 0.4rem;">vs</span>
-            {{ match.teamBName }}
-          </div>
-          <div class="match-date-inline">
-            {{ match.matchDate | date:'MMM d, y · h:mm a' }}
-            <span *ngIf="match.location"> · {{ match.location }}</span>
-          </div>
-          <div *ngIf="match.status === 'FINISHED'" style="margin-top:0.3rem;font-weight:700;">
-            {{ match.scoreTeamA }} – {{ match.scoreTeamB }}
-          </div>
-        </div>
-        <span class="badge" [ngClass]="getStatusClass(match.status)" style="margin-right:0.75rem;">
-          {{ match.status }}
-        </span>
-        <div style="width:90px;display:flex;justify-content:center;">
-          <button class="btn btn-outline btn-sm" (click)="goToDetails(match)">Details</button>
-        </div>
-        <div style="width:90px;display:flex;justify-content:center;">
-          <button class="btn btn-danger btn-sm"
-                  *ngIf="canDeleteMatch(match)"
-                  (click)="deleteMatch(match.idMatch)">Delete</button>
-        </div>
-      </div>
+  <div style="flex:1;">
+    <div class="match-teams-inline">
+      {{ match.teamAName }}
+      <span style="color:var(--gray-text);margin:0 0.4rem;">vs</span>
+      {{ match.teamBName }}
+    </div>
+    <div class="match-date-inline">
+      {{ match.matchDate | date:'MMM d, y · h:mm a' }}
+      <span *ngIf="match.location"> · {{ match.location }}</span>
+    </div>
+    <div *ngIf="match.status === 'FINISHED'" style="margin-top:0.3rem;font-weight:700;">
+      {{ match.scoreTeamA }} – {{ match.scoreTeamB }}
+    </div>
+  </div>
+
+  <!-- Badge statut -->
+  <span class="badge" [ngClass]="{
+    'badge-pending':  match.status === 'PENDING',
+    'badge-accepted': match.status === 'ACCEPTED',
+    'badge-rejected': match.status === 'REJECTED',
+    'badge-finished': match.status === 'FINISHED',
+    'badge-cancelled':match.status === 'CANCELLED'
+  }" style="margin-right:0.75rem;">
+    {{ match.status }}
+  </span>
+
+  <!-- Accept / Reject — visible seulement pour le capitaine de TeamB -->
+  <div *ngIf="match.status === 'PENDING' && isCaptainOfTeamB(match)"
+       style="display:flex;gap:0.5rem;margin-right:0.75rem;">
+    <button class="btn-accept" (click)="respondToMatch(match.idMatch, true)">
+      ✓ Accept
+    </button>
+    <button class="btn-reject" (click)="respondToMatch(match.idMatch, false)">
+      ✗ Reject
+    </button>
+  </div>
+
+  <div style="width:90px;display:flex;justify-content:center;">
+    <button class="btn btn-outline btn-sm" (click)="goToDetails(match)">Details</button>
+  </div>
+  <div style="width:90px;display:flex;justify-content:center;">
+    <button class="btn btn-danger btn-sm"
+            *ngIf="canDeleteMatch(match)"
+            (click)="deleteMatch(match.idMatch)">Delete</button>
+  </div>
+</div>
       <div *ngIf="filteredMatches.length === 0" class="empty-state">No matches found.</div>
     </div>
   </div>

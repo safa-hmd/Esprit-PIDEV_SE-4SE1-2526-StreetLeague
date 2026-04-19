@@ -7,26 +7,52 @@ import com.example.streetleague.Repository.MatchRepository;
 import com.example.streetleague.Repository.TeamRepository;
 import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.ImatchService;
+import com.example.streetleague.ServiceInterface.InotificationService;
 import com.example.streetleague.domain.Role;
 import com.example.streetleague.domain.User;
 import com.example.streetleague.dto.MatchRequest;
 import com.example.streetleague.dto.MatchResponse;
 import com.example.streetleague.dto.MatchUpdateRequest;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class MatchServiceImpl implements ImatchService {
 
-    MatchRepository matchRepository;
-    TeamRepository  teamRepository;
-    UserRepository  userRepository;
+    MatchRepository       matchRepository;
+    TeamRepository        teamRepository;
+    UserRepository        userRepository;
+    InotificationService  notificationService; // ← ajout
 
+    // ─────────────────────────────────────────────────────────────────────
+    // Helper : collecte tous les joueurs + capitaines des 2 équipes
+    // ─────────────────────────────────────────────────────────────────────
+    private List<User> collectTargets(Team teamA, Team teamB) {
+        List<User> targets = new ArrayList<>();
+        if (teamA.getPlayers() != null) targets.addAll(teamA.getPlayers());
+        if (teamB.getPlayers() != null) targets.addAll(teamB.getPlayers());
+        if (teamA.getCaptain() != null && !targets.contains(teamA.getCaptain()))
+            targets.add(teamA.getCaptain());
+        if (teamB.getCaptain() != null && !targets.contains(teamB.getCaptain()))
+            targets.add(teamB.getCaptain());
+        return targets;
+    }
+
+    private static final DateTimeFormatter FMT =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    // ─────────────────────────────────────────────────────────────────────
+    // ADD MATCH
+    // ─────────────────────────────────────────────────────────────────────
     @Override
     public MatchResponse addMatch(MatchRequest dto, Long teamAId, Long teamBId, Long captainId) {
         Team teamA = teamRepository.findById(teamAId)
@@ -60,7 +86,6 @@ public class MatchServiceImpl implements ImatchService {
         if (alreadyExists)
             throw new RuntimeException("A pending/accepted match already exists between these teams");
 
-        // Conversion DTO → Entity + injection des relations
         Match m = new Match();
         m.setMatchDate(dto.matchDate());
         m.setLocation(dto.location());
@@ -69,9 +94,24 @@ public class MatchServiceImpl implements ImatchService {
         m.setCreatedBy(captain);
         m.setStatus(MatchStatus.PENDING);
 
-        return MatchResponse.fromEntity(matchRepository.save(m));
+        Match saved = matchRepository.save(m);
+
+        // ── Notification création ─────────────────────────────────────
+        String notifMsg = String.format(
+                "New Match Scheduled\n%s vs %s\nDate: %s\nLocation: %s\nStatus: PENDING",
+                teamA.getName(),
+                teamB.getName(),
+                dto.matchDate().format(FMT),
+                dto.location()
+        );
+        notificationService.createNotificationForUsers(collectTargets(teamA, teamB), notifMsg);
+
+        return MatchResponse.fromEntity(saved);
     }
 
+    // ─────────────────────────────────────────────────────────────────────
+    // UPDATE MATCH
+    // ─────────────────────────────────────────────────────────────────────
     @Override
     public MatchResponse updateMatch(MatchUpdateRequest dto, Long captainId) {
         Match existing = matchRepository.findById(dto.idMatch())
@@ -105,34 +145,92 @@ public class MatchServiceImpl implements ImatchService {
         if (dto.status() != null)
             existing.setStatus(dto.status());
 
-        return MatchResponse.fromEntity(matchRepository.save(existing));
+        Match saved = matchRepository.save(existing);
+
+        Team teamA = saved.getTeamA();
+        Team teamB = saved.getTeamB();
+
+        // ── Notification selon le nouveau statut ──────────────────────
+        String notifMsg;
+
+        if (saved.getStatus() == MatchStatus.REJECTED) {
+            notifMsg = String.format(
+                    "Match Rejected\n%s vs %s\nDate: %s\nThe match request has been declined.",
+                    teamA.getName(),
+                    teamB.getName(),
+                    saved.getMatchDate().format(FMT)
+            );
+        } else if (saved.getStatus() == MatchStatus.FINISHED) {
+            notifMsg = String.format(
+                    "Match Finished\n%s %d - %d %s\nDate: %s\nLocation: %s",
+                    teamA.getName(), saved.getScoreTeamA(),
+                    saved.getScoreTeamB(), teamB.getName(),
+                    saved.getMatchDate().format(FMT),
+                    saved.getLocation()
+            );
+        } else if (saved.getStatus() == MatchStatus.ACCEPTED) {
+            notifMsg = String.format(
+                    "Match Accepted\n%s vs %s\nDate: %s\nLocation: %s\nSee you on the field!",
+                    teamA.getName(),
+                    teamB.getName(),
+                    saved.getMatchDate().format(FMT),
+                    saved.getLocation()
+            );
+        } else {
+            notifMsg = String.format(
+                    "Match Updated\n%s vs %s\nDate: %s\nLocation: %s\nStatus: %s",
+                    teamA.getName(),
+                    teamB.getName(),
+                    saved.getMatchDate().format(FMT),
+                    saved.getLocation(),
+                    saved.getStatus()
+            );
+        }
+
+        notificationService.createNotificationForUsers(collectTargets(teamA, teamB), notifMsg);
+
+        return MatchResponse.fromEntity(saved);
     }
 
+    // ─────────────────────────────────────────────────────────────────────
+    // DELETE MATCH
+    // ─────────────────────────────────────────────────────────────────────
     @Override
     @Transactional
     public void deleteMatch(Long idMatch, Long userId) {
         Match match = matchRepository.findById(idMatch)
                 .orElseThrow(() -> new RuntimeException("Match not found: " + idMatch));
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
-        // ✅ ADMIN peut supprimer n'importe quel match
-        boolean isAdmin = user.getRole() == Role.ADMIN;
-
+        boolean isAdmin    = user.getRole() == Role.ADMIN;
         boolean isCaptainA = match.getTeamA().getCaptain().getIdUser().equals(userId);
         boolean isCaptainB = match.getTeamB().getCaptain().getIdUser().equals(userId);
 
         if (!isAdmin && !isCaptainA && !isCaptainB)
             throw new RuntimeException("Only the captain of TeamA or TeamB can delete this match");
-
         if (match.getStatus() == MatchStatus.FINISHED)
             throw new RuntimeException("Cannot delete a finished match");
+
+        Team teamA = match.getTeamA();
+        Team teamB = match.getTeamB();
+
+        // ── Notification suppression ──────────────────────────────────
+        String notifMsg = String.format(
+                "Match Cancelled\n%s vs %s\nWas scheduled for: %s\nLocation: %s",
+                teamA.getName(),
+                teamB.getName(),
+                match.getMatchDate().format(FMT),
+                match.getLocation()
+        );
+        notificationService.createNotificationForUsers(collectTargets(teamA, teamB), notifMsg);
 
         matchRepository.deleteById(idMatch);
     }
 
-
+    // ─────────────────────────────────────────────────────────────────────
+    // READ
+    // ─────────────────────────────────────────────────────────────────────
     @Override
     public List<MatchResponse> ShowMatchs() {
         return matchRepository.findAll().stream()
@@ -144,5 +242,50 @@ public class MatchServiceImpl implements ImatchService {
         return MatchResponse.fromEntity(
                 matchRepository.findById(idMatch)
                         .orElseThrow(() -> new RuntimeException("Match not found: " + idMatch)));
+    }
+
+    @Override
+    public MatchResponse respondToMatch(Long matchId, Long captainId, boolean accept) {
+        Match match = matchRepository.findByIdWithTeams(matchId)
+                .orElseThrow(() -> new RuntimeException("Match not found: " + matchId));
+
+        if (match.getStatus() != MatchStatus.PENDING)
+            throw new RuntimeException("Match is no longer pending");
+
+        if (!match.getTeamB().getCaptain().getIdUser().equals(captainId))
+            throw new RuntimeException("Only the captain of TeamB can respond");
+
+        match.setStatus(accept ? MatchStatus.ACCEPTED : MatchStatus.REJECTED);
+        Match saved = matchRepository.save(match);
+
+        // ── Notification sécurisée ────────────────────────────────
+        try {
+            Team teamA = saved.getTeamA();
+            Team teamB = saved.getTeamB();
+
+            String notifMsg = accept
+                    ? String.format("Match Accepted\n%s vs %s\nDate: %s\nLocation: %s",
+                    teamA.getName(), teamB.getName(),
+                    saved.getMatchDate().format(FMT), saved.getLocation())
+                    : String.format("Match Rejected\n%s vs %s\nDate: %s\n%s declined.",
+                    teamA.getName(), teamB.getName(),
+                    saved.getMatchDate().format(FMT), teamB.getName());
+
+            List<User> targets = new ArrayList<>();
+            if (teamA.getPlayers() != null) targets.addAll(teamA.getPlayers());
+            if (teamB.getPlayers() != null) targets.addAll(teamB.getPlayers());
+            if (teamA.getCaptain() != null && !targets.contains(teamA.getCaptain()))
+                targets.add(teamA.getCaptain());
+            if (teamB.getCaptain() != null && !targets.contains(teamB.getCaptain()))
+                targets.add(teamB.getCaptain());
+
+            if (!targets.isEmpty())
+                notificationService.createNotificationForUsers(targets, notifMsg);
+
+        } catch (Exception e) {
+            log.warn("Notification failed for match {}: {}", matchId, e.getMessage());
+        }
+
+        return MatchResponse.fromEntity(saved);
     }
 }

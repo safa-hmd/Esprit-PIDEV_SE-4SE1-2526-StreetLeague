@@ -123,12 +123,15 @@
         </div>
 
         <!-- Contenu -->
-        <div class="notif-content" (click)="markAsRead(n, $event)" style="cursor:pointer; flex:1;">
-          <p class="notif-message" [class.notif-unread-text]="!n.isRead">
-            {{ n.message }}
-          </p>
-          <span class="notif-time">{{ n.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-        </div>
+<!-- Contenu — remplace l'ancien (click)="markAsRead(n, $event)" -->
+<div class="notif-content"
+     (click)="onNotificationClick(n, $event)"
+     style="cursor:pointer; flex:1;">
+  <p class="notif-message" [class.notif-unread-text]="!n.isRead">
+    {{ n.message }}
+  </p>
+  <span class="notif-time">{{ n.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+</div>
 
         <!-- Supprimer -->
         <button class="notif-delete-btn" (click)="deleteNotification(n, $event)" title="Supprimer">

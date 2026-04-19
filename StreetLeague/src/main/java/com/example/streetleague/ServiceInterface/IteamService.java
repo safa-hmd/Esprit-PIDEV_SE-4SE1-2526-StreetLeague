@@ -1,5 +1,6 @@
 package com.example.streetleague.ServiceInterface;
 
+import com.example.streetleague.dto.LeaderboardDto;
 import com.example.streetleague.dto.TeamRequest;
 import com.example.streetleague.dto.TeamResponse;
 
@@ -14,9 +15,9 @@ public interface IteamService {
     List<TeamResponse> getTeamsByCaptain(Long captainId);
     TeamResponse updateTeamStats(Long teamId, int victories, int defeats, int matches, Long captainId);
 
-    // Leaderboard
-    List<TeamResponse> getLeaderboard(String sport);
+
 
     TeamResponse joinTeam(Long teamId, Long playerId);
     TeamResponse leaveTeam(Long teamId, Long playerId);
+    List<LeaderboardDto> getLeaderboard(String sport);
 }

@@ -7,6 +7,7 @@ import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.IteamService;
 import com.example.streetleague.domain.Role;
 import com.example.streetleague.domain.User;
+import com.example.streetleague.dto.LeaderboardDto;
 import com.example.streetleague.dto.TeamRequest;
 import com.example.streetleague.dto.TeamResponse;
 import lombok.AllArgsConstructor;
@@ -216,11 +217,12 @@ public class TeamServiceImpl implements IteamService {
         return TeamResponse.fromEntity(teamRepository.save(team));
     }
 
+
     @Override
-    public List<TeamResponse> getLeaderboard(String sport) {
-        return teamRepository.findTopTeamsBySport(sport).stream()
+    public List<LeaderboardDto> getLeaderboard(String sport) {
+        return teamRepository.findLeaderboardBySport(sport)
+                .stream()
                 .limit(5)
-                .map(TeamResponse::fromEntity)
                 .toList();
     }
 }

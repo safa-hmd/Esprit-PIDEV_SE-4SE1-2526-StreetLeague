@@ -156,4 +156,42 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (!t.closest('.account-menu')) this.dropdownOpen = false;
     if (!t.closest('.notif-menu'))   this.notifOpen   = false;
   }
+
+
+  // Ajoute Router est déjà importé ✅
+
+onNotificationClick(n: NotificationResponse, event: Event): void {
+  event.stopPropagation();
+
+  // Marquer comme lu si pas encore lu
+  if (!n.isRead) {
+    this.notificationService.markAsRead(n.idNotification).subscribe({
+      next: () => {
+        n.isRead = true;
+        this.unreadCount = this.notifications.filter(x => !x.isRead).length;
+      }
+    });
+  }
+
+  // Fermer le panel
+  this.notifOpen = false;
+
+  // Redirection selon le contenu du message
+  const msg = n.message.toLowerCase();
+
+  if (msg.includes('match accepted') || msg.includes('match rejected') ||
+      msg.includes('match updated')  || msg.includes('match cancelled') ||
+      msg.includes('new match')      || msg.includes('match scheduled')) {
+    this.router.navigate(['/client/team'], { queryParams: { tab: 'matches' } });
+
+  } else if (msg.includes('training')) {
+    this.router.navigate(['/client/training']);
+
+  } else if (msg.includes('team')) {
+    this.router.navigate(['/client/team']);
+
+  } else {
+    this.router.navigate(['/client/home']);
+  }
+}
 }

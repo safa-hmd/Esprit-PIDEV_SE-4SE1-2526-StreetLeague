@@ -94,4 +94,12 @@ addMatchByEmail(
       headers: this.getHeaders() 
     });
   }
+
+respondToMatch(matchId: number, captainId: number, accept: boolean): Observable<any> {
+  return this.http.put(
+   `${this.base}/${matchId}/respond?captainId=${captainId}&accept=${accept}`,
+    {},
+    { headers: this.getHeaders() }
+  );
+}
 }

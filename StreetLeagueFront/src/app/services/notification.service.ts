@@ -48,4 +48,12 @@ export class NotificationService {
       { headers: this.getHeaders() }
     );
   }
+
+getRedirectTarget(id: number): Observable<{redirectTo: string, message: string}> {
+  const email = localStorage.getItem('EmailUserConnect');
+  return this.http.get<{redirectTo: string, message: string}>(
+    `${this.base}/${id}/redirect?email=${email}`,
+    { headers: this.getHeaders() }
+  );
+}
 }

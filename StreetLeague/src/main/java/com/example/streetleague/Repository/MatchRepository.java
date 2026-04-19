@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface MatchRepository extends JpaRepository<Match, Long> {
 
@@ -153,4 +154,22 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to
     );
+
+
+
+    // ═══════════════════════════════════════════════════════════════════════
+// MÉTHODE 6 — Charge un match avec ses équipes + players + capitaines
+// Utilisé par respondToMatch pour éviter le lazy loading
+// ═══════════════════════════════════════════════════════════════════════
+    @Query("""
+    SELECT m FROM Match m
+    JOIN FETCH m.teamA tA
+    JOIN FETCH m.teamB tB
+    LEFT JOIN FETCH tA.players
+    LEFT JOIN FETCH tB.players
+    LEFT JOIN FETCH tA.captain
+    LEFT JOIN FETCH tB.captain
+    WHERE m.idMatch = :id
+""")
+    Optional<Match> findByIdWithTeams(@Param("id") Long id);
 }

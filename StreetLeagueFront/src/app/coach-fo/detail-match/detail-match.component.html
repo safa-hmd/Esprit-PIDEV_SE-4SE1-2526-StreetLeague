@@ -1,114 +1,184 @@
-<div class="page-content">
+<div class="page-content" style="display:flex;flex-direction:column;gap:1rem;max-width:860px;">
 
-     <button class="btn btn-outline btn-sm" (click)="goBack()">← Back</button>
-  <div class="page-header">
-    <h1 class="page-title">Match Details</h1>
+  <!-- Back -->
+  <div>
+    <button class="btn btn-gray btn-sm" (click)="goBack()" style="font-size:0.8rem;display:inline-flex;align-items:center;gap:4px;">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="width:14px;height:14px;"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to matches
+    </button>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="isLoading" class="empty-state">Loading...</div>
-
-  <!-- Error -->
+  <div *ngIf="isLoading" style="padding:3rem;text-align:center;color:var(--gray-text);">Loading...</div>
   <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
 
-  <!-- Content -->
   <div *ngIf="!isLoading && !errorMsg && match">
 
-    <!-- Score Card -->
-    <div class="match-score-card">
-      <div class="team-side">
-        <div class="team-name-lg">{{ match.teamAName }}</div>
-        <div class="score" *ngIf="match.status === 'FINISHED'">{{ match.scoreTeamA }}</div>
+    <!-- ── Score Hero Card ── -->
+    <div style="background:white;border:1.5px solid #eee;border-radius:16px;padding:1.75rem;">
+
+      <!-- Header row -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+        <span style="font-size:0.8rem;color:var(--gray-text);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Match details</span>
+        <span class="badge" [ngClass]="getStatusClass(match.status)"
+              style="display:inline-flex;align-items:center;gap:5px;font-size:0.75rem;padding:0.25rem 0.75rem;border-radius:99px;">
+          <span style="width:7px;height:7px;border-radius:50%;background:currentColor;opacity:0.7;display:inline-block;"></span>
+          {{ match.status }}
+        </span>
       </div>
 
-      <div class="vs-center">
-        <span class="badge" [ngClass]="getStatusClass(match.status)">{{ match.status }}</span>
-        <div class="vs-text" *ngIf="match.status !== 'FINISHED'">VS</div>
-        <div class="score-sep" *ngIf="match.status === 'FINISHED'">–</div>
+      <!-- Teams + Score -->
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1.5rem;">
+
+        <!-- Team A -->
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="width:52px;height:52px;border-radius:12px;background:#FCEBEB;
+                      display:flex;align-items:center;justify-content:center;
+                      font-size:1.1rem;font-weight:700;color:#A32D2D;">
+            {{ (match.teamAName || 'A')[0] }}{{ (match.teamAName || 'A')[1] || '' }}
+          </div>
+          <div style="font-size:1rem;font-weight:700;">{{ match.teamAName }}</div>
+          <div style="font-size:0.75rem;color:var(--gray-text);">Team A</div>
+        </div>
+
+        <!-- Score Center -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span *ngIf="match.status === 'FINISHED'"
+                  style="font-size:2.5rem;font-weight:800;color:#A32D2D;">
+              {{ match.scoreTeamA }}
+            </span>
+            <span style="font-size:1.3rem;color:#ccc;font-weight:400;">
+              {{ match.status === 'FINISHED' ? '—' : 'VS' }}
+            </span>
+            <span *ngIf="match.status === 'FINISHED'"
+                  style="font-size:2.5rem;font-weight:800;color:#185FA5;">
+              {{ match.scoreTeamB }}
+            </span>
+          </div>
+          <span *ngIf="match.status === 'FINISHED'"
+                style="font-size:0.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:0.06em;">
+            final score
+          </span>
+        </div>
+
+        <!-- Team B -->
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div style="width:52px;height:52px;border-radius:12px;background:#E6F1FB;
+                      display:flex;align-items:center;justify-content:center;
+                      font-size:1.1rem;font-weight:700;color:#185FA5;margin-left:auto;">
+            {{ (match.teamBName || 'B')[0] }}{{ (match.teamBName || 'B')[1] || '' }}
+          </div>
+          <div style="font-size:1rem;font-weight:700;">{{ match.teamBName }}</div>
+          <div style="font-size:0.75rem;color:var(--gray-text);">Team B</div>
+        </div>
+
       </div>
 
-      <div class="team-side">
-        <div class="team-name-lg">{{ match.teamBName }}</div>
-        <div class="score" *ngIf="match.status === 'FINISHED'">{{ match.scoreTeamB }}</div>
+      <!-- Divider -->
+      <div style="border-top:1.5px solid #f0f0f0;margin:1.25rem 0;"></div>
+
+      <!-- Meta info row -->
+      <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"
+               style="width:14px;height:14px;color:var(--gray-text);flex-shrink:0;">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span style="font-size:0.8rem;color:var(--gray-text);">
+            {{ match.matchDate | date:'MMMM d, y · h:mm a' }}
+          </span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"
+               style="width:14px;height:14px;color:var(--gray-text);flex-shrink:0;">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            <circle cx="12" cy="9" r="2.5"/>
+          </svg>
+          <span style="font-size:0.8rem;color:var(--gray-text);">
+            {{ match.location || 'Location not set' }}
+          </span>
+        </div>
       </div>
     </div>
 
-    <!-- Info Card -->
-    <div class="info-card">
-      <div class="info-row">
-        <span class="info-label">📅 Date</span>
-        <span class="info-value">{{ match.matchDate | date:'MMMM d, y · h:mm a' }}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">📍 Location</span>
-        <span class="info-value">{{ match.location || 'Not defined' }}</span>
+    <!-- ── Captains Row ── -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+
+      <!-- Captain A -->
+      <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;">
+        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;
+                    color:var(--gray-text);font-weight:600;margin-bottom:10px;">Captain A</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:#FCEBEB;
+                      display:flex;align-items:center;justify-content:center;
+                      font-weight:700;font-size:0.85rem;color:#A32D2D;flex-shrink:0;">
+            {{ (match.captainAName || 'A')[0] }}
+          </div>
+          <div>
+            <div style="font-size:0.9rem;font-weight:700;">{{ match.captainAName || 'Not defined' }}</div>
+            <div style="font-size:0.75rem;color:var(--gray-text);">{{ match.captainAEmail || '' }}</div>
+          </div>
+        </div>
       </div>
 
-
-<!-- Par ceci : -->
-<div class="info-row">
-  <span class="info-label">👑 Captain A</span>
-  <span class="info-value" style="display:flex;align-items:center;gap:0.5rem;">
-    <span style="width:28px;height:28px;border-radius:50%;background:var(--red);
-                 display:inline-flex;align-items:center;justify-content:center;
-                 color:white;font-weight:800;font-size:0.8rem;">
-      {{ (match.captainAName || 'A')[0] }}
-    </span>
-    {{ match.captainAName || 'Not defined' }}
-  </span>
-</div>
-
-<div class="info-row">
-  <span class="info-label">👑 Captain B</span>
-  <span class="info-value" style="display:flex;align-items:center;gap:0.5rem;">
-    <span style="width:28px;height:28px;border-radius:50%;background:#3b82f6;
-                 display:inline-flex;align-items:center;justify-content:center;
-                 color:white;font-weight:800;font-size:0.8rem;">
-      {{ (match.captainBName || 'B')[0] }}
-    </span>
-    {{ match.captainBName || 'Not defined' }}
-  </span>
-</div>
-      <div class="info-row">
-        <span class="info-label">🏆 Status</span>
-        <span class="badge" [ngClass]="getStatusClass(match.status)">{{ match.status }}</span>
+      <!-- Captain B -->
+      <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;">
+        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;
+                    color:var(--gray-text);font-weight:600;margin-bottom:10px;">Captain B</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:#E6F1FB;
+                      display:flex;align-items:center;justify-content:center;
+                      font-weight:700;font-size:0.85rem;color:#185FA5;flex-shrink:0;">
+            {{ (match.captainBName || 'B')[0] }}
+          </div>
+          <div>
+            <div style="font-size:0.9rem;font-weight:700;">{{ match.captainBName || 'Not defined' }}</div>
+            <div style="font-size:0.75rem;color:var(--gray-text);">{{ match.captainBEmail || '' }}</div>
+          </div>
+        </div>
       </div>
+
     </div>
 
-    <!-- Juste après </div> de la info-card, avant </div> du *ngIf principal -->
+    <!-- ── Post-Match Training (FINISHED uniquement) ── -->
+    <div *ngIf="match.status === 'FINISHED'"
+         style="background:#f8f8f7;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;">
 
-<!-- ── Post-Match Training Trigger ── -->
-<div *ngIf="match.status === 'FINISHED'"
-     style="margin-top:1.5rem;background:white;border:1.5px solid #eee;
-            border-radius:12px;padding:1.5rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;
+                  gap:1rem;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:0.9rem;font-weight:700;margin-bottom:4px;">Post-match training</div>
+          <div style="font-size:0.8rem;color:var(--gray-text);max-width:400px;line-height:1.5;">
+            Generate a training session automatically based on this match's performance data.
+          </div>
+        </div>
+        <button class="btn btn-primary"
+                (click)="onGenerateTraining()"
+                [disabled]="isGenerating || !!generateMsg"
+                style="display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;padding:0.5rem 1rem;flex-shrink:0;">
+          <svg *ngIf="!isGenerating" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+               stroke-width="2" style="width:14px;height:14px;">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          {{ isGenerating ? 'Generating...' : 'Generate training' }}
+        </button>
+      </div>
 
-  <h3 style="font-weight:700;font-size:1rem;margin-bottom:0.5rem;">
-    🏋️ Post-Match Training
-  </h3>
-  <p style="font-size:0.85rem;color:var(--gray-text);margin-bottom:1rem;">
-    Automatically generate a training session based on this match's performance analysis.
-  </p>
+      <div *ngIf="generateMsg"
+           style="margin-top:1rem;background:#EAF3DE;border:1px solid #C0DD97;
+                  padding:0.75rem 1rem;border-radius:8px;font-size:0.82rem;color:#27500A;">
+        {{ generateMsg }}
+      </div>
+      <div *ngIf="generateError"
+           style="margin-top:1rem;background:#FCEBEB;border:1px solid #F7C1C1;
+                  padding:0.75rem 1rem;border-radius:8px;font-size:0.82rem;color:#791F1F;">
+        {{ generateError }}
+      </div>
 
-  <div *ngIf="generateMsg"
-       class="alert alert-success" style="margin-bottom:1rem;">
-    {{ generateMsg }}
-  </div>
-  <div *ngIf="generateError"
-       class="alert alert-danger" style="margin-bottom:1rem;">
-    {{ generateError }}
-  </div>
+    </div>
 
-  <button class="btn btn-primary"
-          (click)="onGenerateTraining()"
-          [disabled]="isGenerating || !!generateMsg">
-    <svg *ngIf="!isGenerating" fill="none" stroke="currentColor"
-         viewBox="0 0 24 24" stroke-width="2"
-         style="width:16px;height:16px;margin-right:6px;">
-      <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
-    </svg>
-    {{ isGenerating ? 'Generating...' : '⚡ Generate Training Session' }}
-  </button>
-
-</div>
   </div>
 </div>

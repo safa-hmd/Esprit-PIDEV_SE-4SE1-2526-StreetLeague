@@ -111,20 +111,20 @@ deleteMatch(idMatch: number): void {
   get cmf() { return this.createMatchForm.controls; }
 
   // ── Load ──────────────────────────────────────────────────
-  loadTeams(): void {
-    this.teamService.getAllTeams().subscribe({
-      next: (data) => {
-        this.teams           = data;
-        this.applyFilters();
-        this.myTeams         = data.filter(t => this.isMyTeam(t));
-        this.otherTeams      = data.filter(t => !this.isMyTeam(t));
-        this.availableTeamsB = this.otherTeams;
-        this.isCaptain       = this.myTeams.length > 0;
-        this.loadMatches();
-      },
-      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
-    });
-  }
+loadTeams(): void {
+  this.teamService.getAllTeams().subscribe({
+    next: (data) => {
+      this.teams = data;           // ← toutes les équipes sont déjà là ✅
+      this.applyFilters();
+      this.myTeams         = data.filter(t => this.isMyTeam(t));
+      this.otherTeams      = data.filter(t => !this.isMyTeam(t));
+      this.availableTeamsB = this.otherTeams;
+      this.isCaptain       = this.myTeams.length > 0;
+      this.loadMatches();
+    },
+    error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
+  });
+}
 
   loadMatches(): void {
     this.isLoadingMatches = true;
@@ -358,6 +358,40 @@ leaveTeam(idTeam: number): void {
       setTimeout(() => this.successMsg = '', 3000);
     },
     error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
+  });
+}
+
+isCaptainOfTeamB(match: MatchResponse): boolean {
+  return match.captainBEmail?.toLowerCase() === this.currentUserEmail.toLowerCase();
+}
+respondToMatch(matchId: number, accept: boolean): void {
+  const match = this.matches.find(m => m.idMatch === matchId);
+  if (!match) return;
+
+  const teamB = this.teams.find(t =>
+    t.name.toLowerCase() === match.teamBName.toLowerCase()
+  );
+
+  console.log('match:', match);
+  console.log('teamB:', teamB);
+  console.log('captainId:', teamB?.captainId);
+
+  const captainId = teamB?.captainId;
+
+  if (!captainId) {
+    this.errorMsg = 'Captain ID not found.';
+    return;
+  }
+
+  this.matchService.respondToMatch(matchId, captainId, accept).subscribe({
+    next: () => {
+      this.successMsg = accept ? 'Match accepted!' : 'Match rejected.';
+      this.loadMatches();
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (err) => {
+      this.errorMsg = err.error?.message || `Error ${err.status}`;
+    }
   });
 }
 }

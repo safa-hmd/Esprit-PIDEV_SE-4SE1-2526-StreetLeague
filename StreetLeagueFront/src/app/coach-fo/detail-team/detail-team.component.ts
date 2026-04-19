@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Team } from 'src/app/models/team.model';
 import { TeamService } from 'src/app/services/team.service';
-import { MatchmakingService, MatchCandidateResponse } from 'src/app/services/matchmaking.service';
-import { MatchService } from 'src/app/services/match.service';
+
 import { TrainingService } from 'src/app/services/training.service';
 import { TrainingResponse } from 'src/app/models/training.model';
 
@@ -29,8 +28,6 @@ export class DetailTeamComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private teamService: TeamService,
-    private matchmakingService: MatchmakingService,
-    private matchService: MatchService,
     private trainingService: TrainingService
   ) {}
 
@@ -95,68 +92,9 @@ goBack(): void {
     });
   }
 
-  suggestedOpponents: MatchCandidateResponse[] = [];
+
   isLoadingOpponents = false;
   opponentErrorMsg = '';
 
-  findSmartOpponents(): void {
-    if (!this.team?.idTeam) return;
-    this.isLoadingOpponents = true;
-    this.opponentErrorMsg = '';
-    this.matchmakingService.suggestOpponents(this.team.idTeam).subscribe({
-      next: (candidates) => {
-        this.suggestedOpponents = candidates;
-        this.isLoadingOpponents = false;
-      },
-      error: (err) => {
-        this.opponentErrorMsg = 'Failed to generate suggestions. Please ensure the backend algorithm is running.';
-        this.isLoadingOpponents = false;
-      }
-    });
-  }
-
-  isChallenging = false;
-  challengeSuccessMsg = '';
-
- challengeTeam(opponentTeamId: number): void {
-  if (!this.team?.idTeam) return;
-  this.isChallenging = true;
-  this.opponentErrorMsg = '';
-  this.challengeSuccessMsg = '';
-
-  // Récupérer l'email du capitaine connecté
-  const captainEmail = this.team.captainEmail;
-  if (!captainEmail) {
-    this.opponentErrorMsg = 'Captain email not found.';
-    this.isChallenging = false;
-    return;
-  }
-
-  const newMatch = {
-    matchDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
-                   .toISOString().replace('Z', ''),  // LocalDateTime format
-    location: 'Match Programmé par IA',
-    status: 'PLANNED'
-  };
-
-  // Appel vers le nouvel endpoint dédié
-  this.matchService.addMatchByEmail(
-    newMatch as any,
-    this.team.idTeam,
-    opponentTeamId,
-    captainEmail
-  ).subscribe({
-    next: () => {
-      this.isChallenging = false;
-      this.challengeSuccessMsg = 'Match programmé avec succès !';
-      this.suggestedOpponents = this.suggestedOpponents
-        .filter(o => o.teamId !== opponentTeamId);
-    },
-    error: (err) => {
-      this.isChallenging = false;
-      this.opponentErrorMsg = err.error?.message ||
-        'Erreur lors de la programmation du match.';
-    }
-  });
-}
+  
 }

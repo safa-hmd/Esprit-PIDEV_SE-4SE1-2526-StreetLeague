@@ -276,3 +276,54 @@
   text-transform: uppercase;
   margin-bottom: 1rem;
 }
+.leaderboard-container {
+  background: rgba(31, 40, 51, 0.3);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+  overflow: hidden;
+  max-width: 900px;
+  margin: 0 auto;
+  backdrop-filter: blur(10px);
+}
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 0.5px solid rgba(255,255,255,0.05);
+  transition: background 0.15s;
+}
+.rank-row:last-child { border-bottom: none; }
+.rank-row:hover      { background: rgba(255,255,255,0.03); }
+.rank-row.top-1      { background: rgba(186,117,23,0.08); }
+.rank-row.top-2      { background: rgba(136,135,128,0.08); }
+.rank-row.top-3      { background: rgba(216,90,48,0.08); }
+
+.rank-badge { width: 36px; text-align: center; flex-shrink: 0; }
+.medal      { font-size: 20px; line-height: 1; }
+.rank-num   { font-size: 13px; font-weight: 500; color: #555; }
+
+.lb-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 500;
+  flex-shrink: 0;
+}
+.lb-info   { flex: 1; min-width: 0; }
+.lb-name   { font-size: 15px; font-weight: 500; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-meta   { display: flex; gap: 12px; margin-top: 3px; flex-wrap: wrap; }
+.lb-stat   { font-size: 12px; color: #a0a0a0; display: flex; align-items: center; gap: 4px; }
+.dot       { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.dot-green { background: #639922; }
+.dot-red   { background: #A32D2D; }
+.dot-gray  { background: #555; }
+.lb-captain { font-size: 11px; color: #555; margin-top: 2px; }
+
+.lb-score      { text-align: right; flex-shrink: 0; }
+.score-label   { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+.score-val     { font-size: 28px; font-weight: 500; line-height: 1.1; }
+.score-gold    { color: #BA7517; }
+.score-silver  { color: #888780; }
+.score-bronze  { color: #D85A30; }
+.score-default { color: white; }

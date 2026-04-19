@@ -113,4 +113,13 @@ export class DetailMatchComponent implements OnInit {
       default:          return '';
     }
   }
+
+  // À ajouter dans le TS si absent
+isGenerating = false;
+generateMsg  = '';
+generateError = '';
+
+onGenerateTraining(): void {
+  // ton implémentation existante
+}
 }

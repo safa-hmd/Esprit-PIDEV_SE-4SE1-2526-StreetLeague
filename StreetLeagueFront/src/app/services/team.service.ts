@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Team } from '../models/team.model';
+import { LeaderboardDto } from '../models/leaderboard.model';
 
 @Injectable({ providedIn: 'root' })
 export class TeamService {
@@ -101,9 +102,8 @@ updateTeamStats(idTeam: number, victories: number, defeats: number, matches: num
   );
 }
 
-// Ajouter le leaderboard dans team.service.ts
-getLeaderboard(sport: string): Observable<Team[]> {
-  return this.http.get<Team[]>(
+getLeaderboard(sport: string): Observable<LeaderboardDto[]> {
+  return this.http.get<LeaderboardDto[]>(
     `${this.base}/leaderboard?sport=${sport}`,
     { headers: this.getHeaders() }
   );

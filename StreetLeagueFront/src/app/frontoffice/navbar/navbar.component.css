@@ -578,3 +578,27 @@
   color: #e61920;
   background: rgba(230, 25, 32, 0.08);
 }
+
+.nav-link {
+  padding: 6px 7px;       /* était 6px 10px */
+  font-size: 0.78rem;     /* était 0.85rem */
+  font-weight: 600;
+  color: #444;
+  text-decoration: none;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 0;                 /* était 2px */
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;  /* cache la scrollbar */
+}
+
+.navbar-links::-webkit-scrollbar {
+  display: none;          /* cache la scrollbar Chrome */
+}

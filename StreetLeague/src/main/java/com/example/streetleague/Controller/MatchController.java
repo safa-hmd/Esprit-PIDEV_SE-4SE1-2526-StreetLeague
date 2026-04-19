@@ -79,4 +79,14 @@ public class MatchController {
         MatchResponse response = imatchService.addMatch(dto, teamAId, teamBId, captain.getIdUser());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+
+    // PUT /match/{matchId}/respond?captainId=2&accept=true
+    @PutMapping("{matchId}/respond")
+    public ResponseEntity<MatchResponse> respondToMatch(
+            @PathVariable Long matchId,
+            @RequestParam Long captainId,
+            @RequestParam boolean accept) {
+        return ResponseEntity.ok(imatchService.respondToMatch(matchId, captainId, accept));
+    }
 }

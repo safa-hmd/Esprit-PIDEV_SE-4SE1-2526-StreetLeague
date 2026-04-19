@@ -5,6 +5,7 @@ import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.IteamService;
 import com.example.streetleague.domain.Role;
 import com.example.streetleague.domain.User;
+import com.example.streetleague.dto.LeaderboardDto;
 import com.example.streetleague.dto.TeamRequest;
 import com.example.streetleague.dto.TeamResponse;
 import lombok.AllArgsConstructor;
@@ -69,9 +70,8 @@ public class TeamController {
         teamService.deleteTeam(idTeam, user.getIdUser());
     }
 
-    // GET /team/leaderboard?sport=Football
     @GetMapping("leaderboard")
-    public List<TeamResponse> getLeaderboard(@RequestParam("sport") String sport) {
+    public List<LeaderboardDto> getLeaderboard(@RequestParam("sport") String sport) {
         return teamService.getLeaderboard(sport);
     }
 
