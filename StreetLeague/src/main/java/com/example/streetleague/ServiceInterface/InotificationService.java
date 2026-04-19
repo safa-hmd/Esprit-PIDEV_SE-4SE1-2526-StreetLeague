@@ -9,4 +9,5 @@ public interface InotificationService {
     void createNotificationForUsers(List<User> users, String message);
     List<NotificationResponse> getMyNotifications(Long userId);
     void markAsRead(Long idNotification, String email);
+    void deleteNotification(Long idNotification, String email);
 }

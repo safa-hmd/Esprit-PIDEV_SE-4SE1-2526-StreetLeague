@@ -54,4 +54,16 @@ public class NotificationServiceImpl implements InotificationService {
         notification.setRead(true);
         notificationRepository.save(notification);
     }
+
+    @Override
+    public void deleteNotification(Long idNotification, String email) {
+        Notification notification = notificationRepository.findById(idNotification)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+
+        if (!notification.getUser().getEmail().equalsIgnoreCase(email)) {
+            throw new RuntimeException("You do not have permission to delete this notification");
+        }
+
+        notificationRepository.delete(notification);
+    }
 }

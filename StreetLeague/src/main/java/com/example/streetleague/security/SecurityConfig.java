@@ -57,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()          // ✅ couvre /auth/complete-google-register
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/user/profile").authenticated()
+                        .requestMatchers("/api/schedule/**").permitAll()
                         .requestMatchers("/matchmaking/**").permitAll()
                         .requestMatchers("/team/add", "/team/update/**").hasAnyRole("PLAYER", "COACH")
                         .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
@@ -65,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers("/match/add", "/match/update").hasAnyRole("PLAYER", "COACH")
                         .requestMatchers("/match/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
                         .requestMatchers("/match/showMatchs", "/match/showMatchById/**").permitAll()
+                        .requestMatchers("/matches-history/**").permitAll()
                         .requestMatchers("/training/add", "/training/update").hasRole("COACH")
                         .requestMatchers("/training/delete/**").hasAnyRole("COACH", "ADMIN")
                         .requestMatchers("/training/showTrainings", "/training/showTrainingById/**").permitAll()

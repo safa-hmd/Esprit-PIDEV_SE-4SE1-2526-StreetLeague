@@ -230,10 +230,22 @@
 .notif-item {
   padding: 0.85rem 1.2rem;
   display: flex;
+  align-items: center;
   gap: 0.8rem;
-  cursor: pointer;
+  cursor: default;
   transition: background 0.15s ease;
   border-bottom: 1px solid #f5f5f5;
+}
+
+/* ── Notification Delete Button ── */
+.notif-delete-btn {
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.notif-item:hover .notif-delete-btn {
+  opacity: 1;
 }
 
 .notif-item:last-child {
@@ -489,4 +501,80 @@
     width: 320px;
     right: -60px;
   }
+}
+
+/* ── Filtres notifications ─────────────────────────────────────────── */
+.notif-filters {
+  display: flex;
+  gap: 4px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.notif-filter-btn {
+  flex: 1;
+  padding: 5px 4px;
+  font-size: 11px;
+  border-radius: 6px;
+  border: 1px solid #e5e5e5;
+  background: white;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.notif-filter-btn:hover {
+  border-color: #e61920;
+  color: #e61920;
+  background: rgba(230, 25, 32, 0.04);
+}
+
+.notif-filter-btn.active {
+  background: #e61920;
+  color: white;
+  border-color: #e61920;
+  font-weight: 600;
+}
+
+/* ── Icône type colorée ───────────────────────────────────────────── */
+.notif-type-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.notif-type-icon:hover {
+  opacity: 0.75;
+}
+
+/* ── Bouton supprimer ─────────────────────────────────────────────── */
+.notif-delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+  opacity: 0;
+}
+
+.notif-item:hover .notif-delete-btn {
+  opacity: 1;
+}
+
+.notif-delete-btn:hover {
+  color: #e61920;
+  background: rgba(230, 25, 32, 0.08);
 }

@@ -4,6 +4,8 @@ import { Team } from 'src/app/models/team.model';
 import { TeamService } from 'src/app/services/team.service';
 import { MatchmakingService, MatchCandidateResponse } from 'src/app/services/matchmaking.service';
 import { MatchService } from 'src/app/services/match.service';
+import { TrainingService } from 'src/app/services/training.service';
+import { TrainingResponse } from 'src/app/models/training.model';
 
 @Component({
   selector: 'app-detail-team',
@@ -17,21 +19,44 @@ export class DetailTeamComponent implements OnInit {
   errorMsg  = '';
 
   captainAName = '';    
-  captainBName = '';    
+  captainBName = '';
+
+  completedTrainings: TrainingResponse[] = [];
+  isLoadingTrainings = false;
+  trainingErrorMsg = '';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private teamService: TeamService,
     private matchmakingService: MatchmakingService,
-    private matchService: MatchService
+    private matchService: MatchService,
+    private trainingService: TrainingService
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.teamService.getTeamById(id).subscribe({
-      next: (data) => { this.team = data; this.isLoading = false; },
+      next: (data) => { 
+        this.team = data; 
+        this.isLoading = false; 
+        this.loadCompletedTrainings(id);
+      },
       error: (err)  => { this.errorMsg = `Team not found (${err.status})`; this.isLoading = false; }
+    });
+  }
+
+  loadCompletedTrainings(teamId: number): void {
+    this.isLoadingTrainings = true;
+    this.trainingService.getCompletedTrainingsWithDetails(teamId).subscribe({
+      next: (trainings) => {
+        this.completedTrainings = trainings;
+        this.isLoadingTrainings = false;
+      },
+      error: (err) => {
+        this.trainingErrorMsg = 'Failed to load advanced post trainings history.';
+        this.isLoadingTrainings = false;
+      }
     });
   }
 

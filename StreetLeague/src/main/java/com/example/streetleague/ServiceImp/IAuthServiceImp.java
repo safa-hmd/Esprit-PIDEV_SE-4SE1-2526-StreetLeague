@@ -80,7 +80,7 @@ public class IAuthServiceImp implements IAuthService {
         User user = userRepository.findByEmail(req.email()).orElseThrow();
 
 
-        return new AuthResponse(token, userDetails.getUsername(), role, (Long) user.getIdUser());
+        return new AuthResponse(token, userDetails.getUsername(), role, user.getIdUser());
     }
 
 

@@ -1,4 +1,3 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { FrontofficeRoutingModule } from './frontoffice-routing.module';
@@ -14,7 +13,14 @@ import { DetailTeamComponent } from './detail-team/detail-team.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
 
+import { MatchHistoryComponent } from './match-history/match-history.component';
+import { ScheduleComponent } from './schedule/schedule.component';
 
+import { NgModule, LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+
+registerLocaleData(localeFr);  // ← ajoute avant @NgModule
 
 @NgModule({
   declarations: [
@@ -27,6 +33,8 @@ import { PlayerProfileComponent } from './player-profile/player-profile.componen
     DetailTeamComponent,
     NavbarComponent,
     PlayerProfileComponent,
+    MatchHistoryComponent,
+    ScheduleComponent,
   ],
   imports: [
     CommonModule,
@@ -36,5 +44,9 @@ import { PlayerProfileComponent } from './player-profile/player-profile.componen
     FormsModule, 
     CommonModule,
   ]
+  ,
+      providers: [
+         { provide: LOCALE_ID, useValue: 'fr' }  
+      ]
 })
 export class FrontofficeModule { }

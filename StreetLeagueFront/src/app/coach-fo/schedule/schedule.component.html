@@ -1,0 +1,187 @@
+<div class="sl-calendar">
+
+  <div class="sl-header">
+    <h2>📅 My Schedule</h2>
+    <div class="sl-toggle">
+      <button [class.active]="view==='week'" (click)="switchView('week')">Week</button>
+      <button [class.active]="view==='month'" (click)="switchView('month')">Month</button>
+    </div>
+  </div>
+
+  <div class="sl-conflict-bar" *ngIf="conflicts > 0">
+    ⚠️ {{ conflicts }} conflict(s) detected
+  </div>
+
+  <div class="sl-loading" *ngIf="loading">Loading...</div>
+
+  <!-- WEEK VIEW -->
+  <div class="sl-week" *ngIf="view==='week' && !loading">
+    <div class="sl-nav">
+      <button (click)="prevWeek()">◀</button>
+      <span>{{ formatWeekDayRange(weekDays[0]) }} – {{ formatWeekDayFull(weekDays[6]) }}</span>
+      <button (click)="nextWeek()">▶</button>
+    </div>
+    <div class="sl-grid">
+      <div class="sl-hours">
+        <div class="sl-corner"></div>
+        <div class="sl-hour" *ngFor="let h of hours">{{ h }}h</div>
+      </div>
+      <div class="sl-day-col" *ngFor="let day of weekDays">
+        <div class="sl-day-head" [class.today]="isToday(day)">
+          <span>{{ dayOfWeek(day) }}</span>
+          <span class="sl-day-num">{{ dayNumber(day) }}</span>
+        </div>
+        <div class="sl-slot" *ngFor="let h of hours">
+          <div class="sl-event"
+               *ngFor="let ev of slotEvents(day, h)"
+               [style.border-left-color]="ev.color"
+               [class.conflict]="ev.hasConflict"
+               (click)="openEvent(ev)"
+               style="cursor:pointer">
+            <div class="sl-ev-title">{{ ev.title }}</div>
+            <div class="sl-ev-time">{{ fmt(ev.startTime) }} – {{ fmt(ev.endTime) }}</div>
+            <div class="sl-ev-loc" *ngIf="ev.location">📍 {{ ev.location }}</div>
+            <span class="sl-badge ai-badge" *ngIf="ev.recommendation">
+              🤖 {{ ev.recommendation }}
+            </span>
+            <span class="sl-badge conflict-badge" *ngIf="ev.hasConflict">⚠️ Conflict</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONTH VIEW -->
+  <div class="sl-month" *ngIf="view==='month' && !loading">
+    <div class="sl-nav">
+      <button (click)="prevMonth()">◀</button>
+      <span>{{ monthLabel | titlecase }}</span>
+      <button (click)="nextMonth()">▶</button>
+    </div>
+    <div class="sl-month-grid">
+      <div class="sl-month-head" *ngFor="let d of DAY_NAMES">{{ d }}</div>
+      <div class="sl-month-cell"
+           *ngFor="let day of monthDays"
+           [class.empty]="!day"
+           [class.today]="isToday(day)">
+        <span class="sl-mday" *ngIf="day">{{ dayNumber(day) }}</span>
+        <div class="sl-mev"
+             *ngFor="let ev of dayEvents(day)"
+             [style.background]="ev.color"
+             (click)="openEvent(ev)"
+             style="cursor:pointer">
+          {{ ev.title | slice:0:16 }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sl-legend">
+    <span><i class="dot" style="background:#3498db"></i> Training</span>
+    <span><i class="dot" style="background:#e74c3c"></i> Match</span>
+    <span><i class="dot" style="background:#e67e22"></i> Conflict</span>
+    <span><i class="dot" style="background:#8e44ad"></i> AI Score</span>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- EVENT DETAIL MODAL                                     -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="sl-modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="sl-modal" (click)="$event.stopPropagation()" *ngIf="selectedEvent">
+
+    <!-- Header -->
+    <div class="sl-modal-header" [style.background]="selectedEvent.color">
+      <span class="sl-modal-icon">
+        {{ selectedEvent.type === 'MATCH' ? '⚽' : '🏋️' }}
+      </span>
+      <h3>{{ selectedEvent.title }}</h3>
+      <button class="sl-modal-close" (click)="closeModal()">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div class="sl-modal-body">
+
+      <!-- Date & Time -->
+      <div class="sl-modal-row">
+        <span class="sl-modal-label">📅 Date & Time</span>
+        <span>{{ fmt(selectedEvent.startTime) }} – {{ fmt(selectedEvent.endTime) }}</span>
+      </div>
+
+      <!-- Location -->
+      <div class="sl-modal-row" *ngIf="selectedEvent.location">
+        <span class="sl-modal-label">📍 Location</span>
+        <span>{{ selectedEvent.location }}</span>
+      </div>
+
+      <!-- Status -->
+      <div class="sl-modal-row">
+        <span class="sl-modal-label">🏷️ Status</span>
+        <span class="sl-status-badge" [style.background]="selectedEvent.color">
+          {{ selectedEvent.status }}
+        </span>
+      </div>
+
+      <!-- Team -->
+      <div class="sl-modal-row" *ngIf="selectedEvent.teamName">
+        <span class="sl-modal-label">👥 Team</span>
+        <span>{{ selectedEvent.teamName }}</span>
+      </div>
+
+      <!-- MATCH only -->
+      <ng-container *ngIf="selectedEvent.type === 'MATCH'">
+        <div class="sl-modal-row" *ngIf="selectedEvent.opponentTeamName">
+          <span class="sl-modal-label">🆚 Opponent</span>
+          <span>{{ selectedEvent.opponentTeamName }}</span>
+        </div>
+        <div class="sl-modal-row"
+             *ngIf="selectedEvent.scoreTeamA != null && selectedEvent.scoreTeamB != null">
+          <span class="sl-modal-label">🏆 Score</span>
+          <span class="sl-score">
+            {{ selectedEvent.scoreTeamA }} – {{ selectedEvent.scoreTeamB }}
+          </span>
+        </div>
+      </ng-container>
+
+      <!-- TRAINING only -->
+      <div class="sl-modal-row"
+           *ngIf="selectedEvent.type === 'TRAINING' && selectedEvent.coachName">
+        <span class="sl-modal-label">👨‍🏫 Coach</span>
+        <span>{{ selectedEvent.coachName }}</span>
+      </div>
+
+      <!-- Conflict warning -->
+      <div class="sl-modal-conflict" *ngIf="selectedEvent.hasConflict">
+        ⚠️ {{ selectedEvent.conflictReason }}
+      </div>
+
+      <!-- AI Score bar -->
+      <div class="sl-modal-ai" *ngIf="selectedEvent.recommendation">
+        <div class="sl-modal-row">
+          <span class="sl-modal-label">🤖 AI Score</span>
+          <span class="sl-ai-rec"
+                [style.color]="getScoreColor(selectedEvent.recommendation)">
+            {{ selectedEvent.recommendation }}
+            ({{ (selectedEvent.aiScore! * 100).toFixed(0) }}%)
+          </span>
+        </div>
+        <div class="sl-ai-bar">
+          <div class="sl-ai-fill"
+               [style.width.%]="selectedEvent.aiScore! * 100"
+               [style.background]="getScoreColor(selectedEvent.recommendation)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Google Maps button -->
+      <a *ngIf="selectedEvent.location"
+         [href]="getGoogleMapsLink(selectedEvent.location)"
+         target="_blank"
+         class="sl-maps-btn">
+        🗺️ View on Google Maps
+      </a>
+
+    </div>
+  </div>
+</div>

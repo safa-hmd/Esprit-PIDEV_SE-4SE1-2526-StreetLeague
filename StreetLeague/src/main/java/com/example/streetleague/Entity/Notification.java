@@ -23,7 +23,7 @@ public class Notification {
     @Column(name = "id")
     Long idNotification;
 
-    @Column(nullable = false, length = 1000)  // ← AUGMENTÉ de 255 à 1000
+    @Column(nullable = false, length = 1000)  
     String message;
 
     @Builder.Default

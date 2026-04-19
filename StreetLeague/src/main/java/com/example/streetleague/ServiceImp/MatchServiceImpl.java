@@ -14,6 +14,7 @@ import com.example.streetleague.dto.MatchResponse;
 import com.example.streetleague.dto.MatchUpdateRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,15 +48,15 @@ public class MatchServiceImpl implements ImatchService {
             throw new RuntimeException("Location is required");
         if (dto.location().length() < 3 || dto.location().length() > 100)
             throw new RuntimeException("Location must be between 3 and 100 characters");
-//        if (dto.matchDate() == null)
-//            throw new RuntimeException("Match date is required");
-//        if (dto.matchDate().isBefore(LocalDateTime.now()))
-//            throw new RuntimeException("Match date must be in the future");
+        if (dto.matchDate() == null)
+            throw new RuntimeException("Match date is required");
+        if (dto.matchDate().isBefore(LocalDateTime.now()))
+            throw new RuntimeException("Match date must be in the future");
 
         boolean alreadyExists = matchRepository.findAll().stream().anyMatch(e ->
-                e.getTeamA().getIdTeam().equals(teamAId) &&
-                        e.getTeamB().getIdTeam().equals(teamBId) &&
-                        (e.getStatus() == MatchStatus.PENDING || e.getStatus() == MatchStatus.ACCEPTED));
+                (e.getStatus() == MatchStatus.PENDING || e.getStatus() == MatchStatus.ACCEPTED) &&
+                        ((e.getTeamA().getIdTeam().equals(teamAId) && e.getTeamB().getIdTeam().equals(teamBId)) ||
+                                (e.getTeamA().getIdTeam().equals(teamBId) && e.getTeamB().getIdTeam().equals(teamAId))));
         if (alreadyExists)
             throw new RuntimeException("A pending/accepted match already exists between these teams");
 
@@ -108,6 +109,7 @@ public class MatchServiceImpl implements ImatchService {
     }
 
     @Override
+    @Transactional
     public void deleteMatch(Long idMatch, Long userId) {
         Match match = matchRepository.findById(idMatch)
                 .orElseThrow(() -> new RuntimeException("Match not found: " + idMatch));

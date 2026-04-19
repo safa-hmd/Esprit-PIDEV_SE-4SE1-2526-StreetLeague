@@ -7,6 +7,7 @@ import com.example.streetleague.dto.TrainingRequest;
 import com.example.streetleague.dto.TrainingResponse;
 import com.example.streetleague.dto.TrainingUpdateRequest;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -104,5 +105,16 @@ public class TrainingController {
         if (coach.getRole() != com.example.streetleague.domain.Role.COACH)
             throw new RuntimeException("Only a COACH can trigger post-match training generation");
         return trainingService.generateTrainingFromMatch(matchId);
+    }
+
+
+    @GetMapping("/upcoming-detailed")
+    public ResponseEntity<List<TrainingResponse>> getUpcomingDetailed() {
+        return ResponseEntity.ok(trainingService.getUpcomingTrainingsWithDetails());
+    }
+
+    @GetMapping("/team/{teamId}/completed")
+    public ResponseEntity<List<TrainingResponse>> getCompletedDetailed(@PathVariable Long teamId) {
+        return ResponseEntity.ok(trainingService.getCompletedTrainingsWithDetails(teamId));
     }
 }

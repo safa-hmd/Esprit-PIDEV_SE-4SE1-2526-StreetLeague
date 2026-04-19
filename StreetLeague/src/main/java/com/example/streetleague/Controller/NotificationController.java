@@ -31,4 +31,10 @@ public class NotificationController {
     public void markAsRead(@PathVariable Long idNotification, @RequestParam String email) {
         notificationService.markAsRead(idNotification, email);
     }
+
+    // DELETE /notification/1/delete?email=player@mail.com
+    @DeleteMapping("{idNotification}/delete")
+    public void deleteNotification(@PathVariable Long idNotification, @RequestParam String email) {
+        notificationService.deleteNotification(idNotification, email);
+    }
 }

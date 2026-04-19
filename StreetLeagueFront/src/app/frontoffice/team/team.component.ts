@@ -5,6 +5,7 @@ import { TeamService } from '../../services/team.service';
 import { MatchService } from '../../services/match.service';
 import { Team } from '../../models/team.model';
 import { MatchRequest, MatchResponse } from '../../models/match.model';
+import { ScheduleRefreshService } from '../../services/schedule-refresh.service';
 
 @Component({
   selector: 'app-team',
@@ -48,14 +49,30 @@ export class TeamComponent implements OnInit {
   editTeamForm!:   FormGroup;
   createMatchForm!: FormGroup;
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private route: ActivatedRoute,
-    private teamService: TeamService,
-    private matchService: MatchService
-  ) {}
+  // team.component.ts
 
+constructor(
+  private fb: FormBuilder,
+  private router: Router,
+  private route: ActivatedRoute,
+  private teamService: TeamService,
+  private matchService: MatchService,
+  private scheduleRefresh: ScheduleRefreshService   // ← ajoute ça
+) {}
+
+deleteMatch(idMatch: number): void {
+  if (!confirm('Delete this match?')) return;
+  this.matchService.deleteMatch(idMatch).subscribe({
+    next: () => {
+      this.matches         = this.matches.filter(m => m.idMatch !== idMatch);
+      this.filteredMatches = this.filteredMatches.filter(m => m.idMatch !== idMatch);
+      this.successMsg      = 'Match deleted.';
+      this.scheduleRefresh.trigger();   // ← notifie le calendrier
+      setTimeout(() => this.successMsg = '', 3000);
+    },
+    error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
+  });
+}
   ngOnInit(): void {
     this.currentUserEmail = localStorage.getItem('EmailUserConnect') || '';
     this.loadTeams();
@@ -269,18 +286,7 @@ export class TeamComponent implements OnInit {
   }
 
   // ── Delete Match ──────────────────────────────────────────
-  deleteMatch(idMatch: number): void {
-    if (!confirm('Delete this match?')) return;
-    this.matchService.deleteMatch(idMatch).subscribe({
-      next: () => {
-        this.matches         = this.matches.filter(m => m.idMatch !== idMatch);
-        this.filteredMatches = this.filteredMatches.filter(m => m.idMatch !== idMatch);
-        this.successMsg = 'Match deleted.';
-        setTimeout(() => this.successMsg = '', 3000);
-      },
-      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
-    });
-  }
+
 
   canDeleteMatch(match: MatchResponse): boolean {
     const email = this.currentUserEmail.toLowerCase();

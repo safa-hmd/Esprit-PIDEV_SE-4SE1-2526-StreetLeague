@@ -8,7 +8,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -53,7 +55,7 @@ public class Team {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @JsonIgnore
-    List<User> players= new ArrayList<>();
+    Set<User> players = new HashSet<>();
 
     // Training sessions for this team
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
@@ -70,5 +72,8 @@ public class Team {
     @JsonIgnore
     List<Match> matchesAsTeamB;
 
+    @ManyToOne
+    @JoinColumn(name = "coach_id")
+    User coach;
 
 }

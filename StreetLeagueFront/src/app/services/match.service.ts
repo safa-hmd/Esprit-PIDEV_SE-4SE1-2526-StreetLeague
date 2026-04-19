@@ -1,7 +1,7 @@
 // src/app/services/match.service.ts
 
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { MatchRequest, MatchResponse, MatchUpdateRequest } from '../models/match.model';
 
@@ -81,4 +81,17 @@ addMatchByEmail(
     { headers: this.getHeaders() }
   );
 }
+
+
+ // ✅ NOUVELLE MÉTHODE DE RECHERCHE
+  searchMatches(teamName: string, statuses: string[]): Observable<MatchResponse[]> {
+    let params = new HttpParams()
+      .set('teamName', teamName)
+      .set('status', statuses.join(','));
+    
+    return this.http.get<MatchResponse[]>(`${this.base}/search`, { 
+      params,
+      headers: this.getHeaders() 
+    });
+  }
 }

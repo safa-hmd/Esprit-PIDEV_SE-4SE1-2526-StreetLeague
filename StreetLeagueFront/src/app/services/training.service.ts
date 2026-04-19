@@ -109,4 +109,21 @@ generateFromMatch(matchId: number): Observable<TrainingResponse> {
     { headers: this.getHeaders() }
   );
 }
+
+// GET /training/upcoming-detailed
+getUpcomingTrainingsWithDetails(): Observable<TrainingResponse[]> {
+  return this.http.get<TrainingResponse[]>(
+    `${this.base}/upcoming-detailed`,
+    { headers: this.getHeaders() }
+  );
+}
+
+// GET /training/team/:teamId/completed
+getCompletedTrainingsWithDetails(teamId: number): Observable<TrainingResponse[]> {
+  return this.http.get<TrainingResponse[]>(
+    `${this.base}/team/${teamId}/completed`,
+    { headers: this.getHeaders() }
+  );
+}
+
 }

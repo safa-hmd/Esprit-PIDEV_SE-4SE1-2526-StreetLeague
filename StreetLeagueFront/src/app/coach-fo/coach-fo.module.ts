@@ -1,4 +1,3 @@
-import { NgModule } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 
 import { CoachFORoutingModule } from './coach-fo-routing.module';
@@ -13,7 +12,13 @@ import { DetailMatchComponent } from './detail-match/detail-match.component';
 import { DetailTrainingComponent } from './detail-training/detail-training.component';
 import { HomeComponent } from './home/home.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
+import { ScheduleComponent } from './schedule/schedule.component';
 
+import { NgModule, LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+
+registerLocaleData(localeFr);  // ← ajoute avant @NgModule
 
 @NgModule({
   declarations: [
@@ -26,7 +31,8 @@ import { PlayerProfileComponent } from './player-profile/player-profile.componen
     DetailMatchComponent,
     DetailTrainingComponent,
     HomeComponent,
-    PlayerProfileComponent
+    PlayerProfileComponent,
+    ScheduleComponent
   ],
   imports: [
     CommonModule,
@@ -34,6 +40,8 @@ import { PlayerProfileComponent } from './player-profile/player-profile.componen
     FormsModule,
     ReactiveFormsModule
   ],
-    providers: [DatePipe]
+    providers: [DatePipe,
+       { provide: LOCALE_ID, useValue: 'fr' }  
+    ]
 })
 export class CoachFOModule { }

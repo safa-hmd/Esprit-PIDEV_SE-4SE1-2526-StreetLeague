@@ -9,57 +9,54 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class JwtService {
     private final SecretKey key;
     private final long expirationMs;
+
     public JwtService(
             @Value("${app.jwt.secret}") String secret,
-            @Value("${app.jwt.expiration-ms}") long expirationMs
+            @Value("${app.jwt.expiration-ms}") long expirationMs  // ← CORRIGER ICI
     ) {
-        // Convertir la clé secrète en clé HMAC sécurisée
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
     }
 
-    /**
-     * Génère un JWT token après une authentification réussie.
-     * Le token contient : subject (email), claim (role), issuedAt, expiration, signature
-     */
     public String generateToken(UserDetails userDetails) {
-        // Extraire le rôle depuis les authorities Spring Security
         String role = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
-                .orElse("ROLE_STUDENT");
+                .orElse("PLAYER");
+
+        // Récupérer l'ID
+        Long userId = 0L;
+        if (userDetails instanceof com.example.streetleague.domain.User user) {
+            userId = user.getIdUser();
+        }
 
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMs);
 
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        claims.put("id", userId);
+
         return Jwts.builder()
-                .subject(userDetails.getUsername()) // username = email
-                .claims(Map.of("role", role))
+                .subject(userDetails.getUsername())
+                .claims(claims)
                 .issuedAt(now)
                 .expiration(exp)
-                .signWith(key, Jwts.SIG.HS256)
+                .signWith(key)
                 .compact();
     }
 
-    /**
-     * Extrait l'email (subject) depuis le token
-     */
     public String extractEmail(String token) {
         return parseClaims(token).getSubject();
     }
 
-    /**
-     * Vérifie si le token est valide :
-     * - Signature correcte
-     * - Appartient à l'utilisateur
-     * - Non expiré
-     */
     public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
             String email = extractEmail(token);
@@ -69,17 +66,10 @@ public class JwtService {
         }
     }
 
-    /**
-     * Vérifie si le token est expiré
-     */
     private boolean isTokenExpired(String token) {
-        Date exp = parseClaims(token).getExpiration();
-        return exp.before(new Date());
+        return parseClaims(token).getExpiration().before(new Date());
     }
 
-    /**
-     * Parse et retourne les claims du token (vérifie la signature)
-     */
     private Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(key)

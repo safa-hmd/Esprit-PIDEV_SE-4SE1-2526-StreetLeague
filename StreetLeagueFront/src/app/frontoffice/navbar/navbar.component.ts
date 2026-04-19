@@ -1,9 +1,16 @@
+// src/app/components/navbar/navbar.component.ts
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
 import { UserService } from 'src/app/services/user.service';
 import { NotificationService } from 'src/app/services/notification.service';
-import { NotificationResponse } from 'src/app/models/notification.model';
+import {
+  NotificationResponse,
+  NotifType,
+  detectNotifType,
+  notifIcon,
+  notifAccent
+} from 'src/app/models/notification.model';
 
 @Component({
   selector: 'app-navbar',
@@ -11,15 +18,24 @@ import { NotificationResponse } from 'src/app/models/notification.model';
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-  userName: string = '';
-  userRole: string = '';
-  dropdownOpen: boolean = false;
-  menuOpen: boolean = false;
-  notifOpen: boolean = false;
+  userName  = '';
+  userRole  = '';
+  dropdownOpen = false;
+  menuOpen     = false;
+  notifOpen    = false;
+
   notifications: NotificationResponse[] = [];
-  unreadCount: number = 0;
+  unreadCount = 0;
+
+  // Filtre actif : 'all' | 'unread' | 'reminder' | 'closed'
+  activeFilter: 'all' | 'unread' | 'reminder' | 'closed' = 'all';
 
   private notifPollSub?: Subscription;
+
+  // Exposer les utilitaires au template
+  detectNotifType = detectNotifType;
+  notifIcon       = notifIcon;
+  notifAccent     = notifAccent;
 
   constructor(
     private router: Router,
@@ -41,13 +57,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Charger immédiatement
     this.loadNotifications();
 
-    // Polling toutes les 30 secondes pour les nouvelles notifications
-    this.notifPollSub = interval(30000).subscribe(() => {
-      this.loadNotifications();
-    });
+    // Polling toutes les 30 secondes
+    this.notifPollSub = interval(30_000).subscribe(() => this.loadNotifications());
   }
 
   ngOnDestroy(): void {
@@ -58,38 +71,70 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.notificationService.getMyNotifications().subscribe({
       next: (data) => {
         this.notifications = data;
-        this.unreadCount = data.filter(n => !n.isRead).length;
+        this.unreadCount   = data.filter(n => !n.isRead).length;
       },
-      error: (err) => console.error('Error loading notifications', err)
+      error: (err) => console.error('Erreur chargement notifications', err)
     });
   }
 
+  // ── Filtres ──────────────────────────────────────────────────────────
+  get filteredNotifications(): NotificationResponse[] {
+    switch (this.activeFilter) {
+      case 'unread':
+        return this.notifications.filter(n => !n.isRead);
+      case 'reminder':
+        return this.notifications.filter(n => {
+          const t = detectNotifType(n.message);
+          return t === 'reminder_48h' || t === 'reminder_24h' || t === 'reminder_2h';
+        });
+      case 'closed':
+        return this.notifications.filter(n => detectNotifType(n.message) === 'match_closed');
+      default:
+        return this.notifications;
+    }
+  }
+
+  setFilter(f: 'all' | 'unread' | 'reminder' | 'closed'): void {
+    this.activeFilter = f;
+  }
+
+  // ── Actions ──────────────────────────────────────────────────────────
   toggleNotif(): void {
     this.notifOpen = !this.notifOpen;
     if (this.notifOpen) this.dropdownOpen = false;
   }
 
-  markAsRead(notification: NotificationResponse, event: Event): void {
+  markAsRead(n: NotificationResponse, event: Event): void {
     event.stopPropagation();
-    if (notification.isRead) return;
-    this.notificationService.markAsRead(notification.idNotification).subscribe({
+    if (n.isRead) return;
+    this.notificationService.markAsRead(n.idNotification).subscribe({
       next: () => {
-        notification.isRead = true;
-        this.unreadCount = this.notifications.filter(n => !n.isRead).length;
-      },
-      error: (err) => console.error('Error marking as read', err)
+        n.isRead = true;
+        this.unreadCount = this.notifications.filter(x => !x.isRead).length;
+      }
     });
   }
 
   markAllAsRead(): void {
-    const unread = this.notifications.filter(n => !n.isRead);
-    unread.forEach(n => {
+    this.notifications.filter(n => !n.isRead).forEach(n => {
       this.notificationService.markAsRead(n.idNotification).subscribe({
         next: () => {
           n.isRead = true;
-          this.unreadCount = this.notifications.filter(notif => !notif.isRead).length;
+          this.unreadCount = this.notifications.filter(x => !x.isRead).length;
         }
       });
+    });
+  }
+
+  deleteNotification(n: NotificationResponse, event: Event): void {
+    event.stopPropagation();
+    this.notificationService.deleteNotification(n.idNotification).subscribe({
+      next: () => {
+        this.notifications = this.notifications.filter(
+          x => x.idNotification !== n.idNotification
+        );
+        this.unreadCount = this.notifications.filter(x => !x.isRead).length;
+      }
     });
   }
 
@@ -98,9 +143,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (this.dropdownOpen) this.notifOpen = false;
   }
 
-  toggleMenu(): void {
-    this.menuOpen = !this.menuOpen;
-  }
+  toggleMenu(): void { this.menuOpen = !this.menuOpen; }
 
   logout(): void {
     localStorage.clear();
@@ -109,8 +152,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.account-menu')) this.dropdownOpen = false;
-    if (!target.closest('.notif-menu')) this.notifOpen = false;
+    const t = event.target as HTMLElement;
+    if (!t.closest('.account-menu')) this.dropdownOpen = false;
+    if (!t.closest('.notif-menu'))   this.notifOpen   = false;
   }
 }

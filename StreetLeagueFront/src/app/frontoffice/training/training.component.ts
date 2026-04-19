@@ -14,13 +14,33 @@ export class TrainingComponent implements OnInit {
   errorMsg         = '';
   successMsg       = '';
   currentUserEmail = '';
+  upcomingWithCoach: TrainingResponse[] = [];
 
   constructor(private trainingService: TrainingService) {}
 
   ngOnInit(): void {
     this.currentUserEmail = localStorage.getItem('EmailUserConnect') || '';
     this.loadTrainings();
-  }
+  this.loadUpcomingDetailed();
+
+}
+isLoadingUpcoming = true;
+// Nouvelle méthode
+loadUpcomingDetailed(): void {
+  this.isLoadingUpcoming = true;
+  this.trainingService.getUpcomingTrainingsWithDetails().subscribe({
+    next: (data) => {
+      this.upcomingWithCoach = data;
+      this.isLoadingUpcoming = false;
+    },
+    error: (err) => {
+      console.error(err);
+      this.isLoadingUpcoming = false;
+    }
+  });
+}
+
+
 
   loadTrainings(): void {
     this.isLoading = true;

@@ -18,4 +18,7 @@ public interface ItrainingService {
     List<TrainingResponse> getMyTeamTrainings(Long playerId);
 
     TrainingResponse generateTrainingFromMatch(Long matchId);
+
+    public List<TrainingResponse> getUpcomingTrainingsWithDetails();
+    List<TrainingResponse> getCompletedTrainingsWithDetails(Long teamId);
 }

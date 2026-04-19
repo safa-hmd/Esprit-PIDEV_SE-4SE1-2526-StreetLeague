@@ -1,26 +1,19 @@
-// src/app/models/training.model.ts
-
 export type TrainingStatus = 'PLANNED' | 'COMPLETED' | 'CANCELLED';
 
-// ── Main Model ───────────────────────────────────────────────
 export interface Training {
   idTraining?: number;
   title?: string;
   description?: string;
-  trainingDate?: string;       // ISO string ex: "2025-06-15T18:00:00"
+  trainingDate?: string;
   durationInMinutes?: number;
   location?: string;
   exercises?: string;
   performanceReport?: string;
   status?: TrainingStatus;
-  team?: {
-    id: number;
-    name: string;
-  };
+  team?: { id: number; name: string; };
   participants?: any[];
 }
 
-// ── Request DTO ──────────────────────────────────────────────
 export interface TrainingRequest {
   title: string;
   description?: string;
@@ -30,7 +23,6 @@ export interface TrainingRequest {
   exercises?: string;
 }
 
-// ── Update Request DTO ───────────────────────────────────────
 export interface TrainingUpdateRequest {
   idTraining: number;
   title?: string;
@@ -42,7 +34,6 @@ export interface TrainingUpdateRequest {
   status?: TrainingStatus;
 }
 
-// ── Response DTO ─────────────────────────────────────────────
 export interface TrainingResponse {
   idTraining: number;
   title: string;
@@ -54,5 +45,7 @@ export interface TrainingResponse {
   status: TrainingStatus;
   teamName: string;
   participantCount: number;
-   participantEmails: string[]; 
+  participantEmails: string[];
+  coachFullName?: string;
+  performanceReport?: string;
 }
