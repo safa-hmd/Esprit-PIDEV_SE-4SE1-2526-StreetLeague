@@ -115,7 +115,7 @@ export class TournamentService {
     return list.filter(t => {
       const matchSearch = !f.search ||
         t.name.toLowerCase().includes(f.search.toLowerCase()) ||
-        (t.location ?? '').toLowerCase().includes(f.search.toLowerCase());
+        (t.fieldLocation ?? '').toLowerCase().includes(f.search.toLowerCase()); 
       const matchSport  = !f.sport  || t.sportType === f.sport;
       const matchStatus = !f.status || t.status    === f.status;
       return matchSearch && matchSport && matchStatus;

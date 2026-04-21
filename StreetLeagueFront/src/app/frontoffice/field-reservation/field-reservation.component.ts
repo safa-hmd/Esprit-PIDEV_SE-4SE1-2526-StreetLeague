@@ -5,7 +5,8 @@ import {
   Field,
   FieldReservation,
   ReservationStatus,
-  SportType
+  SportType,
+  Payment, PaymentMethod
 } from '../../models/field-reservation.model';
 import { AuthService } from 'src/app/services/auth.service';
 // ── Dans les imports, ajoute AbstractControl ──────────────────────────────────
@@ -17,6 +18,8 @@ import { AbstractControl } from '@angular/forms';
   styleUrls: ['./field-reservation.component.css']
 })
 export class FieldReservationComponent implements OnInit {
+
+  // ── les variables esse3a ──────────────────────────────────────────────────────────────
 
   // ─── Data ────────────────────────────────────────────────────────
   allFields:       Field[]            = [];
@@ -51,6 +54,17 @@ export class FieldReservationComponent implements OnInit {
     VOLLEYBALL: '🏐',
     OTHER:      '🏟️'
   };
+  // ── Payments ──────────────────────────────────────────────────────────────
+  payments: Map<number, Payment> = new Map();
+  isPaymentModalOpen = false;
+  payingReservationId: number | null = null;
+  selectedPaymentMethod: PaymentMethod = 'CARD';
+  isProcessingPayment = false;
+
+  // ── Historique ────────────────────────────────────────────────────────────
+  isHistoryModalOpen = false;
+  paymentHistory: Payment[] = [];
+  isLoadingHistory = false;
 
   constructor(
     private svc: FieldReservationService,
@@ -87,13 +101,17 @@ export class FieldReservationComponent implements OnInit {
   }
 
   loadMyReservations(): void {
-    const pid = this.getPlayerId();
-    if (!pid) return;
-    this.svc.getReservationsByPlayer(pid).subscribe({
-      next: data => { this.myReservations = data; },
-      error: () => {}
-    });
-  }
+  const pid = this.getPlayerId();
+  if (!pid) return;
+  this.svc.getReservationsByPlayer(pid).subscribe({
+    next: (data: FieldReservation[]) => {
+      this.myReservations = data;
+      this.loadPaymentsForBookings(data); // ✅ ajouter
+    },
+    error: () => {}
+  });
+}
+
 
   // ─── Stats ───────────────────────────────────────────────────────
 
@@ -252,16 +270,16 @@ export class FieldReservationComponent implements OnInit {
     this.selectedField    = null;
   }
 
-private getPlayerId(): number | null {
-  const userId = this.authService.getUserId();
-  return userId ? parseInt(userId, 10) : null;
-}
+  private getPlayerId(): number | null {
+    const userId = this.authService.getUserId();
+    return userId ? parseInt(userId, 10) : null;
+  }
 
 
 
 
  // ── Remplace buildForm() ──────────────────────────────────────────────────────
-private buildForm(): void {
+  private buildForm(): void {
   this.bookingForm = this.fb.group(
     {
       date:      ['', Validators.required],
@@ -270,7 +288,7 @@ private buildForm(): void {
     },
     { validators: endAfterStartValidator }   // ← validator au niveau du groupe
   );
-}
+  }
 
   private toast(msg: string, type: 'success' | 'error' = 'success'): void {
     this.toastMessage = msg;
@@ -280,11 +298,117 @@ private buildForm(): void {
   }
 
   get ReservationStatus() { return ReservationStatus; }
+
+
+
+
+
+  // ── Payments ─────────────────────────────────────────────────────────────
+
+  loadMyBookings(): void {
+    const playerId = this.getPlayerId();
+    if (!playerId) return;
+    this.svc.getReservationsByPlayer(playerId).subscribe({
+      next: (reservations: FieldReservation[]) => {
+        this.myReservations = reservations;
+        this.loadPaymentsForBookings(reservations);
+      },
+      error: () => this.toast('Failed to load bookings', 'error')
+    });
+  }
+
+  loadPaymentsForBookings(reservations: FieldReservation[]): void {
+    reservations
+      .filter(r => r.status === 'APPROVED' || r.status === 'PENDING')
+      .forEach(r => {
+        this.svc.getPaymentByReservation(r.id!).subscribe({
+          next: (payment: Payment) => this.payments.set(r.id!, payment),
+          error: () => {}
+        });
+      });
+  }
+
+  openPaymentModal(reservationId: number): void {
+    this.payingReservationId   = reservationId;
+    this.selectedPaymentMethod = 'CARD';
+    this.isPaymentModalOpen    = true;
+  }
+
+  closePaymentModal(): void {
+    this.isPaymentModalOpen  = false;
+    this.payingReservationId = null;
+    this.isProcessingPayment = false;
+  }
+
+  confirmPayment(): void {
+    if (!this.payingReservationId) return;
+    this.isProcessingPayment = true;
+    this.svc.processPayment(this.payingReservationId, this.selectedPaymentMethod)
+      .subscribe({
+        next: (payment: Payment) => {
+          this.payments.set(this.payingReservationId!, payment);
+          this.isProcessingPayment = false;
+          this.closePaymentModal();
+          this.toast('✅ Paiement effectué avec succès !');
+        },
+        error: () => {
+          this.isProcessingPayment = false;
+          this.toast('❌ Erreur lors du paiement', 'error');
+        }
+      });
+  }
+
+  openPaymentHistory(): void {
+    const playerId = this.getPlayerId();
+    if (!playerId) return;
+    this.isHistoryModalOpen = true;
+    this.isLoadingHistory   = true;
+    this.svc.getPaymentsByPlayer(playerId).subscribe({
+      next: (history: Payment[]) => {
+        this.paymentHistory   = history;
+        this.isLoadingHistory = false;
+      },
+      error: () => {
+        this.isLoadingHistory = false;
+        this.toast('❌ Erreur chargement historique', 'error');
+      }
+    });
+  }
+
+  closePaymentHistory(): void {
+    this.isHistoryModalOpen = false;
+    this.paymentHistory     = [];
+  }
+
+  getPaymentStatusClass(status: string): string {
+    const map: Record<string, string> = {
+      PAID:     'status-approved',
+      PENDING:  'status-pending',
+      REFUNDED: 'status-refunded',
+      FAILED:   'status-rejected',
+    };
+    return map[status] ?? '';
+  }
+
+  getPaymentIcon(method: PaymentMethod): string {
+    const map: Record<PaymentMethod, string> = {
+      CARD:   '💳',
+      CASH:   '💵',
+      ONLINE: '🌐',
+    };
+    return map[method] ?? '💳';
+  }
+
 }
+
 
 function endAfterStartValidator(group: AbstractControl) {
   const start = group.get('startHour')?.value;
   const end   = group.get('endHour')?.value;
   if (!start || !end) return null;
   return parseInt(end) > parseInt(start) ? null : { endBeforeStart: true };
+
+
 }
+
+

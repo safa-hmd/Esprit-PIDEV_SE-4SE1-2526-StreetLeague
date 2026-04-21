@@ -4,8 +4,9 @@ import { FieldReservationService } from '../../services/field-reservation.servic
 import {
   Field,
   FieldReservation,
+  FieldScheduleEntry,
   ReservationStatus,
-  SportType
+  SportType , Payment, PaymentMethod
 } from '../../models/field-reservation.model';
 
 @Component({
@@ -20,6 +21,8 @@ export class FieldReservationComponent implements OnInit {
   allReservations:     FieldReservation[] = [];
   fields:              Field[]            = [];
   filteredFields:      Field[]            = [];
+  // ── Payments ──────────────────────────────────────────────────────────────
+  payments: Map<number, Payment> = new Map();
 
   // ─── UI state ───────────────────────────────────────────────────
   isLoading             = false;
@@ -50,6 +53,14 @@ export class FieldReservationComponent implements OnInit {
     this.buildFieldForm();
     this.loadAll();
   }
+    // ── Planning modal ────────────────────────────────────────────────────────
+    isScheduleModalOpen  = false;
+    scheduleField: Field | null = null;
+    scheduleEntries: FieldScheduleEntry[] = [];
+    isLoadingSchedule    = false;
+    scheduleFrom: string = '';
+    scheduleTo:   string = '';
+  
 
   // ─── Loaders ────────────────────────────────────────────────────
 
@@ -69,10 +80,14 @@ export class FieldReservationComponent implements OnInit {
 
   loadAllReservations(): void {
     this.svc.getAllReservations().subscribe({
-      next: data => { this.allReservations = data; },
+      next: data => { this.allReservations = data;
+        this.loadAllPayments();
+       },
       error: ()   => {}
     });
   }
+
+
 
   loadFields(): void {
     this.svc.getAllFields().subscribe({
@@ -290,4 +305,110 @@ export class FieldReservationComponent implements OnInit {
     this.showToast    = true;
     setTimeout(() => (this.showToast = false), 3000);
   }
+
+  openSchedule(field: Field): void {
+  this.scheduleField = field;
+  this.isScheduleModalOpen = true;
+
+  // Par défaut : mois en cours
+  const now = new Date();
+  const y   = now.getFullYear();
+  const m   = String(now.getMonth() + 1).padStart(2, '0');
+  this.scheduleFrom = `${y}-${m}-01`;
+  this.scheduleTo   = `${y}-${m}-${new Date(y, now.getMonth() + 1, 0).getDate()}`;
+
+  this.loadSchedule();
+}
+
+closeSchedule(): void {
+  this.isScheduleModalOpen = false;
+  this.scheduleField  = null;
+  this.scheduleEntries = [];
+}
+
+groupedSchedule: { date: string; items: FieldScheduleEntry[] }[] = [];
+loadSchedule(): void {
+  if (!this.scheduleField || !this.scheduleFrom || !this.scheduleTo) return; // ✅
+  this.isLoadingSchedule = true;
+  this.svc.getFieldSchedule(this.scheduleField.id!, this.scheduleFrom, this.scheduleTo)
+    .subscribe({
+      next: (entries: FieldScheduleEntry[]) => {
+        this.scheduleEntries  = entries;
+        this.groupedSchedule  = this.groupByDate(entries);
+        this.isLoadingSchedule = false;
+      },
+      error: () => {
+        this.toast('❌ Erreur chargement planning', 'error');
+        this.isLoadingSchedule = false;
+      }
+    });
+}
+
+onScheduleDateChange(): void {
+  if (this.scheduleFrom && this.scheduleTo) { 
+    this.loadSchedule();
+  }
+}
+
+// ── Helpers planning ──────────────────────────────────────────────────────
+getScheduleIcon(entry: FieldScheduleEntry): string {
+  return entry.type === 'TOURNAMENT' ? '🏆' : '👤';
+}
+
+getScheduleStatusClass(status: string): string {
+  const map: Record<string, string> = {
+    APPROVED:  'status-approved',
+    PENDING:   'status-pending',
+    REJECTED:  'status-rejected',
+    UPCOMING:  'status-upcoming',
+    ONGOING:   'status-ongoing',
+    COMPLETED: 'status-completed',
+    CANCELLED: 'status-cancelled',
+  };
+  return map[status] ?? '';
+}
+
+groupByDate(entries: FieldScheduleEntry[]): { date: string; items: FieldScheduleEntry[] }[] {
+  const map = new Map<string, FieldScheduleEntry[]>();
+  for (const e of entries) {
+    if (!map.has(e.date)) map.set(e.date, []);
+    map.get(e.date)!.push(e);
+  }
+  return Array.from(map.entries()).map(([date, items]) => ({ date, items }));
+}
+
+loadAllPayments(): void {
+  this.svc.getAllPayments().subscribe({
+    next: data => {
+      this.payments = new Map(data.map(p => [p.reservationId, p]));
+    },
+    error: () => {}
+  });
+}
+
+refundPayment(reservationId: number): void {
+  if (!confirm('Refund this payment?')) return; 
+  this.svc.refundPayment(reservationId).subscribe({
+    next: () => {
+      this.toast('✅ Refund completed');
+      this.loadAll();
+    },
+    error: () => this.toast('❌ Error occurred while refunding', 'error')
+  });
+}
+
+getPaymentStatusClass(status: string): string {
+  const map: Record<string, string> = {
+    PAID:     'badge-approved',
+    PENDING:  'badge-pending',
+    REFUNDED: 'badge-cancelled',
+    FAILED:   'badge-rejected',
+  };
+  return map[status] ?? '';
+}
+
+get approvedReservations(): FieldReservation[] {
+  return this.allReservations.filter(r => r.status === 'APPROVED');
+}
+
 }

@@ -1,5 +1,7 @@
 package com.example.streetleague.ServiceImp;
 
+import com.example.streetleague.Entity.Field;
+import com.example.streetleague.Repository.FieldRepository;
 import com.example.streetleague.Repository.TournamentRepository;
 import com.example.streetleague.ServiceInterface.ITournamentService;
 import com.example.streetleague.Entity.Tournament;
@@ -7,6 +9,7 @@ import com.example.streetleague.Entity.TournamentStatus;
 import com.example.streetleague.dto.TournamentDto;
 import com.example.streetleague.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +23,11 @@ import java.util.stream.Collectors;
 public class TournamentServiceImp implements ITournamentService {
 
     private final TournamentRepository tournamentRepository;
+    @Autowired
+    private FieldRepository fieldRepository;
 
     // ---------------- CREATE ----------------
-
+    @Transactional
     @Override
     public TournamentDto createTournament(TournamentDto dto) {
         validateDates(dto);
@@ -33,8 +38,10 @@ public class TournamentServiceImp implements ITournamentService {
         Tournament tournament = mapToEntity(dto);
         tournament.setStatus(computeStatus(dto.getStartDate(), dto.getEndDate()));
 
-        return mapToDto(tournamentRepository.save(tournament));
+        Tournament saved = tournamentRepository.save(tournament);
 
+        // ✅ Recharger pour avoir le field complet
+        return mapToDto(tournamentRepository.findById(saved.getId()).orElse(saved));
     }
 
     // ---------------- READ ----------------
@@ -82,7 +89,6 @@ public class TournamentServiceImp implements ITournamentService {
         tournament.setEndDate(dto.getEndDate());
         tournament.setRegistrationDeadline(dto.getRegistrationDeadline());
         tournament.setMaxParticipants(dto.getMaxParticipants());
-        tournament.setLocation(dto.getLocation());
         tournament.setPrizePool(dto.getPrizePool());
 
         if (dto.getStatus() == TournamentStatus.CANCELLED) {
@@ -90,8 +96,17 @@ public class TournamentServiceImp implements ITournamentService {
         } else {
             tournament.setStatus(computeStatus(dto.getStartDate(), dto.getEndDate()));
         }
+        if (dto.getFieldId() != null) {
+            Field field = fieldRepository.findById(dto.getFieldId())
+                    .orElseThrow(() -> new RuntimeException("Terrain introuvable"));
+            tournament.setField(field);
+        } else {
+            tournament.setField(null);
+        }
 
-        return mapToDto(tournamentRepository.save(tournament));
+        Tournament saved = tournamentRepository.save(tournament);
+
+        return mapToDto(tournamentRepository.findById(saved.getId()).orElse(saved));
     }
 
     // ---------------- DELETE ----------------
@@ -139,7 +154,9 @@ public class TournamentServiceImp implements ITournamentService {
                 .endDate(t.getEndDate())
                 .registrationDeadline(t.getRegistrationDeadline())
                 .maxParticipants(t.getMaxParticipants())
-                .location(t.getLocation())
+                .fieldId(t.getField() != null ? t.getField().getId() : null)
+                .fieldName(t.getField() != null ? t.getField().getName() : null)      // optionnel
+                .fieldLocation(t.getField() != null ? t.getField().getLocation() : null) // optionnel
                 .prizePool(t.getPrizePool())
                 .registeredCount(
                         t.getRegistrations() != null ?
@@ -149,8 +166,7 @@ public class TournamentServiceImp implements ITournamentService {
     }
 
     private Tournament mapToEntity(TournamentDto dto) {
-
-        return Tournament.builder()
+        Tournament tournament = Tournament.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .sportType(dto.getSportType())
@@ -159,9 +175,17 @@ public class TournamentServiceImp implements ITournamentService {
                 .endDate(dto.getEndDate())
                 .registrationDeadline(dto.getRegistrationDeadline())
                 .maxParticipants(dto.getMaxParticipants())
-                .location(dto.getLocation())
                 .prizePool(dto.getPrizePool())
                 .build();
+
+        // ✅ vérifier que ce bloc existe
+        if (dto.getFieldId() != null) {
+            Field field = fieldRepository.findById(dto.getFieldId())
+                    .orElseThrow(() -> new RuntimeException("Terrain introuvable"));
+            tournament.setField(field);
+        }
+
+        return tournament;
     }
     // ---------------- STATUS LOGIC ----------------
 

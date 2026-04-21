@@ -67,6 +67,10 @@ public class Tournament {
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<TournamentRegistration> registrations = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "field_id", nullable = true)
+    private Field field;
     
     // ===== EXPLICIT GETTERS/SETTERS from HEAD =====
     public Long getId() { return this.id; }

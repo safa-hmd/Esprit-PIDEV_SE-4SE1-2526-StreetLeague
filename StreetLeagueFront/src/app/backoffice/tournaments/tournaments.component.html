@@ -99,7 +99,7 @@
             {{ svc.statusLabel(t.status!) }}
           </span>
         </div>
-        <div class="row-location" *ngIf="t.location">📍 {{ t.location }}</div>
+        <div class="row-fieldName" *ngIf="t.fieldName">📍 {{ t.fieldName }}</div>
       </div>
 
       <!-- Dates -->
@@ -298,7 +298,13 @@
 
           <div class="form-field full">
             <label class="field-label">Location *</label>
-            <input class="field-input" formControlName="location" placeholder="e.g. Central Sports Complex">
+
+            <select formControlName="fieldId" class="field-input">
+  <option [ngValue]="null" disabled>-- Select a field --</option>
+  <option *ngFor="let f of fields" [ngValue]="f.id">
+    {{ f.name }} — {{ f.location }} ({{ f.sportType }})
+  </option>
+</select>
           </div>
 
           <div class="form-field full">

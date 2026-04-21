@@ -47,10 +47,14 @@ public class TournamentDto {
     @Max(value = 256, message = "Cannot exceed 256 participants")
     private int maxParticipants;
 
-    @NotBlank(message = "Location is required")
-    @Size(max = 200, message = "Location cannot exceed 200 characters")
-    private String location;
-    
+    //@NotBlank(message = "Location is required")
+    //@Size(max = 200, message = "Location cannot exceed 200 characters")
+    //private String location;
+
+    private Long fieldId;
+    private String fieldName;      // pour affichage frontend (optionnel)
+    private String fieldLocation;  // pour affichage frontend (optionnel)
+
     // city kept from LOGISTIQUE branch for compatibility
     private String city;
 

@@ -180,7 +180,6 @@
 <!-- ══════════ MODAL: BOOKING ══════════ -->
 <div class="modal-overlay" *ngIf="showBookingModal && selectedField" (click)="closeModals()">
   <div class="modal" (click)="$event.stopPropagation()">
-
     <div class="modal-header">
       <div>
         <h3>Book a Field</h3>
@@ -261,13 +260,16 @@
   <div class="modal modal-lg" (click)="$event.stopPropagation()">
 
     <div class="modal-header">
-      <h3>My Bookings</h3>
-      <button class="modal-close" (click)="closeModals()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-    </div>
+  <h3>My Bookings</h3>
+  <div style="display:flex; gap:0.5rem; align-items:center;">
+    <button class="btn-history" (click)="openPaymentHistory()">📋 Payment History</button>  <!-- ✅ -->
+    <button class="modal-close" (click)="closeModals()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</div>
 
     <div class="modal-body">
       <div class="empty-bookings" *ngIf="myReservations.length === 0">
@@ -285,9 +287,25 @@
               <span class="booking-slot">{{ formatDate(r.startTime) }} · {{ formatSlot(r) }}</span>
             </div>
           </div>
+
           <div class="booking-right">
             <span class="badge" [ngClass]="statusClass(r.status)">{{ r.status | titlecase }}</span>
             <span class="booking-price">${{ r.totalPrice }}</span>
+
+              <!-- ✅ Badge paiement -->
+            <ng-container *ngIf="payments.get(r.id!) as p">
+              <span class="payment-badge" [ngClass]="getPaymentStatusClass(p.status)">
+                {{ p.method ? getPaymentIcon(p.method) : '💳' }} {{ p.status }}
+              </span>
+            </ng-container>
+
+            <!-- ✅ Bouton Pay Now -->
+            <button class="btn-pay" *ngIf="r.status === 'APPROVED' && payments.get(r.id!)?.status === 'PENDING'"
+              (click)="openPaymentModal(r.id!)">
+              💳 Pay Now
+            </button>
+
+
             <button
               class="btn-cancel"
               *ngIf="canCancel(r.status)"
@@ -301,6 +319,140 @@
     <div class="modal-footer">
       <button class="btn-ghost" (click)="closeModals()">Close</button>
     </div>
+  </div>
+</div>
+
+
+<!-- ══════════ MODAL: PAYMENT HISTORY ══════════ -->
+<div class="modal-overlay" *ngIf="isHistoryModalOpen" (click)="closePaymentHistory()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h3>📋 Payment History</h3>
+      <button class="modal-close" (click)="closePaymentHistory()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="history-loading" *ngIf="isLoadingHistory">
+        <div class="spinner"></div>
+        <span>Loading payments...</span>
+      </div>
+
+      <div class="history-empty" *ngIf="!isLoadingHistory && paymentHistory.length === 0">
+        <div class="empty-icon">💳</div>
+        <p>No payment history found.</p>
+      </div>
+
+      <div class="history-list" *ngIf="!isLoadingHistory && paymentHistory.length > 0">
+        <div class="history-card" *ngFor="let p of paymentHistory">
+
+          <!-- Top row -->
+          <div class="history-top">
+            <div class="history-field-info">
+              <span class="history-field-name">📍 {{ p.fieldName }}</span>
+              <span class="history-field-loc">{{ p.fieldLocation }}</span>
+            </div>
+            <span class="payment-badge" [ngClass]="getPaymentStatusClass(p.status)">
+              {{ p.status }}
+            </span>
+          </div>
+
+          <!-- Details row -->
+          <div class="history-details">
+            <div class="history-detail-item">
+              <span class="detail-icon">🕐</span>
+              <span>{{ p.slotStart | slice:0:10 }} &nbsp;
+                    {{ p.slotStart | slice:11:16 }} → {{ p.slotEnd | slice:11:16 }}
+              </span>
+            </div>
+            <div class="history-detail-item">
+              <span class="detail-icon">💰</span>
+              <span class="history-amount">${{ p.amount }}</span>
+            </div>
+            <div class="history-detail-item" *ngIf="p.method">
+              <span>{{ getPaymentIcon(p.method) }}</span>
+              <span>{{ p.method | titlecase }}</span>
+            </div>
+            <div class="history-detail-item txn" *ngIf="p.transactionRef">
+              <span>🔖</span>
+              <span class="txn-ref">{{ p.transactionRef }}</span>
+            </div>
+          </div>
+
+          <!-- Dates row -->
+          <div class="history-dates">
+            <span class="date-paid" *ngIf="p.paidAt">
+              ✅ Paid on {{ p.paidAt | slice:0:10 }}
+            </span>
+            <span class="date-refunded" *ngIf="p.refundedAt">
+              ↩️ Refunded on {{ p.refundedAt | slice:0:10 }}
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="closePaymentHistory()">Close</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ MODAL: PAY NOW ══════════ -->
+<div class="modal-overlay" *ngIf="isPaymentModalOpen" (click)="closePaymentModal()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h3>💳 Complete Payment</h3>
+      <button class="modal-close" (click)="closePaymentModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="payment-amount">
+        <span class="amount-label">Amount Due</span>
+        <span class="amount-value">${{ payments.get(payingReservationId!)?.amount ?? '—' }}</span>
+      </div>
+
+      <div class="form-group">
+        <label>Payment Method</label>
+        <div class="method-options">
+          <label class="method-option" [class.selected]="selectedPaymentMethod === 'CARD'">
+            <input type="radio" name="method" value="CARD" [(ngModel)]="selectedPaymentMethod" />
+            💳 Credit / Debit Card
+          </label>
+          <label class="method-option" [class.selected]="selectedPaymentMethod === 'CASH'">
+            <input type="radio" name="method" value="CASH" [(ngModel)]="selectedPaymentMethod" />
+            💵 Cash
+          </label>
+          <label class="method-option" [class.selected]="selectedPaymentMethod === 'ONLINE'">
+            <input type="radio" name="method" value="ONLINE" [(ngModel)]="selectedPaymentMethod" />
+            🌐 Online Payment
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="closePaymentModal()">Cancel</button>
+      <button class="btn-red" [disabled]="isProcessingPayment" (click)="confirmPayment()">
+        {{ isProcessingPayment ? 'Processing...' : '✅ Confirm Payment' }}
+      </button>
+    </div>
+
   </div>
 </div>
 

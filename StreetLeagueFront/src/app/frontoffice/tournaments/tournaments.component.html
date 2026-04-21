@@ -95,12 +95,12 @@
             </svg>
             <span>{{ t.startDate }} → {{ t.endDate }}</span>
           </div>
-          <div class="meta-item">
+          <div class="meta-item" *ngIf="t.fieldName">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
               <circle cx="12" cy="10" r="3"/>
             </svg>
-            <span>{{ t.location }}</span>
+            <span>{{ t.fieldName }} — {{ t.fieldLocation }}</span>
           </div>
           <div class="meta-item">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -199,7 +199,9 @@
       <div class="modal-summary">
         <div class="summary-row">
           <span>📅 {{ selectedTournament.startDate }} → {{ selectedTournament.endDate }}</span>
-          <span>📍 {{ selectedTournament.location }}</span>
+          <span *ngIf="selectedTournament.fieldName">
+      📍 {{ selectedTournament.fieldName }} — {{ selectedTournament.fieldLocation }}
+          </span>
         </div>
         <div class="summary-row" *ngIf="selectedTournament.prizePool">
           <span>🏆 Prize Pool: ${{ selectedTournament.prizePool }}</span>

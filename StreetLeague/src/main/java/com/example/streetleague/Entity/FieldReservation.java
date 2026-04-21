@@ -46,6 +46,10 @@ public class FieldReservation {
     private User player;
 
 
+    @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Payment payment;
+
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Field, FieldReservation } from '../models/field-reservation.model';
+import { Field, FieldReservation ,Payment, PaymentMethod  } from '../models/field-reservation.model';
+import { FieldScheduleEntry } from 'src/app/models/field-reservation.model';
 
 @Injectable({ providedIn: 'root' })
 export class FieldReservationService {
@@ -88,4 +89,50 @@ export class FieldReservationService {
   deleteField(id: number): Observable<void> {
     return this.http.delete<void>(`${this.fieldApi}/${id}`);
   }
+  getFieldSchedule(fieldId: number, from: string, to: string): Observable<FieldScheduleEntry[]> {
+  return this.http.get<FieldScheduleEntry[]>(
+    `${this.fieldApi}/${fieldId}/schedule`,
+    { params: { from, to } }
+  );
+}
+
+// ── PAYMENTS ──────────────────────────────────────────────────────────────
+
+
+private readonly paymentApi = 'http://localhost:8086/StreetLeague/api/payments';
+
+// Admin — initier manuellement (normalement automatique)
+initiatePayment(reservationId: number): Observable<Payment> {
+  return this.http.post<Payment>(`${this.paymentApi}/initiate/${reservationId}`, {});
+}
+
+// Joueur — payer
+processPayment(reservationId: number, method: PaymentMethod): Observable<Payment> {
+  return this.http.post<Payment>(
+    `${this.paymentApi}/pay/${reservationId}`,
+    {},
+    { params: { method } }
+  );
+}
+
+// Admin — rembourser
+refundPayment(reservationId: number): Observable<Payment> {
+  return this.http.post<Payment>(`${this.paymentApi}/refund/${reservationId}`, {});
+}
+
+// Consulter paiement d'une réservation
+getPaymentByReservation(reservationId: number): Observable<Payment> {
+  return this.http.get<Payment>(`${this.paymentApi}/reservation/${reservationId}`);
+}
+
+// Historique joueur
+getPaymentsByPlayer(playerId: number): Observable<Payment[]> {
+  return this.http.get<Payment[]>(`${this.paymentApi}/player/${playerId}`);
+}
+
+// Admin — tous les paiements
+getAllPayments(): Observable<Payment[]> {
+  return this.http.get<Payment[]>(`${this.paymentApi}/all`);
+}
+
 }

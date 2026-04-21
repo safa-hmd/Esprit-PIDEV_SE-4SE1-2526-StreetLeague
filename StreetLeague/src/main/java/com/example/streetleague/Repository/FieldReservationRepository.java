@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,5 +35,19 @@ public interface FieldReservationRepository extends JpaRepository<FieldReservati
             @Param("fieldId") Long fieldId,
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime
+    );
+    //  Pour le planning — toutes les réservations d'un terrain sur une période
+    @Query("""
+    SELECT r FROM FieldReservation r
+    JOIN FETCH r.field f
+    JOIN FETCH r.player p
+    WHERE f.id = :fieldId
+    AND r.startTime >= :from
+    AND r.startTime <  :to
+""")
+    List<FieldReservation> findScheduleByFieldAndPeriod(
+            @Param("fieldId") Long fieldId,
+            @Param("from")    LocalDateTime from,
+            @Param("to")      LocalDateTime to
     );
 }

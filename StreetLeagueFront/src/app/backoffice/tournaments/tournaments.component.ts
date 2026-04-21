@@ -8,6 +8,10 @@ import {
   TournamentDto, TournamentRegistrationDto,
   SportType, TournamentStatus, TournamentType
 } from './tournament.model';
+
+import { FieldScheduleEntry } from 'src/app/models/field-reservation.model';
+import { FieldReservationService } from 'src/app/services/field-reservation.service';
+import { Field } from 'src/app/models/field-reservation.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -23,6 +27,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
   filteredTournaments: TournamentDto[] = [];
   isLoading    = false;
   errorMessage = '';
+  fields: Field[] = [];
 
   // ── Toast ─────────────────────────────────────────────────────────────────
   toastMessage: string | null = null;
@@ -38,6 +43,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
   editingTournament: TournamentDto | null = null;
   tournamentForm!: FormGroup;
   isSaving = false;
+
 
   // ── Options ───────────────────────────────────────────────────────────────
   readonly sportOptions: { value: SportType; label: string }[] = [
@@ -63,16 +69,23 @@ export class TournamentComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(public svc: TournamentService, private fb: FormBuilder) {}
+  constructor(public svc: TournamentService, private fb: FormBuilder , private fieldService: FieldReservationService) {}
 
   ngOnInit(): void {
     this.svc.toast$.pipe(takeUntil(this.destroy$)).subscribe(m => this.toastMessage = m);
     this.svc.filters$.pipe(takeUntil(this.destroy$)).subscribe(f => {
       this.filteredTournaments = this.svc.applyFilters(this.allTournaments, f);
+  
     });
     this.buildForm();
     this.load();
+    this.loadFields();
+
   }
+  loadFields() {
+  this.fieldService.getAllFields().subscribe(f => this.fields = f);
+}
+  
 
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 
@@ -88,8 +101,8 @@ export class TournamentComponent implements OnInit, OnDestroy {
       endDate:              ['',           Validators.required],
       registrationDeadline: ['',           Validators.required],
       maxParticipants:      [8, [Validators.required, Validators.min(2)]],
-      location:             ['',           Validators.required],
-      prizePool:            [null],
+      fieldId: [null, Validators.required],
+      prizePool:            [0],
     });
   }
 
@@ -190,7 +203,11 @@ export class TournamentComponent implements OnInit, OnDestroy {
   submitForm(): void {
     if (this.tournamentForm.invalid) return;
     this.isSaving = true;
-    const dto: TournamentDto = this.tournamentForm.value;
+     const raw = this.tournamentForm.value;
+      const dto: TournamentDto = {
+    ...raw,
+    fieldId: raw.fieldId ? Number(raw.fieldId) : null  // ✅ forcer en number
+  };
     const call$ = this.editingTournament?.id
       ? this.svc.update(this.editingTournament.id, dto)
       : this.svc.create(dto);
@@ -202,7 +219,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
         this.closeForm();
         this.load();
       },
-       // ✅ Remplace l'ancien bloc error
+       
     error: err => {
       this.isSaving = false;
 
@@ -219,7 +236,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
         this.svc.showToast(`❌ ${msg}`);
       }
     }
-  });
+      });
   }
 
   // ── Admin actions ─────────────────────────────────────────────────────────
@@ -285,5 +302,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
     if (pct >= 40)  return 'progress-mid';
     return 'progress-low';
   }
+
+  
 
 }

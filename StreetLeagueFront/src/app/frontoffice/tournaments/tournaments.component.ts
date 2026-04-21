@@ -134,7 +134,7 @@ export class TournamentsComponent implements OnInit, OnDestroy {
     this.filteredTournaments = this.allTournaments.filter(t => {
       const matchSearch = !this.searchTerm ||
         t.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        (t.location ?? '').toLowerCase().includes(this.searchTerm.toLowerCase());
+        (t.fieldLocation ?? '').toLowerCase().includes(this.searchTerm.toLowerCase());
       const matchSport  = !this.sportFilter  || t.sportType === this.sportFilter;
       const matchStatus = !this.statusFilter || t.status    === this.statusFilter;
       return matchSearch && matchSport && matchStatus;

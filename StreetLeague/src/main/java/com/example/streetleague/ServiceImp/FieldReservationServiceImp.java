@@ -7,6 +7,7 @@ import com.example.streetleague.ServiceInterface.IFieldReservationService;
 import com.example.streetleague.Entity.Field;
 import com.example.streetleague.Entity.FieldReservation;
 import com.example.streetleague.Entity.ReservationStatus;
+import com.example.streetleague.ServiceInterface.IPaymentService;
 import com.example.streetleague.domain.User;
 import com.example.streetleague.dto.FieldReservationDto;
 import com.example.streetleague.exception.ResourceNotFoundException;
@@ -27,6 +28,7 @@ public class FieldReservationServiceImp implements IFieldReservationService {
     private final FieldReservationRepository reservationRepository;
     private final FieldRepository fieldRepository;
     private final UserRepository userRepository;
+    private final IPaymentService paymentService;
 
     @Override
     public FieldReservationDto createReservation(FieldReservationDto dto) {
@@ -107,13 +109,23 @@ public class FieldReservationServiceImp implements IFieldReservationService {
     }
 
     @Override
+    @Transactional
     public FieldReservationDto approveReservation(Long id, String adminNote) {
         FieldReservation reservation = findById(id);
+
         if (reservation.getStatus() != ReservationStatus.PENDING) {
             throw new IllegalStateException("Only pending reservations can be approved");
         }
+
         reservation.setStatus(ReservationStatus.APPROVED);
-        return mapToDto(reservationRepository.save(reservation));
+
+
+        FieldReservation saved = reservationRepository.save(reservation);
+
+        // déclenchement automatique du paiement
+        paymentService.initiatePayment(saved.getId());
+
+        return mapToDto(saved);
     }
 
     @Override
@@ -197,4 +209,5 @@ public class FieldReservationServiceImp implements IFieldReservationService {
                 .createdAt(r.getCreatedAt())
                 .build();
     }
+
 }

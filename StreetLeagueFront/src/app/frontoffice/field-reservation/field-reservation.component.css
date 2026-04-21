@@ -615,3 +615,208 @@
   .filters-bar    { flex-direction: column; align-items: stretch; }
   .filter-select  { width: 100%; }
 }
+/* ── History Modal ───────────────────────────────────────────────── */
+.history-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2.5rem;
+  color: #888;
+}
+
+.history-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #888;
+}
+
+.history-empty .empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.history-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: box-shadow 0.2s;
+}
+
+.history-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Top row */
+.history-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.history-field-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.history-field-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1a1a2e;
+}
+
+.history-field-loc {
+  font-size: 0.78rem;
+  color: #888;
+}
+
+/* Details row */
+.history-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  font-size: 0.82rem;
+  color: #555;
+}
+
+.history-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.history-amount {
+  font-weight: 700;
+  color: #1a1a2e;
+  font-size: 0.9rem;
+}
+
+.txn-ref {
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  color: #666;
+  background: #f0f0f0;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* Dates row */
+.history-dates {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.78rem;
+}
+
+.date-paid   { color: #2e7d32; font-weight: 500; }
+.date-refunded { color: #7b1fa2; font-weight: 500; }
+
+/* Payment badges */
+.payment-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status-approved  { background: #e8f5e9; color: #2e7d32; }
+.status-pending   { background: #fff8e1; color: #f57f17; }
+.status-refunded  { background: #f3e5f5; color: #7b1fa2; }
+.status-rejected  { background: #ffebee; color: #c62828; }
+
+/* Pay Now button */
+.btn-pay {
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-pay:hover  { background: #1b5e20; transform: translateY(-1px); }
+.btn-pay:active { transform: translateY(0); }
+
+/* Payment amount block */
+.payment-amount {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  border: 1px solid #dee2e6;
+}
+
+.amount-label { color: #666; font-size: 0.875rem; }
+.amount-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #2e7d32;
+}
+
+/* Method options */
+.method-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.method-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: border-color 0.2s, background 0.2s;
+  color: #333;
+}
+
+.method-option:hover   { border-color: #adb5bd; background: #f8f9fa; }
+.method-option.selected {
+  border-color: #e63946;
+  background: #fff5f5;
+  color: #e63946;
+  font-weight: 600;
+}
+
+.method-option input { display: none; }
+
+/* History button */
+.btn-history {
+  background: transparent;
+  border: 1.5px solid #dee2e6;
+  border-radius: 8px;
+  color: #555;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-history:hover {
+  border-color: #e63946;
+  color: #e63946;
+  background: #fff5f5;
+}

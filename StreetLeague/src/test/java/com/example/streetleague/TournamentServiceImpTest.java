@@ -1,6 +1,7 @@
 package com.example.streetleague;
 
 import com.example.streetleague.Entity.*;
+import com.example.streetleague.Repository.FieldRepository;
 import com.example.streetleague.Repository.TournamentRepository;
 import com.example.streetleague.ServiceImp.TournamentServiceImp;
 import com.example.streetleague.dto.TournamentDto;
@@ -24,14 +25,24 @@ import static org.mockito.Mockito.*;
 class TournamentServiceImpTest {
 
     @Mock  TournamentRepository tournamentRepository;
+    @Mock
+    FieldRepository fieldRepository;
     @InjectMocks
     TournamentServiceImp service;
 
     private TournamentDto validDto;
     private Tournament savedTournament;
+    private Field field;
 
     @BeforeEach
     void setUp() {
+        field = Field.builder()
+                .id(1L)
+                .name("Terrain Ariana")
+                .location("Ariana")
+                .sportType(SportType.FOOTBALL)
+                .build();
+
         validDto = TournamentDto.builder()
                 .name("Summer Cup 2026")
                 .sportType(SportType.FOOTBALL)
@@ -40,8 +51,10 @@ class TournamentServiceImpTest {
                 .endDate(LocalDate.now().plusDays(20))
                 .registrationDeadline(LocalDate.now().plusDays(5))
                 .maxParticipants(8)
-                .location("Tunis")
+                .fieldId(1L)
                 .build();
+
+
 
         savedTournament = Tournament.builder()
                 .id(1L)
@@ -53,7 +66,7 @@ class TournamentServiceImpTest {
                 .endDate(validDto.getEndDate())
                 .registrationDeadline(validDto.getRegistrationDeadline())
                 .maxParticipants(8)
-                .location("Tunis")
+                .field(field)           // ✅
                 .registrations(List.of())
                 .build();
     }
@@ -62,6 +75,7 @@ class TournamentServiceImpTest {
 
     @Test
     void createTournament_success() {
+        when(fieldRepository.findById(1L)).thenReturn(Optional.of(field));
         when(tournamentRepository.existsByNameIgnoreCase("Summer Cup 2026")).thenReturn(false);
         when(tournamentRepository.save(any())).thenReturn(savedTournament);
 
@@ -137,6 +151,7 @@ class TournamentServiceImpTest {
 
     @Test
     void updateTournament_success() {
+        when(fieldRepository.findById(1L)).thenReturn(Optional.of(field));
         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(savedTournament));
         when(tournamentRepository.save(any())).thenReturn(savedTournament);
 
