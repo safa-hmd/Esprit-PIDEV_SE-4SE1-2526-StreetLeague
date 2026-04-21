@@ -1,0 +1,110 @@
+<div class="transport-page">
+  <div class="transport-header">
+    <div class="stats-card">
+      <div class="stats-accent"></div>
+      <div class="stats-content">
+        <span class="stats-label">TOTAL LOGISTICS</span>
+        <div class="stats-number-row">
+          <span class="stats-number">{{ transportList.length }}</span>
+          <span class="stats-trend" *ngIf="transportList.length > 0">+12% this month</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="page-error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="form-section-container">
+    <div class="transport-form-card">
+      <div class="form-header">
+        <span class="plus-icon">+</span>
+        <h2 class="form-title">Add New Transport</h2>
+      </div>
+
+      <form>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">TRANSPORT TYPE</label>
+            <select class="form-select" name="type" [(ngModel)]="type">
+              <option value="BUS">BUS</option>
+              <option value="TRAIN">TRAIN</option>
+              <option value="PLANE">PLANE</option>
+              <option value="VAN">VAN</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">DESTINATION</label>
+            <input type="text" class="form-input" name="destination" placeholder="e.g. Tunis Arena" [(ngModel)]="destination" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">PRICE PER SEAT (TND)</label>
+            <input type="number" step="0.01" min="0" class="form-input" name="pricePerSeat" placeholder="0.00" [(ngModel)]="pricePerSeat" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">AVAILABLE SEATS</label>
+            <input type="number" min="1" class="form-input" name="availableSeats" placeholder="0" [(ngModel)]="availableSeats" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">DEPARTURE TIME</label>
+            <input type="datetime-local" class="form-input" name="departureTime" [(ngModel)]="departureTime" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">RETURN TIME</label>
+            <input type="datetime-local" class="form-input" name="returnTime" [(ngModel)]="returnTime" />
+          </div>
+        </div>
+
+        <button type="button" class="submit-btn" (click)="submitForm()" [disabled]="loading">
+          <div *ngIf="loading" class="spinner"></div>
+          <span *ngIf="!loading">🚀 ADD TRANSPORT</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="table-section-container">
+    <div class="transport-table-card">
+      <div class="table-header-row">
+        <h2 class="table-title">ACTIVE FLEET INVENTORY</h2>
+        <div class="search-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" placeholder="Search..." name="search" [(ngModel)]="searchText" (ngModelChange)="filterTransports()" />
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <div *ngIf="loading" class="table-loading">Loading fleet data...</div>
+        
+        <table class="data-table" *ngIf="!loading">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>TYPE</th>
+              <th>DESTINATION</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of filteredTransports">
+              <td class="id-cell">#TR-{{ t.id }}</td>
+              <td class="type-cell">
+                <span class="type-icon">{{ getTypeIcon(t.type) }}</span>
+                {{ t.type }}
+              </td>
+              <td>{{ t.destination }}</td>
+            </tr>
+            <tr *ngIf="filteredTransports.length === 0">
+              <td colspan="3" class="empty-cell">No transports found</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

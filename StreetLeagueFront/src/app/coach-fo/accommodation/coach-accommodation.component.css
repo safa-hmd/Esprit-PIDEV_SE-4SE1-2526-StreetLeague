@@ -1,0 +1,388 @@
+html,
+body,
+app-root,
+app-coach-lodging,
+.router-wrapper,
+.main-content,
+.content-wrapper {
+  background: #f5f5f5 !important;
+  color: #111 !important;
+}
+
+body * {
+  box-sizing: border-box;
+}
+
+
+.coach-lodging-wrapper {
+  background: #f5f5f5 !important;
+  min-height: 100vh;
+  padding: 28px 36px 56px !important;
+  font-family: "Inter", Arial, sans-serif !important;
+  color: #111 !important;
+}
+
+/* HEADER */
+.page-header {
+  border-left: none;
+  padding-left: 0;
+  margin-bottom: 36px;
+}
+
+.section-label {
+  display: none;
+}
+
+.page-title {
+  margin: 0 0 16px;
+  font-size: 42px !important;
+  line-height: 1.05;
+  font-weight: 900 !important;
+  text-transform: none;
+  letter-spacing: -0.03em;
+  color: #111;
+}
+
+.page-header p,
+.page-header .text-muted {
+  margin: 0;
+  font-size: 18px !important;
+  color: var(--text-muted) !important;
+  font-weight: 500 !important;
+}
+
+/* SEARCH BAR BLOCK */
+.tournament-card {
+  background: #efefef;
+  border: none;
+  border-radius: 18px;
+  box-shadow: none;
+  padding: 28px;
+  margin-bottom: 40px;
+}
+
+.tournament-card .form-label {
+  display: block;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #374151 !important;
+  margin-bottom: 10px !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.custom-select,
+.form-select,
+.form-control,
+input[type="text"],
+input[type="date"] {
+  background: #fff !important;
+  border: 1px solid #d7d7d7 !important;
+  border-radius: 10px !important;
+  min-height: 48px;
+  padding: 12px 16px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+.custom-select:focus,
+.form-select:focus,
+.form-control:focus,
+input:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(239, 28, 36, 0.08) !important;
+  outline: none !important;
+}
+
+/* red search button style */
+.btn-danger,
+.btn-book,
+.search-btn {
+  background: var(--primary) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  min-height: 48px;
+  padding: 12px 24px !important;
+  font-weight: 800 !important;
+  font-size: 16px !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  box-shadow: none !important;
+}
+
+.btn-danger:hover,
+.btn-book:hover,
+.search-btn:hover {
+  background: var(--primary-hover) !important;
+  transform: none !important;
+}
+
+/* hide the old summary sidebar look */
+.summary-card,
+.sticky-top,
+.successMessage,
+.errorMessage {
+  box-shadow: none;
+}
+
+/* LODGING GRID */
+.accommodation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px;
+  margin-bottom: 40px;
+}
+
+.accommodation-card {
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 18px !important;
+  padding: 0 !important;
+  overflow: hidden;
+  box-shadow: none !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease !important;
+}
+
+.accommodation-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05) !important;
+  border-color: #d9d9d9 !important;
+}
+
+.accommodation-card.selected {
+  border: 2px solid var(--primary) !important;
+  background: #fff !important;
+}
+
+/* image / icon zone on top of card */
+.accommodation-card::before {
+  content: "";
+  display: block;
+  height: 225px;
+  background: #e9e9e9;
+}
+
+/* card internal content spacing */
+.accommodation-card>* {
+  margin-left: 24px;
+  margin-right: 24px;
+}
+
+.accommodation-card .d-flex.justify-content-between.align-items-start.mb-3 {
+  margin-top: -150px;
+  min-height: 150px;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.card-type {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  text-transform: none;
+  color: #111;
+  text-align: left;
+}
+
+.check-container {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-address {
+  margin-top: 8px;
+  margin-bottom: 18px;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.details,
+.space-y-2 {
+  display: block;
+}
+
+.detail-row {
+  display: none;
+}
+
+/* rating line imitation */
+.accommodation-card .card-address+.details::before {
+  content: "★★★★☆  4.5 · 234 avis";
+  display: block;
+  color: var(--text-muted);
+  font-size: 15px;
+  margin-bottom: 18px;
+  white-space: pre;
+}
+
+/* features tags */
+.accommodation-card .price-box::before {
+  content: "WiFi   Salle de sport   Restaurant   Parking";
+  display: inline-block;
+  font-size: 14px;
+  color: #4b5563;
+  background: transparent;
+  margin-bottom: 18px;
+  width: 100%;
+}
+
+.price-box {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  display: block;
+  padding-bottom: 22px;
+}
+
+.price-box .label {
+  display: none;
+}
+
+.price-value {
+  display: none;
+}
+
+/* blue event link block */
+.price-box::after {
+  content: "Lié à : Summer Soccer Championship";
+  display: block;
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--link-bg);
+  border-radius: 10px;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+/* hide old right column summary to match screenshot */
+.col-lg-4 {
+  display: none;
+}
+
+.col-lg-8 {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+/* MEMBERS / EXTRA PANELS not visible in screenshot */
+.selection-panel {
+  display: none;
+}
+
+/* HISTORY TABLE */
+.mt-5.pt-5.border-top {
+  margin-top: 24px !important;
+  padding-top: 0 !important;
+  border-top: none !important;
+}
+
+.mt-5.pt-5.border-top .section-label {
+  display: none;
+}
+
+.mt-5.pt-5.border-top h3 {
+  display: none;
+}
+
+.table-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.ath-table {
+  border-collapse: separate;
+  border-spacing: 0 14px;
+  width: 100%;
+}
+
+.ath-table thead {
+  display: none;
+}
+
+.ath-table tbody,
+.ath-table tr,
+.ath-table td {
+  display: block;
+  width: 100%;
+}
+
+.ath-table tbody tr {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+}
+
+.ath-table tbody tr td {
+  border: none;
+  padding: 6px 0;
+}
+
+.status-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.status-approved {
+  background: #e8f7ed;
+  color: #15803d;
+}
+
+.status-pending {
+  background: #fff4d6;
+  color: #b45309;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* EMPTY / FALLBACK */
+.text-center.bg-white.rounded-lg.border-2.border-dashed {
+  background: #fff !important;
+  border: 1px dashed #d1d5db !important;
+  border-radius: 16px !important;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .accommodation-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .coach-lodging-wrapper {
+    padding: 20px 16px 40px !important;
+  }
+
+  .page-title {
+    font-size: 34px !important;
+  }
+
+  .tournament-card {
+    padding: 18px;
+  }
+
+  .accommodation-card::before {
+    height: 180px;
+  }
+}

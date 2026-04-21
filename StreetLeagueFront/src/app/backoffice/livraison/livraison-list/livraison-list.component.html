@@ -1,0 +1,121 @@
+<div class="admin-main-inner">
+  <div class="page-header-admin">
+    <h1 class="page-title-admin">Delivery Management</h1>
+    <p class="page-subtitle-admin">Track orders and manage delivery personnel</p>
+  </div>
+
+  <!-- Notifications -->
+  <div *ngIf="successMsg" style="background:#d1fae5;color:#065f46;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;">
+    ✅ {{ successMsg }}
+  </div>
+  <div *ngIf="errorMsg" style="background:#fee2e2;color:#991b1b;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;">
+    ❌ {{ errorMsg }}
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid cols-4" style="margin-bottom:1.5rem;">
+    <div class="a-stat">
+      <div class="a-stat-icon" style="background:rgba(78,138,159,0.15);color:#4e8a9f;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="24" height="24">
+          <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+      </div>
+      <div><div class="a-stat-val">{{ stats.total }}</div><div class="a-stat-label">Total livraisons</div></div>
+    </div>
+    <div class="a-stat">
+      <div class="a-stat-icon" style="background:rgba(232,112,64,0.15);color:#e87040;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="24" height="24">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div><div class="a-stat-val">{{ stats.enCours }}</div><div class="a-stat-label">En transit</div></div>
+    </div>
+    <div class="a-stat">
+      <div class="a-stat-icon" style="background:rgba(34,197,94,0.12);color:#16a34a;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="24" height="24">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <div><div class="a-stat-val">{{ stats.livrees }}</div><div class="a-stat-label">Livrées</div></div>
+    </div>
+    <div class="a-stat">
+      <div class="a-stat-icon" style="background:rgba(232,92,122,0.15);color:#e85c7a;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="24" height="24">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div><div class="a-stat-val">{{ stats.echec }}</div><div class="a-stat-label">Échecs</div></div>
+    </div>
+  </div>
+
+  <!-- Table card -->
+  <div class="a-card">
+    <div class="a-card-header" style="justify-content:space-between;">
+      <span class="a-card-title">Livraisons</span>
+      <div style="display:flex;gap:0.75rem;align-items:center;">
+        <!-- Search -->
+        <div class="a-search" style="width:220px;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input class="a-form-control" placeholder="Rechercher..." [(ngModel)]="searchTerm" (input)="search()">
+        </div>
+        <!-- Bouton créer -->
+        <a routerLink="/admin/livraisons/new" class="a-btn a-btn-primary a-btn-sm">
+          + New Delivery
+        </a>
+      </div>
+    </div>
+
+    <div class="a-card-body" style="padding:0;">
+      <!-- Loading -->
+      <div *ngIf="loading" style="text-align:center;padding:2rem;color:#999;">
+        Chargement...
+      </div>
+
+      <div class="a-table-wrap" *ngIf="!loading">
+        <table class="a-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Commande</th>
+              <th>Adresse</th>
+              <th>Transporteur</th>
+              <th>Frais</th>
+              <th>Statut</th>
+              <th>Changer statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of filteredLivraisons">
+              <td><strong>#{{ l.id }}</strong></td>
+              <td>Cmd #{{ l.commandeId }}</td>
+              <td>{{ l.adresse }}</td>
+              <td>#{{ l.transporteurId }}</td>
+              <td style="font-weight:600;">{{ l.fraisLivraison | number:'1.2-2' }} TND</td>
+              <td>
+                <span class="a-badge" [ngClass]="getBadgeClass(l.statut)">{{ l.statut }}</span>
+              </td>
+              <td>
+                <select class="a-form-control"
+                        style="width:auto;font-size:0.8rem;padding:0.25rem 0.5rem;"
+                        (change)="updateStatus(l, $any($event.target).value)">
+                  <option *ngFor="let s of statuts" [value]="s" [selected]="s === l.statut">
+                    {{ s }}
+                  </option>
+                </select>
+              </td>
+            </tr>
+            <tr *ngIf="filteredLivraisons.length === 0">
+              <td colspan="7" style="text-align:center;padding:2rem;color:#999;">
+                Aucune livraison trouvée.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

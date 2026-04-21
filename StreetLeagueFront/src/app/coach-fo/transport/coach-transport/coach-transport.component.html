@@ -1,0 +1,261 @@
+<div class="coach-transport-wrapper">
+
+  <!-- MAIN HEADER -->
+  <header class="main-header">
+    <div class="header-content">
+      <div class="section-label">Fleet & Mobility</div>
+      <h1>Transport & Covoiturage</h1>
+      <p>Partagez des trajets vers les événements et réduisez vos frais de déplacement pour toute votre équipe.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-propose" (click)="togglePersonalForm()">
+        <i class="fas" [ngClass]="showPersonalForm ? 'fa-times' : 'fa-plus'"></i>
+        {{ showPersonalForm ? 'Annuler' : 'Proposer un trajet' }}
+      </button>
+    </div>
+  </header>
+
+  <!-- PERSONAL VEHICLE FORM (TOGGLED) -->
+  <section *ngIf="showPersonalForm" class="form-overlay-card">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+      <h3 class="font-weight-900 m-0" style="text-transform: uppercase;">Proposer votre véhicule</h3>
+      <div class="badge bg-danger p-2" style="font-size: 0.7rem;">LOGISTICS COMPLIANCE REQUIRED</div>
+    </div>
+
+    <form (ngSubmit)="submitPersonalCarForm()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Destination (Ville)</label>
+          <select [(ngModel)]="personalCar.destination" name="dest" required>
+            <option *ngFor="let t of tournaments" [value]="t.city">{{ t.name }} ({{ t.city }})</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Places disponibles (Max 5)</label>
+          <input type="number" [(ngModel)]="personalCar.availableSeats" name="seats" placeholder="Nombre de places" max="5" required>
+        </div>
+        <div class="form-group">
+          <label>Prix par place (TND)</label>
+          <input type="number" step="0.001" [(ngModel)]="personalCar.pricePerSeat" name="price" placeholder="0.000" required>
+        </div>
+        <div class="form-group">
+          <label>Type de véhicule</label>
+          <select [(ngModel)]="personalCar.type" name="type" required>
+            <option value="CAR">Voiture Personnelle</option>
+            <option value="VAN">Van Privé</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date et Heure Départ</label>
+          <input type="datetime-local" [(ngModel)]="personalCar.departureTime" name="dep" required>
+        </div>
+        <div class="form-group">
+          <label>Date et Heure Retour</label>
+          <input type="datetime-local" [(ngModel)]="personalCar.returnTime" name="ret" required>
+        </div>
+      </div>
+      
+      <div class="mt-5 d-flex gap-3">
+        <button type="submit" class="btn btn-reserve px-5 py-3 w-100" style="border-radius: 10px;">
+          PUBLIER L'OFFRE DE TRAJET
+        </button>
+      </div>
+      
+      <div class="mt-4" *ngIf="pcMessage">
+        <div class="alert alert-success border-0 shadow-sm font-weight-bold" style="border-radius: 12px; background: #f0fdf4; color: #15803d;">
+          <i class="fas fa-check-circle me-2"></i> {{ pcMessage }}
+        </div>
+      </div>
+      <div class="mt-4" *ngIf="pcError">
+        <div class="alert alert-danger border-0 shadow-sm font-weight-bold" style="border-radius: 12px; background: #fef2f2; color: #b91c1c;">
+          <i class="fas fa-exclamation-triangle me-2"></i> {{ pcError }}
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <!-- TOURNAMENT SELECTION -->
+  <section class="mb-5" *ngIf="!showPersonalForm">
+    <div class="p-4 bg-white rounded-4 border shadow-sm d-flex align-items-center gap-4">
+        <div class="bg-light p-3 rounded-3">
+            <i class="fas fa-trophy text-danger fs-4"></i>
+        </div>
+        <div style="flex-grow: 1;">
+            <label class="form-label d-block small font-weight-800 text-muted text-uppercase mb-1">Filtrer par destination</label>
+            <select class="form-select border-0 bg-light font-weight-bold" [(ngModel)]="selectedTournamentId" (change)="onTournamentChange()" style="font-size: 1.1rem; cursor: pointer;">
+                <option *ngFor="let t of tournaments" [value]="t.id">{{ t.name }} — {{ t.city }}</option>
+            </select>
+        </div>
+    </div>
+  </section>
+
+  <!-- ELIGIBILITY / SAME CITY CHECK -->
+  <section *ngIf="isSameCity && !showPersonalForm" class="mb-5">
+    <div class="p-5 text-center bg-white rounded-5 border-2 shadow-sm" style="border: 2px dashed var(--primary);">
+        <h2 style="font-size: 3rem; margin-bottom: 1.5rem;">🏠</h2>
+        <h4 class="font-weight-900 text-uppercase mb-3">Trajet non nécessaire</h4>
+        <p class="text-muted mb-4 mx-auto" style="max-width: 500px;">Votre équipe et l'événement sont basés dans la même ville ({{ teamCity }}). Le transport n'est pas requis.</p>
+        <button class="btn btn-dark px-5 py-3 rounded-pill font-weight-bold" (click)="goToLodging()">VOIR L'HÉBERGEMENT →</button>
+    </div>
+  </section>
+
+  <!-- TRANSPORT INVENTORY GRID -->
+  <section *ngIf="!isSameCity && selectedTournamentId && !showPersonalForm" class="mb-5">
+    
+    <div *ngIf="isLoading" class="text-center py-5">
+       <div class="spinner-grow text-danger" role="status"></div>
+       <p class="mt-4 text-muted font-weight-bold text-uppercase small">Scanning live availability...</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredTransports.length > 0" class="transport-grid">
+      <div *ngFor="let t of filteredTransports" class="covoit-card">
+        
+        <div class="card-header">
+           <div class="user-avatar" [style.background-color]="getAvatarColor(t.ownerName)">
+              {{ getInitials(t.ownerName) }}
+           </div>
+           <div class="user-info">
+             <span class="user-name">{{ t.ownerName }}</span>
+             <span class="rating"><i class="fas fa-star"></i> {{ t.rating }} • {{ t.tripCount }} trajets</span>
+           </div>
+        </div>
+
+        <div class="route-section">
+          <span>Current Location</span>
+          <i class="fas fa-arrow-right"></i>
+          <span>{{ t.destination }}</span>
+        </div>
+
+        <div class="card-details">
+          <div class="detail-item">
+            <i class="far fa-calendar-alt"></i>
+            <span>{{ formatDate(t.departureTime) }}</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-users"></i>
+            <span>{{ t.availableSeats }} places restantes</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas" [ngClass]="getTransportIcon(t.type)"></i>
+            <span>{{ t.type }}</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-flag"></i>
+            <span>{{ selectedTournament?.name || 'Tournament' }}</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="price-tag">
+            <span class="price-value">{{ t.pricePerSeat | number:'1.1-3' }} <small style="font-size: 0.8rem;">TND</small></span>
+            <span class="price-label">par passager</span>
+          </div>
+          <button class="btn-reserve" 
+                  [disabled]="t.availableSeats === 0"
+                  (click)="selectTransport(t)">
+            {{ t.availableSeats === 0 ? 'COMPLET' : (selectedTransport?.id === t.id ? 'SÉLECTIONNÉ' : 'Réserver') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && filteredTransports.length === 0" class="p-5 text-center bg-white rounded-5 border shadow-sm">
+      <div style="font-size: 4rem; margin-bottom: 1.5rem; opacity: 0.2;">🚐</div>
+      <p class="text-muted font-weight-bold text-uppercase mb-0">Aucun trajet disponible pour cette destination.</p>
+    </div>
+  </section>
+
+  <!-- MEMBER SELECTION (ACTIVE ONLY WHEN CARD SELECTED) -->
+  <section *ngIf="selectedTransport && !showPersonalForm" class="mb-5 animate__animated animate__fadeInUp">
+    <div class="p-5 bg-white rounded-5 border shadow-lg">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="font-weight-900 text-uppercase m-0">Passagers à bord</h3>
+                <p class="text-muted small m-0">Sélectionnez les membres de votre équipe qui participeront au trajet.</p>
+            </div>
+            <button class="btn btn-outline-danger px-4 py-2 rounded-pill font-weight-bold small" (click)="selectAllMembers()">TOOUT SÉLECTIONNER</button>
+        </div>
+
+        <div class="member-selection-grid">
+            <div *ngFor="let member of teamMembers" 
+                 class="member-pill" 
+                 [class.active]="isSelected(member)" 
+                 (click)="toggleMember(member.idUser || member.id)">
+                <div class="check-container">
+                    <i *ngIf="isSelected(member)" class="fas fa-check"></i>
+                </div>
+                <div style="flex-grow: 1;">
+                    <div class="font-weight-800 text-uppercase" style="font-size: 0.8rem;">{{ member.fullName || member.email }}</div>
+                    <div class="text-muted" style="font-size: 0.7rem;">{{ member.role }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 p-4 rounded-4 d-flex justify-content-between align-items-center" style="background: #1a1a1a; color: white;">
+            <div>
+                <div class="text-muted small font-weight-bold text-uppercase">Total à payer</div>
+                <div class="h2 font-weight-900 m-0 text-danger">{{ totalPrice | number:'1.3-3' }} <small style="font-size: 1rem;">TND</small></div>
+            </div>
+            <button class="btn btn-danger px-5 py-3 rounded-3 font-weight-900 text-uppercase" 
+                    [disabled]="selectedMemberIds.length === 0"
+                    (click)="confirmBooking()">
+                CONFIRMER LA RÉSERVATION
+            </button>
+        </div>
+    </div>
+  </section>
+
+  <!-- TRANSIT HISTORY -->
+  <section class="mt-5 pt-5 border-top" *ngIf="!showPersonalForm">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="bg-danger p-2 rounded-2 text-white">
+            <i class="fas fa-history"></i>
+        </div>
+        <h3 class="font-weight-900 text-uppercase m-0">Historique des trajets</h3>
+    </div>
+
+    <div class="table-responsive rounded-4 shadow-sm border bg-white">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="bg-light">
+          <tr>
+            <th class="ps-4 py-3 text-uppercase small font-weight-800 text-muted">Trajet</th>
+            <th class="py-3 text-uppercase small font-weight-800 text-muted">Destination</th>
+            <th class="py-3 text-uppercase small font-weight-800 text-muted">Passagers</th>
+            <th class="py-3 text-uppercase small font-weight-800 text-muted">Status</th>
+            <th class="py-3 text-uppercase small font-weight-800 text-muted">Date</th>
+            <th class="pe-4 py-3 text-uppercase small font-weight-800 text-muted">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let req of myRequests">
+            <td class="ps-4">
+              <div class="d-flex align-items-center gap-3">
+                <i [class]="getTransportIcon(req.transport?.type)" class="text-danger"></i>
+                <span class="font-weight-bold text-uppercase small">{{ req.transport?.type }}</span>
+              </div>
+            </td>
+            <td class="font-weight-bold small text-uppercase">{{ req.transport?.destination || req.tournament?.city }}</td>
+            <td><span class="badge bg-light text-dark font-weight-800">{{ req.selectedMemberIds?.length || 0 }} PERS.</span></td>
+            <td>
+              <span class="badge-status" [ngClass]="'status-' + (req.status?.toLowerCase() || 'pending')">
+                {{ req.status || 'PENDING' }}
+              </span>
+            </td>
+            <td class="small text-muted font-weight-bold">{{ formatDate(req.createdAt) }}</td>
+            <td class="pe-4">
+              <button class="btn btn-sm btn-dark font-weight-bold px-3 py-2 rounded-3" 
+                      *ngIf="req.status === 'APPROVED'" 
+                      (click)="downloadPdf(req.id)">
+                VOUCHER PDF
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="myRequests.length === 0">
+            <td colspan="6" class="text-center py-5 text-muted font-weight-bold small text-uppercase">Aucune archive disponible.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>

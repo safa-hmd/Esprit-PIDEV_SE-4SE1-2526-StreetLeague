@@ -1,0 +1,71 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { box-sizing: border-box; }
+  .page-wrapper { min-height: 100vh; padding: 2rem; background: linear-gradient(135deg, #f4f6fb 0%, #e8edf7 100%); font-family: 'Inter', sans-serif; }
+  .detail-card { background: white; border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.1); max-width: 700px; margin: 0 auto; overflow: hidden; }
+  .detail-header { background: linear-gradient(135deg, #f59e0b, #d97706); padding: 2rem; color: white; display: flex; align-items: center; justify-content: space-between; }
+  .detail-header h1 { font-size: 1.6rem; font-weight: 800; }
+  .detail-header p { opacity: 0.85; font-size: 0.9rem; }
+  .detail-body { padding: 2rem; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .info-item label { font-size: 0.78rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.35rem; }
+  .info-item .value { font-size: 1rem; font-weight: 600; color: #1a1f36; }
+  .badge { display: inline-block; padding: 0.3rem 0.9rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+  .badge-gold { background: #fef3c7; color: #92400e; }
+  .badge-silver { background: #f3f4f6; color: #374151; }
+  .badge-bronze { background: #fde8d8; color: #9a3412; }
+  .divider { border: none; border-top: 1px solid #f3f4f6; margin: 1.5rem 0; }
+  .action-bar { display: flex; gap: 1rem; margin-top: 1.5rem; }
+  .btn-edit { flex: 1; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 0.75rem; border-radius: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn-edit:hover { transform: translateY(-1px); }
+  .btn-back { background: #f9fafb; color: #6b7280; border: 1.5px solid #e5e7eb; padding: 0.75rem 1.5rem; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+  .btn-back:hover { background: #f3f4f6; }
+  .spinner, .error-msg { text-align: center; padding: 3rem; color: #9ca3af; }
+  .error-msg { color: #be123c; }
+</style>
+
+<div class="page-wrapper">
+  <div class="detail-card">
+    <div class="spinner" *ngIf="loading">Chargement…</div>
+    <div class="error-msg" *ngIf="error">⚠️ {{ error }}</div>
+
+    <ng-container *ngIf="!loading && sponsor">
+      <div class="detail-header">
+        <div>
+          <h1>💼 {{ sponsor.nom }}</h1>
+          <p>Fiche détaillée du sponsor</p>
+        </div>
+        <span class="badge" [ngClass]="getTypeBadgeClass(sponsor.type)">{{ sponsor.type }}</span>
+      </div>
+      <div class="detail-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <label>ID</label>
+            <div class="value">{{ sponsor.id }}</div>
+          </div>
+          <div class="info-item">
+            <label>Nom</label>
+            <div class="value">{{ sponsor.nom }}</div>
+          </div>
+          <div class="info-item">
+            <label>Email de contact</label>
+            <div class="value">{{ sponsor.contactEmail || '—' }}</div>
+          </div>
+          <div class="info-item">
+            <label>Téléphone</label>
+            <div class="value">{{ sponsor.telephone || '—' }}</div>
+          </div>
+          <div class="info-item" style="grid-column: 1 / -1;">
+            <label>Adresse</label>
+            <div class="value">{{ sponsor.adresse || '—' }}</div>
+          </div>
+        </div>
+        <hr class="divider" />
+        <div class="action-bar">
+          <button class="btn-back" (click)="back()" id="btn-back">← Retour</button>
+          <button class="btn-edit" (click)="edit()" id="btn-edit-detail">✏️ Modifier</button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

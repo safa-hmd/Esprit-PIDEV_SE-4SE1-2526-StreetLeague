@@ -1,0 +1,325 @@
+<div class="page-content">
+
+  <div class="page-header" style="display:flex;justify-content:space-between;
+                                   align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1 class="page-title">Training Sessions</h1>
+      <p class="page-subtitle">Structured sessions with professional coaches</p>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="showCreateModal = true">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
+           style="width:16px;height:16px;">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Create a Session
+    </button>
+  </div>
+
+  <div *ngIf="successMsg" class="alert alert-success" style="margin-bottom:1rem;">{{ successMsg }}</div>
+  <div *ngIf="errorMsg"   class="alert alert-danger"  style="margin-bottom:1rem;">{{ errorMsg }}</div>
+
+  <div *ngIf="isLoading" style="text-align:center;padding:3rem;color:var(--gray-text);">
+    Loading sessions...
+  </div>
+
+  <div *ngIf="!isLoading" class="grid-3">
+    <div *ngFor="let training of trainings" class="session-card">
+      <div class="session-head">
+        <span class="badge" [ngClass]="getStatusClass(training.status)">{{ training.status }}</span>
+        <div class="session-title">{{ training.title }}</div>
+      </div>
+      <div class="session-body">
+        <div class="session-desc">{{ training.description || 'No description provided.' }}</div>
+        <div class="meta-row">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+          </svg>
+          {{ training.teamName || 'No team' }}
+        </div>
+        <div class="meta-row">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          {{ training.trainingDate | date:'MMM d, y · h:mm a' }}
+        </div>
+        <div class="meta-row">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          {{ training.durationInMinutes }} min
+        </div>
+        <div class="meta-row" *ngIf="training.location">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          {{ training.location }}
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="prog-label">
+            <span>Participants</span>
+            <span>{{ training.participantCount }} / 25</span>
+          </div>
+          <div class="prog-bar">
+            <div class="prog-fill" [style.width]="getProgress(training.participantCount) + '%'"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+          <button type="button" class="btn btn-outline btn-sm" style="flex:1;"
+                  (click)="goToDetail(training.idTraining)">Details</button>
+          <button type="button" class="btn btn-gray btn-sm" title="Edit"
+                  (click)="openEditModal(training)">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                 stroke-width="2" style="width:14px;height:14px;">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+          <button type="button" class="btn btn-danger btn-sm" title="Delete"
+                  (click)="deleteTraining(training.idTraining)">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                 stroke-width="2" style="width:14px;height:14px;">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6"/><path d="M14 11v6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="trainings.length === 0" class="empty-state" style="grid-column:1/-1;">
+      No training sessions found.
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- MODAL: Create a Session                                    -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showCreateModal"
+     style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;"
+     (click)="showCreateModal=false">
+  <div class="modal" style="background:#fff;border-radius:12px;padding:2rem;
+                             width:520px;max-width:90%;max-height:90vh;overflow-y:auto;"
+       (click)="$event.stopPropagation()">
+
+    <div class="modal-header" style="display:flex;justify-content:space-between;
+                                      align-items:center;margin-bottom:1.25rem;">
+      <span class="modal-title" style="font-weight:700;font-size:1.1rem;">
+        Create a Training Session
+      </span>
+      <button type="button" (click)="showCreateModal=false; resetForm()"
+              style="background:none;border:none;cursor:pointer;font-size:1.2rem;">✕</button>
+    </div>
+
+    <form [formGroup]="createTrainingForm">
+      <div class="modal-body">
+
+        <!-- Title -->
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label">Title *</label>
+          <input class="form-control" placeholder="e.g. Soccer Techniques"
+                 formControlName="title"
+                 [class.is-invalid]="cf['title'].invalid && cf['title'].touched">
+          <div class="invalid-feedback" *ngIf="cf['title'].touched">
+            <span *ngIf="cf['title'].errors?.['required']">Title is required.</span>
+            <span *ngIf="cf['title'].errors?.['minlength']">Min 3 characters.</span>
+            <span *ngIf="cf['title'].errors?.['maxlength']">Max 100 characters.</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" rows="2" formControlName="description"
+                    placeholder="Describe the session..."
+                    [class.is-invalid]="cf['description'].invalid && cf['description'].touched">
+          </textarea>
+          <div class="invalid-feedback"
+               *ngIf="cf['description'].errors?.['maxlength'] && cf['description'].touched">
+            Max 500 characters.
+          </div>
+        </div>
+
+        <!-- Date + Duration -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+          <div class="form-group">
+            <label class="form-label">Date *</label>
+            <input type="datetime-local" class="form-control"
+                   formControlName="trainingDate"
+                   [class.is-invalid]="cf['trainingDate'].invalid && cf['trainingDate'].touched">
+            <div class="invalid-feedback"
+                 *ngIf="cf['trainingDate'].errors?.['required'] && cf['trainingDate'].touched">
+              Date is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Duration (min) *</label>
+            <input type="number" class="form-control" min="15" max="480" step="15"
+                   formControlName="durationInMinutes"
+                   [class.is-invalid]="cf['durationInMinutes'].invalid && cf['durationInMinutes'].touched">
+            <div class="invalid-feedback" *ngIf="cf['durationInMinutes'].touched">
+              <span *ngIf="cf['durationInMinutes'].errors?.['min']">Min 15 minutes.</span>
+              <span *ngIf="cf['durationInMinutes'].errors?.['max']">Max 480 minutes.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label">Location *</label>
+          <input class="form-control" placeholder="e.g. Riverside Park"
+                 formControlName="location"
+                 [class.is-invalid]="cf['location'].invalid && cf['location'].touched">
+          <div class="invalid-feedback" *ngIf="cf['location'].touched">
+            <span *ngIf="cf['location'].errors?.['required']">Location is required.</span>
+            <span *ngIf="cf['location'].errors?.['minlength']">Min 3 characters.</span>
+            <span *ngIf="cf['location'].errors?.['maxlength']">Max 100 characters.</span>
+          </div>
+        </div>
+
+        <!-- Exercises -->
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label">Exercises</label>
+          <textarea class="form-control" rows="2" formControlName="exercises"
+                    placeholder="List the exercises..."></textarea>
+        </div>
+
+        <!-- Team -->
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label">Team *</label>
+          <select class="form-control" [(ngModel)]="selectedTeamId"
+                  [ngModelOptions]="{standalone: true}"
+                  [class.is-invalid]="selectedTeamId === 0 && cf['title'].touched">
+            <option [value]="0" disabled>Select a team</option>
+            <option *ngFor="let team of teams" [value]="team.idTeam">{{ team.name }}</option>
+          </select>
+          <div class="invalid-feedback"
+               *ngIf="selectedTeamId === 0 && cf['title'].touched">
+            Please select a team.
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer" style="display:flex;gap:0.75rem;
+                                        justify-content:flex-end;margin-top:1.25rem;">
+        <button type="button" class="btn btn-gray"
+                (click)="showCreateModal=false; resetForm()">Cancel</button>
+        <button type="button" class="btn btn-primary"
+                (click)="createTraining()">Create Session</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- MODAL: Edit a Session                                      -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showEditModal"
+     style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;"
+     (click)="showEditModal=false">
+  <div class="modal" style="background:#fff;border-radius:12px;padding:2rem;
+                             width:520px;max-width:90%;max-height:90vh;overflow-y:auto;"
+       (click)="$event.stopPropagation()">
+
+    <div class="modal-header" style="display:flex;justify-content:space-between;
+                                      align-items:center;margin-bottom:1.25rem;">
+      <span class="modal-title" style="font-weight:700;font-size:1.1rem;">
+        ✏️ Edit Training Session
+      </span>
+      <button type="button" (click)="showEditModal=false"
+              style="background:none;border:none;cursor:pointer;font-size:1.2rem;">✕</button>
+    </div>
+
+    <form [formGroup]="editTrainingForm">
+      <div class="modal-body">
+
+        <!-- Title -->
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label">Title</label>
+          <input class="form-control" formControlName="title"
+                 [class.is-invalid]="ef['title'].invalid && ef['title'].touched">
+          <div class="invalid-feedback" *ngIf="ef['title'].touched">
+            <span *ngIf="ef['title'].errors?.['minlength']">Min 3 characters.</span>
+            <span *ngIf="ef['title'].errors?.['maxlength']">Max 100 characters.</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" rows="2" formControlName="description"
+                    [class.is-invalid]="ef['description'].invalid && ef['description'].touched">
+          </textarea>
+          <div class="invalid-feedback"
+               *ngIf="ef['description'].errors?.['maxlength'] && ef['description'].touched">
+            Max 500 characters.
+          </div>
+        </div>
+
+        <!-- Date + Duration -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="datetime-local" class="form-control" formControlName="trainingDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Duration (min)</label>
+            <input type="number" class="form-control" min="15" max="480" step="15"
+                   formControlName="durationInMinutes"
+                   [class.is-invalid]="ef['durationInMinutes'].invalid && ef['durationInMinutes'].touched">
+            <div class="invalid-feedback" *ngIf="ef['durationInMinutes'].touched">
+              <span *ngIf="ef['durationInMinutes'].errors?.['min']">Min 15 minutes.</span>
+              <span *ngIf="ef['durationInMinutes'].errors?.['max']">Max 480 minutes.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label">Location</label>
+          <input class="form-control" formControlName="location"
+                 [class.is-invalid]="ef['location'].invalid && ef['location'].touched">
+          <div class="invalid-feedback" *ngIf="ef['location'].touched">
+            <span *ngIf="ef['location'].errors?.['minlength']">Min 3 characters.</span>
+            <span *ngIf="ef['location'].errors?.['maxlength']">Max 100 characters.</span>
+          </div>
+        </div>
+
+        <!-- Exercises -->
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label">Exercises</label>
+          <textarea class="form-control" rows="2" formControlName="exercises"></textarea>
+        </div>
+
+        <!-- Status -->
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label">Status</label>
+          <select class="form-control" formControlName="status">
+            <option value="PLANNED">PLANNED</option>
+            <option value="COMPLETED">COMPLETED</option>
+            <option value="CANCELLED">CANCELLED</option>
+          </select>
+        </div>
+
+      </div>
+      <div class="modal-footer" style="display:flex;gap:0.75rem;
+                                        justify-content:flex-end;margin-top:1.25rem;">
+        <button type="button" class="btn btn-gray" (click)="showEditModal=false">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="updateTraining()">Save Changes</button>
+      </div>
+    </form>
+
+  </div>
+</div>

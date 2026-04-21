@@ -1,0 +1,423 @@
+:root {
+  --primary: #ef1c24;
+  --primary-hover: #d91820;
+  --secondary: #111111;
+  --bg: #f5f5f5;
+  --card-bg: #f7f7f7;
+  --text-main: #111111;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --radius: 18px;
+}
+
+body {
+  background-color: #ffffff !important;
+  color: #111111;
+}
+
+
+/* =========================
+   WRAPPER
+========================= */
+.coach-transport-wrapper {
+  min-height: 100vh;
+  padding: 48px 48px 64px;
+  font-family: "Inter", "Outfit", Arial, sans-serif;
+  background-color: #ffffff !important;
+  color: #111111;
+}
+
+/* =========================
+   HEADER
+========================= */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 40px;
+  position: static;
+}
+
+.header-content {
+  text-align: left;
+}
+
+.header-content h1 {
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  margin: 0 0 16px;
+  color: var(--secondary);
+}
+
+.header-content p {
+  font-size: 18px;
+  color: var(--text-muted);
+  max-width: none;
+  margin: 0;
+  font-weight: 500;
+}
+
+.header-actions {
+  position: static;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.btn-propose {
+  background-color: #d51212;
+  color: #c60e0e;
+  padding: 15px 28px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 16px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.btn-propose:hover {
+  transform: translateY(-1px);
+  background-color: var(--primary-hover);
+  box-shadow: none;
+}
+
+/* =========================
+   FORM
+========================= */
+.form-overlay-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: none;
+  margin-bottom: 36px;
+  border: 1px solid var(--border);
+  animation: slideDown 0.35s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-group input,
+.form-group select {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background-color: #ffffff;
+  color: var(--text-main);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(239, 28, 36, 0.1);
+  outline: none;
+}
+
+/* =========================
+   GRID
+========================= */
+.transport-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px 24px;
+  margin-bottom: 32px;
+}
+
+/* =========================
+   CARD
+========================= */
+.covoit-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 30px;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  position: relative;
+  min-height: 340px;
+}
+
+.covoit-card:hover {
+  border-color: #d9d9d9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.user-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 24px;
+  background: var(--primary) !important;
+  flex-shrink: 0;
+}
+
+.user-info .user-name {
+  font-weight: 900;
+  font-size: 20px;
+  color: var(--secondary);
+  display: block;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.user-info .rating {
+  font-size: 15px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rating i {
+  color: #f4c542;
+  margin-right: 0;
+  font-size: 14px;
+}
+
+/* =========================
+   ROUTE
+========================= */
+.route-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--secondary);
+  flex-wrap: wrap;
+}
+
+.route-section i {
+  color: var(--primary);
+  font-size: 16px;
+}
+
+/* =========================
+   DETAILS
+========================= */
+.card-details {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  padding: 0;
+  border-bottom: none;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.detail-item i {
+  width: 16px;
+  min-width: 16px;
+  color: var(--primary);
+  font-size: 15px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  margin-top: auto;
+}
+
+.price-tag {
+  display: flex;
+  align-items: baseline;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.price-value {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.price-label {
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: none;
+}
+
+.btn-reserve {
+  background-color: var(--primary);
+  color: #fff;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 16px;
+  border: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+  min-width: 174px;
+}
+
+.btn-reserve:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   OPTIONAL LABELS / STATUS
+========================= */
+.section-label {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 0.16em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.badge-status {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.status-approved {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.status-rejected {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 1200px) {
+  .header-content h1 {
+    font-size: 46px;
+  }
+}
+
+@media (max-width: 992px) {
+  .transport-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .coach-transport-wrapper {
+    padding: 32px 20px 48px;
+  }
+
+  .main-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-content h1 {
+    font-size: 34px;
+  }
+
+  .header-content p {
+    font-size: 16px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .btn-propose {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .covoit-card {
+    min-height: auto;
+    padding: 22px;
+  }
+
+  .card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-reserve {
+    width: 100%;
+  }
+}

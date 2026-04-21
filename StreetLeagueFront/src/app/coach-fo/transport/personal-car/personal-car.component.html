@@ -1,0 +1,32 @@
+<div class="form-container">
+  <h2>Declare Personal Car</h2>
+  
+  <div class="styled-form">
+    <div class="form-group">
+      <label>Destination</label>
+      <input type="text" [(ngModel)]="carDto.destination" class="form-control" placeholder="E.g. Paris" />
+    </div>
+
+    <div class="form-group">
+      <label>Available Seats (excluding driver)</label>
+      <input type="number" [(ngModel)]="carDto.availableSeats" class="form-control" />
+    </div>
+
+    <div class="form-group">
+      <label>Price per Seat (if applicable)</label>
+      <input type="number" [(ngModel)]="carDto.pricePerSeat" class="form-control" />
+    </div>
+
+    <div class="form-group">
+      <label>Departure Time</label>
+      <input type="datetime-local" [(ngModel)]="carDto.departureTime" class="form-control" />
+    </div>
+
+    <div class="form-group">
+      <label>Return Time</label>
+      <input type="datetime-local" [(ngModel)]="carDto.returnTime" class="form-control" />
+    </div>
+
+    <button class="btn btn-red" (click)="submit()">Submit Personal Car</button>
+  </div>
+</div>
