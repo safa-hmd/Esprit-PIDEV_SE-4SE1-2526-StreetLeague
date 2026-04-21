@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -116,4 +117,16 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     LIMIT 5
 """)
     List<TopPlayerDto> topPlayers();
+
+    @Query("""
+    SELECT p FROM Payment p
+    JOIN FETCH p.reservation r
+    JOIN FETCH p.player u
+    WHERE p.status = :status
+    AND p.createdAt < :cutoff
+""")
+    List<Payment> findPendingOlderThan(
+            @Param("status") PaymentStatus status,
+            @Param("cutoff") LocalDateTime cutoff
+    );
 }

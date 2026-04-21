@@ -3,6 +3,7 @@ package com.example.streetleague.schedule;
 import com.example.streetleague.Entity.PaymentMethod;
 import com.example.streetleague.ServiceInterface.IPaymentService;
 import com.example.streetleague.dto.PaymentDto;
+import com.example.streetleague.scheduler.PaymentScheduler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import java.util.List;
 public class PaymentController {
 
     private final IPaymentService paymentService;
+    private final PaymentScheduler scheduler;
 
     // ── ADMIN ─────────────────────────────────────────────────────────────────
 
@@ -59,4 +61,12 @@ public class PaymentController {
     public ResponseEntity<List<PaymentDto>> getByPlayer(@PathVariable Long playerId) {
         return ResponseEntity.ok(paymentService.getPaymentsByPlayer(playerId));
     }
+
+    // ✅ déclencher manuellement pour la démo
+    @PostMapping("/expire-pending")
+    public ResponseEntity<String> expirePending() {
+        scheduler.expireUnpaidPayments();
+        return ResponseEntity.ok("Expired payments processed");
+    }
+
 }
