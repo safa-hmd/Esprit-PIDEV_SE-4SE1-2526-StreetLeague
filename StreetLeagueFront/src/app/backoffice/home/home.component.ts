@@ -36,7 +36,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     // ── ViewChild Sara ────────────────────────────────────────
   @ViewChild('revenueByFieldChart') revenueByFieldRef!: ElementRef;
   @ViewChild('revenueBySportChart') revenueBySportRef!: ElementRef;
-  @ViewChild('revenueByMonthChart') revenueByMonthRef!: ElementRef;
+  @ViewChild('revenueByDayChart') revenueByMonthRef!: ElementRef;
 
   // ── Stats safa─────────────────────────────────────────────────
   totalTeams     = 0;
@@ -360,9 +360,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.charts.push(new Chart(ctx, {
       type: 'line',
       data: {
-        labels: this.revenueByMonth.map(r => r.month),
+        labels: this.revenueByMonth.map(r => r.month),  // ← déjà "2026-04-21" après fix backend
         datasets: [{
-          label: 'Revenue (TND)',
+          label: 'Revenue by Day (TND)',  // ✅ changer le label
           data: this.revenueByMonth.map(r => r.revenue),
           borderColor: '#e63946',
           backgroundColor: 'rgba(230,57,70,0.1)',

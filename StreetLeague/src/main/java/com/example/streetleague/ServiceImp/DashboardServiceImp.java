@@ -41,10 +41,15 @@ public class DashboardServiceImp implements DashboardService {
     public List<RevenueBySportDto> getRevenueBySport() {
         return paymentRepository.revenueBySport();
     }
-
+/*
     @Override
     public List<RevenueByMonthDto> getRevenueByMonth() {
         return paymentRepository.revenueByMonth();
+    }*/
+
+    @Override
+    public List<RevenueByMonthDto> getRevenueByMonth() {
+        return paymentRepository.revenueByDay();
     }
 
     @Override

@@ -91,7 +91,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 """)
     List<RevenueBySportDto> revenueBySport();
 
-    // ── Revenue by Month ─────────────────────────────────────
+    /*// ── Revenue by Month ─────────────────────────────────────
     @Query("""
     SELECT new com.example.streetleague.dto.RevenueByMonthDto(
         CONCAT(YEAR(p.paidAt), '-', LPAD(CAST(MONTH(p.paidAt) AS string), 2, '0')),
@@ -102,7 +102,21 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     GROUP BY YEAR(p.paidAt), MONTH(p.paidAt)
     ORDER BY YEAR(p.paidAt), MONTH(p.paidAt)
 """)
-    List<RevenueByMonthDto> revenueByMonth();
+    List<RevenueByMonthDto> revenueByMonth();*/
+
+    @Query("""
+    SELECT new com.example.streetleague.dto.RevenueByMonthDto(
+        CONCAT(YEAR(p.paidAt), '-',
+               LPAD(CAST(MONTH(p.paidAt) AS string), 2, '0'), '-',
+               LPAD(CAST(DAY(p.paidAt) AS string), 2, '0')),
+        SUM(p.amount)
+    )
+    FROM Payment p
+    WHERE p.status = 'PAID'
+    GROUP BY YEAR(p.paidAt), MONTH(p.paidAt), DAY(p.paidAt)
+    ORDER BY YEAR(p.paidAt), MONTH(p.paidAt), DAY(p.paidAt)
+""")
+    List<RevenueByMonthDto> revenueByDay();
 
     // ── Top 5 Players ─────────────────────────────────────────
     @Query("""
