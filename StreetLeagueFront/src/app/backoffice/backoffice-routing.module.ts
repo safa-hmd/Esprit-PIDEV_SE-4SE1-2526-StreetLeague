@@ -25,6 +25,7 @@ import { CommandeListComponent } from './commande/commande-list/commande-list.co
 
 import { NewsComponent } from './news/news.component';
 import { HealthComponent } from './health/health.component';
+import { BracketComponent } from './bracket/bracket.component';
 
 
 const routes: Routes = [{ path: '', component: BackofficeComponent,   
@@ -37,6 +38,10 @@ const routes: Routes = [{ path: '', component: BackofficeComponent,
             { path: 'profile', component: PlayerProfileComponent },
       { path: 'tournaments', component: TournamentComponent },
       { path: 'field-reservation', component: FieldReservationComponent },
+      { path: 'tournaments/:id/bracket', component: BracketComponent },
+
+
+
 
       { path: 'transport', component: TransportManagementComponent },
       { path: 'travel/requests', component: TravelRequestsComponent },

@@ -85,6 +85,7 @@
       <div class="col-inscription">Entry Fee</div>
       <!--<div class="col-revenus">Revenue</div>-->
       <div class="col-actions">Actions</div>
+      
     </div>
 
     <!-- Table rows -->
@@ -138,6 +139,13 @@
 
       <!-- Actions -->
       <div class="col-actions">
+        <!-- Bracket -->
+      <button class="action-btn edit"
+         *ngIf="t.status === 'ONGOING' || t.status === 'UPCOMING'"
+           (click)="router.navigate(['/admin/tournaments', t.id, 'bracket'])"
+         title="Bracket">
+            🏆 Bracket
+    </button>
 
         <!-- Status labels (non-upcoming) -->
         <span class="action-state" *ngIf="t.status === 'ONGOING'">In Progress</span>

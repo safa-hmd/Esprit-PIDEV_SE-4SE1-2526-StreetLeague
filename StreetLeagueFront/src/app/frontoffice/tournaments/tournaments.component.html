@@ -142,6 +142,13 @@
 
       <!-- CTA Button -->
       <div class="card-footer">
+
+        <!-- Voir le bracket -->
+<button *ngIf="t.status !== 'CANCELLED'"
+  class="btn-status btn-ongoing"
+  routerLink="/client/tournaments/{{ t.id }}/bracket">
+  🏆 Voir le Bracket
+</button>
         <!-- UPCOMING + not full → Register Now -->
         <button *ngIf="canRegister(t) && !isFull(t)"
           class="btn-register" (click)="openRegister(t)">
@@ -157,6 +164,7 @@
         <button *ngIf="t.status === 'ONGOING'" class="btn-status btn-ongoing" disabled>
           🔴 In Progress
         </button>
+        
 
         <!-- COMPLETED -->
         <button *ngIf="t.status === 'COMPLETED'" class="btn-status btn-completed" disabled>

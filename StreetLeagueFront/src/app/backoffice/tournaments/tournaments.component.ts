@@ -14,7 +14,7 @@ import { FieldReservationService } from 'src/app/services/field-reservation.serv
 import { Field } from 'src/app/models/field-reservation.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-tournament',
   templateUrl: './tournaments.component.html',
@@ -69,7 +69,10 @@ export class TournamentComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(public svc: TournamentService, private fb: FormBuilder , private fieldService: FieldReservationService) {}
+  constructor(public svc: TournamentService,
+     private fb: FormBuilder ,
+      private fieldService: FieldReservationService,
+      public router: Router) {}
 
   ngOnInit(): void {
     this.svc.toast$.pipe(takeUntil(this.destroy$)).subscribe(m => this.toastMessage = m);

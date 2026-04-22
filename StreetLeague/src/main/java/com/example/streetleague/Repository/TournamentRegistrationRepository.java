@@ -31,6 +31,18 @@ public interface TournamentRegistrationRepository extends JpaRepository<Tourname
     boolean existsByTournamentIdAndTeamIdTeam(Long tournamentId, Long teamId);
 
     @Query("""
+    SELECT r FROM TournamentRegistration r
+    LEFT JOIN FETCH r.team t
+    LEFT JOIN FETCH t.captain
+    LEFT JOIN FETCH r.player
+    WHERE r.tournament.id = :tournamentId
+    AND r.status = :status
+""")
+    List<TournamentRegistration> findByTournamentIdAndStatus(
+            @Param("tournamentId") Long tournamentId,
+            @Param("status") RegistrationStatus status
+    );
+    @Query("""
     SELECT r FROM TournamentRegistration r 
     JOIN r.team t 
     WHERE t.captain.idUser = :playerId 

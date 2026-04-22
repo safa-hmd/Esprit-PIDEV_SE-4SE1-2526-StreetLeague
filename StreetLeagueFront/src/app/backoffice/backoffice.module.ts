@@ -36,6 +36,7 @@ import { AdminCommunauteModule } from '../components/admin-communaute/admin-comm
 import { NewsComponent } from './news/news.component';
 
 import { HealthComponent } from './health/health.component';
+import { BracketComponent } from './bracket/bracket.component';
 
 
 @NgModule({
@@ -63,6 +64,7 @@ import { HealthComponent } from './health/health.component';
     CommandeListComponent,
     NewsComponent,
     HealthComponent,
+    BracketComponent
   ],
   imports: [                          // ✅ MANQUAIT COMPLÈTEMENT
     CommonModule,                     // ✅ ngClass, date, number, currency, lowercase
@@ -76,6 +78,7 @@ import { HealthComponent } from './health/health.component';
     AdminSponsoringEvenementModule,
     AdminContratSponsorModule,
     AdminCommunauteModule,
+    
   ]
 })
 

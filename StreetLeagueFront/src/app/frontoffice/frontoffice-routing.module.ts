@@ -43,6 +43,7 @@ import { TournamentsComponent } from './tournaments/tournaments.component';
 import { FieldReservationComponent } from './field-reservation/field-reservation.component';
 import { ShopListComponent } from './shop/shop-list/shop-list.component';
 import { CartComponent } from './shop/cart/cart.component';
+import { BracketComponent } from './bracket/bracket.component';
 
 const routes: Routes = [
   {
@@ -58,8 +59,9 @@ const routes: Routes = [
       {path:"detail-team/:id", component:DetailTeamComponent}, 
       { path: 'profile', component: PlayerProfileComponent },
 
-        { path: 'tournaments', component: TournamentsComponent },
+      { path: 'tournaments', component: TournamentsComponent },
       { path: 'field-reservation', component: FieldReservationComponent },
+      {path: 'tournaments/:id/bracket', component: BracketComponent },  
 
 
        {path: 'communaute', component: CommunauteListComponent},

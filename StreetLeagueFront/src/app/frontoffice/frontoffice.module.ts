@@ -48,6 +48,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { NewsComponent } from './news/news.component';
 import { HealthComponent } from './health/health.component';
+import { BracketComponent } from './bracket/bracket.component';
  
 @NgModule({
   declarations: [
@@ -93,6 +94,7 @@ import { HealthComponent } from './health/health.component';
 
      NewsComponent,
     HealthComponent,
+    BracketComponent,
   ],
   imports: [
       CommonModule,

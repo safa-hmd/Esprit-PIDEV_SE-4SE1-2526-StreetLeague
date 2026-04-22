@@ -40,9 +40,13 @@ public class Match {
     Team teamB;
 
     // The captain (PLAYER) who created/sent the match request
-    @ManyToOne
+    /*@ManyToOne
     @JoinColumn(name = "created_by_id", nullable = false)
-    User createdBy;
+    User createdBy;*/
+
+    @ManyToOne
+    @JoinColumn(name = "created_by_id", nullable = true)
+    private User createdBy;
 
     // ===== EXPLICIT GETTERS/SETTERS (Lombok not processing) =====
 
