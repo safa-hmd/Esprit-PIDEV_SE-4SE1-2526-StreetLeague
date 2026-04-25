@@ -23,8 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.http.HttpMethod;
-
+import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 
@@ -98,6 +97,7 @@ public class SecurityConfig {
                         .requestMatchers("/training/delete/**").hasAnyRole("COACH", "ADMIN")
                         .requestMatchers("/training/showTrainings", "/training/showTrainingById/**").permitAll()
                         .requestMatchers("/training/*/join", "/training/*/leave").hasRole("PLAYER")
+                        .requestMatchers("/api/pricing/**").permitAll()
 
                         // Endpoints publics (login, register, forgot/reset password)
                         .requestMatchers("/auth/**").permitAll()
@@ -159,4 +159,10 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
 }

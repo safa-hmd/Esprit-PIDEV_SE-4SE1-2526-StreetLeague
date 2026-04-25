@@ -38,6 +38,9 @@ export class FieldReservationComponent implements OnInit {
   toastMessage          = '';
   toastType: 'success' | 'error' = 'success';
   showToast             = false;
+  isSuggestingPrice  = false;
+  showPriceSuggestion = false;
+  suggestedPriceData: { suggestedPrice: number; basePrice: number; deltaPercent: number } | null = null;
 
   // ─── Forms ──────────────────────────────────────────────────────
   fieldForm!: FormGroup;
@@ -284,6 +287,8 @@ export class FieldReservationComponent implements OnInit {
     this.showRejectNoteModal  = false;
     this.selectedReservation  = null;
     this.selectedField        = null;
+    this.showPriceSuggestion = false;
+    this.suggestedPriceData  = null;
   }
 
   private buildFieldForm(): void {
@@ -409,6 +414,45 @@ getPaymentStatusClass(status: string): string {
 
 get approvedReservations(): FieldReservation[] {
   return this.allReservations.filter(r => r.status === 'APPROVED');
+}
+
+
+suggestPrice(): void {
+  this.isSuggestingPrice   = true;
+  this.showPriceSuggestion = false;
+  this.suggestedPriceData  = null;
+
+  const obs = this.selectedField?.id
+    ? this.svc.getSuggestedPrice(this.selectedField.id, 1)
+    : this.svc.getSuggestedPriceFromParams(
+        this.fieldForm.value.sportType,
+        this.fieldForm.value.location || 'Tunis',
+        this.fieldForm.value.capacity || 10,
+        1
+      );
+
+  obs.subscribe({
+    next: (data) => {
+      this.suggestedPriceData  = data;
+      this.showPriceSuggestion = true;
+      this.isSuggestingPrice   = false;
+    },
+    error: () => {
+      this.isSuggestingPrice = false;
+      this.toast('❌ Unable to get price suggestion', 'error');
+    }
+  });
+}
+ 
+applySuggestedPrice(): void {
+  if (!this.suggestedPriceData) return;
+  this.fieldForm.patchValue({ pricePerHour: this.suggestedPriceData.suggestedPrice });
+  this.showPriceSuggestion = false;
+}
+ 
+closePriceSuggestion(): void {
+  this.showPriceSuggestion = false;
+  this.suggestedPriceData  = null;
 }
 
 }

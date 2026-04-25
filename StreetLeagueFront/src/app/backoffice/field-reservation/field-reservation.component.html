@@ -286,9 +286,44 @@
       </div>
       <div class="form-row">
         <div class="form-group">
+        <div class="price-label-row">
           <label>Price per Hour ($) *</label>
-          <input type="number" formControlName="pricePerHour" placeholder="e.g. 80" min="5" />
+          <button
+            type="button"
+            class="btn-suggest"
+            (click)="suggestPrice()"
+            [disabled]="isSuggestingPrice">
+            <span *ngIf="!isSuggestingPrice">💡 Suggest price</span>
+            <span *ngIf="isSuggestingPrice">⏳ Loading...</span>
+          </button>
         </div>
+ 
+        <input type="number" formControlName="pricePerHour" min="0" />
+ 
+        <!-- Suggestion popup -->
+        <div class="price-suggestion-box" *ngIf="showPriceSuggestion && suggestedPriceData">
+          <div class="suggestion-header">
+            <span>💡 ML Price Suggestion</span>
+            <button type="button" class="suggestion-close" (click)="closePriceSuggestion()">✕</button>
+          </div>
+          <div class="suggestion-body">
+            <div class="suggestion-price">{{ suggestedPriceData.suggestedPrice | number:'1.2-2' }} TND/h</div>
+            <div class="suggestion-delta"
+                 [style.color]="suggestedPriceData.deltaPercent >= 0 ? '#4caf50' : '#e63946'">
+              {{ suggestedPriceData.deltaPercent >= 0 ? '▲' : '▼' }}
+              {{ suggestedPriceData.deltaPercent | number:'1.1-1' }}%
+              vs base price ({{ suggestedPriceData.basePrice }} TND)
+            </div>
+            <div class="suggestion-context">
+              Based on: current time, occupation rate &amp; historical data
+            </div>
+          </div>
+          <div class="suggestion-actions">
+            <button type="button" class="btn-apply" (click)="applySuggestedPrice()">✅ Apply</button>
+            <button type="button" class="btn-ghost-sm" (click)="closePriceSuggestion()">Ignore</button>
+          </div>
+        </div>
+      </div>
         <div class="form-group">
           <label>Image URL</label>
           <input type="text" formControlName="imageUrl" placeholder="https://..." />
@@ -342,9 +377,44 @@
       </div>
       <div class="form-row">
         <div class="form-group">
+        <div class="price-label-row">
           <label>Price per Hour ($) *</label>
-          <input type="number" formControlName="pricePerHour" min="0" />
+          <button
+            type="button"
+            class="btn-suggest"
+            (click)="suggestPrice()"
+            [disabled]="isSuggestingPrice">
+            <span *ngIf="!isSuggestingPrice">💡 Suggest price</span>
+            <span *ngIf="isSuggestingPrice">⏳ Loading...</span>
+          </button>
         </div>
+ 
+        <input type="number" formControlName="pricePerHour" min="0" />
+ 
+        <!-- Suggestion popup -->
+        <div class="price-suggestion-box" *ngIf="showPriceSuggestion && suggestedPriceData">
+          <div class="suggestion-header">
+            <span>💡 ML Price Suggestion</span>
+            <button type="button" class="suggestion-close" (click)="closePriceSuggestion()">✕</button>
+          </div>
+          <div class="suggestion-body">
+            <div class="suggestion-price">{{ suggestedPriceData.suggestedPrice | number:'1.2-2' }} TND/h</div>
+            <div class="suggestion-delta"
+                 [style.color]="suggestedPriceData.deltaPercent >= 0 ? '#4caf50' : '#e63946'">
+              {{ suggestedPriceData.deltaPercent >= 0 ? '▲' : '▼' }}
+              {{ suggestedPriceData.deltaPercent | number:'1.1-1' }}%
+              vs base price ({{ suggestedPriceData.basePrice }} TND)
+            </div>
+            <div class="suggestion-context">
+              Based on: current time, occupation rate &amp; historical data
+            </div>
+          </div>
+          <div class="suggestion-actions">
+            <button type="button" class="btn-apply" (click)="applySuggestedPrice()">✅ Apply</button>
+            <button type="button" class="btn-ghost-sm" (click)="closePriceSuggestion()">Ignore</button>
+          </div>
+        </div>
+      </div>
         <div class="form-group">
           <label>Image URL</label>
           <input type="text" formControlName="imageUrl" />

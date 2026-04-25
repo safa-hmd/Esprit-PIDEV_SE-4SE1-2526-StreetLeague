@@ -23,6 +23,9 @@ public interface FieldReservationRepository extends JpaRepository<FieldReservati
 
     List<FieldReservation> findByPlayerIdUserOrderByCreatedAtDesc(Long playerId);
 
+    List<FieldReservation> findByFieldIdAndStartTimeAfter(Long fieldId, LocalDateTime after);
+
+
     // Vérifier les conflits de créneau pour un terrain
     @Query("""
         SELECT r FROM FieldReservation r

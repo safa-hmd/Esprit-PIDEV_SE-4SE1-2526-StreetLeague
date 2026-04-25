@@ -9,6 +9,8 @@ export class FieldReservationService {
 
   private reservationApi = 'http://localhost:8086/StreetLeague/api/reservations';
   private fieldApi      = 'http://localhost:8086/StreetLeague/api/fields';
+  private pricingApi = 'http://localhost:8086/StreetLeague/api/pricing';
+
 
   constructor(private http: HttpClient) {}
 
@@ -134,5 +136,16 @@ getPaymentsByPlayer(playerId: number): Observable<Payment[]> {
 getAllPayments(): Observable<Payment[]> {
   return this.http.get<Payment[]>(`${this.paymentApi}/all`);
 }
+
+getSuggestedPrice(fieldId: number, duration: number = 1): Observable<any> {
+  return this.http.get(`${this.pricingApi}/field/${fieldId}/suggest?duration=${duration}`);
+}
+
+getSuggestedPriceFromParams(sportType: string, location: string, capacity: number, duration: number = 1): Observable<any> {
+  return this.http.get(`${this.pricingApi}/suggest`, {
+    params: { sportType, location, capacity: capacity.toString(), duration: duration.toString() }
+  });
+}
+
 
 }
