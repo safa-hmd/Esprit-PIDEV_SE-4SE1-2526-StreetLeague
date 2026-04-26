@@ -92,4 +92,14 @@ resetPassword(token: string, newPassword: string): Observable<string> {
     { responseType: 'text' }
   );
 }
+
+// auth.service.ts - Ajouter cette méthode
+getCurrentUserEmail(): string {
+  return localStorage.getItem('EmailUserConnect') || '';
+}
+
+getCurrentUserId(): number {
+  const id = localStorage.getItem('UserIdConnect');
+  return id ? parseInt(id) : 0;
+}
 }

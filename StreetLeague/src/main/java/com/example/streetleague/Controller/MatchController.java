@@ -3,6 +3,7 @@ package com.example.streetleague.Controller;
 import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.ImatchService;
 import com.example.streetleague.domain.User;
+import com.example.streetleague.dto.ChallengeRequest;
 import com.example.streetleague.dto.MatchRequest;
 import com.example.streetleague.dto.MatchResponse;
 import com.example.streetleague.dto.MatchUpdateRequest;
@@ -88,5 +89,25 @@ public class MatchController {
             @RequestParam Long captainId,
             @RequestParam boolean accept) {
         return ResponseEntity.ok(imatchService.respondToMatch(matchId, captainId, accept));
+    }
+
+
+    // MatchController.java
+    @PostMapping("/challenge")
+    public ResponseEntity<MatchResponse> challengeTeam(
+            @RequestBody ChallengeRequest request,
+            @RequestParam String email) {
+
+        User captain = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+
+        MatchResponse response = imatchService.addMatch(
+                new MatchRequest(request.getMatchDate(), request.getLocation()),
+                request.getChallengerTeamId(),
+                request.getOpponentTeamId(),
+                captain.getIdUser()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

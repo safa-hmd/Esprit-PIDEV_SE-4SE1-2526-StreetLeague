@@ -57,14 +57,6 @@ public class OAuth2AuthSuccessHandler implements AuthenticationSuccessHandler {
 
     // Méthode utilitaire pour générer le JWT
     private String generateJwt(User user) {
-        var authorities = List.of(
-                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
-        );
-        var userDetails = org.springframework.security.core.userdetails.User
-                .withUsername(user.getEmail())
-                .password(user.getPassword())
-                .authorities(authorities)
-                .build();
-        return jwtService.generateToken(userDetails);
+        return jwtService.generateToken(user);
     }
 }

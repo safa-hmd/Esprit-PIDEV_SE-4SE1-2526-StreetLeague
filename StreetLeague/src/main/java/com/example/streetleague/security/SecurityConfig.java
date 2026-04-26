@@ -58,7 +58,11 @@ public class SecurityConfig {
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/user/profile").authenticated()
                         .requestMatchers("/api/schedule/**").permitAll()
-                        .requestMatchers("/matchmaking/**").permitAll()
+                        .requestMatchers("/api/recommend/**", "/notification/**").permitAll()
+                        //.requestMatchers("/matchmaking/**").permitAll()
+                        .requestMatchers("/api/matchmaking/**").permitAll()
+                        .requestMatchers("/api/performance/**").permitAll()
+
                         .requestMatchers("/team/add", "/team/update/**").hasAnyRole("PLAYER", "COACH")
                         .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
                         .requestMatchers("/team/showTeams", "/team/showTeamById/**", "/team/myTeams").permitAll()

@@ -840,3 +840,128 @@
 }
 .btn-confirm-delete svg { width: 15px; height: 15px; }
 .btn-confirm-delete:hover { background: var(--red-dark); }
+
+
+
+/* Ajouter à la fin du fichier CSS */
+
+/* My Stats Card */
+.my-stats-card {
+  background: linear-gradient(135deg, #1a2a3a, #0d1520);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(230, 25, 32, 0.2);
+}
+
+.my-stats-header {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #e61920;
+  margin-bottom: 1rem;
+}
+
+.my-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.my-stat {
+  text-align: center;
+}
+
+.my-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #e8f4fd;
+  line-height: 1;
+}
+
+.my-stat-label {
+  font-size: 0.7rem;
+  color: #5a7a99;
+  margin-top: 0.25rem;
+}
+
+.my-stats-badge {
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffd700;
+  padding: 0.5rem;
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: 30px;
+}
+
+/* Check-in Section */
+.checkin-section {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.btn-checkin-full {
+  background: linear-gradient(135deg, #e61920, #b8151a);
+  border: none;
+  border-radius: 40px;
+  padding: 1rem 2rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(230, 25, 32, 0.3);
+}
+
+.btn-checkin-full:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(230, 25, 32, 0.4);
+}
+
+.checkin-hint {
+  font-size: 0.75rem;
+  color: #5a7a99;
+  margin-top: 0.75rem;
+}
+
+/* Loading spinner */
+.loading-premium {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.spinner-premium {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #1a2d45;
+  border-top-color: #e61920;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty state */
+.empty-premium {
+  text-align: center;
+  padding: 3rem;
+  color: #5a7a99;
+}
+
+.empty-premium-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-premium p {
+  font-size: 0.85rem;
+}

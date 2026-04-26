@@ -9,6 +9,9 @@ import { DetailTeamComponent } from './detail-team/detail-team.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
 import { MatchHistoryComponent } from './match-history/match-history.component';
 import { ScheduleComponent } from './schedule/schedule.component';
+import { FieldRecommenderComponent } from './field-recommender/field-recommender.component';
+import { MatchmakingComponent } from './matchmaking/matchmaking.component';
+import { PerformanceStreakComponent } from './performance-streak/performance-streak.component';
 
 const routes: Routes = [
   {
@@ -23,7 +26,10 @@ const routes: Routes = [
       {path:"detail-team/:id", component:DetailTeamComponent}, 
       { path: 'profile', component: PlayerProfileComponent },
       {path: 'match-history',component: MatchHistoryComponent},
-        { path: 'schedule', component: ScheduleComponent }
+        { path: 'schedule', component: ScheduleComponent },
+        { path: 'recommend', component: FieldRecommenderComponent },
+        {path: 'matchmaking',component: MatchmakingComponent},
+        { path: 'performance-streak', component: PerformanceStreakComponent }
     ]
   }
 ]

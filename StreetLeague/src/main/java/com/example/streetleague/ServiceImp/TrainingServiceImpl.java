@@ -365,6 +365,7 @@ public class TrainingServiceImpl implements ItrainingService {
         session.setLocation(match.getLocation());
         session.setExercises(exercises);
         session.setTeam(targetTeam);
+        session.setCoach(targetTeam.getCoach());
         session.setStatus(TrainingStatus.PLANNED);
 
         Training saved = trainingRepo.save(session);

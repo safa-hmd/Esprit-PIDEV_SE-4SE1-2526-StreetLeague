@@ -1,5 +1,6 @@
 package com.example.streetleague.security.jwt;
 
+import com.example.streetleague.domain.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +47,23 @@ public class JwtService {
 
         return Jwts.builder()
                 .subject(userDetails.getUsername())
+                .claims(claims)
+                .issuedAt(now)
+                .expiration(exp)
+                .signWith(key)
+                .compact();
+    }
+
+    public String generateToken(User user) {
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + expirationMs);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", "ROLE_" + user.getRole().name());
+        claims.put("id", user.getIdUser());
+
+        return Jwts.builder()
+                .subject(user.getEmail())
                 .claims(claims)
                 .issuedAt(now)
                 .expiration(exp)

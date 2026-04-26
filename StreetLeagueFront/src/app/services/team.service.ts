@@ -108,4 +108,18 @@ getLeaderboard(sport: string): Observable<LeaderboardDto[]> {
     { headers: this.getHeaders() }
   );
 }
+
+
+getMyTeamsByEmail(email: string): Observable<Team[]> {
+  return this.http.get<Team[]>(`${this.base}/myTeams?email=${encodeURIComponent(email)}`, { headers: this.getHeaders() });
+}
+
+
+getCaptainTeams(email: string): Observable<Team[]> {
+  const captainId = localStorage.getItem('IdUserConnect'); // ou ton storage key
+  return this.http.get<Team[]>(
+    `${this.base}/my-teams?captainId=${captainId}`,
+    { headers: this.getHeaders() }
+  );
+}
 }

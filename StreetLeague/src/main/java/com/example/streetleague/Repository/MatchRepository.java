@@ -3,6 +3,7 @@ package com.example.streetleague.Repository;
 import com.example.streetleague.Entity.Match;
 import com.example.streetleague.Entity.MatchStatus;
 import com.example.streetleague.Entity.Team;
+import com.example.streetleague.domain.User;
 import com.example.streetleague.dto.MatchHistoryDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,7 +17,6 @@ import java.util.Optional;
 
 public interface MatchRepository extends JpaRepository<Match, Long> {
 
-    // ── Méthode existante ─────────────────────────────────────────────────
     @Transactional
     @Modifying
     @Query("DELETE FROM Match m WHERE m.teamA.idTeam = :teamAId OR m.teamB.idTeam = :teamBId")
@@ -24,11 +24,6 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
             @Param("teamAId") Long teamAId,
             @Param("teamBId") Long teamBId);
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // MÉTHODE 0 — JPQL avancé : Match JOIN TeamA JOIN TeamB JOIN players
-    // Trouve les matchs ACCEPTED dont la date approche dans [from, to]
-    // Utilisé par le scheduler pour notifier tous les joueurs des deux équipes
-    // ═══════════════════════════════════════════════════════════════════════
     @Query("""
         SELECT DISTINCT m FROM Match m
         JOIN FETCH m.teamA tA
@@ -40,34 +35,17 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     """)
     List<Match> findUpcomingMatchesWithTeamPlayers(
             @Param("from") LocalDateTime from,
-            @Param("to")   LocalDateTime to
-    );
+            @Param("to")   LocalDateTime to);
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // MÉTHODE 1 — JPQL avec JOINS (Match + Team + User)
-    // Historique enrichi filtré par statut et/ou période
-    // ═══════════════════════════════════════════════════════════════════════
     @Query("""
         SELECT new com.example.streetleague.dto.MatchHistoryDto(
-            m.idMatch,
-            m.matchDate,
-            m.location,
-            m.status,
-            m.scoreTeamA,
-            m.scoreTeamB,
-            tA.name,
-            tB.name,
-            cA.fullName,
-            cB.fullName,
-            tA.sport,
-            tA.eloScore,
-            tB.eloScore
-        )
+            m.idMatch, m.matchDate, m.location, m.status,
+            m.scoreTeamA, m.scoreTeamB,
+            tA.name, tB.name, cA.fullName, cB.fullName,
+            tA.sport, tA.eloScore, tB.eloScore)
         FROM Match m
-        LEFT JOIN m.teamA tA
-        LEFT JOIN m.teamB tB
-        LEFT JOIN tA.captain cA
-        LEFT JOIN tB.captain cB
+        LEFT JOIN m.teamA tA LEFT JOIN m.teamB tB
+        LEFT JOIN tA.captain cA LEFT JOIN tB.captain cB
         WHERE (:status IS NULL OR m.status = :status)
           AND (:from IS NULL OR m.matchDate >= :from)
           AND (:to   IS NULL OR m.matchDate <= :to)
@@ -76,17 +54,10 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     List<MatchHistoryDto> findMatchHistoryEnriched(
             @Param("status") MatchStatus status,
             @Param("from")   LocalDateTime from,
-            @Param("to")     LocalDateTime to
-    );
+            @Param("to")     LocalDateTime to);
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // MÉTHODE 2 — Keywords Spring Data (Match + Team — multi-table)
-    // Recherche par nom d'équipe (LIKE) + liste de statuts
-    // ═══════════════════════════════════════════════════════════════════════
     @Query("""
-        SELECT m FROM Match m
-        JOIN m.teamA tA
-        JOIN m.teamB tB
+        SELECT m FROM Match m JOIN m.teamA tA JOIN m.teamB tB
         WHERE (LOWER(tA.name) LIKE LOWER(:pattern)
             OR LOWER(tB.name) LIKE LOWER(:pattern))
           AND m.status IN :statuses
@@ -94,82 +65,137 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     """)
     List<Match> findMatchesByTeamAndStatus(
             @Param("pattern")  String pattern,
-            @Param("statuses") List<MatchStatus> statuses
-    );
+            @Param("statuses") List<MatchStatus> statuses);
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // MÉTHODE 3 — ADVANCED KEYWORDS (Match + TeamA + TeamB) 
-    // Recherche Complexe avec Keywords
-    // ═══════════════════════════════════════════════════════════════════════
     List<Match> findByTeamA_NameContainingIgnoreCaseOrTeamB_NameContainingIgnoreCaseOrLocationContainingIgnoreCaseOrderByMatchDateDesc(
-            String keywordForTeamA, 
-            String keywordForTeamB, 
-            String keywordForLocation
-    );
+            String keywordForTeamA, String keywordForTeamB, String keywordForLocation);
 
-
-    // À ajouter dans MatchRepository.java
-
-    // ═══════════════════════════════════════════════════════════════════════
-// MÉTHODE 4 — JPQL avancé : Match JOIN TeamA JOIN TeamB JOIN players
-// Trouve les matchs ACCEPTED dont la date est dans moins de X heures
-// Utilisé par le scheduler de rappel "match bientôt fermé"
-// ═══════════════════════════════════════════════════════════════════════
     @Query("""
-    SELECT DISTINCT m FROM Match m
-    JOIN FETCH m.teamA tA
-    JOIN FETCH m.teamB tB
-    JOIN FETCH tA.players pA
-    LEFT JOIN FETCH tB.players pB
-    LEFT JOIN FETCH tA.captain cA
-    LEFT JOIN FETCH tB.captain cB
-    WHERE m.status = com.example.streetleague.Entity.MatchStatus.ACCEPTED
-      AND m.matchDate BETWEEN :from AND :to
-""")
+        SELECT DISTINCT m FROM Match m
+        JOIN FETCH m.teamA tA JOIN FETCH m.teamB tB
+        JOIN FETCH tA.players pA LEFT JOIN FETCH tB.players pB
+        LEFT JOIN FETCH tA.captain cA LEFT JOIN FETCH tB.captain cB
+        WHERE m.status = com.example.streetleague.Entity.MatchStatus.ACCEPTED
+          AND m.matchDate BETWEEN :from AND :to
+    """)
     List<Match> findMatchesClosingSoonWithTeams(
             @Param("from") LocalDateTime from,
-            @Param("to")   LocalDateTime to
-    );
+            @Param("to")   LocalDateTime to);
 
-    // ═══════════════════════════════════════════════════════════════════════
-// MÉTHODE 5 — Keywords Spring Data multi-table (Match + TeamA + TeamB)
-// Trouve les matchs ACCEPTED par nom d'équipe dont la date approche
-// Complément keyword-based à la méthode JPQL ci-dessus
-// ═══════════════════════════════════════════════════════════════════════
     List<Match> findByStatusAndMatchDateBetweenAndTeamA_NameContainingIgnoreCaseOrStatusAndMatchDateBetweenAndTeamB_NameContainingIgnoreCase(
             MatchStatus statusA, LocalDateTime fromA, LocalDateTime toA, String teamAName,
-            MatchStatus statusB, LocalDateTime fromB, LocalDateTime toB, String teamBName
-    );
-
-
-    // AJOUTER dans MatchRepository.java
+            MatchStatus statusB, LocalDateTime fromB, LocalDateTime toB, String teamBName);
 
     @Query("""
-    SELECT m FROM Match m
-    WHERE (m.teamA = :team OR m.teamB = :team)
-    AND m.matchDate BETWEEN :from AND :to
-""")
+        SELECT m FROM Match m
+        WHERE (m.teamA = :team OR m.teamB = :team)
+        AND m.matchDate BETWEEN :from AND :to
+    """)
     List<Match> findByTeamAndDateBetween(
             @Param("team") Team team,
             @Param("from") LocalDateTime from,
-            @Param("to") LocalDateTime to
-    );
+            @Param("to")   LocalDateTime to);
 
-
-
-    // ═══════════════════════════════════════════════════════════════════════
-// MÉTHODE 6 — Charge un match avec ses équipes + players + capitaines
-// Utilisé par respondToMatch pour éviter le lazy loading
-// ═══════════════════════════════════════════════════════════════════════
     @Query("""
-    SELECT m FROM Match m
-    JOIN FETCH m.teamA tA
-    JOIN FETCH m.teamB tB
-    LEFT JOIN FETCH tA.players
-    LEFT JOIN FETCH tB.players
-    LEFT JOIN FETCH tA.captain
-    LEFT JOIN FETCH tB.captain
-    WHERE m.idMatch = :id
-""")
+        SELECT m FROM Match m
+        JOIN FETCH m.teamA tA JOIN FETCH m.teamB tB
+        LEFT JOIN FETCH tA.players LEFT JOIN FETCH tB.players
+        LEFT JOIN FETCH tA.captain LEFT JOIN FETCH tB.captain
+        WHERE m.idMatch = :id
+    """)
     Optional<Match> findByIdWithTeams(@Param("id") Long id);
+
+    // ✅ NOUVEAU — trouve les matchs d'un utilisateur dans une période
+    // Utilisé par ScheduleController pour construire le calendrier
+    @Query("""
+        SELECT DISTINCT m FROM Match m
+        JOIN FETCH m.teamA tA
+        JOIN FETCH m.teamB tB
+        LEFT JOIN tA.players pA
+        LEFT JOIN tB.players pB
+        WHERE m.matchDate BETWEEN :from AND :to
+          AND (pA = :user OR pB = :user OR m.createdBy = :user)
+    """)
+    List<Match> findByUserAndDateBetween(
+            @Param("user") User user,
+            @Param("from") LocalDateTime from,
+            @Param("to")   LocalDateTime to);
+
+    @Query("""
+        SELECT m.location FROM Match m
+        WHERE m.status = 'FINISHED'
+          AND (m.teamA.idTeam = :teamId OR m.teamB.idTeam = :teamId)
+          AND m.location IS NOT NULL
+        ORDER BY m.matchDate DESC
+        LIMIT 1
+    """)
+    Optional<String> findLastLocationByTeam(@Param("teamId") Long teamId);
+
+    @Query("""
+        SELECT COUNT(m) FROM Match m 
+        WHERE (m.teamA.idTeam = :teamId OR m.teamB.idTeam = :teamId)
+          AND m.status = 'FINISHED'
+          AND ((m.teamA.idTeam = :teamId AND m.scoreTeamA > m.scoreTeamB)
+            OR (m.teamB.idTeam = :teamId AND m.scoreTeamB > m.scoreTeamA))
+    """)
+    Integer findTotalWins(@Param("teamId") Long teamId);
+
+    @Query("""
+        SELECT COUNT(m) FROM Match m 
+        WHERE (m.teamA.idTeam = :teamId OR m.teamB.idTeam = :teamId)
+          AND m.status = 'FINISHED'
+          AND ((m.teamA.idTeam = :teamId AND m.scoreTeamA < m.scoreTeamB)
+            OR (m.teamB.idTeam = :teamId AND m.scoreTeamB < m.scoreTeamA))
+    """)
+    Integer findTotalLosses(@Param("teamId") Long teamId);
+
+    @Query("""
+        SELECT COUNT(m) FROM Match m 
+        WHERE (m.teamA.idTeam = :teamId OR m.teamB.idTeam = :teamId)
+          AND m.status = 'FINISHED'
+    """)
+    Integer findTotalMatches(@Param("teamId") Long teamId);
+
+    @Query("""
+        SELECT m FROM Match m
+        WHERE m.status = 'FINISHED'
+          AND ((m.teamA.idTeam = :idA AND m.teamB.idTeam = :idB)
+            OR (m.teamA.idTeam = :idB AND m.teamB.idTeam = :idA))
+        ORDER BY m.matchDate DESC
+    """)
+    List<Match> findFinishedMatchesBetween(
+            @Param("idA") Long idA,
+            @Param("idB") Long idB);
+
+    @Query("""
+        SELECT COUNT(m) FROM Match m 
+        WHERE (m.teamA.idTeam = :teamId OR m.teamB.idTeam = :teamId)
+          AND m.status = 'FINISHED'
+          AND ((m.teamA.idTeam = :teamId AND m.scoreTeamA > m.scoreTeamB)
+            OR (m.teamB.idTeam = :teamId AND m.scoreTeamB > m.scoreTeamA))
+          AND m.matchDate > COALESCE(
+              (SELECT MAX(m2.matchDate) FROM Match m2 
+               WHERE (m2.teamA.idTeam = :teamId OR m2.teamB.idTeam = :teamId)
+                 AND m2.status = 'FINISHED'
+                 AND ((m2.teamA.idTeam = :teamId AND m2.scoreTeamA < m2.scoreTeamB)
+                   OR (m2.teamB.idTeam = :teamId AND m2.scoreTeamB < m2.scoreTeamA))),
+              '1900-01-01')
+    """)
+    Integer findCurrentWinStreak(@Param("teamId") Long teamId);
+
+    @Query("""
+        SELECT COUNT(m) FROM Match m 
+        WHERE (m.teamA.idTeam = :teamId OR m.teamB.idTeam = :teamId)
+          AND m.status = 'FINISHED'
+          AND ((m.teamA.idTeam = :teamId AND m.scoreTeamA >= m.scoreTeamB)
+            OR (m.teamB.idTeam = :teamId AND m.scoreTeamB >= m.scoreTeamA))
+          AND m.matchDate > COALESCE(
+              (SELECT MAX(m2.matchDate) FROM Match m2 
+               WHERE (m2.teamA.idTeam = :teamId OR m2.teamB.idTeam = :teamId)
+                 AND m2.status = 'FINISHED'
+                 AND ((m2.teamA.idTeam = :teamId AND m2.scoreTeamA < m2.scoreTeamB)
+                   OR (m2.teamB.idTeam = :teamId AND m2.scoreTeamB < m2.scoreTeamA))),
+              '1900-01-01')
+    """)
+    Integer findCurrentUnbeatenStreak(@Param("teamId") Long teamId);
 }

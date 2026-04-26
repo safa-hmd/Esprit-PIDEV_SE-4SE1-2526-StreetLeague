@@ -31,6 +31,7 @@ public class MatchServiceImpl implements ImatchService {
     MatchRepository       matchRepository;
     TeamRepository        teamRepository;
     UserRepository        userRepository;
+    EloService            eloService;
     InotificationService  notificationService; // ← ajout
 
     // ─────────────────────────────────────────────────────────────────────
@@ -146,6 +147,14 @@ public class MatchServiceImpl implements ImatchService {
             existing.setStatus(dto.status());
 
         Match saved = matchRepository.save(existing);
+
+        if (saved.getStatus() == MatchStatus.FINISHED
+                && saved.getScoreTeamA() != null
+                && saved.getScoreTeamB() != null
+                && !saved.isStatsUpdated()) {
+            eloService.updateEloAfterMatch(saved);
+            saved = matchRepository.findById(saved.getIdMatch()).orElse(saved);
+        }
 
         Team teamA = saved.getTeamA();
         Team teamB = saved.getTeamB();

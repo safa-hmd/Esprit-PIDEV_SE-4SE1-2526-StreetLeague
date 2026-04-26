@@ -1,0 +1,213 @@
+<!-- performance-streak.component.html — Version améliorée avec sélecteur inline -->
+<div class="streak-dashboard">
+
+  <!-- Notification in-page -->
+  <div class="notif-banner"
+       *ngIf="notification"
+       [class.notif-success]="notification.type === 'success'"
+       [class.notif-error]="notification.type === 'error'">
+    {{ notification.message }}
+  </div>
+
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1><span>⚡</span> PERFORMANCE STREAK TRACKER</h1>
+    <div class="header-right">
+      <div class="test-mode-badge" *ngIf="true">
+        🧪 TEST MODE — 1 fenêtre = 5s
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-premium" *ngIf="loading">
+    <div class="spinner-premium"></div>
+    <span>Loading streak data...</span>
+  </div>
+
+  <!-- Erreur -->
+  <div class="error-banner" *ngIf="error && !loading">
+    ⚠️ {{ error }}
+    <button (click)="loadAllData()">Réessayer</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CHECK-IN INLINE (plus besoin de modal !)
+       ══════════════════════════════════════════════════════════ -->
+  <div class="checkin-inline-card" *ngIf="!loading">
+    <div class="checkin-inline-header">
+      <div class="checkin-inline-title">📝 DAILY CHECK-IN</div>
+      <div class="checkin-inline-subtitle">
+        Sélectionne ton activité et valide — chaque nouvelle fenêtre de 5s = +1 jour de streak
+      </div>
+    </div>
+
+    <!-- Sélecteur de type inline -->
+    <div class="type-selector">
+
+      <!-- TRAINING -->
+      <div class="type-card"
+           [class.type-selected]="checkinType === 'TRAINING'"
+           (click)="checkinType = 'TRAINING'">
+        <div class="type-emoji">🏋️</div>
+        <div class="type-label">Training</div>
+        <div class="type-pts">+1 pt</div>
+        <div class="type-check" *ngIf="checkinType === 'TRAINING'">✓</div>
+      </div>
+
+      <!-- MATCH -->
+      <div class="type-card"
+           [class.type-selected]="checkinType === 'MATCH'"
+           (click)="checkinType = 'MATCH'">
+        <div class="type-emoji">⚽</div>
+        <div class="type-label">Match</div>
+        <div class="type-pts">+2 pts</div>
+        <div class="type-check" *ngIf="checkinType === 'MATCH'">✓</div>
+      </div>
+
+      <!-- BOTH -->
+      <div class="type-card type-card-both"
+           [class.type-selected]="checkinType === 'BOTH'"
+           (click)="checkinType = 'BOTH'">
+        <div class="type-emoji">🔥</div>
+        <div class="type-label">Both</div>
+        <div class="type-pts">+3 pts ⚡</div>
+        <div class="type-check" *ngIf="checkinType === 'BOTH'">✓</div>
+      </div>
+
+    </div>
+
+    <!-- Bouton check-in -->
+    <button class="btn-checkin-main"
+            (click)="doCheckin()"
+            [disabled]="checkinLoading">
+      <span *ngIf="!checkinLoading">✓ VALIDER LE CHECK-IN ({{ checkinType }})</span>
+      <span *ngIf="checkinLoading" class="loading-dots">⏳ Enregistrement...</span>
+    </button>
+
+    <!-- Bonus info BOTH -->
+    <div class="bonus-pill" *ngIf="checkinType === 'BOTH'">
+      ⚡ Activité double — maximum de points par jour !
+    </div>
+  </div>
+
+  <!-- My Stats Card -->
+  <div class="my-stats-card" *ngIf="currentPlayerStats && !loading">
+    <div class="my-stats-header">🎯 MY PERFORMANCE</div>
+    <div class="my-stats-grid">
+      <div class="my-stat">
+        <div class="my-stat-value">{{ currentPlayerStats.currentStreak }}</div>
+        <div class="my-stat-label">Current Streak</div>
+      </div>
+      <div class="my-stat">
+        <div class="my-stat-value" style="color:#ffd700">{{ currentPlayerStats.totalPoints }}</div>
+        <div class="my-stat-label">Total Points</div>
+      </div>
+      <div class="my-stat">
+        <div class="my-stat-value">{{ currentPlayerStats.bestStreak }}</div>
+        <div class="my-stat-label">Best Streak</div>
+      </div>
+      <div class="my-stat">
+        <div class="my-stat-value"
+             [style.color]="getRiskColor(currentPlayerStats.riskLevel || 'LOW')">
+          {{ getFatiguePercent(currentPlayerStats.fatigueRisk) }}%
+        </div>
+        <div class="my-stat-label">Fatigue Risk</div>
+      </div>
+    </div>
+    <div class="my-stats-badge" *ngIf="currentPlayerStats.badge">
+      {{ getBadgeIcon(currentPlayerStats.badge) }} {{ currentPlayerStats.badge }}
+    </div>
+    <div class="my-stats-risk-bar">
+      <div class="risk-bar-label">
+        Niveau de fatigue :
+        <strong [style.color]="getRiskColor(currentPlayerStats.riskLevel || 'LOW')">
+          {{ currentPlayerStats.riskLevel || 'LOW' }}
+        </strong>
+      </div>
+      <div class="risk-bar-track">
+        <div class="risk-bar-fill"
+             [style.width.%]="getFatiguePercent(currentPlayerStats.fatigueRisk)"
+             [style.background]="getRiskColor(currentPlayerStats.riskLevel || 'LOW')">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fatigue Alerts -->
+  <div class="alerts-premium-section" *ngIf="fatigueAlerts.length > 0 && !loading">
+    <div class="alerts-premium-header">
+      <h3>⚠️ FATIGUE ALERTS</h3>
+      <span class="alert-count">{{ fatigueAlerts.length }}</span>
+    </div>
+    <div class="alert-premium-list">
+      <div *ngFor="let alert of fatigueAlerts" class="alert-premium-card">
+        <div class="alert-premium-icon">⚠️</div>
+        <div class="alert-premium-content">
+          <div class="alert-premium-name">{{ alert.playerName }}</div>
+          <div class="alert-premium-detail">{{ alert.currentStreak }} days streak</div>
+          <div class="alert-recommendation" *ngIf="alert.recommendation">
+            💡 {{ alert.recommendation }}
+          </div>
+        </div>
+        <div class="alert-premium-risk" [class]="alert.riskLevel?.toLowerCase() || ''">
+          {{ getFatiguePercent(alert.fatigueRisk) }}% risk
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Leaderboard -->
+  <div class="leaderboard-premium-section" *ngIf="!loading">
+    <div class="leaderboard-premium-header">
+      <h3>🏆 GLOBAL LEADERBOARD</h3>
+      <span>{{ leaderboard.length }} players</span>
+    </div>
+
+    <div class="table-premium">
+      <div class="table-premium-header">
+        <div>#</div>
+        <div>PLAYER</div>
+        <div>STREAK</div>
+        <div>PTS</div>
+        <div>BADGE</div>
+        <div>STATUS</div>
+      </div>
+
+      <div *ngFor="let p of leaderboard; let i = index" class="table-premium-row">
+        <div class="rank-premium" [class]="getRankClass(i + 1)">
+          {{ i + 1 === 1 ? '🥇' : i + 1 === 2 ? '🥈' : i + 1 === 3 ? '🥉' : i + 1 }}
+        </div>
+        <div class="player-premium">
+          <div class="player-premium-avatar">{{ (p.playerName || '?').charAt(0) }}</div>
+          <span class="player-premium-name">{{ p.playerName }}</span>
+        </div>
+        <div class="streak-premium">
+          <span class="streak-premium-number">{{ p.currentStreak }}</span>
+          <div class="streak-premium-bar">
+            <div class="streak-premium-fill"
+                 [style.width.%]="getStreakBarWidth(p.currentStreak)">
+            </div>
+          </div>
+        </div>
+        <div class="points-premium">{{ p.totalPoints }}</div>
+        <div class="badge-premium">
+          <span class="badge-premium-icon">{{ getBadgeIcon(p.badge) }}</span>
+          <span>{{ p.badge || 'NO BADGE' }}</span>
+        </div>
+        <div>
+          <span class="status-premium" [class]="getStatusClass(p.status)">
+            {{ p.status }}
+          </span>
+        </div>
+      </div>
+
+      <div *ngIf="leaderboard.length === 0 && !loading" class="empty-premium">
+        <div class="empty-premium-icon">📊</div>
+        <p>No streak data available yet</p>
+        <p style="font-size: 0.7rem;">Start by doing a daily check-in!</p>
+      </div>
+    </div>
+  </div>
+
+</div>

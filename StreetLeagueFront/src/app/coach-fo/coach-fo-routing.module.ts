@@ -9,6 +9,7 @@ import { DetailTrainingComponent } from './detail-training/detail-training.compo
 import { HomeComponent } from './home/home.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
 import { ScheduleComponent } from './schedule/schedule.component';
+import { FieldRecommenderComponent } from './field-recommender/field-recommender.component';
 
 const routes: Routes = [{ path: '', component: CoachFOComponent,   
     children: [                      
@@ -20,7 +21,8 @@ const routes: Routes = [{ path: '', component: CoachFOComponent,
     { path: 'detail-match/:id', component: DetailMatchComponent },
     { path: 'detail-training/:id', component: DetailTrainingComponent },
     { path: 'profile', component: PlayerProfileComponent },
-      { path: 'schedule', component: ScheduleComponent }
+      { path: 'schedule', component: ScheduleComponent },
+        { path: 'recommend', component: FieldRecommenderComponent },
       
     ]
   }

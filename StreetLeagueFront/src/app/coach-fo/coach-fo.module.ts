@@ -17,6 +17,7 @@ import { ScheduleComponent } from './schedule/schedule.component';
 import { NgModule, LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
+import { FieldRecommenderComponent } from './field-recommender/field-recommender.component';
 
 registerLocaleData(localeFr);  // ← ajoute avant @NgModule
 
@@ -32,7 +33,8 @@ registerLocaleData(localeFr);  // ← ajoute avant @NgModule
     DetailTrainingComponent,
     HomeComponent,
     PlayerProfileComponent,
-    ScheduleComponent
+    ScheduleComponent,
+    FieldRecommenderComponent
   ],
   imports: [
     CommonModule,

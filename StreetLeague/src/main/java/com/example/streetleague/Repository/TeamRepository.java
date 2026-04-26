@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TeamRepository extends JpaRepository<Team, Long> {
@@ -38,4 +39,26 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
     ORDER BY (t.victories * 3 + t.matches - t.defeats) DESC
 """)
     List<LeaderboardDto> findLeaderboardBySport(@Param("sport") String sport);
+
+
+
+    // Éligibles : même sport, pas soi-même, au moins 1 joueur
+@Query("""
+SELECT t FROM Team t
+WHERE t.idTeam <> :teamId
+  AND LOWER(t.sport) = LOWER(:sport)
+  AND SIZE(t.players) > 0
+""")
+    List<Team> findEligibleOpponents(
+            @Param("teamId") Long teamId,
+            @Param("sport")  String sport
+    );
+
+    // Ajouter dans TeamRepository.java
+
+    /**
+     * Trouver une équipe par l'ID du coach
+     */
+    @Query("SELECT t FROM Team t WHERE t.coach.idUser = :coachId")
+    Optional<Team> findByCoachId(@Param("coachId") Long coachId);
 }

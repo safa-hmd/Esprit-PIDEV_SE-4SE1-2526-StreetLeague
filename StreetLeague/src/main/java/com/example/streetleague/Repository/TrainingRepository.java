@@ -16,7 +16,9 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
     // JPQL avec JOIN entre Team, Training et User (coach)
 // Retourne les trainings PLANNED du futur, triés par date
     @Query("""
-    SELECT t FROM Training t JOIN FETCH t.team team JOIN FETCH t.coach coach
+    SELECT t FROM Training t
+    JOIN FETCH t.team team
+    LEFT JOIN FETCH t.coach coach
     WHERE t.status = com.example.streetleague.Entity.TrainingStatus.PLANNED
       AND t.trainingDate > :now ORDER BY t.trainingDate ASC
 """)
@@ -55,4 +57,24 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to
     );
+
+    @Query("""
+    SELECT DISTINCT t FROM Training t
+    JOIN FETCH t.team team
+    LEFT JOIN FETCH t.coach coach
+    LEFT JOIN FETCH t.participants participants
+    LEFT JOIN team.players players
+    LEFT JOIN team.captain captain
+    WHERE t.trainingDate BETWEEN :from AND :to
+      AND (coach = :user OR participants = :user OR players = :user OR captain = :user)
+    ORDER BY t.trainingDate ASC
+""")
+    List<Training> findVisibleTrainingsForUserBetween(
+            @Param("user") User user,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
+
+
+
 }
