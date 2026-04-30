@@ -109,4 +109,10 @@ public class TeamController {
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
         return teamService.getTeamsByCaptain(captain.getIdUser());
     }
+
+    // GET /team/my-teams?captainId=3  ← used by matchmaking component
+    @GetMapping("my-teams")
+    public List<TeamResponse> getMyTeamsByCaptainId(@RequestParam Long captainId) {
+        return teamService.getTeamsByCaptain(captainId);
+    }
 }

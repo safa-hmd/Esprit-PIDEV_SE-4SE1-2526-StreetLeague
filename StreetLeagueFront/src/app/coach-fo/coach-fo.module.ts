@@ -18,6 +18,7 @@ import { NgModule, LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import { FieldRecommenderComponent } from './field-recommender/field-recommender.component';
+import { CoachAnomalyDashboardComponent } from './coach-anomaly-dashboard/coach-anomaly-dashboard.component';
 
 registerLocaleData(localeFr);  // ← ajoute avant @NgModule
 
@@ -34,7 +35,8 @@ registerLocaleData(localeFr);  // ← ajoute avant @NgModule
     HomeComponent,
     PlayerProfileComponent,
     ScheduleComponent,
-    FieldRecommenderComponent
+    FieldRecommenderComponent,
+    CoachAnomalyDashboardComponent
   ],
   imports: [
     CommonModule,

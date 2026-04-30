@@ -1,5 +1,5 @@
 <div class="matchmaking-container">
-  
+
   <!-- Hero Section -->
   <div class="mm-hero">
     <div class="mm-hero-content">
@@ -16,7 +16,43 @@
       </svg>
       <span>Refine your search</span>
     </div>
+
     <div class="mm-filters">
+
+      <!-- ── NOUVEAU : Sélecteur de sport ──────────────────────── -->
+      <div class="filter-group sport-filter-group">
+        <label>Sport</label>
+        <div class="sport-pills">
+
+          <!-- Pill "Mon sport" (défaut) -->
+          <button
+            class="sport-pill"
+            [class.active]="selectedSport === 'SAME'"
+            (click)="selectedSport = 'SAME'; onSportChange()">
+            {{ myTeam?.sport ? sportIcon(myTeam.sport) + ' My sport' : '🏅 My sport' }}
+          </button>
+
+          <!-- Pill "Tous les sports" -->
+          <button
+            class="sport-pill"
+            [class.active]="selectedSport === 'ALL'"
+            (click)="selectedSport = 'ALL'; onSportChange()">
+            🌐 All sports
+          </button>
+
+          <!-- Pills par sport disponible -->
+          <button
+            *ngFor="let s of availableSports"
+            class="sport-pill"
+            [class.active]="selectedSport === s"
+            (click)="selectedSport = s; onSportChange()">
+            {{ sportLabel(s) }}
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Sort -->
       <div class="filter-group">
         <label>Sort by</label>
         <select [(ngModel)]="sortBy" (change)="applyFilters()" class="filter-select">
@@ -26,6 +62,7 @@
         </select>
       </div>
 
+      <!-- Min compat -->
       <div class="filter-group">
         <label>Min. compatibility</label>
         <select [(ngModel)]="minCompat" (change)="applyFilters()" class="filter-select">
@@ -40,6 +77,7 @@
       <div class="filter-stats" *ngIf="filtered.length > 0">
         <span class="stats-badge">{{ filtered.length }} team{{ filtered.length > 1 ? 's' : '' }} found</span>
       </div>
+
     </div>
   </div>
 
@@ -57,7 +95,7 @@
       <line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
     <p>{{ error }}</p>
-    <button class="retry-btn" (click)="loadCandidates()">Try Again</button>
+    <button class="retry-btn" (click)="retry()">Try Again</button>
   </div>
 
   <!-- Empty State -->
@@ -68,26 +106,25 @@
       <path d="M16 8L8 16"/>
     </svg>
     <p>No compatible opponents found</p>
-    <p class="empty-subtitle">Try adjusting your filters or create a new team</p>
+    <p class="empty-subtitle">
+      Try switching sport or adjusting your filters
+    </p>
   </div>
 
   <!-- Cards Grid -->
   <div class="mm-cards-grid" *ngIf="!loading && filtered.length > 0">
     <div class="mm-card" *ngFor="let c of filtered">
-      
+
       <!-- Card Header -->
       <div class="card-header">
-        <div class="team-avatar">
-          <span class="avatar-text">{{ initials(c.teamName) }}</span>
+        <div class="team-avatar" [attr.data-sport]="c.sport">
+          <span class="avatar-sport-icon">{{ sportIcon(c.sport) }}</span>
+          <span class="avatar-initials">{{ initials(c.teamName) }}</span>
         </div>
         <div class="team-info">
           <h3 class="team-name">{{ c.teamName }}</h3>
           <span class="team-sport">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M12 2v20M2 12h20"/>
-            </svg>
-            {{ c.sport }}
+            {{ sportIcon(c.sport) }} {{ c.sport | titlecase }}
           </span>
         </div>
         <div class="compat-score {{ compatClass(c.matchCompatibilityScore) }}">
@@ -112,7 +149,6 @@
             <div class="progress-fill bar-teal" [style.width.%]="c.eloFitScore"></div>
           </div>
         </div>
-
         <div class="stat-row">
           <div class="stat-label">
             <span>Head to Head</span>
@@ -125,7 +161,7 @@
       </div>
 
       <!-- Action Button -->
-      <button class="challenge-btn" 
+      <button class="challenge-btn"
               [class.loading]="challengeSent === c.teamId"
               [disabled]="challengeSent === c.teamId"
               (click)="challenge(c)">
@@ -141,7 +177,7 @@
 
       <!-- Sport Badge -->
       <div class="card-footer">
-        <span class="sport-badge">{{ c.sport }}</span>
+        <span class="sport-badge">{{ sportIcon(c.sport) }} {{ c.sport | titlecase }}</span>
       </div>
     </div>
   </div>
@@ -151,7 +187,6 @@
 <div class="mm-modal-overlay" *ngIf="showModal" (click)="closeModal()">
   <div class="mm-modal" (click)="$event.stopPropagation()">
 
-    <!-- Match Already Exists -->
     <ng-container *ngIf="modalType === 'exists'">
       <div class="modal-icon modal-icon-warning">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -162,7 +197,7 @@
       </div>
       <h2 class="modal-title">Match Already Scheduled</h2>
       <p class="modal-message">
-        A pending or accepted match already exists between your team and 
+        A pending or accepted match already exists between your team and
         <strong>{{ modalTeamName }}</strong>.<br>
         Please wait for the current match to finish before sending a new challenge.
       </p>
@@ -171,7 +206,6 @@
       </div>
     </ng-container>
 
-    <!-- Success -->
     <ng-container *ngIf="modalType === 'success'">
       <div class="modal-icon modal-icon-success">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -189,7 +223,6 @@
       </div>
     </ng-container>
 
-    <!-- Error -->
     <ng-container *ngIf="modalType === 'error'">
       <div class="modal-icon modal-icon-error">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

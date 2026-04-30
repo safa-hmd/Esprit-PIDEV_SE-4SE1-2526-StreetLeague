@@ -24,17 +24,4 @@ public interface PlayerAttendanceRepository extends JpaRepository<PlayerAttendan
     @Query("SELECT COUNT(a) FROM PlayerAttendance a WHERE a.playerId = :playerId AND a.isPresent = true")
     Integer countTotalPresentDays(@Param("playerId") Long playerId);
 
-    /*
-     * CORRECTION : calculateCurrentStreak() SUPPRIMÉE.
-     *
-     * L'ancienne requête SQL :
-     *   SELECT COUNT(*) FROM (SELECT ... ORDER BY date DESC LIMIT 30)
-     * comptait simplement les 30 dernières présences sans vérifier
-     * la CONSÉCUTIVITÉ. Un joueur absent 2 semaines puis présent 5 jours
-     * aurait eu un "streak" artificiellement gonflé.
-     *
-     * Le calcul correct du streak consécutif est dans PerformanceService.updateStreak()
-     * via la boucle Java qui vérifie chaque jour depuis aujourd'hui et s'arrête
-     * au premier jour d'absence. C'est la seule implémentation à utiliser.
-     */
 }

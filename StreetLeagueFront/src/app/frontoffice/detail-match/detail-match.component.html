@@ -146,24 +146,7 @@
 
     </div>
 
-    <!-- ── Post-Match Training ── -->
-    <div *ngIf="match.status === 'FINISHED'" class="md-training">
-      <div>
-        <div class="md-training-title">Post-match training</div>
-        <div class="md-training-sub">
-          Generate a training session automatically based on this match's performance data.
-        </div>
-      </div>
-      <button class="btn btn-primary md-training-btn"
-              (click)="onGenerateTraining()"
-              [disabled]="isGenerating || !!generateMsg">
-        <svg *ngIf="!isGenerating" fill="none" stroke="currentColor"
-             viewBox="0 0 24 24" stroke-width="2" style="width:13px;height:13px;">
-          <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
-        </svg>
-        {{ isGenerating ? 'Generating...' : 'Generate training' }}
-      </button>
-    </div>
+  
 
     <div *ngIf="generateMsg"   class="md-alert-success">{{ generateMsg }}</div>
     <div *ngIf="generateError" class="md-alert-danger">{{ generateError }}</div>

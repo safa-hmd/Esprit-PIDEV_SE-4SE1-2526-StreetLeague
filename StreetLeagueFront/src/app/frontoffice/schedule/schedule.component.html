@@ -4,7 +4,7 @@
   <div class="sl-tabs">
     <button class="sl-tab" [class.sl-tab-active]="activeTab === 'schedule'"
             (click)="activeTab = 'schedule'">
-      <span class="sl-tab-icon">📅</span> Mon Schedule
+      <span class="sl-tab-icon">📅</span> My Schedule
     </button>
     <button class="sl-tab" [class.sl-tab-active]="activeTab === 'recommend'"
             (click)="activeTab = 'recommend'">
@@ -21,23 +21,23 @@
       <div class="sl-cal-header">
         <div class="sl-cal-title">
           <span class="sl-cal-icon">📅</span>
-          <h2>Mon Planning</h2>
+          <h2>My Schedule</h2>
         </div>
         <div class="sl-view-toggle">
-          <button [class.active]="view === 'week'"  (click)="switchView('week')">Semaine</button>
-          <button [class.active]="view === 'month'" (click)="switchView('month')">Mois</button>
+          <button [class.active]="view === 'week'"  (click)="switchView('week')">Week</button>
+          <button [class.active]="view === 'month'" (click)="switchView('month')">Month</button>
         </div>
       </div>
 
       <!-- Conflict bar -->
       <div class="sl-conflict-bar" *ngIf="conflicts > 0">
-        ⚠️ {{ conflicts }} conflit(s) détecté(s) — vérifiez les événements orange
+        ⚠️ {{ conflicts }} conflict(s) detected — check the orange events
       </div>
 
       <!-- Loading -->
       <div class="sl-loading" *ngIf="loading">
         <div class="sl-spinner"></div>
-        <span>Chargement du planning...</span>
+        <span>Loading schedule...</span>
       </div>
 
       <!-- ─── WEEK VIEW ─────────────────────────────────────────── -->
@@ -80,7 +80,7 @@
                     🤖 {{ ev.recommendation }}
                   </span>
                   <span class="sl-badge sl-badge-conflict" *ngIf="ev.hasConflict">
-                    ⚠️ Conflit
+                    ⚠️ Conflict
                   </span>
                 </div>
               </div>
@@ -117,11 +117,11 @@
 
       <!-- Legend -->
       <div class="sl-legend">
-        <span class="sl-legend-item"><i class="sl-dot" style="background:#3498db"></i> Entraînement</span>
+        <span class="sl-legend-item"><i class="sl-dot" style="background:#3498db"></i> Training</span>
         <span class="sl-legend-item"><i class="sl-dot" style="background:#e74c3c"></i> Match</span>
-        <span class="sl-legend-item"><i class="sl-dot" style="background:#8e44ad"></i> Tournoi</span>
-        <span class="sl-legend-item"><i class="sl-dot" style="background:#e67e22"></i> Conflit</span>
-        <span class="sl-legend-item"><i class="sl-dot" style="background:#34d399"></i> Score IA</span>
+        <span class="sl-legend-item"><i class="sl-dot" style="background:#8e44ad"></i> Tournament</span>
+        <span class="sl-legend-item"><i class="sl-dot" style="background:#e67e22"></i> Conflict</span>
+        <span class="sl-legend-item"><i class="sl-dot" style="background:#34d399"></i> AI Score</span>
       </div>
 
     </div>
@@ -145,17 +145,17 @@
 
           <!-- Date & Time -->
           <div class="sl-modal-row">
-            <span class="sl-modal-label">📅 Date & Heure</span>
+            <span class="sl-modal-label">📅 Date & Time</span>
             <span>{{ fmtDate(selectedEvent.startTime) }}</span>
           </div>
           <div class="sl-modal-row">
-            <span class="sl-modal-label">🕐 Horaire</span>
+            <span class="sl-modal-label">🕐 Time slot</span>
             <span>{{ fmt(selectedEvent.startTime) }} – {{ fmt(selectedEvent.endTime) }}</span>
           </div>
 
           <!-- Location -->
           <div class="sl-modal-row" *ngIf="selectedEvent.location">
-            <span class="sl-modal-label">📍 Lieu</span>
+            <span class="sl-modal-label">📍 Location</span>
             <a [href]="getEventDirections(selectedEvent)" target="_blank" class="sl-link">
               {{ selectedEvent.location }}
             </a>
@@ -163,7 +163,7 @@
 
           <!-- Status -->
           <div class="sl-modal-row">
-            <span class="sl-modal-label">🏷️ Statut</span>
+            <span class="sl-modal-label">🏷️ Status</span>
             <span class="sl-status-badge" [style.background]="selectedEvent.color">
               {{ selectedEvent.status }}
             </span>
@@ -171,14 +171,14 @@
 
           <!-- Team -->
           <div class="sl-modal-row" *ngIf="selectedEvent.teamName">
-            <span class="sl-modal-label">👥 Équipe</span>
+            <span class="sl-modal-label">👥 Team</span>
             <span>{{ selectedEvent.teamName }}</span>
           </div>
 
           <!-- Match-specific -->
           <ng-container *ngIf="selectedEvent.type === 'MATCH'">
             <div class="sl-modal-row" *ngIf="selectedEvent.opponentTeamName">
-              <span class="sl-modal-label">🆚 Adversaire</span>
+              <span class="sl-modal-label">🆚 Opponent</span>
               <span>{{ selectedEvent.opponentTeamName }}</span>
             </div>
             <div class="sl-modal-row"
@@ -199,13 +199,13 @@
 
           <!-- Conflict warning -->
           <div class="sl-modal-conflict" *ngIf="selectedEvent.hasConflict">
-            ⚠️ {{ selectedEvent.conflictReason || 'Conflit d\'horaire détecté' }}
+            ⚠️ {{ selectedEvent.conflictReason || 'Schedule conflict detected' }}
           </div>
 
           <!-- AI Score -->
           <div class="sl-modal-ai" *ngIf="selectedEvent.recommendation">
             <div class="sl-modal-row">
-              <span class="sl-modal-label">🤖 Score IA</span>
+              <span class="sl-modal-label">🤖 AI Score</span>
               <span class="sl-ai-rec" [style.color]="getScoreColor(selectedEvent.recommendation)">
                 {{ selectedEvent.recommendation }}
                 ({{ getScorePercent(selectedEvent.aiScore) }}%)
@@ -222,7 +222,7 @@
           <!-- Recommended field section -->
           <div class="sl-rec-field" *ngIf="selectedEvent.recommendedFieldName">
             <div class="sl-rec-field-header">
-              <span>🏟️ Terrain recommandé par l'IA</span>
+              <span>🏟️ AI-recommended field</span>
               <span class="sl-rec-field-score"
                     [style.color]="getScoreColor(selectedEvent.recommendedFieldRec)">
                 {{ selectedEvent.recommendedFieldRec }}
@@ -237,7 +237,7 @@
             </div>
             <a [href]="getFieldDirections(selectedEvent)" target="_blank"
                class="sl-maps-btn">
-              🗺️ Itinéraire vers ce terrain
+              🗺️ Get directions to this field
             </a>
           </div>
 
@@ -246,7 +246,7 @@
              [href]="getEventDirections(selectedEvent)"
              target="_blank"
              class="sl-maps-btn">
-            🗺️ Voir sur Google Maps
+            🗺️ View on Google Maps
           </a>
 
         </div>

@@ -20,23 +20,46 @@ public class MatchmakingService {
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
     private final MatchmakingScorer scorer;
-    private final GeoUtils geoUtils; // ✅ injecté proprement, plus de "new GeoUtils()"
+    private final GeoUtils geoUtils;
 
+    /** Surcharge sans filtre sport → utilise le sport de l'équipe A */
     public List<MatchCandidateResponse> findCandidates(Team teamA,
                                                        String locationA,
                                                        int topN) {
-        int safeTopN = topN > 0 ? topN : 5;
+        return findCandidates(teamA, locationA, topN, null);
+    }
+
+    /** Recherche avec filtre sport optionnel.
+     *  Si sportFilter est null/vide, on filtre sur le sport de l'équipe A.
+     *  Si sportFilter = "ALL", on retourne tous les sports. */
+    public List<MatchCandidateResponse> findCandidates(Team teamA,
+                                                       String locationA,
+                                                       int topN,
+                                                       String sportFilter) {
+        int safeTopN = topN > 0 ? topN : 50;
         int teamAElo = teamA.getEloScore() != null ? teamA.getEloScore() : 1000;
 
-        List<Team> candidates = teamRepository.findEligibleOpponents(
-                teamA.getIdTeam(),
-                teamA.getSport()
-        );
-        System.out.println(">>> candidates found: " + candidates.size());
+        // Déterminer le sport effectif pour le filtrage
+        String effectiveSport;
+        if ("ALL".equalsIgnoreCase(sportFilter)) {
+            effectiveSport = null; // pas de filtre sport
+        } else if (sportFilter != null && !sportFilter.isBlank()) {
+            effectiveSport = sportFilter;
+        } else {
+            effectiveSport = teamA.getSport(); // par défaut : même sport que l'équipe A
+        }
+
+        List<Team> candidates = (effectiveSport != null)
+                ? teamRepository.findEligibleOpponentsBySport(teamA.getIdTeam(), effectiveSport)
+                : teamRepository.findEligibleOpponents(teamA.getIdTeam());
+
+        System.out.println(">>> candidates found: " + candidates.size()
+                + " (sport=" + (effectiveSport != null ? effectiveSport : "ALL") + ")");
 
         if (candidates.isEmpty()) {
             throw new NoOpponentFoundException(
                     "Aucune équipe compatible trouvée pour " + teamA.getName()
+                            + (effectiveSport != null ? " (sport: " + effectiveSport + ")" : "")
             );
         }
 
@@ -50,13 +73,12 @@ public class MatchmakingService {
                     double eloFit = scorer.scoreElo(teamAElo, teamBElo);
                     double h2h    = scorer.scoreH2H(teamA, teamB);
 
-                    // ✅ FIX : on vérifie que les deux locations sont bien des GPS coords
                     double distScore;
                     if (geoUtils.isGpsCoords(locationA) && geoUtils.isGpsCoords(locationB)) {
                         double km = geoUtils.haversineKm(locationA, locationB);
                         distScore = Math.max(0.0, 1.0 - Math.min(1.0, km / 50.0));
                     } else {
-                        distScore = 0.5; // neutre si location textuelle ("sousse", "Tunis"...)
+                        distScore = 0.5;
                     }
 
                     double composite = (0.50 * eloFit + 0.20 * h2h + 0.30 * distScore) * 100.0;
@@ -77,7 +99,4 @@ public class MatchmakingService {
                 .limit(safeTopN)
                 .toList();
     }
-
-
-    
 }

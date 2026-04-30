@@ -6,7 +6,6 @@ import { UserService } from 'src/app/services/user.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import {
   NotificationResponse,
-  NotifType,
   detectNotifType,
   notifIcon,
   notifAccent
@@ -18,8 +17,10 @@ import {
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-  userName  = '';
-  userRole  = '';
+  userName     = '';
+  userRole     = '';
+  userInitials = '';   // NEW — displayed in avatar circle
+
   dropdownOpen = false;
   menuOpen     = false;
   notifOpen    = false;
@@ -27,12 +28,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
   notifications: NotificationResponse[] = [];
   unreadCount = 0;
 
-  // Filtre actif : 'all' | 'unread' | 'reminder' | 'closed'
   activeFilter: 'all' | 'unread' | 'reminder' | 'closed' = 'all';
 
   private notifPollSub?: Subscription;
 
-  // Exposer les utilitaires au template
+  // Expose helpers to template
   detectNotifType = detectNotifType;
   notifIcon       = notifIcon;
   notifAccent     = notifAccent;
@@ -46,20 +46,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.userService.getProfile().subscribe({
       next: (profile) => {
-        this.userName = profile.fullName;
-        this.userRole = profile.role;
+        this.userName     = profile.fullName;
+        this.userRole     = profile.role;
+        this.userInitials = this.getInitials(profile.fullName);
         localStorage.setItem('userName', profile.fullName);
         localStorage.setItem('userRole', profile.role);
       },
       error: () => {
-        this.userName = localStorage.getItem('userName') ?? 'Player';
-        this.userRole = localStorage.getItem('userRole') ?? '';
+        this.userName     = localStorage.getItem('userName') ?? 'Player';
+        this.userRole     = localStorage.getItem('userRole') ?? '';
+        this.userInitials = this.getInitials(this.userName);
       }
     });
 
     this.loadNotifications();
-
-    // Polling toutes les 30 secondes
     this.notifPollSub = interval(30_000).subscribe(() => this.loadNotifications());
   }
 
@@ -67,17 +67,27 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.notifPollSub?.unsubscribe();
   }
 
+  // ── Helpers ───────────────────────────────────────────────────────────
+  private getInitials(name: string): string {
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(w => w[0].toUpperCase())
+      .join('');
+  }
+
+  // ── Notifications ─────────────────────────────────────────────────────
   loadNotifications(): void {
     this.notificationService.getMyNotifications().subscribe({
       next: (data) => {
         this.notifications = data;
         this.unreadCount   = data.filter(n => !n.isRead).length;
       },
-      error: (err) => console.error('Erreur chargement notifications', err)
+      error: (err) => console.error('Notification load error', err)
     });
   }
 
-  // ── Filtres ──────────────────────────────────────────────────────────
   get filteredNotifications(): NotificationResponse[] {
     switch (this.activeFilter) {
       case 'unread':
@@ -98,7 +108,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.activeFilter = f;
   }
 
-  // ── Actions ──────────────────────────────────────────────────────────
   toggleNotif(): void {
     this.notifOpen = !this.notifOpen;
     if (this.notifOpen) this.dropdownOpen = false;
@@ -116,14 +125,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   markAllAsRead(): void {
-    this.notifications.filter(n => !n.isRead).forEach(n => {
-      this.notificationService.markAsRead(n.idNotification).subscribe({
-        next: () => {
-          n.isRead = true;
-          this.unreadCount = this.notifications.filter(x => !x.isRead).length;
-        }
+    this.notifications
+      .filter(n => !n.isRead)
+      .forEach(n => {
+        this.notificationService.markAsRead(n.idNotification).subscribe({
+          next: () => {
+            n.isRead = true;
+            this.unreadCount = this.notifications.filter(x => !x.isRead).length;
+          }
+        });
       });
-    });
   }
 
   deleteNotification(n: NotificationResponse, event: Event): void {
@@ -138,6 +149,36 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
   }
 
+  onNotificationClick(n: NotificationResponse, event: Event): void {
+    event.stopPropagation();
+
+    if (!n.isRead) {
+      this.notificationService.markAsRead(n.idNotification).subscribe({
+        next: () => {
+          n.isRead = true;
+          this.unreadCount = this.notifications.filter(x => !x.isRead).length;
+        }
+      });
+    }
+
+    this.notifOpen = false;
+
+    const msg = n.message.toLowerCase();
+
+    if (msg.includes('match accepted') || msg.includes('match rejected') ||
+        msg.includes('match updated')  || msg.includes('match cancelled') ||
+        msg.includes('new match')      || msg.includes('match scheduled')) {
+      this.router.navigate(['/client/team'], { queryParams: { tab: 'matches' } });
+    } else if (msg.includes('training')) {
+      this.router.navigate(['/client/training']);
+    } else if (msg.includes('team')) {
+      this.router.navigate(['/client/team']);
+    } else {
+      this.router.navigate(['/client/home']);
+    }
+  }
+
+  // ── Account & Menu ────────────────────────────────────────────────────
   toggleDropdown(): void {
     this.dropdownOpen = !this.dropdownOpen;
     if (this.dropdownOpen) this.notifOpen = false;
@@ -156,42 +197,4 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (!t.closest('.account-menu')) this.dropdownOpen = false;
     if (!t.closest('.notif-menu'))   this.notifOpen   = false;
   }
-
-
-  // Ajoute Router est déjà importé ✅
-
-onNotificationClick(n: NotificationResponse, event: Event): void {
-  event.stopPropagation();
-
-  // Marquer comme lu si pas encore lu
-  if (!n.isRead) {
-    this.notificationService.markAsRead(n.idNotification).subscribe({
-      next: () => {
-        n.isRead = true;
-        this.unreadCount = this.notifications.filter(x => !x.isRead).length;
-      }
-    });
-  }
-
-  // Fermer le panel
-  this.notifOpen = false;
-
-  // Redirection selon le contenu du message
-  const msg = n.message.toLowerCase();
-
-  if (msg.includes('match accepted') || msg.includes('match rejected') ||
-      msg.includes('match updated')  || msg.includes('match cancelled') ||
-      msg.includes('new match')      || msg.includes('match scheduled')) {
-    this.router.navigate(['/client/team'], { queryParams: { tab: 'matches' } });
-
-  } else if (msg.includes('training')) {
-    this.router.navigate(['/client/training']);
-
-  } else if (msg.includes('team')) {
-    this.router.navigate(['/client/team']);
-
-  } else {
-    this.router.navigate(['/client/home']);
-  }
-}
 }

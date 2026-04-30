@@ -66,6 +66,19 @@
         </svg>
         Streaks 🔥
       </button>
+      <button class="profile-tab" [class.active]="activeTab === 'injury'" (click)="activeTab = 'injury'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+        Injury Risk 🩺
+      </button>
+      <button class="profile-tab" [class.active]="activeTab === 'prediction'" (click)="activeTab = 'prediction'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+          <polyline points="17 6 23 6 23 12"/>
+        </svg>
+        Prediction 🔮
+      </button>
     </div>
   </div>
 
@@ -426,19 +439,11 @@
         </div>
       </div>
 
-      <!-- Debug block — retire en prod -->
-      <div style="margin-top:1rem; padding:1rem; background:#1a1a1a; border:1px solid #333; border-radius:8px; font-size:0.8rem; color:#888; font-family:monospace;">
-        <strong style="color:#aaa;">API Response Debug</strong><br>
-        teamCount: <span style="color:#e61920;">{{ profile.teamCount }}</span> |
-        matchCount: <span style="color:#4e8a9f;">{{ profile.matchCount }}</span> |
-        trainingCount: <span style="color:#6b9ed2;">{{ profile.trainingCount }}</span>
-      </div>
-
     </div>
 
-    <!-- ── Streak Tab (Version simplifiée - sans team) ── -->
+    <!-- ── Streak Tab ── -->
     <div class="profile-panel" *ngIf="activeTab === 'streak'">
-      
+
       <!-- Loading -->
       <div class="loading-premium" *ngIf="streakLoading">
         <div class="spinner-premium"></div>
@@ -490,8 +495,19 @@
 
     </div>
 
-  </div>
-</div>
+    <!-- ── Injury Risk Tab ── -->
+    <div class="profile-panel profile-panel--light" *ngIf="activeTab === 'injury'">
+      <app-injury-risk></app-injury-risk>
+    </div>
+
+    <!-- ── Performance Prediction Tab ── -->
+    <div class="profile-panel profile-panel--light" *ngIf="activeTab === 'prediction'">
+      <app-performance-prediction></app-performance-prediction>
+    </div>
+
+  </div><!-- /.profile-content -->
+
+</div><!-- /.profile-page -->
 
 <!-- ══ Loading ══ -->
 <div class="profile-loading" *ngIf="!profile">

@@ -8,6 +8,16 @@ public class GeoUtils {
     private static final double EARTH_RADIUS_KM = 6371.0;
     public  static final double MAX_DISTANCE_KM = 50.0;
 
+//    a = sin²(Δφ/2) + cos(φ₁) × cos(φ₂) × sin²(Δλ/2)
+//    d = 2 × R × arcsin(√a)
+//
+//    Où :
+//            - φ = latitude (en radians)
+//- λ = longitude (en radians)
+//- R = rayon de la Terre (6371 km)
+//- Δφ = φ₂ - φ₁
+//            - Δλ = λ₂ - λ₁
+
     public double haversineKm(String coordsA, String coordsB) {
         double[] a = parse(coordsA);
         double[] b = parse(coordsB);
@@ -19,6 +29,8 @@ public class GeoUtils {
                 * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h));
     }
+
+
 
     public double scoreDistance(String coordsA, String coordsB) {
         if (!isGpsCoords(coordsA) || !isGpsCoords(coordsB)) return 0.5; // neutre si absent ou non-GPS

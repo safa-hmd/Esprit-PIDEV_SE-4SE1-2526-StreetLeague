@@ -1,424 +1,265 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+// src/app/frontoffice/player-profile/player-profile.component.ts
+import { Component, OnInit } from '@angular/core';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
-
-import { PlayerProfileComponent } from './player-profile.component';
-import { UserService }     from 'src/app/services/user.service';
-import { TeamService }     from 'src/app/services/team.service';
-import { MatchService }    from 'src/app/services/match.service';
+import { forkJoin } from 'rxjs';
+import { UserProfile } from 'src/app/models/user.model';
+import { UserService } from 'src/app/services/user.service';
+import { TeamService } from 'src/app/services/team.service';
+import { MatchService } from 'src/app/services/match.service';
 import { TrainingService } from 'src/app/services/training.service';
-import { UserProfile }     from 'src/app/models/user.model';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import {
+  PerformanceStreakService,
+  PlayerStatsDto
+} from 'src/app/services/performance-streak.service';
+// child components are declared in module, no import needed here
 
-// ── Mock data ─────────────────────────────────────────────────────────────────
+@Component({
+  selector: 'app-player-profile',
+  templateUrl: './player-profile.component.html',
+  styleUrls: ['./player-profile.component.css']
+})
+export class PlayerProfileComponent implements OnInit {
 
-const EMAIL = 'coach@test.com';
+  profile: UserProfile | null = null;
+  profileForm!: FormGroup;
+  passwordForm!: FormGroup;
 
-const mockProfile: UserProfile = {
-  idUser:        1,
-  fullName:      'Alice Martin',
-  email:         EMAIL,
-  role:          'COACH',
-  teamCount:     0,
-  matchCount:    0,
-  trainingCount: 0
-};
+  profileSuccess = '';
+  profileError   = '';
+  passwordSuccess = '';
+  passwordError   = '';
+  activeTab: 'info' | 'password' | 'stats' | 'streak' | 'injury' | 'prediction' = 'info';
+  showDeleteModal = false;
+  deleteError     = '';
 
-const mockTeams = [
-  { idTeam: 1, name: 'Team Alpha', captainEmail: EMAIL,             captainFullName: 'Alice Martin' },
-  { idTeam: 2, name: 'Team Beta',  captainEmail: 'other@test.com', captainFullName: 'Bob'          }
-];
+  currentPlayerStats: PlayerStatsDto | null = null;
+  streakLoading = false;
 
-const mockMatches = [
-  { idMatch: 10, teamAName: 'Team Alpha', teamBName: 'Team Beta',
-    captainAEmail: EMAIL,          captainBEmail: 'other@test.com' },
-  { idMatch: 11, teamAName: 'Other A',    teamBName: 'Other B',
-    captainAEmail: 'x@x.com',     captainBEmail: 'y@y.com'        }
-];
+  constructor(
+    private fb: FormBuilder,
+    private userService: UserService,
+    private teamService: TeamService,
+    private matchService: MatchService,
+    private trainingService: TrainingService,
+    private streakService: PerformanceStreakService,
+    private router: Router
+  ) {}
 
-const mockTrainings = [
-  { idTraining: 100, title: 'Sprint Drills', teamName: 'Team Alpha', status: 'PLANNED'   },
-  { idTraining: 101, title: 'Strength Work', teamName: 'Other Team',  status: 'COMPLETED' }
-];
-
-// ── Suite ─────────────────────────────────────────────────────────────────────
-
-describe('PlayerProfileComponent', () => {
-  let component:   PlayerProfileComponent;
-  let fixture:     ComponentFixture<PlayerProfileComponent>;
-
-  let userSvc:     jasmine.SpyObj<UserService>;
-  let teamSvc:     jasmine.SpyObj<TeamService>;
-  let matchSvc:    jasmine.SpyObj<MatchService>;
-  let trainingSvc: jasmine.SpyObj<TrainingService>;
-  let routerSpy:   jasmine.SpyObj<Router>;
-
-  beforeEach(async () => {
-    userSvc     = jasmine.createSpyObj('UserService',     ['getProfile', 'updateProfile', 'changePassword', 'deleteAccount']);
-    teamSvc     = jasmine.createSpyObj('TeamService',     ['getAllTeams']);
-    matchSvc    = jasmine.createSpyObj('MatchService',    ['getAllMatchs']);
-    trainingSvc = jasmine.createSpyObj('TrainingService', ['getAllTrainings']);
-    routerSpy   = jasmine.createSpyObj('Router',          ['navigate']);
-
-    // Default happy-path stubs
-    userSvc.getProfile.and.returnValue(of(mockProfile));
-    teamSvc.getAllTeams.and.returnValue(of(mockTeams as any));
-    matchSvc.getAllMatchs.and.returnValue(of(mockMatches as any));
-    trainingSvc.getAllTrainings.and.returnValue(of(mockTrainings as any));
-
-    localStorage.setItem('EmailUserConnect', EMAIL);
-
-    await TestBed.configureTestingModule({
-      imports:      [ReactiveFormsModule,
-                     HttpClientTestingModule
-      ],
-      declarations: [PlayerProfileComponent],
-      providers: [
-        FormBuilder,
-        { provide: UserService,     useValue: userSvc     },
-        { provide: TeamService,     useValue: teamSvc     },
-        { provide: MatchService,    useValue: matchSvc    },
-        { provide: TrainingService, useValue: trainingSvc },
-        { provide: Router,          useValue: routerSpy   }
-      ]
-    }).compileComponents();
-
-    fixture   = TestBed.createComponent(PlayerProfileComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  afterEach(() => localStorage.clear());
-
-  // ── Creation ───────────────────────────────────────────────────────────────
-
-  describe('Creation', () => {
-    it('should create the component', () => {
-      expect(component).toBeTruthy();
+  ngOnInit(): void {
+    this.profileForm = this.fb.group({
+      fullName: ['', Validators.required]
     });
 
-    it('should call all four services on init via forkJoin', () => {
-      expect(userSvc.getProfile).toHaveBeenCalledTimes(1);
-      expect(teamSvc.getAllTeams).toHaveBeenCalledTimes(1);
-      expect(matchSvc.getAllMatchs).toHaveBeenCalledTimes(1);
-      expect(trainingSvc.getAllTrainings).toHaveBeenCalledTimes(1);
+    this.passwordForm = this.fb.group({
+      currentPassword: ['', Validators.required],
+      newPassword:     ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', Validators.required]
+    }, { validators: this.passwordMatchValidator });
+
+    this.loadData();
+  }
+
+  private loadData(): void {
+    const email = localStorage.getItem('EmailUserConnect') ?? '';
+
+    forkJoin({
+      allTeams:     this.teamService.getAllTeams(),
+      allMatches:   this.matchService.getAllMatchs(),
+      allTrainings: this.trainingService.getAllTrainings()
+    }).subscribe({
+      next: ({ allTeams, allMatches, allTrainings }) => {
+        this.userService.getProfile().subscribe({
+          next: profile => {
+            this.profileForm.patchValue({ fullName: profile.fullName });
+
+            const myTeams = allTeams.filter(t =>
+              t.captainEmail === email || t.captainFullName === profile.fullName
+            );
+            const myTeamNames = new Set(myTeams.map(t => t.name));
+
+            this.loadStreakData();
+
+            const myMatches   = allMatches.filter(m =>
+              myTeamNames.has(m.teamAName) || myTeamNames.has(m.teamBName) ||
+              m.captainAEmail === email    || m.captainBEmail === email
+            );
+            const myTrainings = allTrainings.filter(t => myTeamNames.has(t.teamName));
+
+            this.profile = {
+              ...profile,
+              teamCount:     myTeams.length,
+              matchCount:    myMatches.length,
+              trainingCount: myTrainings.length
+            };
+          },
+          error: () => this.profileForm.patchValue({ fullName: '' })
+        });
+      },
+      error: () => {
+        this.userService.getProfile().subscribe(p => {
+          this.profile = p;
+          this.profileForm.patchValue({ fullName: p.fullName });
+          this.loadStreakData();
+        });
+      }
     });
+  }
 
-    it('should patch profileForm with the loaded fullName', () => {
-      expect(component.profileForm.get('fullName')?.value).toBe('Alice Martin');
-    });
-
-    it('should default activeTab to "info"', () => {
-      expect(component.activeTab).toBe('info');
-    });
-
-    it('should default showDeleteModal to false', () => {
-      expect(component.showDeleteModal).toBeFalse();
-    });
-  });
-
-  // ── forkJoin data filtering ────────────────────────────────────────────────
-
-  describe('loadData filteringTest', () => {
-    it('should count only teams where captainEmail matches', () => {
-      // mockTeams[0].captainEmail === EMAIL → 1 team
-      expect(component.profile?.teamCount).toBe(1);
-    });
-
-    it('should count matches involving my teams or my email', () => {
-      // mockMatches[0] involves Team Alpha → 1 match
-      expect(component.profile?.matchCount).toBe(1);
-    });
-
-    it('should count trainings linked to my team names', () => {
-      // mockTrainings[0].teamName === 'Team Alpha' → 1 training
-      expect(component.profile?.trainingCount).toBe(1);
-    });
-
-    it('should fall back to getProfile when forkJoin fails', () => {
-      userSvc.getProfile.calls.reset();
-      teamSvc.getAllTeams.and.returnValue(throwError(() => new Error('fail')));
-      userSvc.getProfile.and.returnValue(of(mockProfile));
-
-      component['loadData']();
-
-      expect(userSvc.getProfile).toHaveBeenCalledTimes(1);
-    });
-
-    it('should set profile from fallback getProfile on forkJoin error', () => {
-      teamSvc.getAllTeams.and.returnValue(throwError(() => new Error('fail')));
-      userSvc.getProfile.and.returnValue(of(mockProfile));
-
-      component['loadData']();
-
-      expect(component.profile?.fullName).toBe('Alice Martin');
-    });
-  });
-
-  // ── profileForm ────────────────────────────────────────────────────────────
-
-  describe('profileForm validationTest', () => {
-    it('should be invalid when fullName is empty', () => {
-      component.profileForm.setValue({ fullName: '' });
-      expect(component.profileForm.invalid).toBeTrue();
-    });
-
-    it('should be valid when fullName has a value', () => {
-      component.profileForm.setValue({ fullName: 'Bob' });
-      expect(component.profileForm.valid).toBeTrue();
-    });
-  });
-
-  // ── passwordForm ───────────────────────────────────────────────────────────
-
-  describe('passwordForm validationTest', () => {
-    it('should be invalid when empty', () => {
-      expect(component.passwordForm.invalid).toBeTrue();
-    });
-
-    it('should have mismatch error when passwords differ', () => {
-      component.passwordForm.setValue({
-        currentPassword: 'old123',
-        newPassword:     'newPass1',
-        confirmPassword: 'different'
+  loadStreakData(): void {
+    this.streakLoading = true;
+    const playerId = parseInt(localStorage.getItem('UserIdConnect') || '0');
+    
+    if (playerId > 0) {
+      this.streakService.getPlayerStats(playerId).subscribe({
+        next: (stats) => {
+          this.currentPlayerStats = stats;
+          this.streakLoading = false;
+        },
+        error: (err) => {
+          console.error('Error loading player stats', err);
+          this.streakLoading = false;
+        }
       });
-      expect(component.passwordForm.errors?.['mismatch']).toBeTrue();
-    });
+    } else {
+      console.warn('No player ID found in localStorage');
+      this.streakLoading = false;
+    }
+  }
 
-    it('should be valid when all fields match', () => {
-      component.passwordForm.setValue({
-        currentPassword: 'old123',
-        newPassword:     'newPass1',
-        confirmPassword: 'newPass1'
+  doCheckin(): void {
+    const playerId = parseInt(localStorage.getItem('UserIdConnect') || '0');
+    if (!playerId) { 
+      alert('Please login to continue'); 
+      return; 
+    }
+
+    const attendanceType = 'TRAINING';
+
+    this.streakService.checkin(playerId, attendanceType)
+      .subscribe({
+        next: (result) => {
+          alert(`✅ Check-in recorded! Streak: ${result.currentStreak} days${result.badge ? ' - ' + result.badge : ''}`);
+          this.loadStreakData();
+        },
+        error: (err) => {
+          console.error('Checkin error:', err);
+          alert('❌ Error: ' + (err.error?.message || err.message || 'Unknown error'));
+        }
       });
-      expect(component.passwordForm.valid).toBeTrue();
+  }
+
+  getRiskColor(riskLevel: string | undefined): string {
+    const colors: Record<string, string> = {
+      'CRITICAL': '#ff3b5c', 
+      'HIGH': '#ff6b35', 
+      'MODERATE': '#ffd700',
+      'LOW': '#7fff6b'
+    };
+    return riskLevel ? colors[riskLevel] ?? '#7fff6b' : '#7fff6b';
+  }
+
+  getBadgeIcon(badge: string | null | undefined): string {
+    if (!badge)                  return '⚪';
+    if (badge.includes('IRON'))  return '🏆';
+    if (badge.includes('FORT'))  return '⭐';
+    if (badge.includes('WEEK'))  return '🔥';
+    return '📈';
+  }
+
+  passwordMatchValidator(group: AbstractControl) {
+    const np = group.get('newPassword')?.value;
+    const cp = group.get('confirmPassword')?.value;
+    return np === cp ? null : { mismatch: true };
+  }
+
+  onUpdateProfile(): void {
+    if (this.profileForm.invalid || !this.profile) return;
+    this.profileSuccess = '';
+    this.profileError   = '';
+    const savedCounts = {
+      teamCount:     this.profile.teamCount,
+      matchCount:    this.profile.matchCount,
+      trainingCount: this.profile.trainingCount
+    };
+    this.userService.updateProfile(this.profileForm.value).subscribe({
+      next: (data) => {
+        this.profile = { ...data, ...savedCounts };
+        localStorage.setItem('userName', data.fullName);
+        this.profileSuccess = 'Profile updated successfully!';
+        setTimeout(() => this.profileSuccess = '', 3000);
+      },
+      error: () => { this.profileError = 'Failed to update profile.'; }
     });
+  }
 
-    it('should be invalid when newPassword is shorter than 6 chars', () => {
-      component.passwordForm.setValue({
-        currentPassword: 'old',
-        newPassword:     'abc',
-        confirmPassword: 'abc'
-      });
-      expect(component.passwordForm.get('newPassword')?.errors?.['minlength']).toBeTruthy();
+  onChangePassword(): void {
+    if (this.passwordForm.invalid) return;
+    this.passwordSuccess = '';
+    this.passwordError   = '';
+    const { currentPassword, newPassword } = this.passwordForm.value;
+    this.userService.changePassword({ currentPassword, newPassword }).subscribe({
+      next: () => {
+        this.passwordSuccess = 'Password changed successfully!';
+        this.passwordForm.reset();
+        setTimeout(() => this.passwordSuccess = '', 3000);
+      },
+      error: (err) => { this.passwordError = err.error || 'Current password is incorrect.'; }
     });
-  });
+  }
 
-  // ── onUpdateProfile ────────────────────────────────────────────────────────
+  openDeleteModal(): void  { this.showDeleteModal = true; }
+  closeDeleteModal(): void { this.showDeleteModal = false; this.deleteError = ''; }
 
-  describe('onUpdateProfileTest', () => {
-    it('should not call updateProfile when form is invalid', () => {
-      component.profileForm.setValue({ fullName: '' });
-      component.onUpdateProfile();
-      expect(userSvc.updateProfile).not.toHaveBeenCalled();
+  confirmDelete(): void {
+    this.userService.deleteAccount().subscribe({
+      next: () => { localStorage.clear(); this.router.navigate(['/login']); },
+      error: () => { this.deleteError = 'Failed to delete account.'; }
     });
+  }
 
-    it('should not call updateProfile when profile is null', () => {
-      component.profile = null;
-      component.profileForm.setValue({ fullName: 'Bob' });
-      component.onUpdateProfile();
-      expect(userSvc.updateProfile).not.toHaveBeenCalled();
-    });
+  getRoleBadgeClass(): string {
+    const classes: Record<string, string> = {
+      PLAYER: 'bg-primary', COACH: 'bg-success',
+      ADMIN: 'bg-danger',   SPONSOR: 'bg-warning', DELIVERY: 'bg-secondary'
+    };
+    return classes[this.profile?.role ?? ''] ?? 'bg-dark';
+  }
 
-    it('should call updateProfile and show profileSuccess on success', fakeAsync(() => {
-      const updated = { ...mockProfile, fullName: 'Bob Smith' };
-      userSvc.updateProfile.and.returnValue(of(updated));
+  clampStat(val: number, max: number): number {
+    if (!val || val <= 0) return 4;
+    return Math.min(Math.max((val / max) * 100, 4), 100);
+  }
 
-      component.profileForm.setValue({ fullName: 'Bob Smith' });
-      component.onUpdateProfile();
+  getPasswordStrength(): number {
+    const pw: string = this.passwordForm.get('newPassword')?.value ?? '';
+    if (!pw) return 0;
+    let score = 0;
+    if (pw.length >= 6)           score++;
+    if (pw.length >= 10)          score++;
+    if (/[A-Z]/.test(pw))         score++;
+    if (/[0-9]/.test(pw))         score++;
+    if (/[^A-Za-z0-9]/.test(pw))  score++;
+    return score;
+  }
 
-      expect(component.profileSuccess).toBe('Profile updated successfully!');
-      tick(3001);
-      expect(component.profileSuccess).toBe('');
-    }));
+  getStrengthLabel(): string {
+    const s = this.getPasswordStrength();
+    if (s <= 1) return 'Weak'; 
+    if (s <= 2) return 'Fair';
+    if (s <= 3) return 'Good'; 
+    return 'Strong';
+  }
 
-    it('should preserve existing teamCount/matchCount/trainingCount after update', () => {
-      component.profile = { ...mockProfile, teamCount: 3, matchCount: 5, trainingCount: 2 };
-      const updated     = { ...mockProfile, fullName: 'Bob Smith', teamCount: 0, matchCount: 0, trainingCount: 0 };
-      userSvc.updateProfile.and.returnValue(of(updated));
+  getStrengthClass(): string {
+    const s = this.getPasswordStrength();
+    if (s <= 1) return 'weak'; 
+    if (s <= 2) return 'fair';
+    if (s <= 3) return 'good'; 
+    return 'strong';
+  }
 
-      component.profileForm.setValue({ fullName: 'Bob Smith' });
-      component.onUpdateProfile();
-
-      expect(component.profile?.teamCount).toBe(3);
-      expect(component.profile?.matchCount).toBe(5);
-      expect(component.profile?.trainingCount).toBe(2);
-    });
-
-    it('should store updated fullName in localStorage on success', () => {
-      const updated = { ...mockProfile, fullName: 'Charlie' };
-      userSvc.updateProfile.and.returnValue(of(updated));
-      component.profileForm.setValue({ fullName: 'Charlie' });
-      component.onUpdateProfile();
-      expect(localStorage.getItem('userName')).toBe('Charlie');
-    });
-
-    it('should set profileError on failure', () => {
-      userSvc.updateProfile.and.returnValue(throwError(() => new Error('err')));
-      component.profileForm.setValue({ fullName: 'Bob' });
-      component.onUpdateProfile();
-      expect(component.profileError).toBe('Failed to update profile.');
-    });
-  });
-
-  // ── onChangePassword ───────────────────────────────────────────────────────
-
-  describe('onChangePasswordTest', () => {
-    it('should not call changePassword when form is invalid', () => {
-      component.onChangePassword();
-      expect(userSvc.changePassword).not.toHaveBeenCalled();
-    });
-
-    it('should call changePassword and show passwordSuccess on success', fakeAsync(() => {
-      userSvc.changePassword.and.returnValue(of('ok'));
-      component.passwordForm.setValue({
-        currentPassword: 'old123',
-        newPassword:     'newPass1',
-        confirmPassword: 'newPass1'
-      });
-      component.onChangePassword();
-
-      expect(component.passwordSuccess).toBe('Password changed successfully!');
-      tick(3001);
-      expect(component.passwordSuccess).toBe('');
-    }));
-
-    it('should reset passwordForm after successful change', () => {
-      userSvc.changePassword.and.returnValue(of('ok'));
-      component.passwordForm.setValue({
-        currentPassword: 'old123',
-        newPassword:     'newPass1',
-        confirmPassword: 'newPass1'
-      });
-      component.onChangePassword();
-      expect(component.passwordForm.get('currentPassword')?.value).toBeNull();
-    });
-
-    it('should set passwordError from err.error on failure', () => {
-      userSvc.changePassword.and.returnValue(
-        throwError(() => ({ error: 'Wrong password' }))
-      );
-      component.passwordForm.setValue({
-        currentPassword: 'bad',
-        newPassword:     'newPass1',
-        confirmPassword: 'newPass1'
-      });
-      component.onChangePassword();
-      expect(component.passwordError).toBe('Wrong password');
-    });
-
-    it('should use default passwordError message when err.error is falsy', () => {
-      userSvc.changePassword.and.returnValue(throwError(() => ({})));
-      component.passwordForm.setValue({
-        currentPassword: 'bad',
-        newPassword:     'newPass1',
-        confirmPassword: 'newPass1'
-      });
-      component.onChangePassword();
-      expect(component.passwordError).toBe('Current password is incorrect.');
-    });
-  });
-
-  // ── Delete account modal ───────────────────────────────────────────────────
-
-  describe('deleteModalTest', () => {
-    it('should open the modal', () => {
-      component.openDeleteModal();
-      expect(component.showDeleteModal).toBeTrue();
-    });
-
-    it('should close the modal and clear deleteError', () => {
-      component.showDeleteModal = true;
-      component.deleteError     = 'some error';
-      component.closeDeleteModal();
-      expect(component.showDeleteModal).toBeFalse();
-      expect(component.deleteError).toBe('');
-    });
-
-    it('should navigate to /login and clear localStorage on confirmDelete', () => {
-      userSvc.deleteAccount.and.returnValue(of('deleted'));
-      localStorage.setItem('token', 'abc');
-      component.confirmDelete();
-      expect(localStorage.getItem('token')).toBeNull();
-      expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
-    });
-
-    it('should set deleteError on confirmDelete failure', () => {
-      userSvc.deleteAccount.and.returnValue(throwError(() => new Error('fail')));
-      component.confirmDelete();
-      expect(component.deleteError).toBe('Failed to delete account.');
-    });
-  });
-
-  // ── Helper methods ─────────────────────────────────────────────────────────
-
-  describe('getRoleBadgeClassTest', () => {
-    it('should return bg-primary for PLAYER',    () => { component.profile = { ...mockProfile, role: 'PLAYER'   }; expect(component.getRoleBadgeClass()).toBe('bg-primary');   });
-    it('should return bg-success for COACH',     () => { component.profile = { ...mockProfile, role: 'COACH'    }; expect(component.getRoleBadgeClass()).toBe('bg-success');   });
-    it('should return bg-danger for ADMIN',      () => { component.profile = { ...mockProfile, role: 'ADMIN'    }; expect(component.getRoleBadgeClass()).toBe('bg-danger');    });
-    it('should return bg-warning for SPONSOR',   () => { component.profile = { ...mockProfile, role: 'SPONSOR'  }; expect(component.getRoleBadgeClass()).toBe('bg-warning');   });
-    it('should return bg-secondary for DELIVERY',() => { component.profile = { ...mockProfile, role: 'DELIVERY' }; expect(component.getRoleBadgeClass()).toBe('bg-secondary'); });
-    it('should return bg-dark when profile is null', () => { component.profile = null; expect(component.getRoleBadgeClass()).toBe('bg-dark'); });
-  });
-
-  describe('getTabIndicatorLeftTest', () => {
-    it('should return 0% for info tab',      () => { component.activeTab = 'info';     expect(component.getTabIndicatorLeft()).toBe('0%');      });
-    it('should return 33.33% for password',  () => { component.activeTab = 'password'; expect(component.getTabIndicatorLeft()).toBe('33.33%');   });
-    it('should return 66.66% for stats tab', () => { component.activeTab = 'stats';    expect(component.getTabIndicatorLeft()).toBe('66.66%');   });
-  });
-
-  describe('clampStatTest', () => {
-    it('should return 4 for value 0',         () => expect(component.clampStat(0,   100)).toBe(4));
-    it('should return 4 for negative value',  () => expect(component.clampStat(-5,  100)).toBe(4));
-    it('should clamp to 100 when over max',   () => expect(component.clampStat(200, 100)).toBe(100));
-    it('should compute correct percentage',   () => expect(component.clampStat(50,  100)).toBe(50));
-  });
-
-  describe('getPasswordStrengthTest', () => {
-    it('should return 0 for empty password', () => {
-      component.passwordForm.get('newPassword')?.setValue('');
-      expect(component.getPasswordStrength()).toBe(0);
-    });
-
-    it('should return >= 1 for password >= 6 chars', () => {
-      component.passwordForm.get('newPassword')?.setValue('abcdef');
-      expect(component.getPasswordStrength()).toBeGreaterThanOrEqual(1);
-    });
-
-    it('should return 5 for a very strong password', () => {
-      component.passwordForm.get('newPassword')?.setValue('Str0ng!Pass');
-      expect(component.getPasswordStrength()).toBe(5);
-    });
-
-    it('should return Weak label for score <= 1', () => {
-      component.passwordForm.get('newPassword')?.setValue('abc');
-      expect(component.getStrengthLabel()).toBe('Weak');
-    });
-
-    it('should return Strong label for score > 3', () => {
-      component.passwordForm.get('newPassword')?.setValue('Str0ng!Pass');
-      expect(component.getStrengthLabel()).toBe('Strong');
-    });
-
-    it('should return "weak" class for short password', () => {
-      component.passwordForm.get('newPassword')?.setValue('abc');
-      expect(component.getStrengthClass()).toBe('weak');
-    });
-
-    it('should return "strong" class for strong password', () => {
-      component.passwordForm.get('newPassword')?.setValue('Str0ng!Pass');
-      expect(component.getStrengthClass()).toBe('strong');
-    });
-
-    it('should return "0%" width for empty password', () => {
-      component.passwordForm.get('newPassword')?.setValue('');
-      expect(component.getStrengthWidth()).toBe('0%');
-    });
-
-    it('should return "100%" width for max strength password', () => {
-      component.passwordForm.get('newPassword')?.setValue('Str0ng!Pass');
-      expect(component.getStrengthWidth()).toBe('100%');
-    });
-  });
-});
+  getStrengthWidth(): string {
+    return `${(this.getPasswordStrength() / 5) * 100}%`;
+  }
+}

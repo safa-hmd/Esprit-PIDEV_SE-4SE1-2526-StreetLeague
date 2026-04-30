@@ -593,3 +593,77 @@
 .modal-btn-secondary:hover {
   background: #e2e8f0;
 }
+/* ── Sport filter pills ──────────────────────────────────────── */
+.sport-filter-group {
+  flex: 100%;
+  width: 100%;
+}
+
+.sport-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sport-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 50px;
+  background: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.sport-pill:hover {
+  border-color: #667eea;
+  color: #667eea;
+  background: #f0f0ff;
+}
+
+.sport-pill.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+}
+
+/* ── Card avatar with sport icon ─────────────────────────────── */
+.team-avatar {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar-initials {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+.avatar-sport-icon {
+  display: none;
+}
+
+.team-sport {
+  font-size: 0.8rem;
+  color: #718096;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

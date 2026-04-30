@@ -20,14 +20,10 @@ public class MatchmakingScorer {
 
     private static final double W_ELO  = 0.50;
     private static final double W_DIST = 0.30;
-    private static final double W_H2H  = 0.20; // Head-to-Head = "forme" corrigé
+    private static final double W_H2H  = 0.20; // Head-to-Head
     private static final int    ELO_THRESHOLD = 200;
 
-    /**
-     * Score composite entre 0.0 et 1.0.
-     * requestorLocation = "lat,lng" fourni par le capitaine au moment de la requête.
-     * teamBLocation     = dernière localisation connue de teamB (ex: dernier match joué).
-     */
+
     public double compute(Team teamA, String locationA,
                           Team teamB, String locationB) {
         double eloScore  = scoreElo(teamA.getEloScore(), teamB.getEloScore());
@@ -36,18 +32,14 @@ public class MatchmakingScorer {
         return W_ELO * eloScore + W_DIST * distScore + W_H2H * h2hScore;
     }
 
-    /** Scores individuels exposés pour remplir MatchCandidateResponse */
+
     public double scoreElo(int eloA, int eloB) {
         int delta = Math.abs(eloA - eloB);
         if (delta >= ELO_THRESHOLD) return 0.0;
         return 1.0 - (double) delta / ELO_THRESHOLD;
     }
 
-    /**
-     * H2H : parmi les matchs directs entre les deux équipes,
-     * quel est le ratio de victoires de teamA ?
-     * → Si jamais joué : 0.5 (neutre)
-     */
+
     public double scoreH2H(Team teamA, Team teamB) {
         List<Match> h2hMatches = matchRepository
                 .findFinishedMatchesBetween(

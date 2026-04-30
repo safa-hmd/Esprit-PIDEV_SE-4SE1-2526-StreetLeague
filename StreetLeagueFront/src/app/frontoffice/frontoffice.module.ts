@@ -22,6 +22,8 @@ import localeFr from '@angular/common/locales/fr';
 import { FieldRecommenderComponent } from './field-recommender/field-recommender.component';
 import { MatchmakingComponent } from './matchmaking/matchmaking.component';
 import { PerformanceStreakComponent } from './performance-streak/performance-streak.component';
+import { InjuryRiskComponent } from './injury-risk/injury-risk.component';
+import { PerformancePredictionComponent } from './performance-prediction/performance-prediction.component';
 
 registerLocaleData(localeFr);  // ← ajoute avant @NgModule
 
@@ -41,6 +43,8 @@ registerLocaleData(localeFr);  // ← ajoute avant @NgModule
     FieldRecommenderComponent,
     MatchmakingComponent,
     PerformanceStreakComponent,
+     InjuryRiskComponent,               
+    PerformancePredictionComponent,
   ],
   imports: [
     CommonModule,

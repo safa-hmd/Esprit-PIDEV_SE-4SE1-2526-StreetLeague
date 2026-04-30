@@ -965,3 +965,141 @@
 .empty-premium p {
   font-size: 0.85rem;
 }
+/* ══════════════════════════════════════════
+   TABS SCROLL (pour les nouveaux onglets)
+══════════════════════════════════════════ */
+.profile-tabs-inner {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.profile-tabs-inner::-webkit-scrollbar { display: none; }
+
+/* ══════════════════════════════════════════
+   PANEL LIGHT (fond blanc pour Injury & Prediction)
+══════════════════════════════════════════ */
+.profile-panel--light {
+  background: #ffffff !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Override dark shells inside the light panel */
+.profile-panel--light .ir-shell,
+.profile-panel--light .pp-shell,
+.profile-panel--light .streak-dashboard {
+  min-height: unset;
+  background: #f8f9fa;
+  border-radius: var(--radius, 14px);
+  margin: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+/* Make text readable on white */
+.profile-panel--light .ir-shell {
+  --c-bg     : #f8f9fa;
+  --c-surface: #ffffff;
+  --c-text   : #1a1a2e;
+  --c-muted  : #6c757d;
+  --c-border : rgba(0,0,0,0.1);
+  color: #1a1a2e;
+}
+
+.profile-panel--light .pp-shell {
+  --c-bg     : #f8f9fa;
+  --c-surface: #ffffff;
+  --c-text   : #1a1a2e;
+  --c-muted  : #6c757d;
+  --c-border : rgba(0,0,0,0.1);
+  color: #1a1a2e;
+}
+
+.profile-panel--light .ir-title,
+.profile-panel--light .ir-subtitle,
+.profile-panel--light .pp-title,
+.profile-panel--light .pp-subtitle {
+  color: #1a1a2e;
+}
+
+.profile-panel--light .ir-header,
+.profile-panel--light .pp-header {
+  background: transparent;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.profile-panel--light .ir-player-card,
+.profile-panel--light .pp-player-card {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.profile-panel--light .ir-formula,
+.profile-panel--light .pp-algo {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.1);
+  color: #333;
+}
+
+.profile-panel--light .ir-formula-label,
+.profile-panel--light .pp-algo-title { color: #1a1a2e; }
+
+.profile-panel--light .ir-gauge-track,
+.profile-panel--light .pp-prob-track { background: rgba(0,0,0,0.08); }
+
+.profile-panel--light .ir-sum-card {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.1);
+  color: #333;
+}
+
+.profile-panel--light .ir-sum-count { color: #1a1a2e; }
+.profile-panel--light .ir-sum-label { color: #6c757d; }
+
+.profile-panel--light .ir-player-name { color: #1a1a2e; }
+.profile-panel--light .ir-player-meta { color: #6c757d; }
+
+.profile-panel--light .pp-card-name { color: #1a1a2e; }
+.profile-panel--light .pp-card-pts  { color: #6c757d; }
+.profile-panel--light .pp-metric-label { color: #6c757d; }
+.profile-panel--light .pp-metric-val { color: #1a1a2e; }
+
+.profile-panel--light .pp-group-title { color: #1a1a2e; }
+.profile-panel--light .pp-group-desc  { color: #6c757d; }
+.profile-panel--light .pp-group-count { color: #6c757d; }
+
+.profile-panel--light .pp-kpi { background: #ffffff; border: 1px solid rgba(0,0,0,0.1); }
+.profile-panel--light .pp-kpi-label { color: #6c757d; }
+.profile-panel--light .pp-kpi-val { color: #1a1a2e; }
+
+.profile-panel--light .pp-streak-label { color: #6c757d; }
+
+.profile-panel--light .pp-rising { background: #ffffff; border: 1px solid rgba(0,0,0,0.1); }
+.profile-panel--light .pp-rising-title { color: #1a1a2e; }
+.profile-panel--light .pp-rising-name { color: #1a1a2e; }
+
+/* Table view on white */
+.profile-panel--light .pp-table-wrap { background: #ffffff; }
+.profile-panel--light .pp-table th { color: #6c757d; background: #f0f0f0; }
+.profile-panel--light .pp-table td { color: #1a1a2e; border-color: rgba(0,0,0,0.06); }
+.profile-panel--light .pp-table tr:hover { background: #f5f5f5; }
+
+/* Recommendation bubble */
+.profile-panel--light .ir-recommendation {
+  background: rgba(0,0,0,0.04);
+  color: #333;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+/* Glow layers hidden on white bg */
+.profile-panel--light .ir-glow,
+.profile-panel--light .pp-glow { display: none; }
+
+

@@ -1,9 +1,8 @@
-<!-- performance-streak.component.html — Version améliorée avec sélecteur inline -->
+<!-- performance-streak.component.html — Version avancée soutenance -->
 <div class="streak-dashboard">
 
-  <!-- Notification in-page -->
-  <div class="notif-banner"
-       *ngIf="notification"
+  <!-- Notification -->
+  <div class="notif-banner" *ngIf="notification"
        [class.notif-success]="notification.type === 'success'"
        [class.notif-error]="notification.type === 'error'">
     {{ notification.message }}
@@ -11,18 +10,14 @@
 
   <!-- Header -->
   <div class="dashboard-header">
-    <h1><span>⚡</span> PERFORMANCE STREAK TRACKER</h1>
-    <div class="header-right">
-      <div class="test-mode-badge" *ngIf="true">
-        🧪 TEST MODE — 1 fenêtre = 5s
-      </div>
-    </div>
+    <h1><span>⚡</span> PERFORMANCE TRACKER</h1>
+    <div class="header-subtitle">Système avancé d'analyse de performance & prédiction</div>
   </div>
 
   <!-- Loading -->
   <div class="loading-premium" *ngIf="loading">
     <div class="spinner-premium"></div>
-    <span>Loading streak data...</span>
+    <span>Chargement des métriques...</span>
   </div>
 
   <!-- Erreur -->
@@ -32,72 +27,63 @@
   </div>
 
   <!-- ══════════════════════════════════════════════════════════
-       CHECK-IN INLINE (plus besoin de modal !)
+       CHECK-IN SECTION
        ══════════════════════════════════════════════════════════ -->
   <div class="checkin-inline-card" *ngIf="!loading">
     <div class="checkin-inline-header">
       <div class="checkin-inline-title">📝 DAILY CHECK-IN</div>
       <div class="checkin-inline-subtitle">
-        Sélectionne ton activité et valide — chaque nouvelle fenêtre de 5s = +1 jour de streak
+        Sélectionne ton activité — chaque nouveau jour = +1 streak
       </div>
     </div>
 
-    <!-- Sélecteur de type inline -->
     <div class="type-selector">
-
-      <!-- TRAINING -->
-      <div class="type-card"
-           [class.type-selected]="checkinType === 'TRAINING'"
+      <div class="type-card" [class.type-selected]="checkinType === 'TRAINING'"
            (click)="checkinType = 'TRAINING'">
         <div class="type-emoji">🏋️</div>
         <div class="type-label">Training</div>
         <div class="type-pts">+1 pt</div>
         <div class="type-check" *ngIf="checkinType === 'TRAINING'">✓</div>
       </div>
-
-      <!-- MATCH -->
-      <div class="type-card"
-           [class.type-selected]="checkinType === 'MATCH'"
+      <div class="type-card" [class.type-selected]="checkinType === 'MATCH'"
            (click)="checkinType = 'MATCH'">
         <div class="type-emoji">⚽</div>
         <div class="type-label">Match</div>
         <div class="type-pts">+2 pts</div>
         <div class="type-check" *ngIf="checkinType === 'MATCH'">✓</div>
       </div>
-
-      <!-- BOTH -->
-      <div class="type-card type-card-both"
-           [class.type-selected]="checkinType === 'BOTH'"
+      <div class="type-card type-card-both" [class.type-selected]="checkinType === 'BOTH'"
            (click)="checkinType = 'BOTH'">
         <div class="type-emoji">🔥</div>
         <div class="type-label">Both</div>
         <div class="type-pts">+3 pts ⚡</div>
         <div class="type-check" *ngIf="checkinType === 'BOTH'">✓</div>
       </div>
-
     </div>
 
-    <!-- Bouton check-in -->
-    <button class="btn-checkin-main"
-            (click)="doCheckin()"
-            [disabled]="checkinLoading">
+    <button class="btn-checkin-main" (click)="doCheckin()" [disabled]="checkinLoading">
       <span *ngIf="!checkinLoading">✓ VALIDER LE CHECK-IN ({{ checkinType }})</span>
       <span *ngIf="checkinLoading" class="loading-dots">⏳ Enregistrement...</span>
     </button>
-
-    <!-- Bonus info BOTH -->
-    <div class="bonus-pill" *ngIf="checkinType === 'BOTH'">
-      ⚡ Activité double — maximum de points par jour !
-    </div>
   </div>
 
-  <!-- My Stats Card -->
+  <!-- ══════════════════════════════════════════════════════════
+       MES STATS AVANCÉES (carte personnelle)
+       ══════════════════════════════════════════════════════════ -->
   <div class="my-stats-card" *ngIf="currentPlayerStats && !loading">
-    <div class="my-stats-header">🎯 MY PERFORMANCE</div>
+    <div class="my-stats-header">
+      <span>🎯 MES PERFORMANCES</span>
+      <span class="level-badge" [class]="getLevelClass(currentPlayerStats.performanceLevel)">
+        {{ getLevelIcon(currentPlayerStats.performanceLevel) }}
+        {{ currentPlayerStats.performanceLevel || 'BEGINNER' }}
+      </span>
+    </div>
+
+    <!-- Grille principale des stats -->
     <div class="my-stats-grid">
       <div class="my-stat">
         <div class="my-stat-value">{{ currentPlayerStats.currentStreak }}</div>
-        <div class="my-stat-label">Current Streak</div>
+        <div class="my-stat-label">Streak actuel</div>
       </div>
       <div class="my-stat">
         <div class="my-stat-value" style="color:#ffd700">{{ currentPlayerStats.totalPoints }}</div>
@@ -105,39 +91,144 @@
       </div>
       <div class="my-stat">
         <div class="my-stat-value">{{ currentPlayerStats.bestStreak }}</div>
-        <div class="my-stat-label">Best Streak</div>
+        <div class="my-stat-label">Meilleur Streak</div>
       </div>
       <div class="my-stat">
         <div class="my-stat-value"
-             [style.color]="getRiskColor(currentPlayerStats.riskLevel || 'LOW')">
+             [style.color]="getRiskColor(currentPlayerStats.riskLevel)">
           {{ getFatiguePercent(currentPlayerStats.fatigueRisk) }}%
         </div>
-        <div class="my-stat-label">Fatigue Risk</div>
+        <div class="my-stat-label">Fatigue</div>
       </div>
     </div>
+
+    <!-- Nouvelles métriques avancées -->
+    <div class="advanced-metrics-grid">
+
+      <div class="metric-card">
+        <div class="metric-icon">📊</div>
+        <div class="metric-label">Consistance</div>
+        <div class="metric-value"
+             [style.color]="getConsistencyColor(currentPlayerStats.consistencyScore)">
+          {{ currentPlayerStats.consistencyScore | number:'1.0-1' }}%
+        </div>
+        <div class="metric-bar">
+          <div class="metric-bar-fill"
+               [style.width.%]="currentPlayerStats.consistencyScore || 0"
+               [style.background]="getConsistencyColor(currentPlayerStats.consistencyScore)">
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">🔋</div>
+        <div class="metric-label">Récupération</div>
+        <div class="metric-value" style="color:#7fff6b">
+          {{ currentPlayerStats.recoveryScore | number:'1.0-0' }}%
+        </div>
+        <div class="metric-bar">
+          <div class="metric-bar-fill"
+               [style.width.%]="currentPlayerStats.recoveryScore || 0"
+               style="background:#7fff6b">
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">📅</div>
+        <div class="metric-label">Présence 30j</div>
+        <div class="metric-value" style="color:#7ec8ff">
+          {{ currentPlayerStats.activeDaysLast30 }}/30 jours
+        </div>
+        <div class="metric-bar">
+          <div class="metric-bar-fill"
+               [style.width.%]="(currentPlayerStats.activeDaysLast30 || 0) / 30 * 100"
+               style="background:#7ec8ff">
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">⚡</div>
+        <div class="metric-label">Charge semaine</div>
+        <div class="metric-value"
+             [style.color]="getRiskColor(currentPlayerStats.injuryRiskLevel)">
+          {{ (currentPlayerStats.workloadFactor || 0) * 100 | number:'1.0-0' }}%
+        </div>
+        <div class="metric-bar">
+          <div class="metric-bar-fill"
+               [style.width.%]="(currentPlayerStats.workloadFactor || 0) * 100"
+               [style.background]="getRiskColor(currentPlayerStats.injuryRiskLevel)">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Historique hebdomadaire -->
+    <div class="weekly-history">
+      <div class="weekly-history-label">Activité des 7 derniers jours :</div>
+      <div class="weekly-dots">
+        <ng-container *ngFor="let day of getWeeklyHistoryBar(currentPlayerStats.weeklyHistory); let i = index">
+          <div class="weekly-dot" [class.active]="day.active"
+               [title]="'J-' + (6 - i)">
+          </div>
+        </ng-container>
+      </div>
+      <div class="weekly-labels">
+        <span *ngFor="let i of [6,5,4,3,2,1,0]">J-{{ i }}</span>
+      </div>
+    </div>
+
+    <!-- Prédiction -->
+    <div class="prediction-card">
+      <div class="prediction-icon">🔮</div>
+      <div class="prediction-content">
+        <div class="prediction-title">Prédiction dans 7 jours</div>
+        <div class="prediction-detail">
+          Streak estimé : <strong>{{ currentPlayerStats.predictedStreakIn7Days }} jours</strong>
+          | Probabilité : <strong
+            [style.color]="(currentPlayerStats.streakContinuationProbability || 0) >= 70 ? '#7fff6b' : '#ffd700'">
+            {{ currentPlayerStats.streakContinuationProbability | number:'1.0-1' }}%
+          </strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Points semaine/mois -->
+    <div class="points-period-row">
+      <div class="points-period">
+        <span class="points-period-label">Cette semaine</span>
+        <span class="points-period-value">+{{ currentPlayerStats.pointsThisWeek || 0 }} pts</span>
+      </div>
+      <div class="points-period">
+        <span class="points-period-label">Ce mois</span>
+        <span class="points-period-value">+{{ currentPlayerStats.pointsThisMonth || 0 }} pts</span>
+      </div>
+    </div>
+
+    <!-- Badge -->
     <div class="my-stats-badge" *ngIf="currentPlayerStats.badge">
       {{ getBadgeIcon(currentPlayerStats.badge) }} {{ currentPlayerStats.badge }}
     </div>
-    <div class="my-stats-risk-bar">
-      <div class="risk-bar-label">
-        Niveau de fatigue :
-        <strong [style.color]="getRiskColor(currentPlayerStats.riskLevel || 'LOW')">
-          {{ currentPlayerStats.riskLevel || 'LOW' }}
-        </strong>
-      </div>
-      <div class="risk-bar-track">
-        <div class="risk-bar-fill"
-             [style.width.%]="getFatiguePercent(currentPlayerStats.fatigueRisk)"
-             [style.background]="getRiskColor(currentPlayerStats.riskLevel || 'LOW')">
-        </div>
-      </div>
+
+    <!-- Risque blessure -->
+    <div class="injury-risk-inline"
+         *ngIf="currentPlayerStats.injuryRiskLevel === 'HIGH' || currentPlayerStats.injuryRiskLevel === 'CRITICAL'">
+      <span class="injury-risk-icon">🩺</span>
+      <span>Risque blessure <strong
+        [style.color]="getRiskColor(currentPlayerStats.injuryRiskLevel)">
+        {{ currentPlayerStats.injuryRiskLevel }}
+      </strong> — {{ currentPlayerStats.recommendation }}</span>
     </div>
   </div>
 
-  <!-- Fatigue Alerts -->
+  <!-- ══════════════════════════════════════════════════════════
+       ALERTES FATIGUE
+       ══════════════════════════════════════════════════════════ -->
   <div class="alerts-premium-section" *ngIf="fatigueAlerts.length > 0 && !loading">
     <div class="alerts-premium-header">
-      <h3>⚠️ FATIGUE ALERTS</h3>
+      <h3>⚠️ ALERTES FATIGUE</h3>
       <span class="alert-count">{{ fatigueAlerts.length }}</span>
     </div>
     <div class="alert-premium-list">
@@ -145,69 +236,149 @@
         <div class="alert-premium-icon">⚠️</div>
         <div class="alert-premium-content">
           <div class="alert-premium-name">{{ alert.playerName }}</div>
-          <div class="alert-premium-detail">{{ alert.currentStreak }} days streak</div>
+          <div class="alert-premium-detail">{{ alert.currentStreak }} jours de streak</div>
           <div class="alert-recommendation" *ngIf="alert.recommendation">
             💡 {{ alert.recommendation }}
           </div>
         </div>
         <div class="alert-premium-risk" [class]="alert.riskLevel?.toLowerCase() || ''">
-          {{ getFatiguePercent(alert.fatigueRisk) }}% risk
+          {{ getFatiguePercent(alert.fatigueRisk) }}%
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Global Leaderboard -->
-  <div class="leaderboard-premium-section" *ngIf="!loading">
-    <div class="leaderboard-premium-header">
-      <h3>🏆 GLOBAL LEADERBOARD</h3>
-      <span>{{ leaderboard.length }} players</span>
+  <!-- ══════════════════════════════════════════════════════════
+       CLASSEMENTS (tabs)
+       ══════════════════════════════════════════════════════════ -->
+  <div class="rankings-section" *ngIf="!loading">
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn" [class.active]="activeTab === 'leaderboard'"
+              (click)="activeTab = 'leaderboard'">🏆 Leaderboard</button>
+      <button class="tab-btn" [class.active]="activeTab === 'consistency'"
+              (click)="activeTab = 'consistency'">📊 Consistance</button>
+      <button class="tab-btn" [class.active]="activeTab === 'momentum'"
+              (click)="activeTab = 'momentum'">⚡ Momentum</button>
     </div>
 
-    <div class="table-premium">
-      <div class="table-premium-header">
-        <div>#</div>
-        <div>PLAYER</div>
-        <div>STREAK</div>
-        <div>PTS</div>
-        <div>BADGE</div>
-        <div>STATUS</div>
+    <!-- Tab : Leaderboard par points -->
+    <div *ngIf="activeTab === 'leaderboard'" class="leaderboard-premium-section">
+      <div class="leaderboard-premium-header">
+        <h3>🏆 CLASSEMENT GLOBAL</h3>
+        <span>{{ leaderboard.length }} joueurs</span>
       </div>
-
-      <div *ngFor="let p of leaderboard; let i = index" class="table-premium-row">
-        <div class="rank-premium" [class]="getRankClass(i + 1)">
-          {{ i + 1 === 1 ? '🥇' : i + 1 === 2 ? '🥈' : i + 1 === 3 ? '🥉' : i + 1 }}
+      <div class="table-premium">
+        <div class="table-premium-header">
+          <div>#</div><div>JOUEUR</div><div>STREAK</div>
+          <div>PTS</div><div>NIVEAU</div><div>BADGE</div>
         </div>
-        <div class="player-premium">
-          <div class="player-premium-avatar">{{ (p.playerName || '?').charAt(0) }}</div>
-          <span class="player-premium-name">{{ p.playerName }}</span>
-        </div>
-        <div class="streak-premium">
-          <span class="streak-premium-number">{{ p.currentStreak }}</span>
-          <div class="streak-premium-bar">
-            <div class="streak-premium-fill"
-                 [style.width.%]="getStreakBarWidth(p.currentStreak)">
+        <div *ngFor="let p of leaderboard; let i = index" class="table-premium-row">
+          <div class="rank-premium" [class]="getRankClass(i + 1)">
+            {{ i + 1 === 1 ? '🥇' : i + 1 === 2 ? '🥈' : i + 1 === 3 ? '🥉' : i + 1 }}
+          </div>
+          <div class="player-premium">
+            <div class="player-premium-avatar">{{ (p.playerName || '?').charAt(0) }}</div>
+            <span class="player-premium-name">{{ p.playerName }}</span>
+          </div>
+          <div class="streak-premium">
+            <span class="streak-premium-number">{{ p.currentStreak }}</span>
+            <div class="streak-premium-bar">
+              <div class="streak-premium-fill" [style.width.%]="getStreakBarWidth(p.currentStreak)"></div>
             </div>
           </div>
+          <div class="points-premium">{{ p.totalPoints }}</div>
+          <div>
+            <span class="level-badge-sm" [class]="getLevelClass(p.performanceLevel)">
+              {{ getLevelIcon(p.performanceLevel) }} {{ p.performanceLevel }}
+            </span>
+          </div>
+          <div class="badge-premium">
+            <span>{{ getBadgeIcon(p.badge) }} {{ p.badge || '—' }}</span>
+          </div>
         </div>
-        <div class="points-premium">{{ p.totalPoints }}</div>
-        <div class="badge-premium">
-          <span class="badge-premium-icon">{{ getBadgeIcon(p.badge) }}</span>
-          <span>{{ p.badge || 'NO BADGE' }}</span>
+        <div *ngIf="leaderboard.length === 0" class="empty-premium">
+          <div class="empty-premium-icon">📊</div>
+          <p>Aucune donnée — commencez par un check-in !</p>
         </div>
-        <div>
-          <span class="status-premium" [class]="getStatusClass(p.status)">
-            {{ p.status }}
-          </span>
-        </div>
-      </div>
-
-      <div *ngIf="leaderboard.length === 0 && !loading" class="empty-premium">
-        <div class="empty-premium-icon">📊</div>
-        <p>No streak data available yet</p>
-        <p style="font-size: 0.7rem;">Start by doing a daily check-in!</p>
       </div>
     </div>
-  </div>
 
+    <!-- Tab : Classement Consistance -->
+    <div *ngIf="activeTab === 'consistency'" class="leaderboard-premium-section">
+      <div class="leaderboard-premium-header">
+        <h3>📊 CLASSEMENT CONSISTANCE</h3>
+        <span>Régularité sur 30 jours</span>
+      </div>
+      <div class="table-premium">
+        <div class="table-premium-header">
+          <div>#</div><div>JOUEUR</div><div>CONSISTANCE</div>
+          <div>PRÉSENCE</div><div>RÉC.</div><div>NIVEAU</div>
+        </div>
+        <div *ngFor="let p of consistencyRanking; let i = index" class="table-premium-row">
+          <div class="rank-premium" [class]="getRankClass(i + 1)">
+            {{ i + 1 === 1 ? '🥇' : i + 1 === 2 ? '🥈' : i + 1 === 3 ? '🥉' : i + 1 }}
+          </div>
+          <div class="player-premium">
+            <div class="player-premium-avatar">{{ (p.playerName || '?').charAt(0) }}</div>
+            <span class="player-premium-name">{{ p.playerName }}</span>
+          </div>
+          <div>
+            <div class="consistency-bar-wrap">
+              <div class="consistency-fill"
+                   [style.width.%]="p.consistencyScore || 0"
+                   [style.background]="getConsistencyColor(p.consistencyScore)">
+              </div>
+              <span class="consistency-label"
+                    [style.color]="getConsistencyColor(p.consistencyScore)">
+                {{ p.consistencyScore | number:'1.0-1' }}%
+              </span>
+            </div>
+          </div>
+          <div>{{ p.activeDaysLast30 || 0 }}/30j</div>
+          <div style="color:#7fff6b">{{ p.recoveryScore | number:'1.0-0' }}%</div>
+          <div>
+            <span class="level-badge-sm" [class]="getLevelClass(p.performanceLevel)">
+              {{ getLevelIcon(p.performanceLevel) }} {{ p.performanceLevel }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab : Momentum -->
+    <div *ngIf="activeTab === 'momentum'" class="leaderboard-premium-section">
+      <div class="leaderboard-premium-header">
+        <h3>⚡ MOMENTUM & TENDANCES</h3>
+        <span>Score pondéré 30 jours</span>
+      </div>
+      <div class="table-premium">
+        <div class="table-premium-header">
+          <div>JOUEUR</div><div>MOMENTUM</div><div>STREAK</div><div>TENDANCE</div>
+        </div>
+        <div *ngFor="let p of momentumData" class="table-premium-row">
+          <div class="player-premium">
+            <div class="player-premium-avatar">{{ (p.playerName || '?').charAt(0) }}</div>
+            <span class="player-premium-name">{{ p.playerName }}</span>
+          </div>
+          <div>
+            <div class="momentum-bar-wrap">
+              <div class="momentum-fill"
+                   [style.width.%]="p.momentumScore || 0">
+              </div>
+              <span>{{ p.momentumScore | number:'1.0-1' }}</span>
+            </div>
+          </div>
+          <div>{{ p.currentStreak }} jours</div>
+          <div>
+            <span class="trend-badge" [class]="p.trend?.toLowerCase()">
+              {{ getTrendIcon(p.trend) }} {{ p.trend }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>

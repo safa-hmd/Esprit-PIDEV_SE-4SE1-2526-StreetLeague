@@ -16,6 +16,8 @@ public class PerformanceController {
 
     private final PerformanceService performanceService;
 
+    // ── Endpoints existants (inchangés) ──────────────────────────────────
+
     @GetMapping("/player/{playerId}")
     public ResponseEntity<PlayerStatsDto> getPlayerStats(@PathVariable Long playerId) {
         return performanceService.getPlayerStats(playerId)
@@ -43,16 +45,97 @@ public class PerformanceController {
         return ResponseEntity.ok(performanceService.getGlobalFatigueAlerts());
     }
 
-    /**
-     * POST /api/performance/checkin?playerId=X&attendanceType=Y
-     * Crée ou MET À JOUR le check-in du jour (on peut cliquer plusieurs fois).
-     * Recalcule fatigue + streak à chaque appel.
-     */
     @PostMapping("/checkin")
     public ResponseEntity<PlayerStatsDto> checkin(
             @RequestParam Long playerId,
             @RequestParam String attendanceType) {
-        return ResponseEntity.ok(
-                performanceService.checkin(playerId, attendanceType));
+        return ResponseEntity.ok(performanceService.checkin(playerId, attendanceType));
+    }
+
+    @GetMapping("/injury-risk")
+    public ResponseEntity<List<PlayerStatsDto>> getInjuryRiskRanking() {
+        return ResponseEntity.ok(performanceService.getInjuryRiskRanking());
+    }
+
+    @GetMapping("/consistency-ranking")
+    public ResponseEntity<List<PlayerStatsDto>> getConsistencyRanking() {
+        return ResponseEntity.ok(performanceService.getConsistencyRanking());
+    }
+
+    @GetMapping("/by-level/{level}")
+    public ResponseEntity<List<PlayerStatsDto>> getPlayersByLevel(@PathVariable String level) {
+        return ResponseEntity.ok(performanceService.getPlayersByPerformanceLevel(level));
+    }
+
+    @GetMapping("/predictions")
+    public ResponseEntity<List<PlayerStatsDto>> getPerformancePredictions() {
+        return ResponseEntity.ok(performanceService.getPerformancePredictions());
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  NOUVEAUX ENDPOINTS — ACWR
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * GET /api/performance/acwr/{playerId}
+     * Stats ACWR détaillées d'un joueur : ratio, charge aiguë/chronique, zone, recommandation.
+     */
+    @GetMapping("/acwr/{playerId}")
+    public ResponseEntity<PlayerStatsDto> getAcwrStats(@PathVariable Long playerId) {
+        return performanceService.getAcwrStats(playerId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * GET /api/performance/acwr/ranking
+     * Classement global trié par ACWR décroissant.
+     * Les joueurs les plus à risque de surentraînement apparaissent en premier.
+     */
+    @GetMapping("/acwr/ranking")
+    public ResponseEntity<List<PlayerStatsDto>> getAcwrRanking() {
+        return ResponseEntity.ok(performanceService.getAcwrRanking());
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  NOUVEAUX ENDPOINTS — ANOMALIES
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * GET /api/performance/anomaly/{playerId}
+     * Analyse d'anomalie Z-Score + EWMA pour un joueur spécifique.
+     * Retourne : type, sévérité, zScore, ewmaScore, ewmaDrop, message.
+     */
+    @GetMapping("/anomaly/{playerId}")
+    public ResponseEntity<PlayerStatsDto> getAnomalyStats(@PathVariable Long playerId) {
+        return performanceService.getAnomalyStats(playerId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * GET /api/performance/anomaly/alerts
+     * Liste tous les joueurs avec des anomalies actives (MEDIUM, HIGH, CRITICAL).
+     * Triés par sévérité décroissante — endpoint principal du dashboard coach.
+     */
+    @GetMapping("/anomaly/alerts")
+    public ResponseEntity<List<PlayerStatsDto>> getAnomalyAlerts() {
+        return ResponseEntity.ok(performanceService.getPlayersWithAnomalies());
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ENDPOINT COMBINÉ — ACWR + Anomalie + Stats complètes
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * GET /api/performance/full-analysis/{playerId}
+     * Analyse complète : ACWR + Anomalie + toutes les métriques existantes.
+     * Endpoint principal pour la vue détaillée d'un joueur côté coach.
+     */
+    @GetMapping("/full-analysis/{playerId}")
+    public ResponseEntity<PlayerStatsDto> getFullAnalysis(@PathVariable Long playerId) {
+        return performanceService.getFullAnalysis(playerId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

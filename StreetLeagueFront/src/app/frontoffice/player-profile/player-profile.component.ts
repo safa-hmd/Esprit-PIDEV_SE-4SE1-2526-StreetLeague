@@ -28,7 +28,7 @@ export class PlayerProfileComponent implements OnInit {
   profileError   = '';
   passwordSuccess = '';
   passwordError   = '';
-  activeTab: 'info' | 'password' | 'stats' | 'streak' = 'info';
+  activeTab: 'info' | 'password' | 'stats' | 'streak' | 'injury' | 'prediction' = 'info';
   showDeleteModal = false;
   deleteError     = '';
 

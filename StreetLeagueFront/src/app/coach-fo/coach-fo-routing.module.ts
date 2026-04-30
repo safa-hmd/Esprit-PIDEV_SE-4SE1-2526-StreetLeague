@@ -10,6 +10,7 @@ import { HomeComponent } from './home/home.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
 import { ScheduleComponent } from './schedule/schedule.component';
 import { FieldRecommenderComponent } from './field-recommender/field-recommender.component';
+import { CoachAnomalyDashboardComponent } from './coach-anomaly-dashboard/coach-anomaly-dashboard.component';
 
 const routes: Routes = [{ path: '', component: CoachFOComponent,   
     children: [                      
@@ -23,6 +24,7 @@ const routes: Routes = [{ path: '', component: CoachFOComponent,
     { path: 'profile', component: PlayerProfileComponent },
       { path: 'schedule', component: ScheduleComponent },
         { path: 'recommend', component: FieldRecommenderComponent },
+        {path: 'anomalies', component: CoachAnomalyDashboardComponent}
       
     ]
   }

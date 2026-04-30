@@ -42,14 +42,24 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
 
 
 
-    // Éligibles : même sport, pas soi-même, au moins 1 joueur
-@Query("""
-SELECT t FROM Team t
-WHERE t.idTeam <> :teamId
-  AND LOWER(t.sport) = LOWER(:sport)
-  AND SIZE(t.players) > 0
-""")
+    // Éligibles : tous les sports, pas soi-même, au moins 1 joueur
+    @Query("""
+    SELECT t FROM Team t
+    WHERE t.idTeam <> :teamId
+      AND SIZE(t.players) > 0
+    """)
     List<Team> findEligibleOpponents(
+            @Param("teamId") Long teamId
+    );
+
+    // Éligibles FILTRÉS par sport (insensible à la casse)
+    @Query("""
+    SELECT t FROM Team t
+    WHERE t.idTeam <> :teamId
+      AND SIZE(t.players) > 0
+      AND LOWER(t.sport) = LOWER(:sport)
+    """)
+    List<Team> findEligibleOpponentsBySport(
             @Param("teamId") Long teamId,
             @Param("sport")  String sport
     );

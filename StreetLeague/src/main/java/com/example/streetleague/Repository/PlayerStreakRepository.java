@@ -19,21 +19,6 @@ public interface PlayerStreakRepository extends JpaRepository<PlayerStreak, Long
     List<PlayerStreak> findAllByOrderByCurrentStreakDesc();
 
 
-
-    /**
-     * Leaderboard par équipe.
-     *
-     * CORRECTION : les deux méthodes findByTeamId() et findPlayersByTeam()
-     * faisaient exactement la même chose avec deux syntaxes JPQL différentes
-     * → redondance et risque de confusion. On garde UNE SEULE méthode :
-     * getTeamLeaderboard() avec ORDER BY pour avoir un résultat directement
-     * trié, prêt à l'emploi.
-     *
-     * IMPORTANT : cette requête suppose que l'entité User possède une
-     * relation @ManyToMany nommée exactement "teams" et que l'entité Team
-     * a un champ "idTeam". Vérifiez que ces noms correspondent à votre
-     * modèle, sinon Hibernate lèvera une exception au démarrage.
-     */
     @Query("SELECT ps FROM PlayerStreak ps WHERE ps.playerId IN " +
             "(SELECT u.idUser FROM User u JOIN u.teams t WHERE t.idTeam = :teamId) " +
             "ORDER BY ps.totalPoints DESC")

@@ -12,6 +12,8 @@ import { ScheduleComponent } from './schedule/schedule.component';
 import { FieldRecommenderComponent } from './field-recommender/field-recommender.component';
 import { MatchmakingComponent } from './matchmaking/matchmaking.component';
 import { PerformanceStreakComponent } from './performance-streak/performance-streak.component';
+import { PerformancePredictionComponent } from './performance-prediction/performance-prediction.component';
+import { InjuryRiskComponent } from './injury-risk/injury-risk.component';
 
 const routes: Routes = [
   {
@@ -29,7 +31,9 @@ const routes: Routes = [
         { path: 'schedule', component: ScheduleComponent },
         { path: 'recommend', component: FieldRecommenderComponent },
         {path: 'matchmaking',component: MatchmakingComponent},
-        { path: 'performance-streak', component: PerformanceStreakComponent }
+        { path: 'performance-streak', component: PerformanceStreakComponent },
+        { path: 'injury-risk',            component: InjuryRiskComponent },
+{ path: 'performance-prediction', component: PerformancePredictionComponent },
     ]
   }
 ]
