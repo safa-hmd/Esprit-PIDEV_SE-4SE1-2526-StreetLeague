@@ -8,7 +8,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -29,6 +31,13 @@ public class Team {
     LocalDate creationDate;
     String city;
 
+    int victories = 0;
+    int defeats = 0;
+    int matches = 0;
+
+    @Builder.Default
+    Integer eloScore = 1000;
+
     @Enumerated(EnumType.STRING)
     Level level;
 
@@ -46,7 +55,7 @@ public class Team {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @JsonIgnore
-    List<User> players= new ArrayList<>();
+    Set<User> players = new HashSet<>();
 
     // Training sessions for this team
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
@@ -63,43 +72,13 @@ public class Team {
     @JsonIgnore
     List<Match> matchesAsTeamB;
 
-    // ===== EXPLICIT GETTERS/SETTERS (Lombok not processing) =====
 
-    public Long getIdTeam() { return this.idTeam; }
-    public void setIdTeam(Long idTeam) { this.idTeam = idTeam; }
+    @ManyToOne
+    @JoinColumn(name = "coach_id")
+    User coach;
 
-    public String getName() { return this.name; }
-    public void setName(String name) { this.name = name; }
 
-    public String getSport() { return this.sport; }
-    public void setSport(String sport) { this.sport = sport; }
 
-    public String getDescription() { return this.description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public LocalDate getCreationDate() { return this.creationDate; }
-    public void setCreationDate(LocalDate creationDate) { this.creationDate = creationDate; }
-
-    public String getCity() { return this.city; }
-    public void setCity(String city) { this.city = city; }
-
-    public Level getLevel() { return this.level; }
-    public void setLevel(Level level) { this.level = level; }
-
-    public User getCaptain() { return this.captain; }
-    public void setCaptain(User captain) { this.captain = captain; }
-
-    public List<User> getPlayers() { return this.players; }
-    public void setPlayers(List<User> players) { this.players = players; }
-
-    public List<Training> getTrainings() { return this.trainings; }
-    public void setTrainings(List<Training> trainings) { this.trainings = trainings; }
-
-    public List<Match> getMatchesAsTeamA() { return this.matchesAsTeamA; }
-    public void setMatchesAsTeamA(List<Match> matchesAsTeamA) { this.matchesAsTeamA = matchesAsTeamA; }
-
-    public List<Match> getMatchesAsTeamB() { return this.matchesAsTeamB; }
-    public void setMatchesAsTeamB(List<Match> matchesAsTeamB) { this.matchesAsTeamB = matchesAsTeamB; }
 
     // ===== STATIC BUILDER METHOD ====
     public static TeamBuilder builder() {
@@ -140,7 +119,7 @@ public class Team {
             team.city = this.city;
             team.level = this.level;
             team.captain = this.captain;
-            team.players = this.players;
+
             team.trainings = this.trainings;
             team.matchesAsTeamA = this.matchesAsTeamA;
             team.matchesAsTeamB = this.matchesAsTeamB;

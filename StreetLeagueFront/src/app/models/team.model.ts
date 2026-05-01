@@ -6,14 +6,19 @@ export interface Team {
   name: string;
   level?: string;
   sport?: string;
-  captainId?: number;
+
   creationDate?: string;
+
   description?: string;
 
-  // Computed/joined fields used by components
-  captainFullName?: string;
-  captainEmail?: string;
-  playerCount?: number;
+
+
+  captainEmail?: string;      
+  captainFullName?: string; 
+  captainRole?: string;
+   captainId?: number;  
+  playerCount?: number;       
+
   victories?: number;
   defeats?: number;
   matches?: number;

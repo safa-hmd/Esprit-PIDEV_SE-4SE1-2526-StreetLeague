@@ -20,8 +20,9 @@ export interface AuthResponse {
   token: string;
   email: string;
   role: string;
-  id?: string;
-  idUser?: string;
+
+  idUser: number;
+
 }
 
 @Injectable({
@@ -70,7 +71,9 @@ getToken(): string | null {
         localStorage.setItem('TokenUserConnect', response.token);
         localStorage.setItem('EmailUserConnect', response.email);
         localStorage.setItem('RoleUserConnect',  response.role);
-        localStorage.setItem('UserIdConnect', String(response.idUser || response.id || '')); 
+
+       localStorage.setItem('UserIdConnect', String(response.idUser)); 
+
       })
     );
   }
@@ -121,5 +124,15 @@ resetPassword(token: string, newPassword: string): Observable<string> {
     { token, newPassword },
     { responseType: 'text' }
   );
+}
+
+// auth.service.ts - Ajouter cette méthode
+getCurrentUserEmail(): string {
+  return localStorage.getItem('EmailUserConnect') || '';
+}
+
+getCurrentUserId(): number {
+  const id = localStorage.getItem('UserIdConnect');
+  return id ? parseInt(id) : 0;
 }
 }

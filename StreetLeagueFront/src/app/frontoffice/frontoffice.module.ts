@@ -21,21 +21,20 @@ import { SponsoringListComponent } from '../components/sponsoring-evenement/spon
 import { SponsoringFormComponent } from '../components/sponsoring-evenement/sponsoring-form.component';
 import { SponsoringDetailComponent } from '../components/sponsoring-evenement/sponsoring-detail.component';
 import { SponsoringEditComponent } from '../components/sponsoring-evenement/sponsoring-edit.component';
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { LOCALE_ID, NgModule } from '@angular/core';
+import { CommonModule, registerLocaleData } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
- 
+import localeFr from '@angular/common/locales/fr';
+
 import { FrontofficeRoutingModule } from './frontoffice-routing.module';
 import { FrontofficeComponent } from './frontoffice.component';
- 
+
 import { ShopListComponent } from './shop/shop-list/shop-list.component';
 import { CartComponent } from './shop/cart/cart.component';
- 
-// Si tu as déjà un navbar et footer composant, importe-les ici aussi
- import { NavbarComponent } from './navbar/navbar.component';
- import { FooterComponent } from './footer/footer.component';
+import { NavbarComponent } from './navbar/navbar.component';
+import { FooterComponent } from './footer/footer.component';
 import { TeamComponent } from './team/team.component';
 import { TrainingComponent } from './training/training.component';
 import { DetailMatchComponent } from './detail-match/detail-match.component';
@@ -45,18 +44,26 @@ import { PlayerProfileComponent } from './player-profile/player-profile.componen
 import { TournamentsComponent } from './tournaments/tournaments.component';
 import { FieldReservationComponent } from './field-reservation/field-reservation.component';
 import { HttpClientModule } from '@angular/common/http';
-
 import { NewsComponent } from './news/news.component';
 import { HealthComponent } from './health/health.component';
 import { BracketComponent } from './bracket/bracket.component';
- 
+import { MatchHistoryComponent } from './match-history/match-history.component';
+import { ScheduleComponent } from './schedule/schedule.component';
+import { FieldRecommenderComponent } from './field-recommender/field-recommender.component';
+import { MatchmakingComponent } from './matchmaking/matchmaking.component';
+import { PerformanceStreakComponent } from './performance-streak/performance-streak.component';
+import { InjuryRiskComponent } from './injury-risk/injury-risk.component';
+import { PerformancePredictionComponent } from './performance-prediction/performance-prediction.component';
+
+registerLocaleData(localeFr);
+
 @NgModule({
   declarations: [
     FrontofficeComponent,
     ShopListComponent,
     CartComponent,
-     NavbarComponent,
-     FooterComponent,
+    NavbarComponent,
+    FooterComponent,
     TeamComponent,
     TrainingComponent,
     DetailMatchComponent,
@@ -65,45 +72,45 @@ import { BracketComponent } from './bracket/bracket.component';
     PlayerProfileComponent,
     TournamentsComponent,
     FieldReservationComponent,
-
-
-
-      CommunauteListComponent,
-  CommunauteFormComponent,
-  CommunauteDetailComponent,
-  CommunauteEditComponent,
-
-  EvenementListComponent,
-  EvenementFormComponent,
-  EvenementDetailComponent,
-  EvenementEditComponent,
-
-  SponsorListComponent,
-  SponsorFormComponent,
-  SponsorDetailComponent,
-  SponsorEditComponent,
-
-  SponsoringListComponent,
-  SponsoringFormComponent,
-  SponsoringDetailComponent,
-  SponsoringEditComponent,
-
-  ContratListComponent,
-  ContratFormComponent,
-  ContratEditComponent,
-
-     NewsComponent,
+    CommunauteListComponent,
+    CommunauteFormComponent,
+    CommunauteDetailComponent,
+    CommunauteEditComponent,
+    EvenementListComponent,
+    EvenementFormComponent,
+    EvenementDetailComponent,
+    EvenementEditComponent,
+    SponsorListComponent,
+    SponsorFormComponent,
+    SponsorDetailComponent,
+    SponsorEditComponent,
+    SponsoringListComponent,
+    SponsoringFormComponent,
+    SponsoringDetailComponent,
+    SponsoringEditComponent,
+    ContratListComponent,
+    ContratFormComponent,
+    ContratEditComponent,
+    NewsComponent,
     HealthComponent,
     BracketComponent,
+    MatchHistoryComponent,
+    ScheduleComponent,
+    FieldRecommenderComponent,
+    MatchmakingComponent,
+    PerformanceStreakComponent,
+    InjuryRiskComponent,
+    PerformancePredictionComponent,
   ],
   imports: [
-      CommonModule,
+    CommonModule,
     FrontofficeRoutingModule,
     ReactiveFormsModule,
     HttpClientModule,
     FormsModule,
+  ],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'fr' }
   ]
 })
 export class FrontofficeModule {}
- 
-

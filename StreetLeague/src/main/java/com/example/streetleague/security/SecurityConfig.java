@@ -86,6 +86,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/contrat/**").authenticated()
                         .requestMatchers("/api/contrat-sponsor/**").authenticated()
                         .requestMatchers("/user/profile").authenticated()
+                        .requestMatchers("/api/schedule/**").permitAll()
+                        .requestMatchers("/api/recommend/**", "/notification/**").permitAll()
+                        //.requestMatchers("/matchmaking/**").permitAll()
+                        .requestMatchers("/api/matchmaking/**").permitAll()
+                        .requestMatchers("/api/performance/**").permitAll()
+
                         .requestMatchers("/team/add", "/team/update/**").hasAnyRole("PLAYER", "COACH")
                         .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
                         .requestMatchers("/team/showTeams", "/team/showTeamById/**", "/team/myTeams").permitAll()
@@ -93,6 +99,8 @@ public class SecurityConfig {
                         .requestMatchers("/match/add", "/match/update").hasAnyRole("PLAYER", "COACH")
                         .requestMatchers("/match/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
                         .requestMatchers("/match/showMatchs", "/match/showMatchById/**").permitAll()
+                        .requestMatchers("/matches-history/**").permitAll()
+                        .requestMatchers("/match/*/respond").permitAll()
                         .requestMatchers("/training/add", "/training/update").hasRole("COACH")
                         .requestMatchers("/training/delete/**").hasAnyRole("COACH", "ADMIN")
                         .requestMatchers("/training/showTrainings", "/training/showTrainingById/**").permitAll()
@@ -160,9 +168,6 @@ public class SecurityConfig {
         return source;
     }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+
 
 }

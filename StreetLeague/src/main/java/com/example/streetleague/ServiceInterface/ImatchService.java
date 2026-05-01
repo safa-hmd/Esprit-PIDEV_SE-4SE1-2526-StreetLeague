@@ -12,4 +12,7 @@ public interface ImatchService {
     void deleteMatch(Long idMatch, Long captainId);
     List<MatchResponse> ShowMatchs();
     MatchResponse ShowMatch(Long idMatch);
+
+    MatchResponse respondToMatch(Long matchId, Long captainId, boolean accept); // ← doit exister
+
 }

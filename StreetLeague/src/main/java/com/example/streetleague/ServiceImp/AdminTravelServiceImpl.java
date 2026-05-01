@@ -9,7 +9,6 @@ import com.example.streetleague.Repository.AccommodationRequestRepository;
 import com.example.streetleague.Repository.TransportRepository;
 import com.example.streetleague.Repository.TravelRequestRepository;
 import com.example.streetleague.Repository.UserRepository;
-import com.example.streetleague.ServiceInterface.NotificationService;
 import com.example.streetleague.ServiceInterface.AdminTravelService;
 import com.example.streetleague.dto.AccommodationDto;
 import com.example.streetleague.dto.AccommodationRequestResponseDto;
@@ -35,7 +34,7 @@ public class AdminTravelServiceImpl implements AdminTravelService {
     private final AccommodationRequestRepository accommodationRequestRepository;
     private final PdfGeneratorService pdfGeneratorService;
     private final UserRepository userRepository;
-    private final NotificationService notificationService;
+
 
     @Override
     @Transactional
@@ -234,12 +233,7 @@ public class AdminTravelServiceImpl implements AdminTravelService {
         transport.setStatus("APPROVED");
         Transport saved = transportRepository.save(transport);
         
-        if (saved.getCoachId() != null) {
-            notificationService.sendNotification(
-                saved.getCoachId(),
-                "✅ Your personal vehicle submission for " + saved.getDestination() + " has been APPROVED. It is now available for booking."
-            );
-        }
+
         return saved;
     }
 
@@ -250,13 +244,7 @@ public class AdminTravelServiceImpl implements AdminTravelService {
                 .orElseThrow(() -> new BusinessValidationException("Transport not found"));
         transport.setStatus("REJECTED");
         Transport saved = transportRepository.save(transport);
-        
-        if (saved.getCoachId() != null) {
-            notificationService.sendNotification(
-                saved.getCoachId(),
-                "❌ Your personal vehicle submission for " + saved.getDestination() + " has been REJECTED by the administrator."
-            );
-        }
+
         return saved;
     }
 
@@ -309,13 +297,7 @@ public class AdminTravelServiceImpl implements AdminTravelService {
         }
         AccommodationRequest saved = 
             accommodationRequestRepository.save(req);
-            
-        if (saved.getCoachId() != null) {
-            notificationService.sendNotification(
-                saved.getCoachId(),
-                "✅ Your accommodation request for " + (saved.getAccommodation() != null ? saved.getAccommodation().getAddress() : "tournament") + " has been APPROVED."
-            );
-        }
+
         return mapToAccommodationRequestResponseDto(saved);
     }
 
@@ -334,12 +316,7 @@ public class AdminTravelServiceImpl implements AdminTravelService {
         AccommodationRequest saved = 
             accommodationRequestRepository.save(req);
             
-        if (saved.getCoachId() != null) {
-            notificationService.sendNotification(
-                saved.getCoachId(),
-                "❌ Your accommodation request for " + (saved.getAccommodation() != null ? saved.getAccommodation().getAddress() : "tournament") + " has been REJECTED."
-            );
-        }
+
         return mapToAccommodationRequestResponseDto(saved);
     }
 

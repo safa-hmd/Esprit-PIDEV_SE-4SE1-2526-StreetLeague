@@ -1,146 +1,150 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StreetLeague – Home</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
-</head>
-<body>
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-content">
-      <h1>The <span>Amateur Sports</span> Platform</h1>
-      <p>Manage your teams, book fields, join tournaments and connect with your sports community.</p>
-      <div class="hero-btns">
-        <a routerLink="team" class="btn-hero-primary">Get Started</a>
-        <a routerLink="tournaments" class="btn-hero-outline">View Tournaments</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- STATS STRIP -->
-  <div class="stats-strip">
-    <div class="stats-strip-inner">
-      <div><div class="strip-stat-val">12,459</div><div class="strip-stat-label">Active Players</div></div>
-      <div><div class="strip-stat-val">1,847</div><div class="strip-stat-label">Teams</div></div>
-      <div><div class="strip-stat-val">234</div><div class="strip-stat-label">Tournaments</div></div>
-      <div><div class="strip-stat-val">48</div><div class="strip-stat-label">Events This Week</div></div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>The <span>Amateur Sports</span> Platform</h1>
+    <p>Manage your teams, book fields, join tournaments, and connect with your street sports community.</p>
+    <div class="hero-btns">
+      <a routerLink="/client/team" class="btn-hero-primary">Get Started</a>
+      <a routerLink="/client/training" class="btn-hero-outline">View Trainings</a>
     </div>
   </div>
+</section>
 
-  <!-- FEATURES -->
-  <section class="section">
-    <div class="section-inner">
-      <h2 class="section-title">Everything You Need</h2>
-      <p class="section-sub">Complete tools to organize your amateur sports life</p>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon" style="background:rgba(230,25,32,0.1);">
-            <svg fill="none" stroke="#E61920" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-          </div>
-          <div class="feature-title">Team Management</div>
-          <div class="feature-desc">Create and manage your sports teams with ease</div>
-          <a href="teams.html" class="feature-link">Learn more →</a>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon" style="background:rgba(153,0,0,0.1);">
-            <svg fill="none" stroke="#990000" viewBox="0 0 24 24" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-          </div>
-          <div class="feature-title">Tournaments</div>
-          <div class="feature-desc">Join competitive tournaments and win prizes</div>
-          <a href="tournaments.html" class="feature-link">Learn more →</a>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon" style="background:rgba(230,25,32,0.1);">
-            <svg fill="none" stroke="#E61920" viewBox="0 0 24 24" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          </div>
-          <div class="feature-title">Field Booking</div>
-          <div class="feature-desc">Reserve sports facilities in just a few clicks</div>
-          <a href="fields.html" class="feature-link">Learn more →</a>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon" style="background:rgba(100,100,100,0.1);">
-            <svg fill="none" stroke="#555" viewBox="0 0 24 24" stroke-width="2"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>
-          </div>
-          <div class="feature-title">Training Sessions</div>
-          <div class="feature-desc">Organize and participate in training sessions</div>
-          <a href="training.html" class="feature-link">Learn more →</a>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon" style="background:rgba(153,0,0,0.1);">
-            <svg fill="none" stroke="#990000" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          </div>
-          <div class="feature-title">Community</div>
-          <div class="feature-desc">Join communities and participate in events</div>
-          <a href="community.html" class="feature-link">Learn more →</a>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon" style="background:rgba(230,25,32,0.1);">
-            <svg fill="none" stroke="#E61920" viewBox="0 0 24 24" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          </div>
-          <div class="feature-title">Player Analytics</div>
-          <div class="feature-desc">Track your performance and monitor your progress</div>
-          <a href="health.html" class="feature-link">Learn more →</a>
-        </div>
+<!-- GLOBAL LEADERBOARD -->
+<section class="section">
+  <div class="section-inner">
+    <div style="text-align:center; margin-bottom:2rem;">
+      <h2 class="section-title">Global Leaderboard</h2>
+      <p class="section-sub">Top ranked teams according to their performance score</p>
+
+      <!-- Sport Filters -->
+      <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin-bottom:3rem;">
+        <button class="btn-sport" [class.active]="selectedSport === 'Football'"    (click)="switchSport('Football')">⚽ Football</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Basketball'"  (click)="switchSport('Basketball')">🏀 Basketball</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Tennis'"      (click)="switchSport('Tennis')">🎾 Tennis</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Handball'"    (click)="switchSport('Handball')">🤾 Handball</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Volleyball'"  (click)="switchSport('Volleyball')">🏐 Volleyball</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Rugby'"       (click)="switchSport('Rugby')">🏉 Rugby</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Baseball'"    (click)="switchSport('Baseball')">⚾ Baseball</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Cricket'"     (click)="switchSport('Cricket')">🏏 Cricket</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Padel'"       (click)="switchSport('Padel')">🏓 Padel</button>
       </div>
     </div>
-  </section>
 
-  <!-- UPCOMING MATCHES -->
-  <section class="section section-dark">
-    <div class="section-inner">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
-        <h2 class="section-title" style="text-align:left;margin-bottom:0;">Upcoming Matches</h2>
-        <a href="teams.html" class="btn btn-outline btn-sm">View All</a>
-      </div>
-      <div class="grid-3">
-        <div class="match-card">
-          <div class="match-teams">
-            <div class="match-team">Urban Warriors</div>
-            <div class="match-vs">VS</div>
-            <div class="match-team">Street Kings</div>
+    <!-- Loading -->
+    <div *ngIf="isLoadingLeaderboard" style="text-align:center; padding:3rem; color:#ff3d44; font-weight:800;">
+      Fetching the Elite...
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="leaderboardError" style="text-align:center; color:#ff3d44; padding:2rem;">
+      {{ leaderboardError }}
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="!isLoadingLeaderboard && topTeams.length === 0"
+         style="text-align:center; color:#888; padding:3rem;">
+      No teams are dominating the {{ selectedSport }} scene yet!
+    </div>
+
+    <!-- Leaderboard List -->
+    <div *ngIf="!isLoadingLeaderboard && topTeams.length > 0" class="leaderboard-container">
+
+      <div *ngFor="let team of topTeams; let i = index"
+           class="rank-row"
+           [ngClass]="{ 'top-1': i === 0, 'top-2': i === 1, 'top-3': i === 2 }">
+
+        <!-- Rank -->
+        <div class="rank-badge">
+          <span *ngIf="i === 0" class="medal">🥇</span>
+          <span *ngIf="i === 1" class="medal">🥈</span>
+          <span *ngIf="i === 2" class="medal">🥉</span>
+          <span *ngIf="i > 2"   class="rank-num">#{{ i + 1 }}</span>
+        </div>
+
+        <!-- Avatar initiales -->
+        <div class="lb-avatar" [ngStyle]="getAvatarStyle(i)">
+          {{ team.teamName.substring(0, 2).toUpperCase() }}
+        </div>
+
+        <!-- Info équipe -->
+        <div class="lb-info">
+          <div class="lb-name">{{ team.teamName }}</div>
+          <div class="lb-meta">
+            <span class="lb-stat">
+              <span class="dot dot-green"></span>{{ team.victories || 0 }} wins
+            </span>
+            <span class="lb-stat">
+              <span class="dot dot-red"></span>{{ team.defeats || 0 }} losses
+            </span>
+            <span class="lb-stat">
+              <span class="dot dot-gray"></span>{{ team.matches || 0 }} played
+            </span>
           </div>
-          <div class="match-meta">
-            <div class="match-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Feb 8, 2026 at 6:00 PM</div>
-            <div class="match-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Central Park Arena</div>
+          <div class="lb-captain">
+            Captain: {{ team.captainFullName }}
+            <span *ngIf="team.lastOpponentName"> &nbsp;·&nbsp; Last vs {{ team.lastOpponentName }}</span>
           </div>
         </div>
-        <div class="match-card">
-          <div class="match-teams">
-            <div class="match-team">Night Hawks</div>
-            <div class="match-vs">VS</div>
-            <div class="match-team">Thunder Squad</div>
-          </div>
-          <div class="match-meta">
-            <div class="match-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Feb 9, 2026 at 7:30 PM</div>
-            <div class="match-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Downtown Stadium</div>
+
+        <!-- Score -->
+        <div class="lb-score">
+          <div class="score-label">Score</div>
+          <div class="score-val" [ngClass]="getScoreClass(i)">
+            {{ team.points }}
           </div>
         </div>
-        <div class="match-card">
-          <div class="match-teams">
-            <div class="match-team">Phoenix Rising</div>
-            <div class="match-vs">VS</div>
-            <div class="match-team">Storm Breakers</div>
-          </div>
-          <div class="match-meta">
-            <div class="match-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Feb 10, 2026 at 8:00 PM</div>
-            <div class="match-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Riverside Court</div>
-          </div>
-        </div>
+
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- CTA -->
-  <section class="cta-section">
-    <h2>Ready to Join the Community?</h2>
-    <p>Start organizing your sports activities today. Create a team, join tournaments or find players near you.</p>
-    <a href="teams.html" class="btn-cta">Create Your Team</a>
-  </section>
+<!-- FEATURES -->
+<section class="section section-dark">
+  <div class="section-inner">
+    <h2 class="section-title">Everything You Need</h2>
+    <p class="section-sub">Complete tools to organize your urban sports life</p>
+    <div class="features-grid">
 
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg fill="none" stroke="#ff3d44" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="feature-title">Team Management</div>
+        <div class="feature-desc">Create and manage your street teams, add players, and track your stats.</div>
+        <a routerLink="/client/team" class="feature-link">Learn more →</a>
+      </div>
 
-</body>
-</html>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg fill="none" stroke="#ff3d44" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+            <path d="M4 22h16"/>
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+          </svg>
+        </div>
+        <div class="feature-title">Tournaments</div>
+        <div class="feature-desc">Join competitive underground tournaments and dominate the global rankings.</div>
+        <a routerLink="/client/tournaments" class="feature-link">Learn more →</a>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg fill="none" stroke="#ff3d44" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <div class="feature-title">Field Booking</div>
+        <div class="feature-desc">Reserve local sports facilities and courts in just a few clicks.</div>
+        <a routerLink="/client/fields" class="feature-link">Learn more →</a>
+      </div>
+
+    </div>
+  </div>
+</section>

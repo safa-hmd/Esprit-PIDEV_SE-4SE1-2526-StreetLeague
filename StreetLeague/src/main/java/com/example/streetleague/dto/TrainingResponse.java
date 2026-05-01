@@ -18,7 +18,9 @@ public record TrainingResponse(
         TrainingStatus status,
         String teamName,
         int participantCount,
-        List<String> participantEmails
+        List<String> participantEmails,
+        String coachFullName,
+        String performanceReport
 ) {
     public static TrainingResponse fromEntity(Training training) {
         return new TrainingResponse(
@@ -32,11 +34,17 @@ public record TrainingResponse(
                 training.getStatus(),
                 training.getTeam().getName(),
                 training.getParticipants() == null ? 0 : training.getParticipants().size(),
-                training.getParticipants() != null                          // ← ici
+                training.getParticipants() != null
                         ? training.getParticipants().stream()
                         .map(User::getEmail)
                         .toList()
-                        : List.of()
+                        : List.of(),
+                training.getCoach() != null
+                        ? training.getCoach().getFullName()
+                        : null,
+                training.getPerformanceReport()
         );
+
+
     }
 }

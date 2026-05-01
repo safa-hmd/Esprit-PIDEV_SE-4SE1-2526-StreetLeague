@@ -66,6 +66,7 @@ public class User {
     @Column(name = "reset_token_expiry")
     LocalDateTime resetTokenExpiry;
 
+
     @Column(name = "team_id")
     Long teamId;
 
@@ -81,4 +82,5 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     List<waterReminder> waterReminders;
+
 }

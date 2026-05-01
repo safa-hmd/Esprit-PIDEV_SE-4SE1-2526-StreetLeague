@@ -1,0 +1,45 @@
+//// dto/ScheduleEventDto.java
+//package com.example.streetleague.dto;
+//
+//import lombok.*;
+//import java.time.LocalDate;
+//import java.time.LocalDateTime;
+//
+//@Data @Builder @NoArgsConstructor @AllArgsConstructor
+//public class ScheduleEventDto {
+//    private Long id;
+//    private String type;           // "TRAINING" | "MATCH" | "TOURNAMENT"
+//    private String title;
+//    private String description;
+//    private LocalDateTime startTime;
+//    private LocalDateTime endTime;
+//    private String location;
+//    private String status;
+//    private String teamName;
+//    private String coachName;
+//    private String opponentTeamName;
+//    private Integer scoreTeamA;
+//    private Integer scoreTeamB;
+//    private boolean hasConflict;
+//    private String conflictReason;
+//    private String color;
+//    private Double aiScore;          // score du modèle Flask (0-1)
+//    private String recommendation;   // EXCELLENT / ACCEPTABLE / DÉCONSEILLÉ
+//
+//    // ── Champs Tournoi ────────────────────────────────────
+//    private String    tournamentName;
+//    private String    tournamentType;
+//    private Double    prizePool;
+//    private String    sportType;
+//    private LocalDate tournamentEndDate;
+//
+//    // ── Terrain IA recommandé (enrichi par recommendFields) ──
+//    private Long   recommendedFieldId;
+//    private String recommendedFieldName;
+//    private String recommendedFieldLocation;
+//    private Double recommendedFieldLat;
+//    private Double recommendedFieldLng;
+//    private Double recommendedFieldDist;
+//    private Double recommendedFieldScore;
+//    private String recommendedFieldRec;
+//}

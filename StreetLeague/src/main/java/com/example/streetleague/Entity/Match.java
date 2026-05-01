@@ -29,6 +29,8 @@ public class Match {
     Integer scoreTeamA;
     Integer scoreTeamB;
 
+    private boolean statsUpdated = false;
+
     // Team A
     @ManyToOne
     @JoinColumn(name = "teamA_id", nullable = false)

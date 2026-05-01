@@ -42,4 +42,8 @@ public class FieldDto {
     private int capacity;
 
     private boolean available;  // boolean, pas besoin de validation
+
+
+    private Double latitude;
+    private Double longitude;
 }

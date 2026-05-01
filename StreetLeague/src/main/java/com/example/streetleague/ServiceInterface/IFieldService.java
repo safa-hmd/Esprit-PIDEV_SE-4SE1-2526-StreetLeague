@@ -14,4 +14,10 @@ public interface IFieldService {
     FieldDto updateField(Long id, FieldDto dto);
     void deleteField(Long id);
     FieldDto toggleAvailability(Long id);
+
+
+
+    FieldDto geocodeField(Long id);
+    List<FieldDto> getAllFieldsWithGps();
+
 }

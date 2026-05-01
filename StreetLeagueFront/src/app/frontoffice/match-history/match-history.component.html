@@ -1,0 +1,254 @@
+<!-- match-history.component.html -->
+<div class="history-hero">
+  <div class="hero-content">
+    <h1>🗓 Match History</h1>
+    <p>View your statistics, analyze your performance, and relive your greatest matches.</p>
+  </div>
+  <div class="hero-bg-accent"></div>
+</div>
+
+<div class="history-container">
+
+  <!-- ── Tabs ──────────────────────────────────────────────────────────── -->
+  <div class="tabs-wrapper">
+    <div class="tabs">
+      <button [class.active]="activeTab==='history'" (click)="activeTab='history'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Global History
+      </button>
+      <button [class.active]="activeTab==='search'" (click)="activeTab='search'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        Advanced Search
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 1 — Enriched JPQL History                                      -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='history'" class="tab-content fade-in">
+
+    <!-- Filters -->
+    <div class="glass-panel filter-bar">
+      <div class="filter-group">
+        <label>Status</label>
+        <div class="select-wrapper">
+          <select [(ngModel)]="selectedStatus">
+            <option value="">All statuses</option>
+            <option *ngFor="let s of allStatuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>From (Date)</label>
+        <div class="input-wrapper">
+          <input type="datetime-local" [(ngModel)]="fromDate" />
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>To (Date)</label>
+        <div class="input-wrapper">
+          <input type="datetime-local" [(ngModel)]="toDate" />
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-primary" (click)="loadEnrichedHistory()">
+          <svg viewBox="0 0 24 24" fill="none" class="btn-icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline></svg>
+          Apply
+        </button>
+        <button class="btn-secondary" (click)="resetFilters()">Reset</button>
+      </div>
+    </div>
+
+    <!-- Loader -->
+    <div *ngIf="loading" class="loader-wrapper">
+      <div class="spinner"></div>
+      <p>Loading matches...</p>
+    </div>
+
+    <!-- Results -->
+    <div *ngIf="!loading">
+      <div class="results-header">
+        <p class="result-count">
+          <span class="count-badge">{{ enrichedMatches.length }}</span> match(es) found
+        </p>
+      </div>
+
+      <div class="matches-grid">
+        <div class="match-card" *ngFor="let m of enrichedMatches">
+          
+          <div class="match-card-glow"></div>
+
+          <!-- Header -->
+          <div class="card-header">
+            <div class="badges-group">
+              <span class="sport-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="badge-icon"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
+                {{ m.sport }}
+              </span>
+              <span class="badge status-badge" [ngClass]="getStatusClass(m.status)">{{ m.status }}</span>
+            </div>
+            <span class="match-date">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              {{ m.matchDate | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+
+          <!-- Score -->
+          <div class="score-row">
+            <div class="team-block" [class.winner-team]="getWinner(m) === m.teamAName">
+              <span class="team-name" title="{{ m.teamAName }}">{{ m.teamAName }}</span>
+              <div class="team-meta">
+                <span class="captain" title="Captain">🧢 {{ m.captainAName || 'None' }}</span>
+                <span class="elo" title="ELO Level">⚡ {{ m.eloTeamA }}</span>
+              </div>
+            </div>
+
+            <div class="score-center">
+              <span class="score" [class.pending]="m.status !== 'FINISHED'">{{ getScoreLabel(m) }}</span>
+              <span *ngIf="getWinner(m)" class="winner-label">🏆 Winner</span>
+            </div>
+
+            <div class="team-block right" [class.winner-team]="getWinner(m) === m.teamBName">
+              <span class="team-name" title="{{ m.teamBName }}">{{ m.teamBName }}</span>
+              <div class="team-meta">
+                <span class="elo" title="ELO Level">⚡ {{ m.eloTeamB }}</span>
+                <span class="captain" title="Captain">🧢 {{ m.captainBName || 'None' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="card-footer">
+            <div class="location-tag">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              {{ m.location || 'Venue to be defined' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="enrichedMatches.length === 0 && !loading" class="empty-state">
+        <div class="empty-icon">📂</div>
+        <h3>No matches found</h3>
+        <p>Adjust your filters to see other results.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 2 — Advanced Keywords Search (multi-table)                      -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='search'" class="tab-content fade-in">
+
+    <div class="glass-panel search-panel">
+
+      <!-- Multi-table search description -->
+      <div style="margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap;">
+       
+        <span style="font-size: 0.82rem; color: rgba(255,255,255,0.55); font-style: italic;">
+          Searches across <strong style="color:rgba(255,255,255,0.8)">Team A</strong>,
+          <strong style="color:rgba(255,255,255,0.8)">Team B</strong>, and
+          <strong style="color:rgba(255,255,255,0.8)">Location</strong> simultaneously
+        </span>
+      </div>
+
+      <!-- Keyword search bar -->
+      <div class="search-bar-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input
+          type="text"
+          [(ngModel)]="keyword"
+          placeholder="Search by team name or location..."
+          (keyup.enter)="searchMatches()"
+        />
+        <button class="btn-primary" (click)="searchMatches()">Search</button>
+      </div>
+
+      <!-- Status filters -->
+      <div class="status-filters">
+        <label *ngFor="let s of allStatuses" class="checkbox-label" [class.selected]="selectedStatuses.has(s)">
+          <input
+            type="checkbox"
+            [checked]="selectedStatuses.has(s)"
+            (change)="toggleStatus(s)"
+          />
+          <span class="checkbox-custom"></span>
+          <span class="badge" [ngClass]="getStatusClass(s)">{{ s }}</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Loader -->
+    <div *ngIf="loading" class="loader-wrapper">
+      <div class="spinner"></div>
+      <p>Searching...</p>
+    </div>
+
+    <!-- Results -->
+    <div *ngIf="!loading">
+      <div class="results-header" *ngIf="searchResults.length > 0">
+        <p class="result-count">
+          <span class="count-badge">{{ searchResults.length }}</span> result(s)
+        </p>
+      </div>
+
+      <div class="table-container" *ngIf="searchResults.length > 0">
+        <table class="premium-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Team A</th>
+              <th class="text-center">Score</th>
+              <th>Team B</th>
+              <th>Status</th>
+              <th>Location</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of searchResults">
+              <td>
+                <div class="date-cell">
+                  <span class="date">{{ m.matchDate | date:'dd MMM yyyy' }}</span>
+                  <span class="time">{{ m.matchDate | date:'HH:mm' }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="team-cell">
+                  <strong>{{ m.teamAName }}</strong>
+                  <small>🧢 {{ m.captainAName || 'None' }}</small>
+                </div>
+              </td>
+              <td class="text-center score-cell">
+                <span class="mini-score">{{ getScoreLabel(m) }}</span>
+              </td>
+              <td>
+                <div class="team-cell">
+                  <strong>{{ m.teamBName }}</strong>
+                  <small>🧢 {{ m.captainBName || 'None' }}</small>
+                </div>
+              </td>
+              <td><span class="badge" [ngClass]="getStatusClass(m.status)">{{ m.status }}</span></td>
+              <td><span class="location-cell">{{ m.location || '-' }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="searchHasRun && searchResults.length === 0 && !loading" class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No results found</h3>
+        <p>Try a different keyword (team name or location) or adjust the status filters.</p>
+      </div>
+      <div *ngIf="!searchHasRun && !loading" class="empty-state">
+        <div class="empty-icon">⚡</div>
+        <h3>Advanced Multi-Table Search</h3>
+        <p>Type a <strong>team name</strong> or <strong>location</strong> above and press Search.<br>
+           The query spans TeamA, TeamB, and Location fields across the database.</p>
+      </div>
+    </div>
+  </div>
+</div>

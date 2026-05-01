@@ -91,4 +91,39 @@ export class TrainingService {
     { headers: this.getHeaders() }
   );
 }
+
+  getMyTeamTrainings(): Observable<TrainingResponse[]> {
+    const email = localStorage.getItem('EmailUserConnect');
+    return this.http.get<TrainingResponse[]>(
+      `${this.base}/myTeamTrainings?email=${email}`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // POST /training/generate-from-match/:matchId?email=
+generateFromMatch(matchId: number): Observable<TrainingResponse> {
+  const email = localStorage.getItem('EmailUserConnect');
+  return this.http.post<TrainingResponse>(
+    `${this.base}/generate-from-match/${matchId}?email=${email}`,
+    {},
+    { headers: this.getHeaders() }
+  );
+}
+
+// GET /training/upcoming-detailed
+getUpcomingTrainingsWithDetails(): Observable<TrainingResponse[]> {
+  return this.http.get<TrainingResponse[]>(
+    `${this.base}/upcoming-detailed`,
+    { headers: this.getHeaders() }
+  );
+}
+
+// GET /training/team/:teamId/completed
+getCompletedTrainingsWithDetails(teamId: number): Observable<TrainingResponse[]> {
+  return this.http.get<TrainingResponse[]>(
+    `${this.base}/team/${teamId}/completed`,
+    { headers: this.getHeaders() }
+  );
+}
+
 }

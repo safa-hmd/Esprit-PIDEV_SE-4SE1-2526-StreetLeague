@@ -15,4 +15,10 @@ public interface ItrainingService {
     TrainingResponse joinTraining(Long trainingId, Long playerId);
     TrainingResponse leaveTraining(Long trainingId, Long playerId);
     List<TrainingResponse> getTrainingsByCoach(Long coachId);
+    List<TrainingResponse> getMyTeamTrainings(Long playerId);
+
+    TrainingResponse generateTrainingFromMatch(Long matchId);
+
+    public List<TrainingResponse> getUpcomingTrainingsWithDetails();
+    List<TrainingResponse> getCompletedTrainingsWithDetails(Long teamId);
 }

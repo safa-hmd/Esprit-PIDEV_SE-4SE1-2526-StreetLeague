@@ -7,6 +7,7 @@ import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.IteamService;
 import com.example.streetleague.domain.Role;
 import com.example.streetleague.domain.User;
+import com.example.streetleague.dto.LeaderboardDto;
 import com.example.streetleague.dto.TeamRequest;
 import com.example.streetleague.dto.TeamResponse;
 import lombok.AllArgsConstructor;
@@ -110,6 +111,22 @@ public class TeamServiceImpl implements IteamService {
 
     @Override
     @Transactional
+
+    public TeamResponse updateTeamStats(Long teamId, int victories, int defeats, int matches, Long userId) {
+        Team existing = teamRepository.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("Team not found: " + teamId));
+
+        // ← Supprime ou assouplit cette vérification
+        // if (!existing.getCaptain().getIdUser().equals(captainId)) ...
+
+        existing.setVictories(victories);
+        existing.setDefeats(defeats);
+        existing.setMatches(matches);
+
+        return TeamResponse.fromEntity(teamRepository.save(existing));
+    }
+
+    @Override
     public void deleteTeam(Long idTeam, Long userId) {
         Team team = teamRepository.findById(idTeam)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + idTeam));
@@ -172,6 +189,33 @@ public class TeamServiceImpl implements IteamService {
         if (team.getPlayers().contains(player))
             throw new RuntimeException("Player is already in this team");
 
+        int maxPlayers = 11;
+        String sportStr = team.getSport() != null ? team.getSport().toLowerCase() : "";
+        if (sportStr.contains("football") || sportStr.contains("soccer")) {
+            maxPlayers = 11;
+        } else if (sportStr.contains("basketball")) {
+            maxPlayers = 5;
+        } else if (sportStr.contains("volleyball")) {
+            maxPlayers = 6;
+        } else if (sportStr.contains("handball")) {
+            maxPlayers = 7;
+        } else if (sportStr.contains("tennis")) {
+            maxPlayers = 2; // doubles
+        } else if (sportStr.contains("rugby")) {
+            maxPlayers = 15;
+        } else if (sportStr.contains("baseball")) {
+            maxPlayers = 9;
+        } else if (sportStr.contains("cricket")) {
+            maxPlayers = 11;
+        } else if (sportStr.contains("padel")) {
+            maxPlayers = 2;
+        }
+        
+        // Captain acts as a player but is not in getPlayers()
+        if (team.getPlayers().size() + 1 >= maxPlayers) {
+            throw new RuntimeException("The team is full for this sport (" + team.getSport() + " allows a maximum of " + maxPlayers + " players)");
+        }
+
         team.getPlayers().add(player);
         return TeamResponse.fromEntity(teamRepository.save(team));
     }
@@ -189,5 +233,14 @@ public class TeamServiceImpl implements IteamService {
 
         team.getPlayers().remove(player);
         return TeamResponse.fromEntity(teamRepository.save(team));
+    }
+
+
+    @Override
+    public List<LeaderboardDto> getLeaderboard(String sport) {
+        return teamRepository.findLeaderboardBySport(sport)
+                .stream()
+                .limit(5)
+                .toList();
     }
 }

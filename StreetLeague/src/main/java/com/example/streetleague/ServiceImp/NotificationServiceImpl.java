@@ -2,57 +2,76 @@ package com.example.streetleague.ServiceImp;
 
 import com.example.streetleague.Entity.Notification;
 import com.example.streetleague.Repository.NotificationRepository;
-import com.example.streetleague.ServiceInterface.NotificationService;
-import lombok.RequiredArgsConstructor;
+import com.example.streetleague.ServiceInterface.InotificationService;
+import com.example.streetleague.domain.User;
+import com.example.streetleague.dto.NotificationResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-public class NotificationServiceImpl implements NotificationService {
+@AllArgsConstructor
+public class NotificationServiceImpl implements InotificationService {
 
     private final NotificationRepository notificationRepository;
 
     @Override
-    @Transactional
-    public void sendNotification(Long userId, String message) {
-        Notification notification = Notification.builder()
-                .userId(userId)
-                .message(message)
-                .isRead(false)
-                .createdAt(LocalDateTime.now())
-                .build();
+    public void createNotificationForUsers(List<User> users, String message) {
+        if (users == null || users.isEmpty()) return;
+
+        List<Notification> notifications = users.stream()
+                .filter(u -> u != null)
+                .map(user -> Notification.builder()
+                        .message(message)
+                        .user(user)
+                        .isRead(false)
+                        .createdAt(LocalDateTime.now())
+                        .build())
+                .toList();
+
+        notificationRepository.saveAll(notifications);
+    }
+
+    @Override
+    public List<NotificationResponse> getMyNotifications(Long userId) {
+        return notificationRepository.findByUser_IdUserOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(NotificationResponse::fromEntity)
+                .toList();
+    }
+
+    @Override
+    public void markAsRead(Long idNotification, String email) {
+        Notification notification = notificationRepository.findById(idNotification)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+
+        if (!notification.getUser().getEmail().equalsIgnoreCase(email)) {
+            throw new RuntimeException("You do not have permission to modify this notification");
+        }
+
+        notification.setRead(true);
         notificationRepository.save(notification);
     }
 
     @Override
-    public List<Notification> getMyNotifications(Long userId) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    public void deleteNotification(Long idNotification, String email) {
+        Notification notification = notificationRepository.findById(idNotification)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+
+        if (!notification.getUser().getEmail().equalsIgnoreCase(email)) {
+            throw new RuntimeException("You do not have permission to delete this notification");
+        }
+
+        notificationRepository.delete(notification);
     }
 
-    @Override
-    public long getUnreadCount(Long userId) {
-        return notificationRepository.countByUserIdAndIsReadFalse(userId);
-    }
 
     @Override
-    @Transactional
-    public void markAsRead(Long notificationId) {
-        notificationRepository.findById(notificationId).ifPresent(n -> {
-            n.setRead(true);
-            notificationRepository.save(n);
-        });
-    }
-
-    @Override
-    @Transactional
-    public void markAllAsRead(Long userId) {
-        List<Notification> unread = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId)
-                .stream().filter(n -> !n.isRead()).toList();
-        unread.forEach(n -> n.setRead(true));
-        notificationRepository.saveAll(unread);
+    public NotificationResponse getNotificationById(Long idNotification) {
+        Notification notification = notificationRepository.findByIdNotification(idNotification)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+        return NotificationResponse.fromEntity(notification);
     }
 }

@@ -1,6 +1,5 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
+import { CommonModule, DatePipe } from '@angular/common';
 import { CoachFORoutingModule } from './coach-fo-routing.module';
 import { CoachFOComponent } from './coach-fo.component';
 import { NavbarComponent } from './navbar/navbar.component';
@@ -18,6 +17,17 @@ import { TransportBookComponent } from './transport/transport-book/transport-boo
 import { PersonalCarComponent } from './transport/personal-car/personal-car.component';
 import { MyRequestsComponent } from './transport/my-requests/my-requests.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
+import { ScheduleComponent } from './schedule/schedule.component';
+
+
+import { NgModule, LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+import { FieldRecommenderComponent } from './field-recommender/field-recommender.component';
+import { CoachAnomalyDashboardComponent } from './coach-anomaly-dashboard/coach-anomaly-dashboard.component';
+
+registerLocaleData(localeFr);  // ← ajoute avant @NgModule
+
 
 @NgModule({
   declarations: [
@@ -30,18 +40,29 @@ import { PlayerProfileComponent } from './player-profile/player-profile.componen
     DetailMatchComponent,
     DetailTrainingComponent,
     HomeComponent,
+
       PlayerProfileComponent,
     CoachAccommodationComponent,
     CoachTransportComponent,
     TransportBookComponent,
     PersonalCarComponent,
-    MyRequestsComponent
+    MyRequestsComponent,
+
+    PlayerProfileComponent,
+    ScheduleComponent,
+    FieldRecommenderComponent,
+    CoachAnomalyDashboardComponent
   ],
   imports: [
     CommonModule,
     CoachFORoutingModule,
     FormsModule,
     ReactiveFormsModule
-  ]
+
+  ],
+    providers: [DatePipe,
+       { provide: LOCALE_ID, useValue: 'fr' }  
+    ]
+
 })
 export class CoachFOModule { }

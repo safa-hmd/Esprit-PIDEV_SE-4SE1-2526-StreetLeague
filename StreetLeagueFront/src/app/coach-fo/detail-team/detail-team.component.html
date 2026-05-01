@@ -42,22 +42,40 @@
       </div>
     </div>
 
-    <!-- Stats Row -->
+    <!-- Stats Row + Edit Logic -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+      <h3 style="font-weight:700; margin:0; font-size:1.2rem;">Team Statistics</h3>
+      <button *ngIf="!isEditingStats" class="btn btn-blue" (click)="toggleEditStats()">Edit Stats</button>
+      <div *ngIf="isEditingStats" style="display:flex; gap:0.5rem;">
+        <button class="btn btn-green" (click)="saveStats()">Save</button>
+        <button class="btn btn-gray" (click)="toggleEditStats()">Cancel</button>
+      </div>
+    </div>
+
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;">
       <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
         <div style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.playerCount || 0 }}</div>
         <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Members</div>
       </div>
+      
+      <!-- Wins -->
       <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
-        <div style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.victories || 0 }}</div>
+        <div *ngIf="!isEditingStats" style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.victories || 0 }}</div>
+        <input *ngIf="isEditingStats" type="number" [(ngModel)]="editVictories" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
         <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Wins</div>
       </div>
+      
+      <!-- Losses -->
       <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
-        <div style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.defeats || 0 }}</div>
+        <div *ngIf="!isEditingStats" style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.defeats || 0 }}</div>
+        <input *ngIf="isEditingStats" type="number" [(ngModel)]="editDefeats" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
         <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Losses</div>
       </div>
+      
+      <!-- Matches -->
       <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
-        <div style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.matches || 0 }}</div>
+        <div *ngIf="!isEditingStats" style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.matches || 0 }}</div>
+        <input *ngIf="isEditingStats" type="number" [(ngModel)]="editMatches" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
         <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Matches</div>
       </div>
     </div>
@@ -101,6 +119,9 @@
         </div>
       </div>
     </div>
+
+
+
 
   </div>
 </div>

@@ -15,6 +15,9 @@ import { TransportBookComponent } from './transport/transport-book/transport-boo
 import { PersonalCarComponent } from './transport/personal-car/personal-car.component';
 import { MyRequestsComponent } from './transport/my-requests/my-requests.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
+import { ScheduleComponent } from './schedule/schedule.component';
+import { FieldRecommenderComponent } from './field-recommender/field-recommender.component';
+import { CoachAnomalyDashboardComponent } from './coach-anomaly-dashboard/coach-anomaly-dashboard.component';
 
 const routes: Routes = [{ path: '', component: CoachFOComponent,   
     children: [                      
@@ -23,6 +26,7 @@ const routes: Routes = [{ path: '', component: CoachFOComponent,
       { path: 'teamCoach', component: TeamsComponent },
       { path: 'trainingCoach', component: TrainingsComponent },
       { path: 'detail-team/:id',  component: DetailTeamComponent },  
+
       { path: 'detail-match/:id', component: DetailMatchComponent },
       { path: 'detail-training/:id', component: DetailTrainingComponent },
           { path: 'profile', component: PlayerProfileComponent },
@@ -32,7 +36,16 @@ const routes: Routes = [{ path: '', component: CoachFOComponent,
       { path: 'transport', component: CoachTransportComponent },
       { path: 'transport/book', component: TransportBookComponent },
       { path: 'transport/personal-car', component: PersonalCarComponent },
-      { path: 'transport/my-requests', component: MyRequestsComponent }
+      { path: 'transport/my-requests', component: MyRequestsComponent },
+
+    { path: 'detail-match/:id', component: DetailMatchComponent },
+    { path: 'detail-training/:id', component: DetailTrainingComponent },
+    { path: 'profile', component: PlayerProfileComponent },
+      { path: 'schedule', component: ScheduleComponent },
+        { path: 'recommend', component: FieldRecommenderComponent },
+        {path: 'anomalies', component: CoachAnomalyDashboardComponent}
+      
+
     ]
   }
 ]

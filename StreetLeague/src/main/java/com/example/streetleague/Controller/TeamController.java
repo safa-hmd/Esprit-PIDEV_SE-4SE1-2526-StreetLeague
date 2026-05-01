@@ -5,12 +5,14 @@ import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.IteamService;
 import com.example.streetleague.domain.Role;
 import com.example.streetleague.domain.User;
+import com.example.streetleague.dto.LeaderboardDto;
 import com.example.streetleague.dto.TeamRequest;
 import com.example.streetleague.dto.TeamResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -38,14 +40,39 @@ public class TeamController {
         return teamService.updateTeam(teamId, dto, captain.getIdUser());
     }
 
+    @PutMapping("updateStats/{teamId}")
+    public TeamResponse updateTeamStats(@PathVariable("teamId") Long teamId,
+                                        @RequestBody java.util.Map<String, Object> payload) {
+        try {
+            String email = payload.get("email").toString();
+            int victories = Integer.parseInt(payload.get("victories").toString());
+            int defeats   = Integer.parseInt(payload.get("defeats").toString());
+            int matches   = Integer.parseInt(payload.get("matches").toString());
+
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+
+            return teamService.updateTeamStats(teamId, victories, defeats, matches, user.getIdUser());
+
+        } catch (Exception e) {
+            System.out.println(" ERROR in updateTeamStats: " + e.getMessage());
+            throw e;
+        }
+    }
+
     @DeleteMapping("delete/{idTeam}")
     public void deleteTeam(@PathVariable Long idTeam,
                            @RequestParam String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
 
-        // ✅ Déléguer au service qui gère ADMIN + capitaine + FK
+        //  Déléguer au service qui gère ADMIN + capitaine + FK
         teamService.deleteTeam(idTeam, user.getIdUser());
+    }
+
+    @GetMapping("leaderboard")
+    public List<LeaderboardDto> getLeaderboard(@RequestParam("sport") String sport) {
+        return teamService.getLeaderboard(sport);
     }
 
     // GET /team/showTeams
@@ -81,5 +108,11 @@ public class TeamController {
         User captain = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
         return teamService.getTeamsByCaptain(captain.getIdUser());
+    }
+
+    // GET /team/my-teams?captainId=3  ← used by matchmaking component
+    @GetMapping("my-teams")
+    public List<TeamResponse> getMyTeamsByCaptainId(@RequestParam Long captainId) {
+        return teamService.getTeamsByCaptain(captainId);
     }
 }
