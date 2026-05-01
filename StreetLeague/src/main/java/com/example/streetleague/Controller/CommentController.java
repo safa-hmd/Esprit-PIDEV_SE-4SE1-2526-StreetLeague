@@ -6,22 +6,33 @@ import com.example.streetleague.dto.commentDTO;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("/comments")
+public class CommentController {
 
-public class CommentController{
  private final CommentService commentService;
+ private final SimpMessagingTemplate messagingTemplate; // ✅
 
  @PostMapping("/add")
  @PreAuthorize("hasRole('PLAYER')")
  public ResponseEntity<Comment> addComment(@Valid @RequestBody commentDTO dto) {
-  return ResponseEntity.ok(commentService.addComment(dto));
+  Comment saved = commentService.addComment(dto);
+
+  // ✅ broadcast للـ post المعني
+  messagingTemplate.convertAndSend("/topic/comments/" + dto.getPostId(), Map.of(
+          "type", "NEW_COMMENT",
+          "comment", saved
+  ));
+
+  return ResponseEntity.ok(saved);
  }
 
  @DeleteMapping("/delete/{id}")
@@ -31,13 +42,19 @@ public class CommentController{
   return ResponseEntity.noContent().build();
  }
 
-
  @PutMapping("/update/{id}")
  @PreAuthorize("hasRole('PLAYER')")
  public ResponseEntity<Comment> updateComment(@PathVariable Long id, @RequestBody commentDTO dto) {
-  return ResponseEntity.ok(commentService.updateComment(id, dto));
- }
+  Comment updated = commentService.updateComment(id, dto);
 
+  // ✅ broadcast update
+  messagingTemplate.convertAndSend("/topic/comments/" + dto.getPostId(), Map.of(
+          "type", "UPDATE_COMMENT",
+          "comment", updated
+  ));
+
+  return ResponseEntity.ok(updated);
+ }
 
  @GetMapping("/getAll")
  public ResponseEntity<List<Comment>> getAllComments() {

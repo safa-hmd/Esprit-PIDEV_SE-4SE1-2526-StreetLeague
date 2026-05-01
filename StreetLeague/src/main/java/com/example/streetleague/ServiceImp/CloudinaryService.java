@@ -31,7 +31,6 @@ public class CloudinaryService {
     public void deleteImage(String imageUrl) throws IOException {
         if (imageUrl == null || imageUrl.isBlank()) return;
 
-        // Extract public_id from URL  e.g. "streetleague/posts/abc123"
         String publicId = imageUrl
                 .replaceAll("https://res.cloudinary.com/[^/]+/image/upload/(v\\d+/)?", "")
                 .replaceAll("\\.[a-zA-Z]+$", "");

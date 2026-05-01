@@ -71,13 +71,13 @@ public class CommentServiceIMPL implements CommentService {
     public void deleteComment(Long id) {
         commentRepository.deleteById(id);
     }
-
     @Override
     public Comment updateComment(Long id, commentDTO dto) {
         Comment existing = commentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
 
         existing.setContent(dto.getContent());
+        existing.setUpdatedAt(LocalDateTime.now());
 
         if (dto.getPostId() != null) {
             Post post = postRepository.findById(dto.getPostId())
@@ -102,4 +102,6 @@ public class CommentServiceIMPL implements CommentService {
     public List<Comment> getCommentsByPost(Long postId) {
         return commentRepository.findByPostId(postId);
     }
+
+
 }

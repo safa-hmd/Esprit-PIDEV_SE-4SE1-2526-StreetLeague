@@ -8,17 +8,35 @@ export class PostService {
 
   constructor(private http: HttpClient) {}
 
- getAllPosts(page: number = 0, size: number = 10): Observable<any> {
-  return this.http.get<any>(
-    `${this.apiUrl}/posts/getAll?page=${page}&size=${size}`
-  );
-}
+  // ✅ No more X-User-Id header - backend gets user from JWT token automatically
+
+  getAllPosts(page = 0, size = 10): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/posts/getAll?page=${page}&size=${size}`);
+  }
+
+  likePost(postId: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/posts/like/${postId}`, {});
+  }
+
+  dislikePost(postId: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/posts/dislike/${postId}`, {});
+  }
+
+  searchPosts(keyword = '', category = '', sort = 'date', page = 0, size = 5): Observable<any> {
+    let params = new HttpParams()
+      .set('sort', sort)
+      .set('page', page.toString())
+      .set('size', size.toString());
+    if (keyword.trim()) params = params.set('keyword', keyword.trim());
+    if (category.trim()) params = params.set('category', category.trim());
+    return this.http.get<any>(`${this.apiUrl}/posts/search`, { params });
+  }
+
   addPost(title: string, description: string, category: string, image: File): Observable<any> {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
     formData.append('category', category);
-
     formData.append('image', image);
     return this.http.post(`${this.apiUrl}/posts/add`, formData);
   }
@@ -31,45 +49,24 @@ export class PostService {
     return this.http.put(`${this.apiUrl}/posts/update/${id}`, post);
   }
 
- likePost(postId: number) {
-  return this.http.post<any>(`${this.apiUrl}/posts/like/${postId}`, {});
-}
+  getTopPosts(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/posts/stats/top`);
+  }
 
-dislikePost(postId: number) {
-  return this.http.post<any>(`${this.apiUrl}/posts/dislike/${postId}`, {});
-}
+  getGeneralStats(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/posts/stats/general`);
+  }
 
-getTopPosts(): Observable<any> {
-  return this.http.get<any>(`${this.apiUrl}/posts/stats/top`);
-}
-searchPosts(keyword = '', category = '', sort = 'date', page = 0, size = 5): Observable<any> {
-  let params = new HttpParams()
-    .set('sort', sort)
-    .set('page', page.toString())
-    .set('size', size.toString());
-  
-  if (keyword.trim())  params = params.set('keyword', keyword.trim());
-  if (category.trim()) params = params.set('category', category.trim());
-  
-  return this.http.get<any>(`${this.apiUrl}/posts/search`, { params });
-}
+  generateAIImage(prompt: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/posts/generate-image?prompt=${encodeURIComponent(prompt)}`, {});
+  }
 
-getGeneralStats(): Observable<any> {
-  return this.http.get<any>(`${this.apiUrl}/posts/stats/general`);
-}
-
-generateAIImage(prompt: string): Observable<any> {
-  return this.http.post<any>(
-    `${this.apiUrl}/posts/generate-image?prompt=${encodeURIComponent(prompt)}`,
-    {}
-  );
-}
-addPostWithAIImage(title: string, description: string, category: string, imageUrl: string): Observable<any> {
-  const formData = new FormData();
-  formData.append('title', title);
-  formData.append('description', description);
-  formData.append('category', category);
-  formData.append('imageUrl', imageUrl);
-  return this.http.post(`${this.apiUrl}/posts/add-with-url`, formData);
-}
+  addPostWithAIImage(title: string, description: string, category: string, imageUrl: string): Observable<any> {
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('category', category);
+    formData.append('imageUrl', imageUrl);
+    return this.http.post(`${this.apiUrl}/posts/add-with-url`, formData);
+  }
 }

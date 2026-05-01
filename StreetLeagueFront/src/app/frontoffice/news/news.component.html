@@ -40,8 +40,9 @@
   </div>
 </div>
 
+<!-- PAGE -->
 <div class="page-content" style="background:#f8f8f8;min-height:100vh;padding:2rem;">
-  
+
   <!-- PAGE HEADER -->
   <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
     <div>
@@ -51,26 +52,17 @@
   </div>
 
   <!-- SEARCH BAR -->
-  <div style="background:#ffffff;border:1px solid #eee;border-radius:12px;
-              padding:1.25rem;margin-bottom:1.5rem;
-              box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-    
+  <div style="background:#ffffff;border:1px solid #eee;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
-      
-      <!-- Keyword -->
+
       <input [(ngModel)]="searchKeyword"
              (input)="onSearch()"
              placeholder="🔍 Search posts..."
-             style="flex:1;min-width:200px;padding:0.65rem 1rem;
-                    border:1px solid #ddd;border-radius:8px;
-                    font-size:0.9rem;color:#333;outline:none;"/>
+             style="flex:1;min-width:200px;padding:0.65rem 1rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;color:#333;outline:none;"/>
 
-      <!-- Category Filter -->
       <select [(ngModel)]="searchCategory"
               (change)="onSearch()"
-              style="padding:0.65rem 1rem;border:1px solid #ddd;
-                     border-radius:8px;font-size:0.9rem;
-                     color:#333;background:white;min-width:150px;">
+              style="padding:0.65rem 1rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;color:#333;background:white;min-width:150px;">
         <option value="">All Categories</option>
         <option value="Event">Event</option>
         <option value="Health">Health</option>
@@ -80,23 +72,15 @@
         <option value="Promotion">Promotion</option>
       </select>
 
-
-
-      <!-- Clear Button -->
       <button *ngIf="isSearching"
               (click)="clearSearch()"
-              style="padding:0.65rem 1rem;background:#E61920;
-                     color:white;border:none;border-radius:8px;
-                     cursor:pointer;font-weight:600;font-size:0.9rem;">
+              style="padding:0.65rem 1rem;background:#E61920;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.9rem;">
         ✕ Clear
       </button>
     </div>
 
-    <!-- Search info -->
-    <div *ngIf="isSearching"
-         style="margin-top:0.75rem;font-size:0.85rem;color:#666;">
-      Found <strong style="color:#E61920;">{{ posts.length }}</strong>
-      results
+    <div *ngIf="isSearching" style="margin-top:0.75rem;font-size:0.85rem;color:#666;">
+      Found <strong style="color:#E61920;">{{ posts.length }}</strong> results
       <span *ngIf="searchKeyword"> for <strong>"{{ searchKeyword }}"</strong></span>
       <span *ngIf="searchCategory"> in <strong>{{ searchCategory }}</strong></span>
     </div>
@@ -104,6 +88,8 @@
 
   <div class="news-layout">
     <div>
+
+      <!-- POSTS LIST -->
       <div class="post-card" *ngFor="let post of posts">
 
         <!-- Post Header -->
@@ -111,9 +97,8 @@
           <div class="post-avatar" style="background:#E61920;color:white;">SL</div>
           <div>
             <div class="post-author">StreetLeague Official</div>
-            <div class="post-time">{{ post.publishDate | date:'dd/MM/yyyy' }}</div>
-          </div>
-          <span class="badge badge-red" style="margin-left:auto;">{{ post.category }}</span>
+<div class="post-time">{{ getTimeAgo(post) }}</div>          </div>
+          <span [style]="getCategoryStyle(post.category)" style="margin-left:auto;">{{ post.category }}</span>
         </div>
 
         <!-- Image -->
@@ -130,6 +115,7 @@
 
         <!-- Post Actions -->
         <div class="post-actions">
+
           <!-- Like Button -->
           <button class="action-btn"
                   [style.color]="post.liked ? '#E61920' : ''"
@@ -139,9 +125,8 @@
                   [style.cursor]="likeInProgress[post.id] ? 'not-allowed' : 'pointer'"
                   style="position:relative;transition:all 0.2s ease;">
             <svg [attr.fill]="post.liked ? '#E61920' : 'none'"
-                 stroke="currentColor"
-                 viewBox="0 0 24 24"
-                 stroke-width="2"
+                 [attr.stroke]="post.liked ? '#E61920' : 'currentColor'"
+                 viewBox="0 0 24 24" stroke-width="2"
                  [style.transition]="'all 0.3s ease'"
                  [style.transform]="likeInProgress[post.id] ? 'scale(1.1)' : 'scale(1)'">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -157,13 +142,13 @@
             </small>
           </button>
 
-          <!-- Comment toggle -->
-        <button class="action-btn" (click)="toggleComments(post)">
-  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-  </svg>
-  <span>{{ post.commentCount }}</span>
-</button>
+          <!-- Comment Toggle -->
+          <button class="action-btn" (click)="toggleComments(post)">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>{{ post.commentCount }}</span>
+          </button>
         </div>
 
         <!-- Comments Section -->
@@ -177,7 +162,7 @@
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
                 <span style="font-weight:700;font-size:0.85rem;color:#1a1a2e;">{{ comment.user?.fullName || 'Player' }}</span>
                 <div style="display:flex;gap:0.5rem;align-items:center;">
-                  <span style="font-size:0.75rem;color:#999;">{{ comment.createdAt | date:'dd/MM/yyyy' }}</span>
+<span style="font-size:0.75rem;color:#999;">{{ getTimeAgo(comment) }}</span>
                   <button (click)="openEditComment(comment, post)" style="background:none;border:none;cursor:pointer;color:#f59e0b;font-size:0.8rem;padding:0.1rem 0.3rem;">✏️</button>
                   <button (click)="deleteComment(comment.id, post)" style="background:none;border:none;cursor:pointer;color:#E61920;font-size:0.8rem;padding:0.1rem 0.3rem;">🗑️</button>
                 </div>
@@ -202,34 +187,28 @@
         </div>
 
       </div>
+      <!-- END *ngFor -->
 
       <!-- No posts -->
-      <div *ngIf="posts.length === 0" style="text-align:center;color:#999;padding:2rem;">
+      <div *ngIf="posts.length === 0 && !isLoading" style="text-align:center;color:#999;padding:2rem;">
         <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
         <p *ngIf="isSearching">No results found. Try different keywords.</p>
         <p *ngIf="!isSearching">No posts available.</p>
       </div>
 
-      <!-- PAGINATION -->
-      <div *ngIf="totalPages > 1"
-           style="display:flex;align-items:center;justify-content:center;
-                  gap:1rem;margin-top:2rem;padding:1rem;">
-        <button (click)="prevPage()" [disabled]="page === 0"
-                style="padding:0.6rem 1.2rem;border:1px solid #ddd;
-                       border-radius:8px;background:white;color:#333;
-                       cursor:pointer;font-weight:600;"
-                [style.opacity]="page === 0 ? '0.4' : '1'">
-          ← Prev
-        </button>
-        <span style="color:#666;font-size:0.9rem;">
-          Page <strong>{{ page + 1 }}</strong> / {{ totalPages }}
-        </span>
-        <button (click)="nextPage()" [disabled]="page === totalPages - 1"
-                style="padding:0.6rem 1.2rem;border:none;border-radius:8px;
-                       background:#E61920;color:white;cursor:pointer;font-weight:600;"
-                [style.opacity]="page === totalPages - 1 ? '0.4' : '1'">
-          Next →
-        </button>
+      <!-- ✅ SENTINEL — Infinite Scroll trigger -->
+      <div #sentinel style="height: 10px;"></div>
+
+      <!-- Loading indicator -->
+      <div *ngIf="isLoading"
+           style="text-align:center;padding:1.5rem;color:#999;font-size:0.9rem;">
+        ⏳ Loading more posts...
+      </div>
+
+      <!-- End of list -->
+      <div *ngIf="isLastPage && !isLoading && posts.length > 0"
+           style="text-align:center;padding:1rem;color:#aaa;font-size:0.85rem;border-top:1px solid #eee;margin-top:1rem;">
+        ✓ You've seen all posts
       </div>
 
     </div>

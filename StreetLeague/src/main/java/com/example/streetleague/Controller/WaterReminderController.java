@@ -1,6 +1,7 @@
 package com.example.streetleague.Controller;
 
 import com.example.streetleague.Entity.waterReminder;
+import com.example.streetleague.Repository.WaterReminderRepository;
 import com.example.streetleague.ServiceInterface.waterReminderService;
 import com.example.streetleague.dto.WaterReminderResponseDTO;
 import com.example.streetleague.dto.waterReminderDTO;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequestMapping("/waterReminder")
 public class WaterReminderController {
     private final waterReminderService waterReminderService;
+    private final WaterReminderRepository waterReminderRepository;
 
 
     @PostMapping("/add")
@@ -48,5 +50,12 @@ public class WaterReminderController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<WaterReminderResponseDTO>> getAllReminders() {
         return ResponseEntity.ok(waterReminderService.getAllReminders());
+    }
+    @GetMapping("/byUser/{userId}")
+    @PreAuthorize("hasRole('PLAYER')")
+    public ResponseEntity<waterReminder> getReminderByUser(@PathVariable Long userId) {
+        return waterReminderRepository.findByUserId(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

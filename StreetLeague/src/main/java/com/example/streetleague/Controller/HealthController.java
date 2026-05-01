@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -30,9 +31,9 @@ public class HealthController {
     private final UserBadgeRepository badgeRepository;
     private final SpinResultRepository spinRepository;
     private final WeeklyHealthReportServiceIMPL weeklyReportService;
-    // ─────────────────────────────────────────────
-    // 1. Mettre à jour BMI + sauvegarder historique
-    // ─────────────────────────────────────────────
+    private final WaterStreakRepository streakRepository;
+
+
     @PutMapping("/update/{userId}")
     public ResponseEntity<User> updateHealth(@PathVariable Long userId,
                                              @RequestBody Map<String, Double> data) {
@@ -42,6 +43,14 @@ public class HealthController {
         Double weight = data.get("weight");
         Double height = data.get("height");
         Double bmi    = data.get("bmi");
+
+        // ✅ VALIDATION — rejeter les valeurs aberrantes
+        if (weight == null || height == null || bmi == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (bmi > 60 || bmi < 10 || weight > 300 || height > 250) {
+            return ResponseEntity.badRequest().build();
+        }
 
         user.setWeight(weight);
         user.setHeight(height);
@@ -69,9 +78,7 @@ public class HealthController {
         return ResponseEntity.ok(user);
     }
 
-    // ─────────────────────────────────────────────
-    // 2. Logger l'eau bue (drinkNow)
-    // ─────────────────────────────────────────────
+
     @PostMapping("/water/log/{userId}")
     public ResponseEntity<DailyWaterLog> logWater(@PathVariable Long userId,
                                                   @RequestBody WaterLogDTO dto) {
@@ -93,8 +100,10 @@ public class HealthController {
 
         goalRepository.findByUserIdAndGoalType(userId, "WATER").ifPresent(goal -> {
             log.setGoalMl((int) goal.getTargetValue());
-            if (log.getTotalMl() >= goal.getTargetValue()) {
+            if (log.getTotalMl() >= goal.getTargetValue() && !log.isGoalReached()) {
                 log.setGoalReached(true);
+                // ✅ Mettre à jour le streak
+                updateStreak(userId, user, today);
                 checkAndAwardBadge(userId, user);
             }
         });
@@ -103,9 +112,38 @@ public class HealthController {
         return ResponseEntity.ok(log);
     }
 
-    // ─────────────────────────────────────────────
-    // 3. Fixer un goal (eau ou BMI)
-    // ─────────────────────────────────────────────
+    // ✅ Nouvelle méthode streak
+    private void updateStreak(Long userId, User user, LocalDate today) {
+        WaterStreak streak = streakRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    WaterStreak s = new WaterStreak();
+                    s.setUser(user);
+                    s.setCurrentStreak(0);
+                    s.setLongestStreak(0);
+                    return s;
+                });
+
+        // Si hier le goal était atteint → on continue le streak
+        // Sinon → on repart de 1
+        if (streak.getLastGoalDate() != null &&
+                streak.getLastGoalDate().equals(today.minusDays(1))) {
+            streak.setCurrentStreak(streak.getCurrentStreak() + 1);
+        } else if (streak.getLastGoalDate() == null ||
+                !streak.getLastGoalDate().equals(today)) {
+            // Nouveau streak (pas déjà compté aujourd'hui)
+            streak.setCurrentStreak(1);
+        }
+
+        // Update le record
+        if (streak.getCurrentStreak() > streak.getLongestStreak()) {
+            streak.setLongestStreak(streak.getCurrentStreak());
+        }
+
+        streak.setLastGoalDate(today);
+        streakRepository.save(streak);
+    }
+
+
     @PostMapping("/goal/{userId}")
     public ResponseEntity<UserGoal> setGoal(@PathVariable Long userId,
                                             @RequestBody GoalDTO dto) {
@@ -127,9 +165,7 @@ public class HealthController {
         return ResponseEntity.ok(goal);
     }
 
-    // ─────────────────────────────────────────────
-    // 4. Récupérer les goals de l'user
-    // ─────────────────────────────────────────────
+
     @GetMapping("/goal/{userId}")
     public ResponseEntity<List<UserGoal>> getGoals(@PathVariable Long userId) {
         return ResponseEntity.ok(goalRepository.findAll().stream()
@@ -137,30 +173,23 @@ public class HealthController {
                 .toList());
     }
 
-    // ─────────────────────────────────────────────
-    // 5. Récupérer les badges de l'user
-    // ─────────────────────────────────────────────
+
     @GetMapping("/badges/{userId}")
     public ResponseEntity<List<UserBadge>> getBadges(@PathVariable Long userId) {
         return ResponseEntity.ok(badgeRepository.findByUserId(userId));
     }
 
-    // ─────────────────────────────────────────────
-    // 6. Statut du spin
-    // ─────────────────────────────────────────────
+
     @GetMapping("/spin/status/{userId}")
     public ResponseEntity<Map<String, Boolean>> spinStatus(@PathVariable Long userId) {
         SpinResult spin = spinRepository.findByUserId(userId).orElse(null);
 
-        // canSpin = إذا ما spin بعد (hasSpun=false) أو TRY_AGAIN
         boolean canSpin = spin != null && (!spin.isHasSpun() || spin.isCanRetry());
 
         return ResponseEntity.ok(Map.of("canSpin", canSpin));
     }
 
-    // ─────────────────────────────────────────────
-    // 7. Tourner la roue
-    // ─────────────────────────────────────────────
+
     @PostMapping("/spin/{userId}")
     public ResponseEntity<RewardDTO> spin(@PathVariable Long userId) {
         User user = userRepository.findById(userId)
@@ -200,13 +229,14 @@ public class HealthController {
             badgeRepository.save(badge);
         }
 
-        Map<String, Integer> segmentMap = Map.of(
-                "BADGE", 0,
-                "FREE_DELIVERY", 1,
-                "COUPON_5", 2,
-                "COUPON_10", 3,
-                "TRY_AGAIN", 4
-        );
+        int tryAgainIndex = new Random().nextBoolean() ? 4 : 5;
+
+        Map<String, Integer> segmentMap = new HashMap<>();
+        segmentMap.put("BADGE", 0);
+        segmentMap.put("FREE_DELIVERY", 1);
+        segmentMap.put("COUPON_5", 2);
+        segmentMap.put("COUPON_10", 3);
+        segmentMap.put("TRY_AGAIN", tryAgainIndex);
 
         RewardDTO dto = new RewardDTO();
         dto.setResult(result);
@@ -216,11 +246,9 @@ public class HealthController {
         return ResponseEntity.ok(dto);
     }
 
-    // ─────────────────────────────────────────────
-    // 8. Historique eau aujourd'hui
-    // ─────────────────────────────────────────────
+
     @GetMapping("/water/today/{userId}")
-    @PreAuthorize("hasRole('PLAYER')")
+    //@PreAuthorize("hasRole('PLAYER')")
     public ResponseEntity<List<DailyWaterLog>> getTodayLogs(@PathVariable Long userId) {
         List<DailyWaterLog> logs = waterLogRepository.findByUserIdAndDate(userId, LocalDate.now())
                 .map(List::of)
@@ -228,9 +256,7 @@ public class HealthController {
         return ResponseEntity.ok(logs);
     }
 
-    // ─────────────────────────────────────────────
-    // Méthodes privées
-    // ─────────────────────────────────────────────
+
 
     private void checkAndAwardBadge(Long userId, User user) {
         LocalDate today = LocalDate.now();
@@ -239,7 +265,7 @@ public class HealthController {
         List<DailyWaterLog> logs = waterLogRepository.findByUserIdAndDateBetween(userId, weekAgo, today);
         long daysGoalReached = logs.stream().filter(DailyWaterLog::isGoalReached).count();
 
-        if (daysGoalReached >= 7) {
+        if (daysGoalReached >= 1) {
             boolean alreadyAwarded = badgeRepository.findByUserId(userId).stream()
                     .anyMatch(b -> b.getBadgeType().equals("WATER_WEEK") &&
                             b.getEarnedDate().isAfter(weekAgo));
@@ -280,7 +306,7 @@ public class HealthController {
         };
     }
     @DeleteMapping("/water/reset/{userId}")
-    @PreAuthorize("hasRole('PLAYER')")
+    //@PreAuthorize("hasRole('PLAYER')")
     public ResponseEntity<Void> resetTodayWater(@PathVariable Long userId) {
         waterLogRepository.findByUserIdAndDate(userId, LocalDate.now())
                 .ifPresent(log -> {
@@ -331,5 +357,38 @@ public class HealthController {
                         LocalDate.now()
                 )
         );
+    }
+
+
+    @GetMapping("/streak/{userId}")
+    public ResponseEntity<Map<String, Object>> getStreak(@PathVariable Long userId) {
+        WaterStreak streak = streakRepository.findByUserId(userId).orElse(null);
+
+        if (streak == null) {
+            return ResponseEntity.ok(Map.of(
+                    "currentStreak", 0,
+                    "longestStreak", 0,
+                    "lastGoalDate", ""
+            ));
+        }
+
+        // Vérifier si le streak est encore actif (pas de break hier)
+        LocalDate today = LocalDate.now();
+        boolean streakBroken = streak.getLastGoalDate() != null &&
+                streak.getLastGoalDate().isBefore(today.minusDays(1));
+
+        int currentStreak = streakBroken ? 0 : streak.getCurrentStreak();
+
+        // Si streak cassé, reset
+        if (streakBroken) {
+            streak.setCurrentStreak(0);
+            streakRepository.save(streak);
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "currentStreak", currentStreak,
+                "longestStreak", streak.getLongestStreak(),
+                "lastGoalDate", streak.getLastGoalDate() != null ? streak.getLastGoalDate().toString() : ""
+        ));
     }
 }

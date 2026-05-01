@@ -12,18 +12,20 @@ import com.example.streetleague.domain.User;
 import com.example.streetleague.dto.postDTO;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class PostServiceIMPL implements PostService {
@@ -32,16 +34,13 @@ public class PostServiceIMPL implements PostService {
     private final UserRepository userRepository;
     private final CloudinaryService cloudinaryService;
 
-    // ← CACHE: moch final basch Lombok ma yich trou
     private final Map<String, Page<Post>> cache = new HashMap<>();
 
-    private static final int  TITLE_MIN       = 3;
-    private static final int  TITLE_MAX       = 100;
-    private static final int  DESC_MIN        = 5;
-    private static final int  DESC_MAX        = 500;
+    private static final int TITLE_MIN = 3;
+    private static final int TITLE_MAX = 100;
+    private static final int DESC_MIN = 5;
+    private static final int DESC_MAX = 500;
     private static final long IMAGE_MAX_BYTES = 5 * 1024 * 1024;
-
-    // ===== VALIDATIONS =====
 
     private void validateTitle(String title) {
         if (title == null || title.trim().isEmpty())
@@ -76,8 +75,6 @@ public class PostServiceIMPL implements PostService {
             throw new IllegalArgumentException("Invalid image type");
     }
 
-    // ===== METHODS =====
-
     @Override
     public Post addPost(postDTO dto, MultipartFile image) throws IOException {
         validateTitle(dto.getTitle());
@@ -97,27 +94,28 @@ public class PostServiceIMPL implements PostService {
                 .description(dto.getDescription().trim())
                 .category(dto.getCategory().trim())
                 .imageUrl(imageUrl)
-                .publishDate(LocalDate.now())
                 .user(user)
                 .likes(0)
                 .build();
 
-        cache.clear(); // ← faragh cache ki tzid post jdid
+        cache.clear();
         return postRepository.save(post);
     }
 
-    // ← BADDALNA: getPosts b pagination + cache
     @Override
     public Page<Post> getPosts(int page, int size) {
         String key = page + "-" + size;
 
         if (cache.containsKey(key)) {
-            System.out.println("✅ FROM CACHE: " + key);
+            log.info("FROM CACHE: " + key);
             return cache.get(key);
         }
 
-        System.out.println("🔍 FROM DB: " + key);
-        Page<Post> result = postRepository.findAll(PageRequest.of(page, size));
+        log.info("🔍 FROM DB: " + key);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> result = postRepository.findAll(pageable);
+
         cache.put(key, result);
         return result;
     }
@@ -141,7 +139,7 @@ public class PostServiceIMPL implements PostService {
         post.setDescription(dto.getDescription().trim());
         post.setCategory(dto.getCategory().trim());
 
-        cache.clear(); // ← faragh cache ki tbaddel post
+        cache.clear();
         return postRepository.save(post);
     }
 
@@ -153,28 +151,60 @@ public class PostServiceIMPL implements PostService {
         try {
             cloudinaryService.deleteImage(post.getImageUrl());
         } catch (IOException e) {
-            System.err.println("Cloudinary delete failed: " + e.getMessage());
+            log.error("Cloudinary delete failed: " + e.getMessage());
         }
 
-        cache.clear(); // ← faragh cache ki tamsah post
+        cache.clear();
         postRepository.delete(post);
     }
 
     @Override
-    public Post likePost(Long id) {
-        Post post = postRepository.findById(id)
+    @Transactional
+    public Post likePost(Long postId) {
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        post.setLikes(post.getLikes() + 1);
-        return postRepository.save(post);
+
+        if (!post.getLikedByUsers().contains(user.getId())) {
+            post.getLikedByUsers().add(user.getId());
+            post.setLikes(post.getLikedByUsers().size());
+            post = postRepository.save(post);
+        }
+        return post;
     }
 
     @Override
-    public Post dislikePost(Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
-        if (post.getLikes() > 0)
-            post.setLikes(post.getLikes() - 1);
-        return postRepository.save(post);
+    @Transactional
+    public Post dislikePost(Long postId) {
+        try {
+            String email = SecurityContextHolder.getContext()
+                    .getAuthentication().getName();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new RuntimeException("Post not found"));
+
+            log.info("📊 Post {} - Current likes: {}", postId, post.getLikes());
+
+            if (post.getLikedByUsers().contains(user.getId())) {
+                post.getLikedByUsers().remove(user.getId());
+                post.setLikes(post.getLikedByUsers().size());
+                cache.clear();
+                Post saved = postRepository.save(post);
+                log.info("✅ Post {} disliked successfully - New likes: {}", postId, saved.getLikes());
+                return saved;
+            }
+
+            return post;
+        } catch (Exception e) {
+            log.error("❌ Error in dislikePost: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to dislike post: " + e.getMessage());
+        }
     }
 
     @Override
@@ -194,31 +224,38 @@ public class PostServiceIMPL implements PostService {
         if ("likes".equalsIgnoreCase(sort)) {
             sorting = Sort.by("likes").descending();
         } else {
-            sorting = Sort.by("publishDate").descending();
+            sorting = Sort.by("createdAt").descending();
         }
 
         Pageable pageable = PageRequest.of(page, size, sorting);
 
-        // ki keyword wella category faragh → n7othom null
-        String kw  = (keyword  == null || keyword.trim().isEmpty())
+        String kw = (keyword == null || keyword.trim().isEmpty())
                 ? null : keyword.trim();
         String cat = (category == null || category.trim().isEmpty())
                 ? null : category.trim();
 
-        // ila el ethnin null → nraja3 kol el posts (moch search)
         if (kw == null && cat == null) {
             return postRepository.findAll(pageable);
         }
 
         return postRepository.searchPosts(kw, cat, pageable);
     }
+
     public Post addPostWithUrl(postDTO dto) {
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElse(null);
+
         Post post = new Post();
         post.setTitle(dto.getTitle());
         post.setDescription(dto.getDescription());
         post.setCategory(dto.getCategory());
         post.setImageUrl(dto.getImageUrl());
-        post.setPublishDate(LocalDate.now());
+        post.setUser(user);
+        post.setLikes(0);
+
+        cache.clear();
         return postRepository.save(post);
     }
+
 }

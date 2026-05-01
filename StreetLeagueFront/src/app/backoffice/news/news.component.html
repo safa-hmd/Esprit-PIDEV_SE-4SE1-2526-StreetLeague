@@ -1,30 +1,22 @@
 <!-- Modal Add Post -->
 <div *ngIf="showForm" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;display:flex;align-items:center;justify-content:center;">
   <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:2rem;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,0.6);max-height:90vh;overflow-y:auto;">
-
-    <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
       <h3 style="margin:0;color:#f0f0f5;">✍️ New Post</h3>
       <button (click)="closeModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#606078;">&times;</button>
     </div>
-
-    <!-- Title -->
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Title</label>
       <input [(ngModel)]="newPost.title" placeholder="Post title..."
              style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"/>
       <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ newPost.title.length }}/100 characters</small>
     </div>
-
-    <!-- Description -->
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Description</label>
       <textarea [(ngModel)]="newPost.description" placeholder="Post content..." rows="4"
                 style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"></textarea>
       <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ newPost.description.length }}/500 characters</small>
     </div>
-
-    <!-- Category -->
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Category</label>
       <select [(ngModel)]="newPost.category"
@@ -38,48 +30,30 @@
         <option value="Promotion">Promotion</option>
       </select>
     </div>
-
-    <!-- AI Image Generator -->
     <div style="margin-bottom:1rem;padding:1rem;background:#0f0f13;border:1px solid #2a2a3a;border-radius:8px;">
       <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:#8B5CF6;">🤖 Generate Image with AI</label>
       <div style="display:flex;gap:0.5rem;">
-        <input [(ngModel)]="aiPrompt"
-               placeholder="e.g. football event poster..."
-               style="flex:1;padding:0.65rem;border:1px solid #2a2a3a;
-                      border-radius:8px;font-size:0.9rem;
-                      background:#1e1e2a;color:#f0f0f5;outline:none;"/>
-        <button (click)="generateImage()"
-                [disabled]="isGenerating"
-                style="padding:0.65rem 1rem;background:#8B5CF6;
-                       color:white;border:none;border-radius:8px;
-                       cursor:pointer;font-weight:600;white-space:nowrap;"
+        <input [(ngModel)]="aiPrompt" placeholder="e.g. football event poster..."
+               style="flex:1;padding:0.65rem;border:1px solid #2a2a3a;border-radius:8px;font-size:0.9rem;background:#1e1e2a;color:#f0f0f5;outline:none;"/>
+        <button (click)="generateImage()" [disabled]="isGenerating"
+                style="padding:0.65rem 1rem;background:#8B5CF6;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap;"
                 [style.opacity]="isGenerating ? '0.6' : '1'">
           {{ isGenerating ? '⏳...' : '✨ Generate' }}
         </button>
       </div>
-      <small style="display:block;margin-top:0.4rem;color:#606078;">
-        Or upload your own image below
-      </small>
+      <small style="display:block;margin-top:0.4rem;color:#606078;">Or upload your own image below</small>
     </div>
-
-    <!-- Image Upload -->
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Image</label>
       <input type="file" accept="image/*" (change)="onImageSelected($event)"
              style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"/>
     </div>
-
-    <!-- Image Preview -->
     <div *ngIf="imagePreview" style="margin-bottom:1rem;">
       <img [src]="imagePreview" style="width:100%;max-height:200px;border-radius:8px;object-fit:cover;"/>
     </div>
-
-    <!-- Error -->
     <div *ngIf="showAddPostError" style="margin-bottom:1rem;padding:0.75rem;background:#E61920;border-radius:8px;color:white;font-weight:600;font-size:0.9rem;">
       ⚠️ {{ addPostErrorMessage }}
     </div>
-
-    <!-- Buttons -->
     <div style="display:flex;gap:1rem;justify-content:flex-end;">
       <button type="button" (click)="closeModal()"
               style="padding:0.75rem 1.5rem;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a24;cursor:pointer;color:#9090a8;"
@@ -90,37 +64,28 @@
         {{ isLoading ? '⏳ Adding...' : '✅ Add' }}
       </button>
     </div>
-
   </div>
 </div>
 
 <!-- Modal Edit Post -->
 <div *ngIf="showEditForm" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;display:flex;align-items:center;justify-content:center;">
   <div style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;padding:2rem;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
-
-    <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
       <h3 style="margin:0;color:#f0f0f5;">✏️ Edit Post</h3>
       <button (click)="showEditForm = false" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#606078;">&times;</button>
     </div>
-
-    <!-- Title -->
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Title</label>
       <input [(ngModel)]="editPost.title" placeholder="Post title..."
              style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"/>
       <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ (editPost.title?.length || 0) }}/100 characters</small>
     </div>
-
-    <!-- Description -->
     <div style="margin-bottom:1rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Description</label>
       <textarea [(ngModel)]="editPost.description" placeholder="Post content..." rows="4"
                 style="width:100%;padding:0.75rem;border:1px solid #2a2a3a;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;background:#0f0f13;color:#f0f0f5;"></textarea>
       <small style="display:block;margin-top:0.25rem;color:#9090a8;">{{ (editPost.description?.length || 0) }}/500 characters</small>
     </div>
-
-    <!-- Category -->
     <div style="margin-bottom:1.5rem;">
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#9090a8;">Category</label>
       <select [(ngModel)]="editPost.category"
@@ -134,23 +99,19 @@
         <option value="Promotion">Promotion</option>
       </select>
     </div>
-
-    <!-- Error -->
     <div *ngIf="showEditPostError" style="margin-bottom:1rem;padding:0.75rem;background:#E61920;border-radius:8px;color:white;font-weight:600;font-size:0.9rem;">
       ⚠️ {{ editPostErrorMessage }}
     </div>
-
-    <!-- Buttons -->
     <div style="display:flex;gap:1rem;justify-content:flex-end;">
       <button (click)="showEditForm = false"
               style="padding:0.75rem 1.5rem;border:1px solid #2a2a3a;border-radius:8px;background:#1a1a24;cursor:pointer;color:#9090a8;">Cancel</button>
       <button (click)="updatePost()"
               style="padding:0.75rem 1.5rem;border:none;border-radius:8px;background:#E61920;color:white;cursor:pointer;font-weight:600;">Save</button>
     </div>
-
   </div>
 </div>
 
+<!-- PAGE -->
 <div class="page-content" style="background:#0f0f13;min-height:100vh;padding:2rem;">
   <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
     <div>
@@ -189,7 +150,6 @@
   <!-- TOP POSTS -->
   <div *ngIf="mostCommented || mostLiked"
        style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:2rem;">
-
     <div *ngIf="mostCommented"
          style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;overflow:hidden;border-top:4px solid #3B82F6;">
       <img [src]="mostCommented.imageUrl || 'assets/placeholder.png'"
@@ -205,7 +165,6 @@
         <div style="font-size:1.4rem;font-weight:800;color:#3B82F6;">{{ mostCommented.commentCount }} comments</div>
       </div>
     </div>
-
     <div *ngIf="mostLiked"
          style="background:#1e1e2a;border:1.5px solid #2a2a3a;border-radius:12px;overflow:hidden;border-top:4px solid #F59E0B;">
       <img [src]="mostLiked.imageUrl || 'assets/placeholder.png'"
@@ -252,14 +211,16 @@
 
   <div class="news-layout">
     <div>
+
+      <!-- POSTS LIST -->
       <div class="post-card" *ngFor="let post of posts">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
           <div class="post-avatar" style="background:#E61920;color:white;">SL</div>
           <div>
             <div class="post-author">StreetLeague Official</div>
-            <div class="post-time">{{ post.publishDate | date:'dd/MM/yyyy' }}</div>
+<div class="post-time">{{ getTimeAgo(post.createdAt, post.updatedAt) }}</div>
           </div>
-          <span class="badge badge-red" style="margin-left:auto;">{{ post.category }}</span>
+          <span [style]="getCategoryStyle(post.category)" style="margin-left:auto;">{{ post.category }}</span>
         </div>
 
         <div *ngIf="post.imageUrl">
@@ -312,31 +273,40 @@
             </div>
             <div style="flex:1;background:#1a1a24;border-radius:8px;padding:0.6rem 0.9rem;border:1px solid #2a2a3a;">
               <span style="font-weight:700;font-size:0.82rem;color:#f0f0f5;">{{ comment.user?.fullName || 'Player' }}</span>
+              
               <p style="margin:0.2rem 0 0;font-size:0.85rem;color:#9090a8;">{{ comment.content }}</p>
+                 <div style="display:flex;gap:0.5rem;align-items:center;">
+<span style="font-size:0.75rem;color:#999;">{{ getTimeAgo(comment.createdAt) }}</span>
+                </div>
             </div>
           </div>
         </div>
       </div>
+      <!-- END *ngFor -->
 
-      <div *ngIf="posts.length === 0" style="text-align:center;color:#606078;padding:2rem;">
+      <!-- No posts -->
+      <div *ngIf="posts.length === 0 && !isLoadingPosts" style="text-align:center;color:#606078;padding:2rem;">
         No posts available.
       </div>
 
-      <!-- PAGINATION -->
-      <div *ngIf="totalPages > 1"
-           style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:2rem;padding:1rem;">
-        <button (click)="prevPage()" [disabled]="page === 0"
-                style="padding:0.6rem 1.2rem;border:1px solid #2a2a3a;border-radius:8px;background:#1e1e2a;color:#f0f0f5;cursor:pointer;font-weight:600;"
-                [style.opacity]="page === 0 ? '0.4' : '1'">← Prev</button>
-        <span style="color:#9090a8;font-size:0.9rem;">
-          Page <strong style="color:#f0f0f5;">{{ page + 1 }}</strong> / {{ totalPages }}
-        </span>
-        <button (click)="nextPage()" [disabled]="page === totalPages - 1"
-                style="padding:0.6rem 1.2rem;border:none;border-radius:8px;background:#E61920;color:white;cursor:pointer;font-weight:600;"
-                [style.opacity]="page === totalPages - 1 ? '0.4' : '1'">Next →</button>
+      <!-- ✅ SENTINEL — Infinite Scroll trigger -->
+      <div #sentinel style="height: 10px;"></div>
+
+      <!-- Loading indicator -->
+      <div *ngIf="isLoadingPosts"
+           style="text-align:center;padding:1.5rem;color:#9090a8;font-size:0.9rem;">
+        ⏳ Loading more posts...
       </div>
+
+      <!-- End of list -->
+      <div *ngIf="isLastPage && !isLoadingPosts && posts.length > 0"
+           style="text-align:center;padding:1rem;color:#606078;font-size:0.85rem;border-top:1px solid #2a2a3a;margin-top:1rem;">
+        ✓ You've seen all posts
+      </div>
+
     </div>
 
+    <!-- Sidebar -->
     <div>
       <div class="sidebar-card">
         <h4>🔥 Trends</h4>

@@ -19,9 +19,9 @@ export interface DietResponseDTO {
   id: number;
   goal: string;
   status: string;
-  dailyCalories: number;
-  dietPlan: string[];
-  createdDate: string;
+daily_calories: number;  
+  diet_plan: string[];     
+  createdDate?: string;
 }
 export interface GoalDTO {
   goalType: 'WATER' | 'BMI';
@@ -64,6 +64,8 @@ export interface WeeklyHealthReportDTO {
   avgDailyWaterMl: number;
   goals: GoalSummary[];
   bmiHistory: BmiEntry[];
+    currentWaterStreak: number;   // ✅ ajoute
+  longestWaterStreak: number;
 }
 
 export interface GoalSummary {
@@ -159,15 +161,16 @@ getWeeklyReport(userId: number, asOf?: string): Observable<WeeklyHealthReportDTO
 
 
 // ── Diet ──
-getDietRecommendation(userId: number, data: DietRequestDTO): Observable<DietResponseDTO> {
-  return this.http.post<DietResponseDTO>(
-    `${this.baseUrl}/diet/recommend/${userId}`, data
-  );
+getDietRecommendation(userId: number, age: number, bmi: number): Observable<any> {
+  return this.http.post(`${this.baseUrl}/diet/recommend/${userId}`, { age, bmi });
 }
 
 getLastDiet(userId: number): Observable<DietResponseDTO> {
   return this.http.get<DietResponseDTO>(
     `${this.baseUrl}/diet/last/${userId}`
   );
+}
+getStreak(userId: number): Observable<{currentStreak: number, longestStreak: number, lastGoalDate: string}> {
+  return this.http.get<any>(`${this.healthApiUrl}/streak/${userId}`);
 }
 }

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor; // ✅ ajouté
 import java.time.LocalDate;
 
 @Entity
-@Data                        // ✅ génère getters/setters automatiquement
+@Data
 @NoArgsConstructor
 public class HealthHistory {
 

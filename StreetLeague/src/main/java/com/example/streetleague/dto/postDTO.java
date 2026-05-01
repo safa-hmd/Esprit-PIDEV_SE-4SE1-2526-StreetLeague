@@ -4,9 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -25,11 +23,13 @@ public class postDTO {
     private String category;
 
     private Long userId;
-
     private String imageUrl;
     private String adminName;
     private Long commentCount;
     private Integer likes;
+    private String createdAt;
+    private String updatedAt;
+    private boolean liked; // ← NOUVEAU
 
     public postDTO(Long id, String title, String description, String category,
                    Long userId, String imageUrl, String adminName,
@@ -43,5 +43,6 @@ public class postDTO {
         this.adminName = adminName;
         this.commentCount = commentCount;
         this.likes = likes != null ? likes.intValue() : 0;
+        this.liked = false;
     }
 }

@@ -147,9 +147,9 @@
               <span *ngIf="isGlassFilled(i)">✓</span>
             </div>
           </div>
-          <div class="glasses-numbers">
-            <span *ngFor="let i of getGlassArray()">{{ i + 1 }}</span>
-          </div>
+         <div class="glasses-numbers">
+  <span *ngFor="let i of getGlassArray(); let idx = index">{{ idx + 1 }}</span>
+</div>
         </div>
       </div>
 
@@ -186,6 +186,35 @@
       <p class="progress-text">{{ hydrationPercentage | number:'1.0-0' }}% of goal</p>
     </div>
   </div>
+
+  <!-- Streak Display — ajoute dans la reminder-card -->
+<!-- Streak — ajoute APRÈS la progress bar, DANS la reminder-card -->
+<div class="streak-section">
+  <div class="streak-item">
+    <span class="streak-fire">🔥</span>
+    <div class="streak-info">
+      <p class="streak-value">{{ currentStreak }}</p>
+      <p class="streak-label">Day Streak</p>
+    </div>
+  </div>
+  <div class="streak-divider"></div>
+  <div class="streak-item">
+    <span class="streak-fire">🏆</span>
+    <div class="streak-info">
+      <p class="streak-value">{{ longestStreak }}</p>
+      <p class="streak-label">Best Streak</p>
+    </div>
+  </div>
+  <div class="streak-message" *ngIf="currentStreak >= 3">
+    🔥 {{ currentStreak }} days in a row! Keep it up!
+  </div>
+  <div class="streak-message inactive" *ngIf="currentStreak === 0">
+    💧 Drink your daily goal to start a streak!
+  </div>
+</div>
+
+<!-- Dans weekly report, ajoute après hydration section: -->
+
 
   <!-- ══════════════════════════════════════════ -->
   <!-- BMI CALCULATOR                             -->
@@ -285,37 +314,40 @@
   </div>
 
 <!-- DIET RECOMMENDATION --> 
-  <div class="card bmi-card" *ngIf="bmiResult">
-    <div class="bmi-header">
-      <span class="bmi-icon">🥗</span>
-      <h3>AI Diet Recommendation</h3>
+<div class="card bmi-card" *ngIf="bmiResult">
+  <div class="bmi-header">
+    <span class="bmi-icon">🥗</span>
+    <h3>AI Diet Recommendation</h3>
+  </div>
+  
+  <button class="btn-calculate" (click)="getDietPlan()" [disabled]="dietLoading">
+    {{ dietLoading ? '⏳ Loading...' : '🤖 Get My Diet Plan' }}
+  </button>
+  
+  <!-- ✅ Afficher les résultats quand showDiet est true -->
+  <div *ngIf="showDiet && dietResult" class="bmi-info">
+    <div class="info-divider"></div>
+    <div class="report-grid">
+      <div class="report-item">
+        <p class="report-label">Goal</p>
+        <p class="report-value">{{ dietResult.goal }}</p>
+      </div>
+      <div class="report-item">
+        <p class="report-label">Status</p>
+        <p class="report-value">{{ dietResult.status }}</p>
+      </div>
+      <div class="report-item">
+        <p class="report-label">Daily Calories</p>
+        <p class="report-value">{{ dietResult.daily_calories }} kcal</p>
+      </div>
     </div>
-    <button class="btn-calculate" (click)="getDietPlan()" [disabled]="dietLoading">
-      {{ dietLoading ? '⏳ Loading...' : '🤖 Get My Diet Plan' }}
-    </button>
-    <div *ngIf="showDiet && dietResult" class="bmi-info">
-      <div class="info-divider"></div>
-      <div class="report-grid">
-        <div class="report-item">
-          <p class="report-label">Goal</p>
-          <p class="report-value">{{ dietResult.goal }}</p>
-        </div>
-        <div class="report-item">
-          <p class="report-label">Status</p>
-          <p class="report-value">{{ dietResult.status }}</p>
-        </div>
-        <div class="report-item">
-          <p class="report-label">Daily Calories</p>
-          <p class="report-value">{{ dietResult.dailyCalories }} kcal</p>
-        </div>
-      </div>
-      <div class="info-divider"></div>
-      <h4 class="info-title">🍽️ Your Daily Meal Plan</h4>
-      <div class="report-goal-item" *ngFor="let meal of dietResult.dietPlan">
-        <span>{{ meal }}</span>
-      </div>
+    <div class="info-divider"></div>
+    <h4 class="info-title">🍽️ Your Daily Meal Plan</h4>
+    <div class="report-goal-item" *ngFor="let meal of dietResult.diet_plan">
+      <span>{{ meal }}</span>
     </div>
   </div>
+</div>
   <!-- ══════════════════════════════════════════ -->
 <!-- WEEKLY HEALTH REPORT                       -->
 <!-- ══════════════════════════════════════════ -->
@@ -393,7 +425,19 @@
         </div>
       </div>
     </div>
-
+<div class="report-section" *ngIf="weeklyReport">
+  <h4>🔥 Water Streak</h4>
+  <div class="report-grid">
+    <div class="report-item">
+      <p class="report-label">Current Streak</p>
+      <p class="report-value">{{ weeklyReport.currentWaterStreak }} days 🔥</p>
+    </div>
+    <div class="report-item">
+      <p class="report-label">Best Streak</p>
+      <p class="report-value">{{ weeklyReport.longestWaterStreak }} days 🏆</p>
+    </div>
+  </div>
+</div>
     <!-- Goals -->
     <div class="report-section">
       <h4>🎯 Goals Status</h4>
@@ -472,24 +516,25 @@
              [style.transition]="isSpinning ? 'transform 4s cubic-bezier(0.17,0.67,0.12,0.99)' : 'none'">
 
           <!-- 6 segments -->
-          <div class="segment seg-1">
-            <span class="seg-text">🏆<br>Badge</span>
-          </div>
-          <div class="segment seg-2">
-            <span class="seg-text">🚚<br>Delivery</span>
-          </div>
-          <div class="segment seg-3">
-            <span class="seg-text">🎟️<br>-5%</span>
-          </div>
-          <div class="segment seg-4">
-            <span class="seg-text">🎫<br>-10%</span>
-          </div>
-          <div class="segment seg-5">
-            <span class="seg-text">😅<br>Retry</span>
-          </div>
-          <div class="segment seg-6">
-            <span class="seg-text">😅<br>Retry</span>
-          </div>
+       <!-- Ordre doit matcher backend: 0=BADGE, 1=DELIVERY, 2=COUPON5, 3=COUPON10, 4=RETRY, 5=RETRY -->
+<div class="segment seg-1">
+  <span class="seg-text">🏅<br>Badge</span>       <!-- index 0 -->
+</div>
+<div class="segment seg-2">
+  <span class="seg-text">🚚<br>Delivery</span>    <!-- index 1 -->
+</div>
+<div class="segment seg-3">
+  <span class="seg-text">🎟️<br>-5%</span>        <!-- index 2 -->
+</div>
+<div class="segment seg-4">
+  <span class="seg-text">🎫<br>-10%</span>        <!-- index 3 -->
+</div>
+<div class="segment seg-5">
+  <span class="seg-text">😅<br>Retry</span>       <!-- index 4 -->
+</div>
+<div class="segment seg-6">
+  <span class="seg-text">😅<br>Retry</span>       <!-- index 5 -->
+</div>
 
           <!-- Center circle -->
           <div class="wheel-center">🎯</div>

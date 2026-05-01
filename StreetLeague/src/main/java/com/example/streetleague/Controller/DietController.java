@@ -1,11 +1,11 @@
 package com.example.streetleague.Controller;
 
-import com.example.streetleague.ServiceInterface.DietService;
-import com.example.streetleague.dto.DietRequestDTO;
-import com.example.streetleague.dto.DietResponseDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/diet")
@@ -13,24 +13,29 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:4200")
 public class DietController {
 
-    private final DietService dietService;
+    private final RestTemplate restTemplate;
 
-    // Angular يبعث age + bmi → يرجعله diet plan
+    @Value("${fastapi.api.url:http://localhost:5000}")
+    private String fastapiApiUrl;
+
     @PostMapping("/recommend/{userId}")
-    public ResponseEntity<DietResponseDTO> recommend(
+    public ResponseEntity<Map> recommend(
             @PathVariable Long userId,
-            @RequestBody DietRequestDTO request) {
-        return ResponseEntity.ok(
-                dietService.getDietRecommendation(request, userId)
-        );
-    }
+            @RequestBody Map<String, Object> request) {
 
-    // يجيب آخر diet plan للـ user
-    @GetMapping("/last/{userId}")
-    public ResponseEntity<DietResponseDTO> getLastDiet(
-            @PathVariable Long userId) {
-        return ResponseEntity.ok(
-                dietService.getLastDiet(userId)
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+
+        String url = fastapiApiUrl + "/predict";
+        ResponseEntity<Map> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                entity,
+                Map.class
         );
+
+        return ResponseEntity.ok(response.getBody());
     }
 }

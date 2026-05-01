@@ -1,13 +1,11 @@
 package com.example.streetleague.ServiceImp;
 
+import com.example.streetleague.Entity.WaterStreak;
+import com.example.streetleague.Repository.*;
 import com.example.streetleague.dto.WeeklyHealthReportDTO;
 import com.example.streetleague.Entity.DailyWaterLog;
 import com.example.streetleague.Entity.HealthHistory;
 import com.example.streetleague.Entity.UserGoal;
-import com.example.streetleague.Repository.DailyWaterLogRepository;
-import com.example.streetleague.Repository.HealthHistoryRepository;
-import com.example.streetleague.Repository.UserGoalRepository;
-import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,37 +22,45 @@ public class WeeklyHealthReportServiceIMPL {
     private final DailyWaterLogRepository dailyWaterLogRepo;
     private final UserGoalRepository userGoalRepo;
     private final UserRepository userRepo;
+    private final WaterStreakRepository waterStreakRepo;
 
     public WeeklyHealthReportDTO generateReport(Long userId) {
 
-        // ── Récupérer l'utilisateur ──────────────────────────────────────
+
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // ── Définir la plage de la semaine ───────────────────────────────
         LocalDate today = LocalDate.now();
-        LocalDate weekStart = today.minusDays(6); // 7 derniers jours
+        LocalDate weekStart = today.minusDays(6);
 
-        // ── Keyword 1 : HealthHistory → User + date range (2 tables) ────
+
         List<HealthHistory> weeklyHistory =
                 healthHistoryRepo.findByUserIdAndDateBetweenOrderByDateDesc(
-                        userId, weekStart, today
-                );
+                        userId, weekStart, today);
 
-        // Calcul du changement de poids sur la semaine
+        // Changement de poids: dernier - premier de la semaine
         double weightChange = 0.0;
         if (weeklyHistory.size() >= 2) {
-            double oldest = weeklyHistory.get(weeklyHistory.size() - 1).getWeight();
             double newest = weeklyHistory.get(0).getWeight();
-            weightChange = newest - oldest;
+            double oldest = weeklyHistory.get(weeklyHistory.size() - 1).getWeight();
+            weightChange = Math.round((newest - oldest) * 10.0) / 10.0;
         }
 
-        // BMI actuel (depuis User ou dernier HealthHistory)
-        double currentBmi = user.getBmi() != null ? user.getBmi() : 0.0;
+        // Valeurs actuelles depuis User (plus récentes)
+        double currentBmi    = user.getBmi()    != null ? user.getBmi()    : 0.0;
         double currentWeight = user.getWeight() != null ? user.getWeight() : 0.0;
         double currentHeight = user.getHeight() != null ? user.getHeight() : 0.0;
 
-        // ── Keyword 2 : DailyWaterLog → User + date + goalReached ───────
+        // BMI history — round à 2 décimales
+        List<WeeklyHealthReportDTO.BmiEntry> bmiHistory = weeklyHistory.stream()
+                .map(h -> WeeklyHealthReportDTO.BmiEntry.builder()
+                        .date(h.getDate())
+                        .bmi(Math.round(h.getBmi() * 100.0) / 100.0)  // ✅ 2 décimales
+                        .weight(h.getWeight())
+                        .build())
+                .collect(Collectors.toList());
+
+
         List<DailyWaterLog> waterLogs =
                 dailyWaterLogRepo.findByUserIdAndDateBetween(userId, weekStart, today);
 
@@ -64,13 +70,12 @@ public class WeeklyHealthReportServiceIMPL {
 
         long daysGoalReached =
                 dailyWaterLogRepo.countByUserIdAndDateBetweenAndGoalReachedTrue(
-                        userId, weekStart, today
-                );
+                        userId, weekStart, today);
 
-        double avgDailyWater = waterLogs.isEmpty() ? 0.0 :
-                (double) totalWater / waterLogs.size();
+        // Moyenne sur 7 jours (pas seulement les jours avec logs)
+        double avgDailyWater = Math.round((double) totalWater / 7.0 * 10.0) / 10.0;
 
-        // ── Keyword 3 : UserGoal → User + goalType ───────────────────────
+
         List<UserGoal> goals = userGoalRepo.findByUserId(userId);
 
         List<WeeklyHealthReportDTO.GoalSummary> goalSummaries = goals.stream()
@@ -81,29 +86,53 @@ public class WeeklyHealthReportServiceIMPL {
                         .build())
                 .collect(Collectors.toList());
 
-        // ── Historique BMI de la semaine ─────────────────────────────────
-        List<WeeklyHealthReportDTO.BmiEntry> bmiHistory = weeklyHistory.stream()
-                .map(h -> WeeklyHealthReportDTO.BmiEntry.builder()
-                        .date(h.getDate())
-                        .bmi(h.getBmi())
-                        .weight(h.getWeight())
-                        .build())
-                .collect(Collectors.toList());
 
-        // ── Construire et retourner le rapport ───────────────────────────
+        WaterStreak streak = waterStreakRepo.findByUserId(userId).orElse(null);
+
+        int currentStreak = 0;
+        int longestStreak = 0;
+
+        if (streak != null) {
+            longestStreak = streak.getLongestStreak();
+
+            // Vérifier si le streak est encore actif
+            // Si lastGoalDate < hier → streak cassé
+            if (streak.getLastGoalDate() != null) {
+                boolean streakActive = !streak.getLastGoalDate()
+                        .isBefore(today.minusDays(1));
+
+                if (streakActive) {
+                    currentStreak = streak.getCurrentStreak();
+                } else {
+                    // Streak cassé → reset en DB
+                    streak.setCurrentStreak(0);
+                    waterStreakRepo.save(streak);
+                    currentStreak = 0;
+                }
+            }
+        }
+
+
         return WeeklyHealthReportDTO.builder()
                 .fullName(user.getFullName())
                 .weekStart(weekStart)
                 .weekEnd(today)
+                // Body metrics
                 .currentWeight(currentWeight)
                 .currentHeight(currentHeight)
-                .currentBmi(currentBmi)
+                .currentBmi(Math.round(currentBmi * 100.0) / 100.0) // ✅ 2 décimales
                 .weightChangeThisWeek(weightChange)
+                // Hydratation
                 .totalWaterConsumedMl(totalWater)
                 .daysGoalReached((int) daysGoalReached)
                 .avgDailyWaterMl(avgDailyWater)
+                // Goals
                 .goals(goalSummaries)
+                // BMI history
                 .bmiHistory(bmiHistory)
+                // Streak ✅
+                .currentWaterStreak(currentStreak)
+                .longestWaterStreak(longestStreak)
                 .build();
     }
 }

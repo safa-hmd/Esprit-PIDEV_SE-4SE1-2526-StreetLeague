@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HealthService, WaterReminderDTO, GoalDTO, RewardDTO, UserBadge, DietRequestDTO, DietResponseDTO } from '../../services/health.service';import { AuthService } from '../../services/auth.service';
+import { HealthService, WaterReminderDTO, GoalDTO, RewardDTO, UserBadge, DietRequestDTO, DietResponseDTO } from '../../services/health.service';
+import { AuthService } from '../../services/auth.service';
 import { WeeklyHealthReportDTO } from '../../services/health.service';
 import jsPDF from 'jspdf';
 
@@ -15,6 +16,11 @@ interface DrinkLog {
 })
 export class HealthComponent implements OnInit, OnDestroy {
 
+  // ── Diet ── (UNE SEULE FOIS - supprime les doublons)
+  dietResult: DietResponseDTO | null = null;
+  dietLoading: boolean = false;
+  showDiet: boolean = false;
+  
   // Metrics
   heartRate: number = 72;
   calories: number = 1240;
@@ -22,10 +28,8 @@ export class HealthComponent implements OnInit, OnDestroy {
   glassCount: number = 0;
   glassTarget: number = 8;
   hydrationPercentage: number = 0;
-// ── Diet ──
-dietResult: DietResponseDTO | null = null;
-dietLoading: boolean = false;
-showDiet: boolean = false;
+currentStreak: number = 0;
+longestStreak: number = 0;
   // Reminder
   reminderActive: boolean = false;
   reminderFrequency: number = 60;
@@ -64,10 +68,12 @@ showDiet: boolean = false;
   showSpinResult: boolean = false;
   showWheel: boolean = false;
 
-  //Report
+  // Report
   weeklyReport: WeeklyHealthReportDTO | null = null;
-showWeeklyReport: boolean = false;
-reportLoading: boolean = false;
+  showWeeklyReport: boolean = false;
+  reportLoading: boolean = false;
+  showCongrats: boolean = false;
+  congratsMessage: string = '';
 
   private currentUserId: number | null = null;
 
@@ -86,28 +92,55 @@ reportLoading: boolean = false;
   }
 
   // ── Load user data on init ──
- loadUserData() {
-  this.authService.getUserIdByEmail().subscribe({
-    next: (userId) => {
-      this.currentUserId = userId;
-      this.loadBadges(userId);
-      this.checkSpinStatus(userId);
-      this.loadGoals(userId);
-      this.loadTodayWaterFromDB(userId); // ← أضف هذا
-    }
+  loadUserData() {
+    this.authService.getUserIdByEmail().subscribe({
+      next: (userId) => {
+        this.currentUserId = userId;
+        this.loadBadges(userId);
+        this.checkSpinStatus(userId);
+        this.loadGoals(userId);
+        this.loadTodayWaterFromDB(userId);
+        this.loadStreak(userId);
+        this.loadExistingReminder(userId);
+      }
+    });
+  }
+  loadExistingReminder(userId: number) {
+  // Appelle getAll côté admin OU ajoute un endpoint GET /waterReminder/byUser
+  // Pour l'instant, on utilise localStorage comme fallback
+  const savedReminderId = localStorage.getItem(`reminderId_${userId}`);
+  if (savedReminderId) {
+    this.reminderId = parseInt(savedReminderId);
+  }
+}
+loadStreak(userId: number) {
+  this.healthService.getStreak(userId).subscribe({
+    next: (data) => {
+      this.currentStreak = data.currentStreak;
+      this.longestStreak = data.longestStreak;
+    },
+    error: (err) => console.error(err)
   });
 }
 loadTodayWaterFromDB(userId: number) {
   this.healthService.getTodayWaterLogs(userId).subscribe({
     next: (logs) => {
+      console.log('Today water logs:', logs); // debug
       if (logs && logs.length > 0) {
-        // الـ backend يرجع DailyWaterLog — خذ totalMl واحسب عدد الكؤوس
         const totalMl = logs[0].totalMl;
+        // ✅ Sync glassCount avec DB
         this.glassCount = Math.floor(totalMl / this.amountPerReminder);
-        this.updateProgress();
+        // ✅ Sync aussi drinkHistory display
+        const goalMl = this.waterGoal;
+        this.hydrationPercentage = Math.min(100, (totalMl / goalMl) * 100);
+        console.log(`totalMl: ${totalMl}, glassCount: ${this.glassCount}, %: ${this.hydrationPercentage}`);
+      } else {
+        // ✅ Reset si aucun log aujourd'hui
+        this.glassCount = 0;
+        this.hydrationPercentage = 0;
       }
     },
-    error: (err) => console.error(err)
+    error: (err) => console.error('loadTodayWater error:', err)
   });
 }
 
@@ -118,18 +151,18 @@ loadTodayWaterFromDB(userId: number) {
     });
   }
 
-checkSpinStatus(userId: number) {
-  this.healthService.getSpinStatus(userId).subscribe({
-    next: (status) => {
-      const wasLocked = !this.canSpin;
-      this.canSpin = status.canSpin;
-      this.showWheel = status.canSpin;
-      if (wasLocked && status.canSpin) {
-        this.showCongrats = true;
+  checkSpinStatus(userId: number) {
+    this.healthService.getSpinStatus(userId).subscribe({
+      next: (status) => {
+        const wasLocked = !this.canSpin;
+        this.canSpin = status.canSpin;
+        this.showWheel = status.canSpin;
+        if (wasLocked && status.canSpin) {
+          this.showCongrats = true;
+        }
       }
-    }
-  });
-}
+    });
+  }
 
   loadGoals(userId: number) {
     this.healthService.getGoals(userId).subscribe({
@@ -158,6 +191,7 @@ checkSpinStatus(userId: number) {
       if (this.countdownInterval) clearInterval(this.countdownInterval);
       this.nextReminderTime = 0;
     }
+    this.saveSettings();
   }
 
   startCountdown() {
@@ -193,46 +227,59 @@ checkSpinStatus(userId: number) {
 
   // ── Drink Now — log en DB aussi ──
   drinkNow() {
-    const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    this.drinkHistory.push({ time, quantity: this.amountPerReminder });
-    if (this.glassCount < this.glassTarget) {
-      this.glassCount++;
-      this.updateProgress();
-    }
-    this.saveDrinkToLocalStorage();
+  const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  this.drinkHistory.push({ time, quantity: this.amountPerReminder });
+  
+  // ✅ Enlève la condition — toujours incrementer
+  this.glassCount++;
+  this.updateProgress();
+  this.saveDrinkToLocalStorage();
 
-    // ✅ Sauvegarder en DB
-    if (this.currentUserId) {
-      this.healthService.logWater(this.currentUserId, this.amountPerReminder).subscribe({
-        next: (log) => {
-          console.log('Water logged ✅', log);
-          if (log.goalReached) {
-            this.notificationMessage = '🎉 Objectif eau atteint ! Continuez comme ça !';
-            this.showNotification = true;
-            setTimeout(() => { this.showNotification = false; }, 5000);
-            // Recheck spin
-            this.checkSpinStatus(this.currentUserId!);
-            this.loadBadges(this.currentUserId!);
-          }
-        },
-        error: (err) => console.error('Failed to log water', err)
-      });
-    }
+  // ✅ Check userId avant appel
+  console.log('currentUserId:', this.currentUserId); // debug
+  
+  if (this.currentUserId) {
+    this.healthService.logWater(this.currentUserId, this.amountPerReminder).subscribe({
+      next: (log) => {
+        console.log('Water logged ✅', log);
+        // ✅ Refresh glassCount depuis DB pour sync
+        this.loadTodayWaterFromDB(this.currentUserId!);
+        
+        if (log.goalReached) {
+          this.notificationMessage = '🎉 Daily water goal reached!';
+          this.showNotification = true;
+          setTimeout(() => { this.showNotification = false; }, 5000);
+          this.checkSpinStatus(this.currentUserId!);
+          this.loadBadges(this.currentUserId!);
+          this.loadStreak(this.currentUserId!); // ✅ refresh streak
+        }
+      },
+      error: (err) => {
+        console.error('Failed to log water', err);
+        // ✅ Affiche l'erreur exacte
+        this.notificationMessage = '❌ Error: ' + (err.error?.message || err.status);
+        this.showNotification = true;
+        setTimeout(() => { this.showNotification = false; }, 5000);
+      }
+    });
+  } else {
+    console.error('❌ No userId — user not loaded yet');
   }
+}
 
   updateProgress() {
     this.hydrationPercentage = (this.glassCount / this.glassTarget) * 100;
   }
 
   loadTodayHistory() {
-  const today = new Date().toDateString();
-  const stored = localStorage.getItem(`drinkHistory_${today}`);
-  if (stored) {
-    this.drinkHistory = JSON.parse(stored);
-    this.glassCount = this.drinkHistory.length;
-    this.updateProgress();
+    const today = new Date().toDateString();
+    const stored = localStorage.getItem(`drinkHistory_${today}`);
+    if (stored) {
+      this.drinkHistory = JSON.parse(stored);
+      this.glassCount = this.drinkHistory.length;
+      this.updateProgress();
+    }
   }
-}
 
   saveDrinkToLocalStorage() {
     const today = new Date().toDateString();
@@ -303,7 +350,6 @@ checkSpinStatus(userId: number) {
         }).subscribe({
           next: () => {
             console.log('Health data saved ✅');
-            // Vérifier si BMI goal atteint
             if (bmi <= this.bmiGoal) {
               this.checkSpinStatus(userId);
               this.loadBadges(userId);
@@ -335,42 +381,51 @@ checkSpinStatus(userId: number) {
   }
 
   // ── Spin ──
-  spinWheel() {
-    if (!this.canSpin || this.isSpinning || !this.currentUserId) return;
-    this.isSpinning = true;
-    this.showSpinResult = false;
+spinWheel() {
+  if (!this.canSpin || this.isSpinning || !this.currentUserId) return;
+  this.isSpinning = true;
+  this.showSpinResult = false;
 
-    this.healthService.spin(this.currentUserId).subscribe({
-      next: (result: RewardDTO) => {
-        // احسب الزاوية بناءً على segment من الـ backend
-        const segmentDeg = 360 / 6; // 6 segments = 60° each
-        const targetAngle = 5 * 360 + (result.segmentIndex * segmentDeg + segmentDeg / 2);
-        this.wheelRotation = Math.ceil(this.wheelRotation / 360) * 360 + targetAngle;
+  this.healthService.spin(this.currentUserId).subscribe({
+    next: (result: RewardDTO) => {
+        console.log('Result:', result.result, '| segmentIndex:', result.segmentIndex);
 
-        setTimeout(() => {
-          this.isSpinning = false;
-          this.spinResult = result.message;
-          this.showSpinResult = true;
-          this.canSpin = result.canRetry;
-          if (!result.canRetry) this.showWheel = false;
-          this.loadBadges(this.currentUserId!);
-        }, 4000);
-      },
-      error: (err) => { this.isSpinning = false; console.error(err); }
-    });
+      const segmentDeg = 360 / 6; // 60° par segment
+      
+      // ✅ Le pointer est en HAUT → segment 0 commence à droite
+      // Faut corriger l'offset de 30° (demi-segment)
+      const offset = 30; // demi-segment pour centrer
+      const targetSegmentAngle = result.segmentIndex * segmentDeg + offset;
+      
+      // ✅ 5 tours complets + arriver sur le bon segment
+      // On soustrait car la wheel tourne dans le sens horaire
+      const spins = 5 * 360;
+      this.wheelRotation = spins + (360 - targetSegmentAngle);
+
+      setTimeout(() => {
+        this.isSpinning = false;
+        this.spinResult = result.message;
+        this.showSpinResult = true;
+        this.canSpin = result.canRetry;
+        if (!result.canRetry) this.showWheel = false;
+        this.loadBadges(this.currentUserId!);
+      }, 4000);
+    },
+    error: (err) => { this.isSpinning = false; console.error(err); }
+  });
 }
-    
+
   resetTodayHistory() {
-  const today = new Date().toDateString();
-  localStorage.removeItem(`drinkHistory_${today}`);
-  this.drinkHistory = [];
-  this.glassCount = 0;
-  this.hydrationPercentage = 0;
+    const today = new Date().toDateString();
+    localStorage.removeItem(`drinkHistory_${today}`);
+    this.drinkHistory = [];
+    this.glassCount = 0;
+    this.hydrationPercentage = 0;
 
-  if (this.currentUserId) {
-    this.healthService.resetTodayWater(this.currentUserId).subscribe();
+    if (this.currentUserId) {
+      this.healthService.resetTodayWater(this.currentUserId).subscribe();
+    }
   }
-}
 
   getBadgeIcon(badgeType: string): string {
     const icons: { [key: string]: string } = {
@@ -385,18 +440,24 @@ checkSpinStatus(userId: number) {
   }
 
   // ── Settings ──
-  saveSettings() {
-    const dto: WaterReminderDTO = {
-      frequency: this.reminderFrequency,
-      quantity: this.amountPerReminder,
-      active: this.reminderActive
-    };
-    if (this.reminderId) {
-      this.healthService.updateReminder(this.reminderId, dto).subscribe(res => console.log(res));
-    } else {
-      this.healthService.addReminder(dto).subscribe(res => { this.reminderId = res.id; });
-    }
+saveSettings() {
+  const dto: WaterReminderDTO = {
+    frequency: this.reminderFrequency,
+    quantity: this.amountPerReminder,
+    active: this.reminderActive
+  };
+  if (this.reminderId) {
+    this.healthService.updateReminder(this.reminderId, dto).subscribe();
+  } else {
+    this.healthService.addReminder(dto).subscribe(res => {
+      this.reminderId = res.id;
+      // ✅ Persiste l'ID
+      if (this.currentUserId) {
+        localStorage.setItem(`reminderId_${this.currentUserId}`, res.id.toString());
+      }
+    });
   }
+}
 
   getGlassArray(): number[] { return Array(this.glassTarget).fill(0); }
   isGlassFilled(index: number): boolean { return index < this.glassCount; }
@@ -407,358 +468,377 @@ checkSpinStatus(userId: number) {
     const seconds = this.nextReminderTime % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
+
   useBadge(badge: UserBadge) {
-  if (badge.badgeType === 'COUPON_5' || badge.badgeType === 'COUPON_10') {
-    // كوبي الكود للـ clipboard
-    const code = `${badge.badgeType}-${badge.id}`;
-    navigator.clipboard.writeText(code).then(() => {
-      this.notificationMessage = `✅ Code copied: ${code}`;
+    if (badge.badgeType === 'COUPON_5' || badge.badgeType === 'COUPON_10') {
+      const code = `${badge.badgeType}-${badge.id}`;
+      navigator.clipboard.writeText(code).then(() => {
+        this.notificationMessage = `✅ Code copied: ${code}`;
+        this.showNotification = true;
+        setTimeout(() => this.showNotification = false, 4000);
+      });
+    } else if (badge.badgeType === 'FREE_DELIVERY') {
+      this.notificationMessage = '🚚 Free delivery activated on your next order!';
       this.showNotification = true;
-      setTimeout(() => this.showNotification = false, 4000);
-    });
-  } else if (badge.badgeType === 'FREE_DELIVERY') {
-    this.notificationMessage = '🚚 Free delivery activated on your next order!';
-    this.showNotification = true;
-    setTimeout(() => this.showNotification = false, 5000);
-  }
-  // WATER_WEEK و BMI_GOAL مجرد عرض، ما فيهم action
-}
-
-getBadgeActionLabel(badgeType: string): string {
-  const labels: { [key: string]: string } = {
-    'COUPON_5': '🎟️ Copy Code',
-    'COUPON_10': '🎫 Copy Code',
-    'FREE_DELIVERY': '🚚 Activate',
-    'WATER_WEEK': '',
-    'BMI_GOAL': '',
-    'BADGE': ''
-  };
-  return labels[badgeType] || '';
-}
-showCongrats: boolean = false;
-congratsMessage: string = '';
-
-checkAndShowCongrats(type: 'WATER' | 'BMI') {
-  this.congratsMessage = type === 'WATER' 
-    ? '🎉 Water goal achieved for 7 days! Spin the wheel!'
-    : '💪 BMI goal achieved! Spin the wheel!';
-  this.showCongrats = true;
-}
-scrollToSpin() {
-  document.querySelector('.spin-card')?.scrollIntoView({ behavior: 'smooth' });
-}
-
-
-// Ajouter cette méthode dans la classe
-// Remplacer loadWeeklyReport() par :
-loadWeeklyReport() {
-  if (!this.currentUserId) return;
-  this.reportLoading = true;
-  this.showWeeklyReport = true;
-
-  this.healthService.getWeeklyReport(this.currentUserId).subscribe({
-    next: (report) => {
-      this.weeklyReport = report;
-      this.reportLoading = false;
-    },
-    error: (err) => {
-      console.error('Failed to load weekly report', err);
-      this.reportLoading = false;
+      setTimeout(() => this.showNotification = false, 5000);
     }
-  });
-}
+  }
 
-downloadReportPDF() {
+  getBadgeActionLabel(badgeType: string): string {
+    const labels: { [key: string]: string } = {
+      'COUPON_5': '🎟️ Copy Code',
+      'COUPON_10': '🎫 Copy Code',
+      'FREE_DELIVERY': '🚚 Activate',
+      'WATER_WEEK': '',
+      'BMI_GOAL': '',
+      'BADGE': ''
+    };
+    return labels[badgeType] || '';
+  }
+
+  checkAndShowCongrats(type: 'WATER' | 'BMI') {
+    this.congratsMessage = type === 'WATER' 
+      ? '🎉 Water goal achieved for 7 days! Spin the wheel!'
+      : '💪 BMI goal achieved! Spin the wheel!';
+    this.showCongrats = true;
+  }
+
+  scrollToSpin() {
+    document.querySelector('.spin-card')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  loadWeeklyReport() {
+    if (!this.currentUserId) return;
+    this.reportLoading = true;
+    this.showWeeklyReport = true;
+
+    this.healthService.getWeeklyReport(this.currentUserId).subscribe({
+      next: (report) => {
+        this.weeklyReport = report;
+        this.reportLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load weekly report', err);
+        this.reportLoading = false;
+      }
+    });
+  }
+
+  downloadReportPDF() {
   if (!this.weeklyReport) return;
   const r = this.weeklyReport;
   const doc = new jsPDF();
-  let y = 35;
 
-  // ── Logo ──
-  const logoPath = 'assets/images/logofond.png'; // mets le logo dans src/assets/
+  const logoPath = 'assets/images/logofond.png';
   const img = new Image();
   img.src = logoPath;
   img.onload = () => {
-    doc.addImage(img, 'PNG', 85, 5, 40, 25); // centré en haut
-    this.buildPDF(doc, r, y);
+    doc.addImage(img, 'PNG', 85, 5, 40, 25);
+    this.buildPDF(doc, r, 35);
   };
   img.onerror = () => {
-    // si logo pas trouvé, génère quand même sans logo
     this.buildPDF(doc, r, 20);
   };
 }
 
 private buildPDF(doc: jsPDF, r: any, y: number) {
   const round2 = (n: number) => Math.round(n * 100) / 100;
+  const pageW = 196;
 
-  // ── Header ──
+  // ── HEADER ──
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text('Weekly Health Report', 105, y, { align: 'center' });
-  y += 8;
+  doc.setTextColor(0, 0, 0);
+  doc.text('Weekly Health Report', 105, y, { align: 'center' }); y += 8;
+
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
-  doc.text(r.fullName, 105, y, { align: 'center' });
-  y += 6;
-  doc.text(`Period: ${r.weekStart} to ${r.weekEnd}`, 105, y, { align: 'center' });
-  y += 14;
+  doc.setTextColor(80, 80, 80);
+  doc.text(r.fullName || '', 105, y, { align: 'center' }); y += 6;
+  doc.text(`Period: ${r.weekStart} to ${r.weekEnd}`, 105, y, { align: 'center' }); y += 14;
 
-  // ── Séparateur ──
-  doc.setDrawColor(200, 200, 200);
-  doc.line(14, y - 4, 196, y - 4);
+  // ── HELPERS ──
+  const line = () => {
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, y - 4, pageW, y - 4);
+  };
 
-  // ── Body Metrics ──
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.text('Body Metrics', 14, y); y += 8;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(11);
+  const sectionTitle = (title: string) => {
+    line();
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(0, 0, 0);
+    doc.text(title, 14, y); y += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+  };
+
+  // ── 1. BODY METRICS ──
+  sectionTitle('Body Metrics');
+  doc.setTextColor(0, 0, 0);
   doc.text(`Weight: ${r.currentWeight} kg`, 14, y); y += 6;
   doc.text(`Height: ${r.currentHeight} cm`, 14, y); y += 6;
   doc.text(`BMI: ${round2(r.currentBmi)}`, 14, y); y += 6;
-  const change = r.weightChangeThisWeek;
+
+  const change = r.weightChangeThisWeek ?? 0;
   const changeStr = change > 0 ? `+${change.toFixed(1)}` : change.toFixed(1);
-  doc.text(`Weight Change This Week: ${changeStr} kg`, 14, y); y += 14;
+  doc.text('Weight Change This Week: ', 14, y);
+  if (change > 0) doc.setTextColor(220, 38, 38);
+  else if (change < 0) doc.setTextColor(16, 185, 129);
+  else doc.setTextColor(0, 0, 0);
+  doc.text(`${changeStr} kg`, 75, y);
+  doc.setTextColor(0, 0, 0);
+  y += 14;
 
-  doc.line(14, y - 4, 196, y - 4);
-
-  // ── Hydration ──
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.text('Hydration This Week', 14, y); y += 8;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(11);
+  // ── 2. HYDRATION ──
+  sectionTitle('Hydration This Week');
   doc.text(`Total Consumed: ${r.totalWaterConsumedMl} ml`, 14, y); y += 6;
   doc.text(`Days Goal Reached: ${r.daysGoalReached} / 7`, 14, y); y += 6;
   doc.text(`Daily Average: ${Math.round(r.avgDailyWaterMl)} ml`, 14, y); y += 14;
 
-  doc.line(14, y - 4, 196, y - 4);
+  // ── 3. WATER STREAK ── (nouveau)
+  sectionTitle('Water Streak');
+  const cs = r.currentWaterStreak ?? 0;
+  const ls = r.longestWaterStreak ?? 0;
+  doc.text('Current Streak: ', 14, y);
+  doc.setTextColor(cs > 0 ? 234 : 150, cs > 0 ? 88 : 150, cs > 0 ? 12 : 150);
+  doc.text(`${cs} day${cs !== 1 ? 's' : ''}`, 52, y);
+  doc.setTextColor(0, 0, 0); y += 6;
 
-  // ── Goals ──
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.text('Goals Status', 14, y); y += 8;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(11);
+  doc.text('Best Streak: ', 14, y);
+  doc.setTextColor(ls > 0 ? 234 : 150, ls > 0 ? 88 : 150, ls > 0 ? 12 : 150);
+  doc.text(`${ls} day${ls !== 1 ? 's' : ''}`, 46, y);
+  doc.setTextColor(0, 0, 0); y += 14;
+
+  // ── 4. GOALS ──
+  sectionTitle('Goals Status');
   if (r.goals && r.goals.length > 0) {
     r.goals.forEach((g: any) => {
-      const status = g.achieved ? '[Achieved]' : '[In Progress]';
-      doc.text(`${g.goalType} - Target: ${g.targetValue}  ${status}`, 14, y);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`${g.goalType} - Target: ${g.targetValue}`, 14, y);
+      if (g.achieved) doc.setTextColor(16, 185, 129);
+      else doc.setTextColor(245, 158, 11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(g.achieved ? '[Achieved]' : '[In Progress]', 130, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
       y += 6;
     });
   } else {
-    doc.text('No goals set yet.', 14, y); y += 6;
+    doc.setTextColor(150, 150, 150);
+    doc.text('No goals set yet.', 14, y);
+    doc.setTextColor(0, 0, 0);
+    y += 6;
   }
   y += 8;
 
-  doc.line(14, y - 4, 196, y - 4);
-
-  // ── BMI History ──
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.text('BMI History', 14, y); y += 8;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(11);
+  // ── 5. BMI HISTORY ──
+  sectionTitle('BMI History');
   if (r.bmiHistory && r.bmiHistory.length > 0) {
     r.bmiHistory.forEach((entry: any) => {
-      // nouvelle page si nécessaire
       if (y > 270) { doc.addPage(); y = 20; }
-      doc.text(
-        `${entry.date}   BMI: ${round2(entry.bmi)}   Weight: ${entry.weight} kg`,
-        14, y
-      );
+      doc.setTextColor(80, 80, 80);
+      doc.text(`${entry.date}`, 14, y);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`BMI: ${round2(entry.bmi)}`, 80, y);
+      doc.text(`Weight: ${entry.weight} kg`, 130, y);
       y += 6;
     });
   } else {
+    doc.setTextColor(150, 150, 150);
     doc.text('No BMI history recorded yet.', 14, y);
   }
 
-  // ── Footer ──
+  // ── FOOTER ──
   doc.setFontSize(9);
   doc.setTextColor(150, 150, 150);
   doc.text('Generated by StreetLeague Health Tracker', 105, 290, { align: 'center' });
 
-  doc.save(`health-report-${r.weekStart}.pdf`);
+  doc.save(`health-report-${r.fullName?.replace(/\s+/g, '-')}-${r.weekStart}.pdf`);
 }
-
-// Helper pour afficher le changement de poids avec signe
-getWeightChangeDisplay(): string {
-  if (!this.weeklyReport) return '';
-  const change = this.weeklyReport.weightChangeThisWeek;
-  return change > 0 ? `+${change.toFixed(1)}` : change.toFixed(1);
-}
-
-isWeightChangePositive(): boolean {
-  return !!this.weeklyReport && this.weeklyReport.weightChangeThisWeek > 0;
-}
-
-isWeightChangeNegative(): boolean {
-  return !!this.weeklyReport && this.weeklyReport.weightChangeThisWeek < 0;
-}
-
-downloadPdf() {
-  if (!this.weeklyReport) {
-    if (!this.currentUserId) return;
-    this.healthService.getWeeklyReport(this.currentUserId).subscribe({
-      next: (report) => {
-        this.weeklyReport = report;
-        this.generatePdf(report);
-      },
-      error: (err) => console.error('Failed to load report for PDF', err)
-    });
-  } else {
-    this.generatePdf(this.weeklyReport);
-  }
-}
-
-private generatePdf(report: WeeklyHealthReportDTO) {
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
-  let y = 20;
-
-  // Header
-  doc.setFontSize(22);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Weekly Health Report', pageWidth / 2, y, { align: 'center' });
-  y += 8;
-
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(100);
-  doc.text(
-    `${report.fullName}  |  ${report.weekStart} → ${report.weekEnd}`,
-    pageWidth / 2, y, { align: 'center' }
-  );
-  y += 12;
-
-  doc.setDrawColor(200);
-  doc.line(14, y, pageWidth - 14, y);
-  y += 10;
-
-  // Body Metrics
-  doc.setTextColor(0);
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Body Metrics', 14, y);
-  y += 8;
-
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  const weightChange = report.weightChangeThisWeek;
-  const changeSign = weightChange > 0 ? '+' : '';
-
-  [
-    ['Weight', `${report.currentWeight} kg`],
-    ['Height', `${report.currentHeight} cm`],
-    ['BMI', `${report.currentBmi}`],
-    ['Weight Change This Week', `${changeSign}${weightChange.toFixed(1)} kg`],
-  ].forEach(([label, value]) => {
-    doc.setTextColor(100); doc.text(label, 14, y);
-    doc.setTextColor(0);   doc.text(value, 110, y);
-    y += 7;
-  });
-  y += 5;
-
-  // Hydration
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(0);
-  doc.text('Hydration This Week', 14, y);
-  y += 8;
-
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  [
-    ['Total Water Consumed', `${report.totalWaterConsumedMl} ml`],
-    ['Days Goal Reached', `${report.daysGoalReached} / 7`],
-    ['Daily Average', `${Math.round(report.avgDailyWaterMl)} ml`],
-  ].forEach(([label, value]) => {
-    doc.setTextColor(100); doc.text(label, 14, y);
-    doc.setTextColor(0);   doc.text(value, 110, y);
-    y += 7;
-  });
-  y += 5;
-
-  // Goals
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(0);
-  doc.text('Goals Status', 14, y);
-  y += 8;
-
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  if (report.goals.length === 0) {
-    doc.setTextColor(150);
-    doc.text('No goals set yet.', 14, y);
-    y += 7;
-  } else {
-    report.goals.forEach(goal => {
-      doc.setTextColor(0);
-      doc.text(`${goal.goalType}  —  Target: ${goal.targetValue}`, 14, y);
-      doc.setTextColor(goal.achieved ? 22 : 150);
-      doc.text(goal.achieved ? 'Achieved' : 'In Progress', 155, y);
-      doc.setTextColor(0);
-      y += 7;
-    });
-  }
-  y += 5;
-
-  // BMI History
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(0);
-  doc.text('BMI History This Week', 14, y);
-  y += 8;
-
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  if (report.bmiHistory.length === 0) {
-    doc.setTextColor(150);
-    doc.text('No BMI records this week.', 14, y);
-  } else {
-    report.bmiHistory.forEach(entry => {
-      doc.setTextColor(100); doc.text(`${entry.date}`, 14, y);
-      doc.setTextColor(0);   doc.text(`BMI: ${entry.bmi}`, 80, y);
-      doc.text(`Weight: ${entry.weight} kg`, 130, y);
-      y += 7;
-      if (y > 270) { doc.addPage(); y = 20; }
-    });
+  getWeightChangeDisplay(): string {
+    if (!this.weeklyReport) return '';
+    const change = this.weeklyReport.weightChangeThisWeek;
+    return change > 0 ? `+${change.toFixed(1)}` : change.toFixed(1);
   }
 
-  // Footer
-  const today = new Date().toLocaleDateString('fr-FR');
-  doc.setFontSize(9);
-  doc.setTextColor(150);
-  doc.text(`Generated on ${today}`, pageWidth / 2, 290, { align: 'center' });
-
-  const safeName = report.fullName.replace(/\s+/g, '-');
-  doc.save(`health-report-${safeName}-${report.weekStart}.pdf`);
-}
-
-
-getDietPlan() {
-  if (!this.currentUserId || !this.bmiResult) {
-    this.notificationMessage = '⚠️ Calculate your BMI first!';
-    this.showNotification = true;
-    setTimeout(() => this.showNotification = false, 3000);
-    return;
+  isWeightChangePositive(): boolean {
+    return !!this.weeklyReport && this.weeklyReport.weightChangeThisWeek > 0;
   }
-  this.dietLoading = true;
-  const request: DietRequestDTO = {
-    age: 25, // لو عندك age في الـ user خذه من الـ auth
-    bmi: parseFloat(this.bmiResult)
-  };
-  this.healthService.getDietRecommendation(this.currentUserId, request).subscribe({
-    next: (diet) => {
-      this.dietResult = diet;
-      this.showDiet = true;
-      this.dietLoading = false;
-    },
-    error: (err) => {
-      console.error(err);
-      this.dietLoading = false;
+
+  isWeightChangeNegative(): boolean {
+    return !!this.weeklyReport && this.weeklyReport.weightChangeThisWeek < 0;
+  }
+
+  downloadPdf() {
+    if (!this.weeklyReport) {
+      if (!this.currentUserId) return;
+      this.healthService.getWeeklyReport(this.currentUserId).subscribe({
+        next: (report) => {
+          this.weeklyReport = report;
+          this.generatePdf(report);
+        },
+        error: (err) => console.error('Failed to load report for PDF', err)
+      });
+    } else {
+      this.generatePdf(this.weeklyReport);
     }
-  });
-}
+  }
+
+  private generatePdf(report: WeeklyHealthReportDTO) {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 20;
+
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Weekly Health Report', pageWidth / 2, y, { align: 'center' });
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100);
+    doc.text(
+      `${report.fullName}  |  ${report.weekStart} → ${report.weekEnd}`,
+      pageWidth / 2, y, { align: 'center' }
+    );
+    y += 12;
+
+    doc.setDrawColor(200);
+    doc.line(14, y, pageWidth - 14, y);
+    y += 10;
+
+    doc.setTextColor(0);
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Body Metrics', 14, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    const weightChange = report.weightChangeThisWeek;
+    const changeSign = weightChange > 0 ? '+' : '';
+
+    [
+      ['Weight', `${report.currentWeight} kg`],
+      ['Height', `${report.currentHeight} cm`],
+      ['BMI', `${report.currentBmi}`],
+      ['Weight Change This Week', `${changeSign}${weightChange.toFixed(1)} kg`],
+    ].forEach(([label, value]) => {
+      doc.setTextColor(100); doc.text(label, 14, y);
+      doc.setTextColor(0);   doc.text(value, 110, y);
+      y += 7;
+    });
+    y += 5;
+
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0);
+    doc.text('Hydration This Week', 14, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    [
+      ['Total Water Consumed', `${report.totalWaterConsumedMl} ml`],
+      ['Days Goal Reached', `${report.daysGoalReached} / 7`],
+      ['Daily Average', `${Math.round(report.avgDailyWaterMl)} ml`],
+    ].forEach(([label, value]) => {
+      doc.setTextColor(100); doc.text(label, 14, y);
+      doc.setTextColor(0);   doc.text(value, 110, y);
+      y += 7;
+    });
+    y += 5;
+
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0);
+    doc.text('Goals Status', 14, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    if (report.goals.length === 0) {
+      doc.setTextColor(150);
+      doc.text('No goals set yet.', 14, y);
+      y += 7;
+    } else {
+      report.goals.forEach(goal => {
+        doc.setTextColor(0);
+        doc.text(`${goal.goalType}  —  Target: ${goal.targetValue}`, 14, y);
+        doc.setTextColor(goal.achieved ? 22 : 150);
+        doc.text(goal.achieved ? 'Achieved' : 'In Progress', 155, y);
+        doc.setTextColor(0);
+        y += 7;
+      });
+    }
+    y += 5;
+
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0);
+    doc.text('BMI History This Week', 14, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    if (report.bmiHistory.length === 0) {
+      doc.setTextColor(150);
+      doc.text('No BMI records this week.', 14, y);
+    } else {
+      report.bmiHistory.forEach(entry => {
+        doc.setTextColor(100); doc.text(`${entry.date}`, 14, y);
+        doc.setTextColor(0);   doc.text(`BMI: ${entry.bmi}`, 80, y);
+        doc.text(`Weight: ${entry.weight} kg`, 130, y);
+        y += 7;
+        if (y > 270) { doc.addPage(); y = 20; }
+      });
+    }
+
+    const today = new Date().toLocaleDateString('fr-FR');
+    doc.setFontSize(9);
+    doc.setTextColor(150);
+    doc.text(`Generated on ${today}`, pageWidth / 2, 290, { align: 'center' });
+
+    const safeName = report.fullName.replace(/\s+/g, '-');
+    doc.save(`health-report-${safeName}-${report.weekStart}.pdf`);
+  }
+
+  // ✅ Méthode getDietPlan corrigée
+  getDietPlan() {
+    if (!this.currentUserId) {
+      console.error('User ID not found');
+      this.notificationMessage = '❌ Please log in first';
+      this.showNotification = true;
+      setTimeout(() => this.showNotification = false, 3000);
+      return;
+    }
+    
+    if (!this.bmiResult) {
+      this.notificationMessage = '⚠️ Please calculate your BMI first!';
+      this.showNotification = true;
+      setTimeout(() => this.showNotification = false, 3000);
+      return;
+    }
+    
+    this.dietLoading = true;
+    const userId = this.currentUserId; // ✅ TypeScript sait que ce n'est pas null ici
+    
+    this.healthService.getDietRecommendation(userId, 25, parseFloat(this.bmiResult))
+      .subscribe({
+        next: (response: any) => {
+          console.log('Diet response:', response);
+          this.dietResult = response;
+          this.showDiet = true;
+          this.dietLoading = false;
+        },
+        error: (err) => {
+          console.error('Error getting diet plan:', err);
+          this.notificationMessage = '❌ Error getting diet plan';
+          this.showNotification = true;
+          setTimeout(() => this.showNotification = false, 3000);
+          this.dietLoading = false;
+        }
+      });
+  }
 }

@@ -10,16 +10,17 @@ import java.time.LocalDate;
 @Entity
 @Data
 @NoArgsConstructor
-public class UserBadge {
+public class WaterStreak {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String badgeType;
-    private String description;
-    private LocalDate earnedDate;
-
-    @ManyToOne
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
+
+    private int currentStreak;     // jours consécutifs actuels
+    private int longestStreak;     // record personnel
+    private LocalDate lastGoalDate; // dernier jour où le goal a été atteint
 }

@@ -30,6 +30,9 @@ public class WeeklyHealthReportDTO {
     // Section historique BMI de la semaine
     private List<BmiEntry> bmiHistory;
 
+    private int currentWaterStreak;   // streak actuel
+    private int longestWaterStreak;   // record de la semaine
+
     @Data
     @Builder
     public static class GoalSummary {

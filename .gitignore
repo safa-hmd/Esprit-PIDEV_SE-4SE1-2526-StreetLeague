@@ -8,3 +8,9 @@ StreetLeague/.mvn/
 StreetLeagueFront/node_modules/
 StreetLeagueFront/dist/
 StreetLeagueFront/.angular/
+
+# Python général
+venv/
+env/
+__pycache__/
+*.pyc
