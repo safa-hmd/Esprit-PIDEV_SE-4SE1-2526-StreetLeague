@@ -40,20 +40,14 @@ export class FieldRecommenderComponent implements OnInit {
       next: data => {
         this.fields    = data || [];
         this.isLoading = false;
+        if (this.fields.length === 0) {
+          this.geoError = 'Activez la localisation pour des recommandations personnalisées.';
+        }
       },
       error: err => {
         this.isLoading = false;
-        const msg = typeof err === 'string' ? err : err?.message || '';
-        if (msg.includes('userId') || msg.includes('connexion')) {
-          this.errorMsg = 'Connexion requise. Veuillez vous reconnecter.';
-        } else if (
-          msg.includes('Geolocation') ||
-          err?.code === 1 /* PERMISSION_DENIED */
-        ) {
-          this.geoError = 'Autorisez la localisation pour obtenir les recommandations.';
-        } else {
-          this.errorMsg = 'Impossible de charger les recommandations. Vérifiez que le serveur IA est actif.';
-        }
+        this.errorMsg = 'Impossible de charger les recommandations. Vérifiez que le serveur IA est actif.';
+        console.error('[FieldRecommender] error:', err);
       }
     });
   }

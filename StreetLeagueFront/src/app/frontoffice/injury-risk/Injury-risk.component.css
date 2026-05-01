@@ -423,7 +423,6 @@ app-injury-risk {
 
 /* Metric Bars */
 .ir-metrics-details { display: flex; flex-direction: column; gap: 16px; }
-.ir-metric-item {}
 .ir-metric-header {
   display: flex;
   justify-content: space-between;

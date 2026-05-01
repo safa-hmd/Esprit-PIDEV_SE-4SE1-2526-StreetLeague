@@ -301,6 +301,7 @@ public class TrainingServiceImpl implements ItrainingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TrainingResponse> getMyTeamTrainings(Long playerId) {
         User player = userRepository.findById(playerId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + playerId));

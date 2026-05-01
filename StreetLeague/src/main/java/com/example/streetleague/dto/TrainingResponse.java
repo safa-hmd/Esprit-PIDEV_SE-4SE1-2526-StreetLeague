@@ -32,7 +32,7 @@ public record TrainingResponse(
                 training.getLocation(),
                 training.getExercises(),
                 training.getStatus(),
-                training.getTeam().getName(),
+                training.getTeam() != null ? training.getTeam().getName() : "N/A",
                 training.getParticipants() == null ? 0 : training.getParticipants().size(),
                 training.getParticipants() != null
                         ? training.getParticipants().stream()
@@ -43,6 +43,7 @@ public record TrainingResponse(
                         ? training.getCoach().getFullName()
                         : null,
                 training.getPerformanceReport()
+
         );
 
 

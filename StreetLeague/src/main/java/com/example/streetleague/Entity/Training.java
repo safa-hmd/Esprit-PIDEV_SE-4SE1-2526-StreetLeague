@@ -86,6 +86,9 @@ public class Training {
     public Team getTeam() { return this.team; }
     public void setTeam(Team team) { this.team = team; }
 
+    public User getCoach() { return this.coach; }
+    public void setCoach(User coach) { this.coach = coach; }
+
     public List<User> getParticipants() { return this.participants; }
     public void setParticipants(List<User> participants) { this.participants = participants; }
 }

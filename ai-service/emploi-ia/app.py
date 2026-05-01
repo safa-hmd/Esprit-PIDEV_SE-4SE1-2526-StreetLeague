@@ -7,7 +7,7 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
-SPRING_BOOT_URL = "http://localhost:8086/api"
+SPRING_BOOT_URL = "http://localhost:8086/StreetLeague/api"
 
 MOCK_FIELDS = [
     {"id": 1, "name": "Stade Olympique", "lat": 36.8305, "lng": 10.1855,

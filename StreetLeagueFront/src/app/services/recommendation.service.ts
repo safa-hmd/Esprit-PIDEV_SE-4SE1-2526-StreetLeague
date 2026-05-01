@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, from, switchMap, throwError } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable, from, of, switchMap } from 'rxjs';
 
 export interface FieldRecommendation {
   fieldId:        number;
@@ -60,35 +60,37 @@ export class RecommendationService {
     return 0;
   }
 
-  // ── Get GPS position as Promise ──────────────────────────────────
-  private getPosition(): Promise<GeolocationPosition> {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error('Geolocation not supported'));
-        return;
-      }
-      navigator.geolocation.getCurrentPosition(resolve, reject, {
-        timeout: 8000,
-        maximumAge: 60000,
-        enableHighAccuracy: false
-      });
+  // ── Get GPS position as Promise — resolves null if unavailable ──
+  private getPositionOrNull(): Promise<{ lat: number; lng: number } | null> {
+    return new Promise(resolve => {
+      if (!navigator.geolocation) { resolve(null); return; }
+      navigator.geolocation.getCurrentPosition(
+        pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        ()  => resolve(null),   // GPS denied → null (not an error)
+        { timeout: 8000, maximumAge: 60000, enableHighAccuracy: false }
+      );
     });
   }
 
-  // ── Field recommendations (uses live GPS) ───────────────────────
+  // ── Field recommendations (GPS optional — falls back gracefully) ─
   getFieldRecommendations(): Observable<FieldRecommendation[]> {
     const userId = this.getCurrentUserId();
     if (!userId) {
-      return throwError(() => new Error('userId introuvable — vérifie ta connexion'));
+      // Return empty array instead of throwing — UI handles empty state
+      return of([]);
     }
 
-    return from(this.getPosition()).pipe(
-      switchMap(pos =>
-        this.http.get<FieldRecommendation[]>(
-          `${this.BASE}/fields/${userId}?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`,
-          { headers: this.getHeaders() }
-        )
-      )
+    return from(this.getPositionOrNull()).pipe(
+      switchMap(gps => {
+        let params = new HttpParams();
+        if (gps) {
+          params = params.set('lat', gps.lat.toString()).set('lng', gps.lng.toString());
+        }
+        return this.http.get<FieldRecommendation[]>(
+          `${this.BASE}/fields/${userId}`,
+          { headers: this.getHeaders(), params }
+        );
+      })
     );
   }
 
@@ -99,9 +101,13 @@ export class RecommendationService {
     lng: number
   ): Observable<SlotDto[]> {
     const userId = this.getCurrentUserId();
+    let params = new HttpParams();
+    if (lat && lng) {
+      params = params.set('lat', lat.toString()).set('lng', lng.toString());
+    }
     return this.http.get<SlotDto[]>(
-      `${this.BASE}/slot/${userId}/${fieldId}?lat=${lat}&lng=${lng}`,
-      { headers: this.getHeaders() }
+      `${this.BASE}/slot/${userId}/${fieldId}`,
+      { headers: this.getHeaders(), params }
     );
   }
 }

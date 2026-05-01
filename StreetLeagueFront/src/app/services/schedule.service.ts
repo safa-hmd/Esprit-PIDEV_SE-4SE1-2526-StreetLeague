@@ -66,14 +66,18 @@ export class ScheduleService {
   }
 
   // Spring Boot sometimes returns [year, month, day, hour, min] arrays
-  private normalizeDate(val: any): string {
-    if (!val) return new Date().toISOString();
-    if (Array.isArray(val)) {
-      const [y, mo, d, h = 0, m = 0] = val;
-      return new Date(y, mo - 1, d, h, m).toISOString();
-    }
-    return val;
+private normalizeDate(val: any): string {
+  if (!val) return new Date().toISOString();
+  if (Array.isArray(val)) {
+    const [y, mo, d, h = 0, m = 0] = val;
+    return new Date(y, mo - 1, d, h, m).toISOString();
   }
+  if (typeof val === 'string' && !val.endsWith('Z') && !val.includes('+')) {
+    // Pas de timezone → traiter comme heure locale Tunisie (UTC+1)
+    return new Date(val + '+01:00').toISOString();
+  }
+  return val;
+}
 
   private defaultColor(type: string): string {
     switch (type) {
