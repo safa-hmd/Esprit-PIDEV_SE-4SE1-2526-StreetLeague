@@ -1,34 +1,63 @@
+
+// src/app/services/notification.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { NotificationResponse } from '../models/notification.model';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private baseUrl = 'http://localhost:8086/StreetLeague/api/notifications';
+  private base = 'http://localhost:8086/StreetLeague/notification';
+
 
   constructor(private http: HttpClient) {}
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('TokenUserConnect') || localStorage.getItem('token') || '';
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    });
+
+    const token = localStorage.getItem('TokenUserConnect');
+    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
   }
 
-  getMyNotifications(userId: string | number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/my?userId=${userId}`, { headers: this.getHeaders() });
+  private get email(): string {
+    return localStorage.getItem('EmailUserConnect') ?? '';
   }
 
-  getUnreadCount(userId: string | number): Observable<number> {
-    return this.http.get<number>(`${this.baseUrl}/unread-count?userId=${userId}`, { headers: this.getHeaders() });
+  getMyNotifications(): Observable<NotificationResponse[]> {
+    return this.http.get<NotificationResponse[]>(
+      `${this.base}/my?email=${this.email}`,
+      { headers: this.getHeaders() }
+    );
   }
 
   markAsRead(id: number): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/${id}/read`, {}, { headers: this.getHeaders() });
+    return this.http.put<void>(
+      `${this.base}/${id}/read?email=${this.email}`,
+      {},
+      { headers: this.getHeaders() }
+    );
   }
 
-  markAllAsRead(userId: string | number): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/mark-all-read?userId=${userId}`, {}, { headers: this.getHeaders() });
+  markAllAsRead(): Observable<void> {
+    return this.http.put<void>(
+      `${this.base}/read-all?email=${this.email}`,
+      {},
+      { headers: this.getHeaders() }
+    );
   }
+
+  deleteNotification(id: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.base}/${id}/delete?email=${this.email}`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+getRedirectTarget(id: number): Observable<{redirectTo: string, message: string}> {
+  const email = localStorage.getItem('EmailUserConnect');
+  return this.http.get<{redirectTo: string, message: string}>(
+    `${this.base}/${id}/redirect?email=${email}`,
+    { headers: this.getHeaders() }
+  );
 }
+}
+

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Team } from 'src/app/models/team.model';
 import { TeamService } from 'src/app/services/team.service';
+import { MatchService } from 'src/app/services/match.service';
 
 @Component({
   selector: 'app-detail-team',
@@ -20,7 +21,8 @@ export class DetailTeamComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private teamService: TeamService
+    private teamService: TeamService,
+    private matchService: MatchService
   ) {}
 
   ngOnInit(): void {
@@ -36,7 +38,8 @@ export class DetailTeamComponent implements OnInit {
   }
 
   goToTeamDetail(idTeam: number): void {
-  this.router.navigate(['/client/detail-team', idTeam]);
-  
-}
+    this.router.navigate(['/client/detail-team', idTeam]);
+  }
+
+
 }

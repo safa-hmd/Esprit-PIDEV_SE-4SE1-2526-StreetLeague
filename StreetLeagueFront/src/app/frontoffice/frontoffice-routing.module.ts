@@ -39,10 +39,20 @@ import { TrainingComponent } from './training/training.component';
 import { DetailMatchComponent } from './detail-match/detail-match.component';
 import { DetailTeamComponent } from './detail-team/detail-team.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
+
 import { TournamentsComponent } from './tournaments/tournaments.component';
 import { FieldReservationComponent } from './field-reservation/field-reservation.component';
 import { ShopListComponent } from './shop/shop-list/shop-list.component';
 import { CartComponent } from './shop/cart/cart.component';
+
+import { MatchHistoryComponent } from './match-history/match-history.component';
+import { ScheduleComponent } from './schedule/schedule.component';
+import { FieldRecommenderComponent } from './field-recommender/field-recommender.component';
+import { MatchmakingComponent } from './matchmaking/matchmaking.component';
+import { PerformanceStreakComponent } from './performance-streak/performance-streak.component';
+import { PerformancePredictionComponent } from './performance-prediction/performance-prediction.component';
+import { InjuryRiskComponent } from './injury-risk/injury-risk.component';
+
 
 const routes: Routes = [
   {
@@ -57,6 +67,7 @@ const routes: Routes = [
       {path:"detail-match/:id",component:DetailMatchComponent},
       {path:"detail-team/:id", component:DetailTeamComponent}, 
       { path: 'profile', component: PlayerProfileComponent },
+
 
         { path: 'tournaments', component: TournamentsComponent },
       { path: 'field-reservation', component: FieldReservationComponent },
@@ -98,6 +109,15 @@ const routes: Routes = [
 
         { path: 'news', component: NewsComponent },
       { path: 'health', component: HealthComponent },
+
+
+      {path: 'match-history',component: MatchHistoryComponent},
+        { path: 'schedule', component: ScheduleComponent },
+        { path: 'recommend', component: FieldRecommenderComponent },
+        {path: 'matchmaking',component: MatchmakingComponent},
+        { path: 'performance-streak', component: PerformanceStreakComponent },
+        { path: 'injury-risk',            component: InjuryRiskComponent },
+{ path: 'performance-prediction', component: PerformancePredictionComponent },
 
     ]
   }

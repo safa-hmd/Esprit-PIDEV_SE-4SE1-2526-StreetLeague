@@ -70,7 +70,6 @@ public class IAuthServiceImp implements IAuthService {
         );
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(req.email());
-        String token = jwtService.generateToken(userDetails);
 
         String role = userDetails.getAuthorities().stream()
                 .findFirst()
@@ -78,9 +77,10 @@ public class IAuthServiceImp implements IAuthService {
                 .getAuthority();
 
         User user = userRepository.findByEmail(req.email()).orElseThrow();
+        String token = jwtService.generateToken(user);
 
 
-        return new AuthResponse(token, userDetails.getUsername(), role, (Long) user.getIdUser());
+        return new AuthResponse(token, userDetails.getUsername(), role, user.getIdUser());
     }
 
 
@@ -114,7 +114,7 @@ public class IAuthServiceImp implements IAuthService {
                 .authorities(authorities)
                 .build();
 
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken(user);
 
         return new AuthResponse(token, user.getEmail(), "ROLE_" + user.getRole().name(), user.getIdUser());
     }

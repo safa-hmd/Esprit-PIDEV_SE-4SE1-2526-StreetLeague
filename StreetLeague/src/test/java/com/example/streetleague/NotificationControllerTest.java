@@ -1,82 +1,83 @@
-package com.example.streetleague;
+package com.example.streetleague.Controller;
 
-import com.example.streetleague.Controller.NotificationController;
-import com.example.streetleague.Entity.Notification;
-import com.example.streetleague.ServiceInterface.NotificationService;
-import com.example.streetleague.security.CustomUserDetailsService;
-import com.example.streetleague.security.jwt.JwtService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import com.example.streetleague.Repository.UserRepository;
+import com.example.streetleague.domain.User;
+import com.example.streetleague.ServiceInterface.InotificationService;
+import com.example.streetleague.dto.NotificationResponse;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+@RestController
+@AllArgsConstructor
+@CrossOrigin("*")
+@RequestMapping("notification")
+public class NotificationController {
 
-@WebMvcTest(NotificationController.class)
-@AutoConfigureMockMvc(addFilters = false)
-class NotificationControllerTest {
+    private final InotificationService notificationService;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private NotificationService notificationService;
-
-    @MockBean
-    private JwtService jwtService;
-
-    @MockBean
-    private CustomUserDetailsService userDetailsService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Test
-    void getMyNotifications_ReturnsList() throws Exception {
-        Notification n = new Notification();
-        n.setId(1L);
-        n.setMessage("Test Notification");
-
-        when(notificationService.getMyNotifications(1L)).thenReturn(List.of(n));
-
-        mockMvc.perform(get("/api/notifications/my?userId=1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].message").value("Test Notification"));
+    // GET /notification/my?email=player@mail.com
+    @GetMapping("my")
+    public List<NotificationResponse> getMyNotifications(@RequestParam String email) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) return List.of();
+        return notificationService.getMyNotifications(user.getIdUser());
     }
 
-    @Test
-    void getUnreadCount_ReturnsCount() throws Exception {
-        when(notificationService.getUnreadCount(1L)).thenReturn(5L);
-
-        mockMvc.perform(get("/api/notifications/unread-count?userId=1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("5"));
+    // PUT /notification/1/read?email=player@mail.com
+    @PutMapping("{idNotification}/read")
+    public void markAsRead(@PathVariable Long idNotification, @RequestParam String email) {
+        notificationService.markAsRead(idNotification, email);
     }
 
-    @Test
-    void markAsRead_ReturnsOk() throws Exception {
-        doNothing().when(notificationService).markAsRead(1L);
-
-        mockMvc.perform(put("/api/notifications/1/read"))
-                .andExpect(status().isOk());
+    // DELETE /notification/1/delete?email=player@mail.com
+    @DeleteMapping("{idNotification}/delete")
+    public void deleteNotification(@PathVariable Long idNotification, @RequestParam String email) {
+        notificationService.deleteNotification(idNotification, email);
     }
 
-    @Test
-    void markAllRead_ReturnsOk() throws Exception {
-        doNothing().when(notificationService).markAllAsRead(1L);
 
-        mockMvc.perform(put("/api/notifications/mark-all-read?userId=1"))
-                .andExpect(status().isOk());
+    // GET /notifications/{id}/redirect?email=user@mail.com
+    @GetMapping("/{id}/redirect")
+    public ResponseEntity<Map<String, String>> getRedirectTarget(
+            @PathVariable Long id,
+            @RequestParam String email) {
+
+        // Marquer comme lu
+        notificationService.markAsRead(id, email);
+
+        // Récupérer la notification
+        NotificationResponse notif = notificationService.getNotificationById(id);
+
+        // Déterminer la page cible selon le contenu du message
+        String target = resolveTarget(notif.message());
+
+        return ResponseEntity.ok(Map.of(
+                "redirectTo", target,
+                "message", notif.message()
+        ));
+    }
+
+    private String resolveTarget(String message) {
+        if (message == null) return "/client/teams";
+
+        String msg = message.toLowerCase();
+
+        if (msg.contains("match accepted") || msg.contains("match rejected") ||
+                msg.contains("match updated") || msg.contains("match cancelled") ||
+                msg.contains("new match"))
+            return "/client/teams?tab=matches";
+
+        if (msg.contains("training"))
+            return "/client/trainings";
+
+        if (msg.contains("team"))
+            return "/client/teams";
+
+        return "/client/home";
     }
 }

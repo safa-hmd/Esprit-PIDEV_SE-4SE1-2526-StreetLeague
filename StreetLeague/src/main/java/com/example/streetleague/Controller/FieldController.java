@@ -65,4 +65,56 @@ public class FieldController {
     public ResponseEntity<List<FieldDto>> getBySport(@PathVariable SportType sportType) {
         return ResponseEntity.ok(fieldService.getFieldsBySport(sportType));
     }
+
+
+
+
+    /// //
+    // Géocoder un terrain par son id
+    @PostMapping("/{id}/geocode")
+    public ResponseEntity<FieldDto> geocode(@PathVariable Long id) {
+        return ResponseEntity.ok(fieldService.geocodeField(id));
+    }
+
+    // Géocoder TOUS les terrains sans GPS d'un seul appel
+    @PostMapping("/geocode-all")
+    public ResponseEntity<String> geocodeAll() throws InterruptedException {
+        List<FieldDto> all = fieldService.getAllFields();
+        int count = 0;
+        for (FieldDto f : all) {
+            if (f.getLatitude() == null) {
+                try {
+                    fieldService.geocodeField(f.getId());
+                    count++;
+                    Thread.sleep(1100); // rate limit Nominatim = 1 req/sec
+                } catch (Exception e) {
+                    System.out.println("⚠️ Échec: " + f.getName() + " → " + e.getMessage());
+                }
+            }
+        }
+        return ResponseEntity.ok("✅ Géocodé " + count + " terrains !");
+    }
+
+    @PostMapping("/geocode-all-force")
+    public ResponseEntity<String> geocodeAllForce() throws InterruptedException {
+        List<FieldDto> all = fieldService.getAllFields();
+        int count = 0;
+        for (FieldDto f : all) {
+            try {
+                fieldService.geocodeField(f.getId()); // force même si lat existe
+                count++;
+                Thread.sleep(1100);
+            } catch (Exception e) {
+                System.out.println("⚠️ Échec: " + f.getName() + " → " + e.getMessage());
+            }
+        }
+        return ResponseEntity.ok("✅ Regéocodé " + count + " terrains !");
+    }
+
+    // Retourne uniquement les terrains avec GPS (pour la map)
+    @GetMapping("/with-gps")
+    public ResponseEntity<List<FieldDto>> getWithGps() {
+        return ResponseEntity.ok(fieldService.getAllFieldsWithGps());
+    }
+
 }

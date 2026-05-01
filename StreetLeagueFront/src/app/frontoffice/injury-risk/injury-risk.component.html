@@ -1,0 +1,251 @@
+<!-- injury-risk.component.html -->
+<div class="ir-shell">
+
+  <!-- ══ HEADER ══ -->
+  <header class="ir-header">
+    <div class="ir-header-left">
+      <div class="ir-header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="ir-title">Risque de blessure</h1>
+        <p class="ir-subtitle">Fatigue · Charge de travail · Récupération</p>
+      </div>
+    </div>
+    <button class="ir-btn-refresh" (click)="loadData()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+      </svg>
+      Actualiser
+    </button>
+  </header>
+
+  <!-- ══ LOADING ══ -->
+  <div class="ir-loading" *ngIf="loading">
+    <div class="ir-spinner"></div>
+    <span>Analyse des risques en cours…</span>
+  </div>
+
+  <!-- ══ ERROR ══ -->
+  <div class="ir-error" *ngIf="error && !loading">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    {{ error }}
+    <button (click)="loadData()">Réessayer</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+
+    <!-- ══ KPI CARDS ══ -->
+    <div class="ir-summary-grid">
+      <button class="ir-sum-card ir-sum-card--critical"
+              [class.ir-sum-card--active]="selectedFilter === 'CRITICAL'"
+              (click)="setFilter('CRITICAL')">
+        <span class="ir-sum-icon">⚠️</span>
+        <div class="ir-sum-count">{{ criticalCount }}</div>
+        <div class="ir-sum-label">Critique</div>
+        <div class="ir-sum-trend">{{ criticalCount > 0 ? 'Action immédiate' : 'Aucun' }}</div>
+      </button>
+
+      <button class="ir-sum-card ir-sum-card--high"
+              [class.ir-sum-card--active]="selectedFilter === 'HIGH'"
+              (click)="setFilter('HIGH')">
+        <span class="ir-sum-icon">🔴</span>
+        <div class="ir-sum-count">{{ highCount }}</div>
+        <div class="ir-sum-label">Élevé</div>
+        <div class="ir-sum-trend">Surveillance requise</div>
+      </button>
+
+      <button class="ir-sum-card ir-sum-card--moderate"
+              [class.ir-sum-card--active]="selectedFilter === 'MODERATE'"
+              (click)="setFilter('MODERATE')">
+        <span class="ir-sum-icon">🟡</span>
+        <div class="ir-sum-count">{{ moderateCount }}</div>
+        <div class="ir-sum-label">Modéré</div>
+        <div class="ir-sum-trend">À surveiller</div>
+      </button>
+
+      <button class="ir-sum-card ir-sum-card--low"
+              [class.ir-sum-card--active]="selectedFilter === 'LOW'"
+              (click)="setFilter('LOW')">
+        <span class="ir-sum-icon">🟢</span>
+        <div class="ir-sum-count">{{ lowCount }}</div>
+        <div class="ir-sum-label">Faible</div>
+        <div class="ir-sum-trend">Bon état</div>
+      </button>
+
+      <button class="ir-sum-card ir-sum-card--all"
+              [class.ir-sum-card--active]="selectedFilter === 'ALL'"
+              (click)="setFilter('ALL')">
+        <span class="ir-sum-icon">👥</span>
+        <div class="ir-sum-count">{{ players.length }}</div>
+        <div class="ir-sum-label">Tous</div>
+        <div class="ir-sum-trend">Vue d'ensemble</div>
+      </button>
+    </div>
+
+    <!-- ══ FORMULA ══ -->
+    <div class="ir-formula">
+      <span class="ir-formula-label">Méthode</span>
+      <div class="ir-formula-body">
+        <div class="ir-formula-factor">
+          <span class="ir-factor-dot" style="background:#dc2626"></span>
+          <span>Fatigue</span>
+          <strong>40%</strong>
+        </div>
+        <span class="ir-formula-plus">+</span>
+        <div class="ir-formula-factor">
+          <span class="ir-factor-dot" style="background:#d97706"></span>
+          <span>Charge</span>
+          <strong>35%</strong>
+        </div>
+        <span class="ir-formula-plus">+</span>
+        <div class="ir-formula-factor">
+          <span class="ir-factor-dot" style="background:#16a34a"></span>
+          <span>Récupération</span>
+          <strong>25%</strong>
+        </div>
+      </div>
+      <div class="ir-formula-thresholds">
+        <span class="ir-th ir-th--critical">≥75 → Critique</span>
+        <span class="ir-th ir-th--high">50–74 → Élevé</span>
+        <span class="ir-th ir-th--moderate">25–49 → Modéré</span>
+        <span class="ir-th ir-th--low">&lt;25 → Faible</span>
+      </div>
+    </div>
+
+    <!-- ══ PLAYER CARDS ══ -->
+    <div class="ir-player-list">
+
+      <div *ngFor="let p of filteredPlayers"
+           class="ir-player-card"
+           [attr.data-level]="p.injuryRiskLevel">
+
+        <!-- Card Header -->
+        <div class="ir-card-header">
+          <div class="ir-player-avatar"
+               [style.background]="getRiskColor(p.injuryRiskLevel) + '22'"
+               [style.color]="getRiskColor(p.injuryRiskLevel)">
+            {{ (p.playerName || '?').charAt(0).toUpperCase() }}
+          </div>
+          <div class="ir-player-info">
+            <div class="ir-player-name">{{ p.playerName }}</div>
+            <span class="ir-stat-badge">Série actuelle : {{ p.currentStreak }}j</span>
+          </div>
+          <div class="ir-risk-badge"
+               [style.background]="getRiskColor(p.injuryRiskLevel)"
+               style="color:white">
+            {{ getRiskIcon(p.injuryRiskLevel) }} {{ p.injuryRiskLevel }}
+          </div>
+        </div>
+
+        <!-- Metrics Layout: Circle + Bars -->
+        <div class="ir-card-metrics">
+
+          <!-- Score Ring -->
+          <div class="ir-metric-score">
+            <div class="ir-score-circle">
+              <svg viewBox="0 0 120 120">
+                <!-- Track -->
+                <circle cx="60" cy="60" r="50"
+                        fill="none" stroke="#f1f5f9" stroke-width="10"/>
+                <!-- Fill -->
+                <circle cx="60" cy="60" r="50"
+                        fill="none"
+                        [attr.stroke]="getRiskColor(p.injuryRiskLevel)"
+                        stroke-width="10"
+                        stroke-linecap="round"
+                        stroke-dasharray="314"
+                        [attr.stroke-dashoffset]="314 - (314 * ((p.injuryRiskScore ?? 0) / 100))"
+                        transform="rotate(-90 60 60)"/>
+              </svg>
+              <div class="ir-score-value">
+                <span class="ir-score-number"
+                      [style.color]="getRiskColor(p.injuryRiskLevel)">
+                  {{ p.injuryRiskScore | number:'1.0-0' }}
+                </span>
+                <span class="ir-score-max">/100</span>
+              </div>
+            </div>
+            <div class="ir-score-label">Score risque</div>
+          </div>
+
+          <!-- Metric Bars -->
+          <div class="ir-metrics-details">
+
+            <div class="ir-metric-item">
+              <div class="ir-metric-header">
+                <span class="ir-metric-name">Fatigue</span>
+                <span class="ir-metric-value" style="color:#dc2626">
+                  {{ ((p.fatigueRisk || 0) * 100) | number:'1.0-0' }}%
+                </span>
+              </div>
+              <div class="ir-metric-bar">
+                <div class="ir-metric-fill"
+                     style="background:#dc2626"
+                     [style.width.%]="(p.fatigueRisk || 0) * 100"></div>
+              </div>
+              <div class="ir-metric-weight">Pondération : 40%</div>
+            </div>
+
+            <div class="ir-metric-item">
+              <div class="ir-metric-header">
+                <span class="ir-metric-name">Charge de travail</span>
+                <span class="ir-metric-value" style="color:#d97706">
+                  {{ ((p.workloadFactor || 0) * 100) | number:'1.0-0' }}%
+                </span>
+              </div>
+              <div class="ir-metric-bar">
+                <div class="ir-metric-fill"
+                     style="background:#d97706"
+                     [style.width.%]="(p.workloadFactor || 0) * 100"></div>
+              </div>
+              <div class="ir-metric-weight">Pondération : 35%</div>
+            </div>
+
+            <div class="ir-metric-item">
+              <div class="ir-metric-header">
+                <span class="ir-metric-name">Récupération</span>
+                <span class="ir-metric-value" style="color:#16a34a">
+                  {{ p.recoveryScore | number:'1.0-0' }}%
+                </span>
+              </div>
+              <div class="ir-metric-bar">
+                <div class="ir-metric-fill"
+                     style="background:#16a34a"
+                     [style.width.%]="p.recoveryScore"></div>
+              </div>
+              <div class="ir-metric-weight">Pondération : 25%</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="ir-recommendation"
+             [style.border-left-color]="getRiskColor(p.injuryRiskLevel)"
+             [style.background]="getRiskColor(p.injuryRiskLevel) + '08'">
+          <span class="ir-rec-icon">💡</span>
+          <span class="ir-rec-text">
+            {{ getRecommendation(p.injuryRiskLevel, p.fatigueRisk, p.workloadFactor, p.recoveryScore) }}
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="filteredPlayers.length === 0" class="ir-empty">
+        <div class="ir-empty-icon">🎯</div>
+        <p>Aucun joueur dans cette catégorie.</p>
+      </div>
+
+    </div>
+
+  </ng-container>
+</div>

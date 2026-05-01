@@ -23,8 +23,8 @@ export class TrainingsComponent implements OnInit {
   showEditModal   = false;
 
   selectedTeamId: number = 0;
+  currentUserEmail = '';
 
-  // ── Reactive Forms ────────────────────────────────────────
   createTrainingForm!: FormGroup;
   editTrainingForm!:   FormGroup;
 
@@ -36,10 +36,9 @@ export class TrainingsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadTrainings();
+    this.currentUserEmail = localStorage.getItem('EmailUserConnect') || '';
     this.loadTeams();
 
-    // ── Init Create Form ───────────────────────────────────
     this.createTrainingForm = this.fb.group({
       title:             ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       description:       ['', Validators.maxLength(500)],
@@ -49,7 +48,6 @@ export class TrainingsComponent implements OnInit {
       exercises:         ['']
     });
 
-    // ── Init Edit Form ─────────────────────────────────────
     this.editTrainingForm = this.fb.group({
       idTraining:        [0],
       title:             ['', [Validators.minLength(3), Validators.maxLength(100)]],
@@ -62,27 +60,46 @@ export class TrainingsComponent implements OnInit {
     });
   }
 
-  // ── Helpers ───────────────────────────────────────────────
   get cf() { return this.createTrainingForm.controls; }
   get ef() { return this.editTrainingForm.controls; }
 
   loadTeams(): void {
     this.teamService.getAllTeams().subscribe({
-      next: (data) => { this.teams = data; },
-      error: (err)  => { console.error('Error loading teams', err); }
+      next: (data) => {
+        // ✅ CORRECTION : ne plus filtrer par captainRole
+        // On prend toutes les équipes — le backend vérifiera que le coach est bien assigné
+        this.teams = data;
+        this.loadTrainings();
+      },
+      error: (err) => { console.error('Error loading teams', err); }
     });
   }
 
   loadTrainings(): void {
     this.isLoading = true;
     this.errorMsg  = '';
-    this.trainingService.getAllTrainings().subscribe({
-      next: (data) => { this.trainings = data; this.isLoading = false; },
-      error: (err)  => { this.errorMsg = `Error loading trainings (${err.status})`; this.isLoading = false; }
+    this.trainingService.getTrainingsByCoach().subscribe({
+      next: (data) => {
+        this.trainings = data;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.errorMsg = `Error loading trainings (${err.status})`;
+        this.isLoading = false;
+      }
     });
   }
 
-  // ── Create ────────────────────────────────────────────────
+  // ✅ CORRECTION : formater la date en LocalDateTime attendu par Spring
+  private formatDateForBackend(dateStr: string): string {
+    if (!dateStr) return dateStr;
+    // datetime-local donne "2025-06-15T10:00" → on ajoute ":00" si pas de secondes
+    if (dateStr.length === 16) {
+      return dateStr + ':00';
+    }
+    return dateStr;
+  }
+
   createTraining(): void {
     this.errorMsg = '';
 
@@ -100,7 +117,18 @@ export class TrainingsComponent implements OnInit {
       return;
     }
 
-    this.trainingService.addTraining(this.createTrainingForm.value, this.selectedTeamId).subscribe({
+    // ✅ CORRECTION : préparer le body avec la date bien formatée
+    const formValue = this.createTrainingForm.value;
+    const dto: TrainingRequest = {
+      title:             formValue.title,
+      description:       formValue.description,
+      trainingDate:      this.formatDateForBackend(formValue.trainingDate),
+      durationInMinutes: formValue.durationInMinutes,
+      location:          formValue.location,
+      exercises:         formValue.exercises
+    };
+
+    this.trainingService.addTraining(dto, this.selectedTeamId).subscribe({
       next: () => {
         this.successMsg = 'Training session created successfully!';
         this.showCreateModal = false;
@@ -108,11 +136,14 @@ export class TrainingsComponent implements OnInit {
         this.loadTrainings();
         setTimeout(() => this.successMsg = '', 3000);
       },
-      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
+      error: (err) => {
+        // ✅ Affiche le vrai message d'erreur du backend
+        console.error('Backend error:', err.error);
+        this.errorMsg = err.error || err.error?.message || `Error ${err.status}`;
+      }
     });
   }
 
-  // ── Edit ──────────────────────────────────────────────────
   openEditModal(training: TrainingResponse): void {
     this.editTrainingForm.patchValue({
       idTraining:        training.idTraining,
@@ -140,18 +171,33 @@ export class TrainingsComponent implements OnInit {
       return;
     }
 
-    this.trainingService.updateTraining(this.editTrainingForm.value).subscribe({
+    // ✅ CORRECTION : formater la date pour l'update aussi
+    const formValue = this.editTrainingForm.value;
+    const dto: TrainingUpdateRequest = {
+      idTraining:        formValue.idTraining,
+      title:             formValue.title,
+      description:       formValue.description,
+      trainingDate:      formValue.trainingDate ? this.formatDateForBackend(formValue.trainingDate) : undefined,
+      durationInMinutes: formValue.durationInMinutes,
+      location:          formValue.location,
+      exercises:         formValue.exercises,
+      status:            formValue.status
+    };
+
+    this.trainingService.updateTraining(dto).subscribe({
       next: () => {
         this.successMsg = 'Training updated successfully!';
         this.showEditModal = false;
         this.loadTrainings();
         setTimeout(() => this.successMsg = '', 3000);
       },
-      error: (err) => { this.errorMsg = err.error?.message || `Error ${err.status}`; }
+      error: (err) => {
+        console.error('Backend error:', err.error);
+        this.errorMsg = err.error || err.error?.message || `Error ${err.status}`;
+      }
     });
   }
 
-  // ── Delete ────────────────────────────────────────────────
   deleteTraining(id: number): void {
     if (!confirm('Delete this training session?')) return;
     this.trainingService.deleteTraining(id).subscribe({
@@ -160,7 +206,10 @@ export class TrainingsComponent implements OnInit {
         this.successMsg = 'Training deleted.';
         setTimeout(() => this.successMsg = '', 3000);
       },
-      error: (err) => { this.errorMsg = err.error?.message || `Error deleting (${err.status})`; }
+      error: (err) => {
+        console.error('Backend error:', err.error);
+        this.errorMsg = err.error || err.error?.message || `Error deleting (${err.status})`;
+      }
     });
   }
 

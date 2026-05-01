@@ -9,6 +9,8 @@ import com.example.streetleague.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +21,9 @@ import java.util.stream.Collectors;
 public class FieldServiceImp implements IFieldService {
 
     private final FieldRepository fieldRepository;
+
+    private final RestTemplate restTemplate;
+
 
     @Override
     public FieldDto createField(FieldDto dto) {
@@ -110,6 +115,102 @@ public class FieldServiceImp implements IFieldService {
                 .pricePerHour(f.getPricePerHour())
                 .capacity(f.getCapacity())
                 .available(f.isAvailable())
+
+                .latitude(f.getLatitude())    // ✅ AJOUTE
+                .longitude(f.getLongitude())
                 .build();
     }
+
+    @Override
+    public FieldDto geocodeField(Long id) {
+        Field field = findById(id);
+
+        if (field.getLocation() == null || field.getLocation().isBlank())
+            throw new RuntimeException("Pas d'adresse pour ce terrain");
+
+        String[] attempts = {
+                field.getLocation() + ", Tunisia",
+                field.getLocation().split(",")[0] + ", Tunisia",
+                field.getName() + ", " + field.getLocation() + ", Tunisia",
+        };
+
+        for (String query : attempts) {
+            Double[] coords = callNominatim(query);
+            if (coords != null) {
+                field.setLatitude(coords[0]);
+                field.setLongitude(coords[1]);
+                fieldRepository.save(field);
+                System.out.println("✅ " + field.getName()
+                        + " → " + coords[0] + ", " + coords[1]);
+                return mapToDto(field);
+            }
+            try { Thread.sleep(600); } catch (InterruptedException ignored) {}
+        }
+
+        // Fallback par ville
+        Double[] fallback = getFallbackCoords(field.getLocation());
+        field.setLatitude(fallback[0]);
+        field.setLongitude(fallback[1]);
+        fieldRepository.save(field);
+        return mapToDto(field);
+    }
+
+    private Double[] callNominatim(String query) {
+        try {
+            String url = "https://nominatim.openstreetmap.org/search?q="
+                    + java.net.URLEncoder.encode(
+                    query, java.nio.charset.StandardCharsets.UTF_8)
+                    + "&format=json&limit=1&countrycodes=tn";
+
+            org.springframework.http.HttpHeaders headers =
+                    new org.springframework.http.HttpHeaders();
+            headers.set("User-Agent", "StreetLeague/1.0");
+
+            var response = restTemplate.exchange(
+                    url,
+                    org.springframework.http.HttpMethod.GET,
+                    new org.springframework.http.HttpEntity<>(headers),
+                    Object[].class
+            );
+
+            Object[] results = response.getBody();
+            if (results != null && results.length > 0) {
+                @SuppressWarnings("unchecked")
+                var first = (java.util.Map<String, Object>) results[0];
+                return new Double[]{
+                        Double.parseDouble((String) first.get("lat")),
+                        Double.parseDouble((String) first.get("lon"))
+                };
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    private Double[] getFallbackCoords(String location) {
+        String loc = location.toLowerCase();
+        if (loc.contains("menzah"))   return new Double[]{36.8356, 10.1583};
+        if (loc.contains("ariana"))   return new Double[]{36.8625, 10.1956};
+        if (loc.contains("marsa"))    return new Double[]{36.8781, 10.3247};
+        if (loc.contains("carthage")) return new Double[]{36.8528, 10.3233};
+        if (loc.contains("sousse"))   return new Double[]{35.8245, 10.6346};
+        if (loc.contains("sfax"))     return new Double[]{34.7406, 10.7603};
+        if (loc.contains("nabeul"))   return new Double[]{36.4561, 10.7376};
+        if (loc.contains("bizerte"))  return new Double[]{37.2744,  9.8739};
+        if (loc.contains("monastir")) return new Double[]{35.7643, 10.8113};
+        return new Double[]{36.8190, 10.1658}; // Centre Tunis
+    }
+
+
+
+
+    @Override
+    public List<FieldDto> getAllFieldsWithGps() {
+        return fieldRepository.findAll().stream()
+                .filter(f -> f.getLatitude() != null && f.getLongitude() != null)
+                .map(this::mapToDto)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+
+
 }

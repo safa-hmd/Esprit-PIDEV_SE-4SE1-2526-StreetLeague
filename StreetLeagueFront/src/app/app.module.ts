@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+
 import { BrowserModule } from '@angular/platform-browser';
 import {  HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
@@ -8,6 +8,13 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { NavbarComponent } from './coach-fo/navbar/navbar.component';
 import { DeliveryFoModule } from './delivery-fo/delivery-fo.module';
 import { NotFoundComponent } from './shared/not-found/not-found.component';
+
+import { NgModule, LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+
+
+registerLocaleData(localeFr);  // ← ajoute avant @NgModule
 
 
 @NgModule({
@@ -30,7 +37,9 @@ import { NotFoundComponent } from './shared/not-found/not-found.component';
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true,
+      
     },
+    { provide: LOCALE_ID, useValue: 'fr' }  
   ],
   bootstrap: [AppComponent]
 })

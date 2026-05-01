@@ -1,3 +1,4 @@
+
 import { ContratListComponent } from '../components/contrat-sponsor/contrat-list.component';
 import { ContratFormComponent } from '../components/contrat-sponsor/contrat-form.component';
 import { ContratEditComponent } from '../components/contrat-sponsor/contrat-edit.component';
@@ -21,7 +22,8 @@ import { SponsoringListComponent } from '../components/sponsoring-evenement/spon
 import { SponsoringFormComponent } from '../components/sponsoring-evenement/sponsoring-form.component';
 import { SponsoringDetailComponent } from '../components/sponsoring-evenement/sponsoring-detail.component';
 import { SponsoringEditComponent } from '../components/sponsoring-evenement/sponsoring-edit.component';
-import { NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -46,9 +48,24 @@ import { TournamentsComponent } from './tournaments/tournaments.component';
 import { FieldReservationComponent } from './field-reservation/field-reservation.component';
 import { HttpClientModule } from '@angular/common/http';
 
+
 import { NewsComponent } from './news/news.component';
 import { HealthComponent } from './health/health.component';
- 
+
+import { MatchHistoryComponent } from './match-history/match-history.component';
+import { ScheduleComponent } from './schedule/schedule.component';
+
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+import { FieldRecommenderComponent } from './field-recommender/field-recommender.component';
+import { MatchmakingComponent } from './matchmaking/matchmaking.component';
+import { PerformanceStreakComponent } from './performance-streak/performance-streak.component';
+import { InjuryRiskComponent } from './injury-risk/injury-risk.component';
+import { PerformancePredictionComponent } from './performance-prediction/performance-prediction.component';
+
+registerLocaleData(localeFr);  // ← ajoute avant @NgModule
+
+
 @NgModule({
   declarations: [
     FrontofficeComponent,
@@ -62,6 +79,7 @@ import { HealthComponent } from './health/health.component';
     HomeComponent,
     DetailTeamComponent,
     PlayerProfileComponent,
+
     TournamentsComponent,
     FieldReservationComponent,
 
@@ -93,6 +111,15 @@ import { HealthComponent } from './health/health.component';
 
      NewsComponent,
     HealthComponent,
+
+    MatchHistoryComponent,
+    ScheduleComponent,
+    FieldRecommenderComponent,
+    MatchmakingComponent,
+    PerformanceStreakComponent,
+     InjuryRiskComponent,               
+    PerformancePredictionComponent,
+
   ],
   imports: [
       CommonModule,
@@ -101,6 +128,10 @@ import { HealthComponent } from './health/health.component';
     HttpClientModule,
     FormsModule,
   ]
+  ,
+      providers: [
+         { provide: LOCALE_ID, useValue: 'fr' }  
+      ]
 })
 export class FrontofficeModule {}
  

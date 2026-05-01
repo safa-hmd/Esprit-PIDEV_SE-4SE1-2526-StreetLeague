@@ -46,3 +46,46 @@
 .is-invalid {
   border-color: #e61920 !important;
 }
+
+
+/* ── Badge statuts match ─────────────────────────────────── */
+.badge-pending  { background: #fff3cd; color: #856404;  padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+.badge-accepted { background: #d1fae5; color: #065f46;  padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+.badge-rejected { background: #fee2e2; color: #991b1b;  padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+.badge-finished { background: #dbeafe; color: #1e40af;  padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+.badge-cancelled{ background: #f3f4f6; color: #6b7280;  padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+
+/* ── Boutons Accept / Reject ─────────────────────────────── */
+.btn-accept {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-accept:hover {
+  background: #059669;
+  color: white;
+  border-color: #059669;
+}
+
+.btn-reject {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-reject:hover {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}

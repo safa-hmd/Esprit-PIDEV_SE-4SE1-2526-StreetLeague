@@ -1,0 +1,165 @@
+<div class="fr-wrapper">
+
+  <!-- ══ Header ══════════════════════════════════════════════════ -->
+  <div class="fr-header">
+    <div class="fr-header-left">
+      <div class="fr-header-icon">🤖</div>
+      <div>
+        <h2 class="fr-title">AI Field Recommender</h2>
+        <p class="fr-subtitle">
+          Neural network scores nearby fields by distance, availability &amp; weather
+        </p>
+      </div>
+    </div>
+    <button class="fr-scan-btn" (click)="loadRecommendations()" [disabled]="isLoading">
+      <span *ngIf="!isLoading">📡 Scan Near Me</span>
+      <span *ngIf="isLoading" class="fr-btn-loading">
+        <span class="fr-dot"></span><span class="fr-dot"></span><span class="fr-dot"></span>
+      </span>
+    </button>
+  </div>
+
+  <!-- ══ Alerts ══════════════════════════════════════════════════ -->
+  <div *ngIf="geoError" class="fr-alert fr-alert-warn">
+    <span class="fr-alert-icon">📍</span>
+    <span>{{ geoError }}</span>
+  </div>
+  <div *ngIf="errorMsg" class="fr-alert fr-alert-danger">
+    <span class="fr-alert-icon">⚠️</span>
+    <span>{{ errorMsg }}</span>
+  </div>
+
+  <!-- ══ Loading skeleton ════════════════════════════════════════ -->
+  <div *ngIf="isLoading" class="fr-skeleton-grid">
+    <div class="fr-skeleton-card" *ngFor="let _ of [1,2,3,4,5,6]">
+      <div class="fr-sk-line fr-sk-title"></div>
+      <div class="fr-sk-line fr-sk-sub"></div>
+      <div class="fr-sk-bar"></div>
+      <div class="fr-sk-meta"></div>
+    </div>
+  </div>
+
+  <!-- ══ Results grid ════════════════════════════════════════════ -->
+  <div *ngIf="!isLoading && fields.length > 0" class="fr-grid">
+
+    <div
+      *ngFor="let f of fields; let i = index"
+      class="fr-card"
+      [class.fr-card-selected]="selectedField?.fieldId === f.fieldId"
+      (click)="selectField(f)">
+
+      <!-- Rank badge -->
+      <div class="fr-card-rank" [ngClass]="getRecClass(f.recommendation)">
+        #{{ i + 1 }}
+      </div>
+
+      <!-- Status -->
+      <div class="fr-card-status">
+        <span class="fr-rec-badge" [ngClass]="getRecClass(f.recommendation)">
+          {{ f.recommendation }}
+        </span>
+        <span class="fr-avail-dot" [class.avail-yes]="f.fieldAvailable"
+              [class.avail-no]="!f.fieldAvailable"></span>
+      </div>
+
+      <!-- Name & location -->
+      <div class="fr-card-name">{{ f.fieldName }}</div>
+      <div class="fr-card-loc">
+        <span>📍</span> {{ f.fieldLocation }}
+      </div>
+
+      <!-- AI Score bar -->
+      <div class="fr-score-section">
+        <div class="fr-score-labels">
+          <span class="fr-score-title">AI Score</span>
+          <span class="fr-score-val" [ngClass]="getRecClass(f.recommendation)">
+            {{ getScorePercent(f.aiScore) }}%
+          </span>
+        </div>
+        <div class="fr-bar-track">
+          <div class="fr-bar-fill"
+               [ngClass]="getRecClass(f.recommendation)"
+               [style.width.%]="getScorePercent(f.aiScore)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Meta pills -->
+      <div class="fr-meta-row">
+        <span class="fr-pill">📏 {{ f.distanceKm }} km</span>
+        <span class="fr-pill">{{ getWeatherIcon(f.weather) }} {{ f.weather }}</span>
+        <span class="fr-pill">👥 {{ f.fieldCapacity }}</span>
+      </div>
+
+      <!-- Footer -->
+      <div class="fr-card-footer">
+        <span class="fr-price" *ngIf="f.pricePerHour">
+          💰 {{ f.pricePerHour }} TND/h
+        </span>
+        <span class="fr-avail" [class.avail-yes]="f.fieldAvailable" [class.avail-no]="!f.fieldAvailable">
+          {{ f.fieldAvailable ? '✅ Dispo' : '❌ Indispo' }}
+        </span>
+        <a class="fr-maps-link" [href]="getMapsLink(f)" target="_blank"
+           (click)="$event.stopPropagation()">🗺️</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ Empty state ════════════════════════════════════════════ -->
+  <div *ngIf="!isLoading && fields.length === 0 && !errorMsg && !geoError"
+       class="fr-empty">
+    <div class="fr-empty-icon">🏟️</div>
+    <div class="fr-empty-title">Aucun terrain trouvé</div>
+    <div class="fr-empty-sub">Cliquez sur "Scan Near Me" pour lancer la recherche.</div>
+  </div>
+
+  <!-- ══ Slot Panel ══════════════════════════════════════════════ -->
+  <div *ngIf="selectedField" class="fr-slot-panel">
+
+    <div class="fr-slot-header">
+      <div class="fr-slot-info">
+        <span class="fr-slot-icon">⏰</span>
+        <div>
+          <div class="fr-slot-title">Meilleurs créneaux — {{ selectedField.fieldName }}</div>
+          <div class="fr-slot-sub">Top 5 créneaux recommandés par l'IA</div>
+        </div>
+      </div>
+      <button class="fr-slot-close" (click)="selectedField = null; slots = []">✕</button>
+    </div>
+
+    <!-- Slot loading -->
+    <div *ngIf="isLoadingSlots" class="fr-slot-loading">
+      <div class="fr-spinner"></div>
+      <span>Calcul des créneaux...</span>
+    </div>
+
+    <!-- Slot cards -->
+    <div *ngIf="!isLoadingSlots && slots.length > 0" class="fr-slots-grid">
+      <div *ngFor="let s of slots; let j = index" class="fr-slot-card">
+        <div class="fr-slot-rank">#{{ j + 1 }}</div>
+        <div class="fr-slot-time">{{ s.label || (s.startTime + ' – ' + s.endTime) }}</div>
+        <div class="fr-slot-score-row">
+          <div class="fr-slot-bar-track">
+            <div class="fr-slot-bar-fill"
+                 [ngClass]="getRecClass(s.rec)"
+                 [style.width.%]="getScorePercent(s.score)"></div>
+          </div>
+          <span class="fr-slot-pct" [ngClass]="getRecClass(s.rec)">
+            {{ getScorePercent(s.score) }}%
+          </span>
+        </div>
+        <span class="fr-rec-badge" [ngClass]="getRecClass(s.rec)" style="font-size:0.68rem;">
+          {{ s.rec }}
+        </span>
+      </div>
+    </div>
+
+    <!-- No slots -->
+    <div *ngIf="!isLoadingSlots && slots.length === 0" class="fr-slot-empty">
+      Aucun créneau disponible pour ce terrain.
+    </div>
+
+  </div>
+
+</div>

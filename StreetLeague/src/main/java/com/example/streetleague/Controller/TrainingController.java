@@ -7,6 +7,7 @@ import com.example.streetleague.dto.TrainingRequest;
 import com.example.streetleague.dto.TrainingResponse;
 import com.example.streetleague.dto.TrainingUpdateRequest;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -84,5 +85,36 @@ public class TrainingController {
         User coach = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
         return trainingService.getTrainingsByCoach(coach.getIdUser());
+    }
+
+    // GET /training/myTeamTrainings?email=player@mail.com
+    @GetMapping("myTeamTrainings")
+    public List<TrainingResponse> getMyTeamTrainings(@RequestParam String email) {
+        User player = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        return trainingService.getMyTeamTrainings(player.getIdUser());
+    }
+
+
+    // POST /training/generate-from-match/1?email=coach@mail.com
+    @PostMapping("generate-from-match/{matchId}")
+    public TrainingResponse generateFromMatch(@PathVariable Long matchId,
+                                              @RequestParam String email) {
+        User coach = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        if (coach.getRole() != com.example.streetleague.domain.Role.COACH)
+            throw new RuntimeException("Only a COACH can trigger post-match training generation");
+        return trainingService.generateTrainingFromMatch(matchId);
+    }
+
+
+    @GetMapping("/upcoming-detailed")
+    public ResponseEntity<List<TrainingResponse>> getUpcomingDetailed() {
+        return ResponseEntity.ok(trainingService.getUpcomingTrainingsWithDetails());
+    }
+
+    @GetMapping("/team/{teamId}/completed")
+    public ResponseEntity<List<TrainingResponse>> getCompletedDetailed(@PathVariable Long teamId) {
+        return ResponseEntity.ok(trainingService.getCompletedTrainingsWithDetails(teamId));
     }
 }
