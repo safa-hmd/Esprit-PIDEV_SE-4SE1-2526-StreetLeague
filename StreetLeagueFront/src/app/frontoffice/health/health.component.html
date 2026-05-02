@@ -1,0 +1,572 @@
+<div class="page-content">
+
+  <!-- NOTIFICATION TOAST -->
+  <div *ngIf="showNotification" class="notification-toast">
+    <div class="notification-content">
+      <span class="notification-text">{{ notificationMessage }}</span>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <h1 class="page-title">Health & Performance</h1>
+    <p class="page-subtitle">Track your metrics and achieve your fitness goals</p>
+  </div>
+
+  <!-- METRICS -->
+  <div class="grid-3">
+    <div class="metric-card">
+      <div class="metric-icon">❤️</div>
+      <div class="metric-val">{{ heartRate }}</div>
+      <div class="metric-label">Heart Rate</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon">🔥</div>
+      <div class="metric-val">{{ calories }}</div>
+      <div class="metric-label">Calories Burned</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon">💧</div>
+      <div class="metric-val">{{ glassCount }} / {{ glassTarget }}</div>
+      <div class="metric-label">Hydration</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- GOALS SECTION                              -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="card goals-card">
+    <div class="goals-header">
+      <div class="goals-title">
+        <span class="goals-icon">🎯</span>
+        <h3>My Goals</h3>
+      </div>
+      <button class="btn-set-goal" (click)="showGoalForm = !showGoalForm">
+        {{ showGoalForm ? '✕ Cancel' : '+ Set Goals' }}
+      </button>
+    </div>
+
+    <!-- Goal Form -->
+    <div class="goal-form" *ngIf="showGoalForm">
+      <div class="goal-inputs">
+        <div class="goal-input-group">
+          <label>💧 Daily Water Goal (ml)</label>
+          <input type="number" [(ngModel)]="waterGoal" min="500" max="5000" step="100">
+          <small>Recommended: 2000 ml/day</small>
+        </div>
+        <div class="goal-input-group">
+          <label>📊 Target BMI</label>
+          <input type="number" [(ngModel)]="bmiGoal" min="15" max="35" step="0.1">
+          <small>Healthy range: 18.5 – 24.9</small>
+        </div>
+      </div>
+      <button class="btn-save-goals" (click)="saveGoals()">💾 Save Goals</button>
+    </div>
+
+    <!-- Goals Display -->
+    <div class="goals-display" *ngIf="!showGoalForm">
+      <div class="goal-item">
+        <div class="goal-item-icon">💧</div>
+        <div class="goal-item-info">
+          <p class="goal-item-label">Daily Water Goal</p>
+          <p class="goal-item-value">{{ waterGoal }} ml</p>
+        </div>
+        <div class="goal-item-status" [class.achieved]="hydrationPercentage >= 100">
+          {{ hydrationPercentage >= 100 ? '✅ Achieved' : (hydrationPercentage | number:'1.0-0') + '%' }}
+        </div>
+      </div>
+      <div class="goal-item">
+        <div class="goal-item-icon">📊</div>
+        <div class="goal-item-info">
+          <p class="goal-item-label">Target BMI</p>
+          <p class="goal-item-value">≤ {{ bmiGoal }}</p>
+        </div>
+        <div class="goal-item-status" [class.achieved]="bmiResult && +bmiResult <= bmiGoal">
+          {{ bmiResult ? (+bmiResult <= bmiGoal ? '✅ Achieved' : 'Current: ' + bmiResult) : 'Not calculated' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- WATER REMINDER                             -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="card reminder-card">
+    <div class="reminder-header">
+      <div class="reminder-title">
+        <span class="reminder-icon">💧</span>
+        <h3>Hydration Reminder</h3>
+      </div>
+      <div class="toggle-switch" [class.active]="reminderActive" (click)="toggleReminder()">
+        <div class="toggle-circle"></div>
+        <span class="toggle-label">{{ reminderActive ? 'Active' : 'Inactive' }}</span>
+      </div>
+    </div>
+
+    <div class="reminder-content">
+
+      <!-- LEFT SECTION -->
+      <div class="reminder-left">
+        <div class="frequency-section">
+          <h4>Reminder Frequency</h4>
+          <div class="freq-buttons">
+            <button [class.active]="reminderFrequency === 1"   (click)="setFrequency(1)">1<span class="unit">min</span></button>
+            <button [class.active]="reminderFrequency === 30"  (click)="setFrequency(30)">30<span class="unit">min</span></button>
+            <button [class.active]="reminderFrequency === 60"  (click)="setFrequency(60)">1<span class="unit">hour</span></button>
+            <button [class.active]="reminderFrequency === 90"  (click)="setFrequency(90)">1h30<span class="unit">min</span></button>
+            <button [class.active]="reminderFrequency === 120" (click)="setFrequency(120)">2<span class="unit">hours</span></button>
+          </div>
+        </div>
+
+        <div class="quantity-section">
+          <h4>Amount per Reminder</h4>
+          <div class="quantity-control">
+            <button class="qty-btn" (click)="changeQuantity(-50)">−</button>
+            <div class="qty-display">
+              <span class="qty-value">{{ amountPerReminder }}</span>
+              <span class="qty-unit">ml</span>
+            </div>
+            <button class="qty-btn" (click)="changeQuantity(50)">+</button>
+          </div>
+          <p class="daily-goal">Daily goal: {{ waterGoal }} ml</p>
+        </div>
+
+        <div class="button-group">
+          <button class="btn-save" (click)="saveSettings()">💾 Save</button>
+          <button class="btn-drink" (click)="drinkNow()">💧 Drink Now</button>
+        </div>
+      </div>
+
+      <!-- MIDDLE SECTION -->
+      <div class="reminder-middle">
+        <div class="glasses-section">
+          <h4>Glasses Drunk Today</h4>
+          <p class="glasses-count">{{ glassCount }} / {{ glassTarget }}</p>
+          <div class="glasses-visual">
+            <div *ngFor="let i of getGlassArray()" class="glass" [class.filled]="isGlassFilled(i)">
+              <span *ngIf="isGlassFilled(i)">✓</span>
+            </div>
+          </div>
+         <div class="glasses-numbers">
+  <span *ngFor="let i of getGlassArray(); let idx = index">{{ idx + 1 }}</span>
+</div>
+        </div>
+      </div>
+
+      <!-- RIGHT SECTION -->
+      <div class="reminder-right">
+        <div class="next-reminder-box">
+          <div class="next-reminder-icon">⏱</div>
+          <p class="next-reminder-label">Next Reminder</p>
+          <p class="next-reminder-time">{{ formatNextReminder() }}</p>
+        </div>
+
+        <div class="history-section">
+          <h4>Today's History</h4>
+          <div class="history-list">
+            <div *ngIf="drinkHistory.length === 0" class="no-history">No drinks yet</div>
+            <div *ngFor="let log of drinkHistory" class="history-item">
+              <span class="history-time">{{ log.time }}</span>
+              <span class="history-qty">{{ log.quantity }} ml ✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="history-header">
+  <h4>Today's History</h4>
+  <button class="btn-reset-history" (click)="resetTodayHistory()">🗑️ Reset</button>
+</div>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-section">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="hydrationPercentage"></div>
+      </div>
+      <p class="progress-text">{{ hydrationPercentage | number:'1.0-0' }}% of goal</p>
+    </div>
+  </div>
+
+  <!-- Streak Display — ajoute dans la reminder-card -->
+<!-- Streak — ajoute APRÈS la progress bar, DANS la reminder-card -->
+<div class="streak-section">
+  <div class="streak-item">
+    <span class="streak-fire">🔥</span>
+    <div class="streak-info">
+      <p class="streak-value">{{ currentStreak }}</p>
+      <p class="streak-label">Day Streak</p>
+    </div>
+  </div>
+  <div class="streak-divider"></div>
+  <div class="streak-item">
+    <span class="streak-fire">🏆</span>
+    <div class="streak-info">
+      <p class="streak-value">{{ longestStreak }}</p>
+      <p class="streak-label">Best Streak</p>
+    </div>
+  </div>
+  <div class="streak-message" *ngIf="currentStreak >= 3">
+    🔥 {{ currentStreak }} days in a row! Keep it up!
+  </div>
+  <div class="streak-message inactive" *ngIf="currentStreak === 0">
+    💧 Drink your daily goal to start a streak!
+  </div>
+</div>
+
+<!-- Dans weekly report, ajoute après hydration section: -->
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- BMI CALCULATOR                             -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="card bmi-card">
+    <div class="bmi-header">
+      <span class="bmi-icon">📊</span>
+      <h3>BMI Calculator</h3>
+    </div>
+
+    <div class="bmi-container">
+
+      <!-- LEFT -->
+      <div class="bmi-form-section">
+        <div class="bmi-inputs">
+          <div class="input-group">
+            <label>Weight (kg)</label>
+            <input type="number" [(ngModel)]="weight" placeholder="70"
+                   (change)="weight < 0 ? weight = 0 : null">
+          </div>
+          <div class="input-group">
+            <label>Height (cm)</label>
+            <input type="number" [(ngModel)]="height" placeholder="175"
+                   (change)="height < 0 ? height = 0 : null">
+          </div>
+        </div>
+
+        <div class="bmi-result-box" *ngIf="bmiResult" [ngClass]="'category-' + bmiCategory">
+          <div class="result-value">{{ bmiResult }}</div>
+          <div class="result-label">{{ bmiLabel }}</div>
+        </div>
+
+        <button class="btn-calculate" (click)="calculateBMI()">Calculate</button>
+        <button class="btn-reset" *ngIf="bmiResult"
+                (click)="bmiResult = ''; bmiLabel = ''; bmiCategory = ''">Reset</button>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="bmi-scale-section">
+        <h4 class="scale-title">BMI Scale</h4>
+
+        <div class="bmi-scale">
+          <div class="scale-segment insuffisant"></div>
+          <div class="scale-segment normal"></div>
+          <div class="scale-segment surpoids"></div>
+          <div class="scale-segment obesite"></div>
+          <div class="scale-indicator" [style.left.%]="getBMIPercentage()" *ngIf="bmiResult"></div>
+        </div>
+
+        <div class="scale-labels">
+          <span class="label">16</span>
+          <span class="label">18.5</span>
+          <span class="label">25</span>
+          <span class="label">30</span>
+          <span class="label">40</span>
+        </div>
+
+        <div class="bmi-categories">
+          <div class="category insuffisant">
+            <span class="cat-range">&lt; 18.5</span>
+            <span class="cat-name">Underweight</span>
+          </div>
+          <div class="category normal">
+            <span class="cat-range">18.5-24.9</span>
+            <span class="cat-name">Normal ✓</span>
+          </div>
+          <div class="category surpoids">
+            <span class="cat-range">25-29.9</span>
+            <span class="cat-name">Overweight</span>
+          </div>
+          <div class="category obesite">
+            <span class="cat-range">≥ 30</span>
+            <span class="cat-name">Obesity</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXTRA INFO -->
+    <div class="bmi-info" *ngIf="bmiResult">
+      <div class="info-divider"></div>
+      <h4 class="info-title">Additional Info</h4>
+      <div class="info-grid">
+        <div class="info-item">
+          <p class="info-label">Estimated Ideal Weight</p>
+          <p class="info-value">{{ idealWeight }} kg</p>
+        </div>
+        <div class="info-item">
+          <p class="info-label">Difference</p>
+          <p class="info-value"
+             [ngClass]="{'positive': isWeightDifferencePositive(), 'negative': isWeightDifferenceNegative()}">
+            {{ getWeightDifferenceDisplay() }} kg
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- DIET RECOMMENDATION --> 
+<div class="card bmi-card" *ngIf="bmiResult">
+  <div class="bmi-header">
+    <span class="bmi-icon">🥗</span>
+    <h3>AI Diet Recommendation</h3>
+  </div>
+  
+  <button class="btn-calculate" (click)="getDietPlan()" [disabled]="dietLoading">
+    {{ dietLoading ? '⏳ Loading...' : '🤖 Get My Diet Plan' }}
+  </button>
+  
+  <!-- ✅ Afficher les résultats quand showDiet est true -->
+  <div *ngIf="showDiet && dietResult" class="bmi-info">
+    <div class="info-divider"></div>
+    <div class="report-grid">
+      <div class="report-item">
+        <p class="report-label">Goal</p>
+        <p class="report-value">{{ dietResult.goal }}</p>
+      </div>
+      <div class="report-item">
+        <p class="report-label">Status</p>
+        <p class="report-value">{{ dietResult.status }}</p>
+      </div>
+      <div class="report-item">
+        <p class="report-label">Daily Calories</p>
+        <p class="report-value">{{ dietResult.daily_calories }} kcal</p>
+      </div>
+    </div>
+    <div class="info-divider"></div>
+    <h4 class="info-title">🍽️ Your Daily Meal Plan</h4>
+    <div class="report-goal-item" *ngFor="let meal of dietResult.diet_plan">
+      <span>{{ meal }}</span>
+    </div>
+  </div>
+</div>
+  <!-- ══════════════════════════════════════════ -->
+<!-- WEEKLY HEALTH REPORT                       -->
+<!-- ══════════════════════════════════════════ -->
+<div class="report-header">
+    <span class="report-icon">📊</span>
+    <h3>Weekly Health Report</h3>
+    <div class="report-actions">
+      <button class="btn-load-report" (click)="loadWeeklyReport()">
+        {{ showWeeklyReport ? '🔄 Refresh' : '📋 View My Report' }}
+      </button>
+      <button class="btn-download-pdf"
+              *ngIf="weeklyReport && !reportLoading"
+              (click)="downloadReportPDF()">
+        ⬇️ Download PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="reportLoading" class="report-loading">
+    <p>⏳ Loading your report...</p>
+  </div>
+
+  <!-- Report Content -->
+  <div *ngIf="showWeeklyReport && weeklyReport && !reportLoading" class="report-content">
+
+    <p class="report-period">
+      📅 {{ weeklyReport.weekStart }} → {{ weeklyReport.weekEnd }}
+    </p>
+
+    <!-- Body Metrics -->
+    <div class="report-section">
+      <h4>⚖️ Body Metrics</h4>
+      <div class="report-grid">
+        <div class="report-item">
+          <p class="report-label">Weight</p>
+          <p class="report-value">{{ weeklyReport.currentWeight }} kg</p>
+        </div>
+        <div class="report-item">
+          <p class="report-label">Height</p>
+          <p class="report-value">{{ weeklyReport.currentHeight }} cm</p>
+        </div>
+        <div class="report-item">
+          <p class="report-label">BMI</p>
+          <p class="report-value">{{ weeklyReport.currentBmi }}</p>
+        </div>
+        <div class="report-item">
+          <p class="report-label">Weight Change</p>
+          <p class="report-value"
+             [ngClass]="{
+               'positive': isWeightChangePositive(),
+               'negative': isWeightChangeNegative()
+             }">
+            {{ getWeightChangeDisplay() }} kg
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hydration -->
+    <div class="report-section">
+      <h4>💧 Hydration This Week</h4>
+      <div class="report-grid">
+        <div class="report-item">
+          <p class="report-label">Total Consumed</p>
+          <p class="report-value">{{ weeklyReport.totalWaterConsumedMl }} ml</p>
+        </div>
+        <div class="report-item">
+          <p class="report-label">Days Goal Reached</p>
+          <p class="report-value">{{ weeklyReport.daysGoalReached }} / 7</p>
+        </div>
+        <div class="report-item">
+          <p class="report-label">Daily Average</p>
+          <p class="report-value">{{ weeklyReport.avgDailyWaterMl | number:'1.0-0' }} ml</p>
+        </div>
+      </div>
+    </div>
+<div class="report-section" *ngIf="weeklyReport">
+  <h4>🔥 Water Streak</h4>
+  <div class="report-grid">
+    <div class="report-item">
+      <p class="report-label">Current Streak</p>
+      <p class="report-value">{{ weeklyReport.currentWaterStreak }} days 🔥</p>
+    </div>
+    <div class="report-item">
+      <p class="report-label">Best Streak</p>
+      <p class="report-value">{{ weeklyReport.longestWaterStreak }} days 🏆</p>
+    </div>
+  </div>
+</div>
+    <!-- Goals -->
+    <div class="report-section">
+      <h4>🎯 Goals Status</h4>
+      <div *ngFor="let goal of weeklyReport.goals" class="report-goal-item">
+        <span>{{ goal.goalType }} — Target: {{ goal.targetValue }}</span>
+        <span>{{ goal.achieved ? '✅ Achieved' : '⏳ In Progress' }}</span>
+      </div>
+      <p *ngIf="weeklyReport.goals.length === 0" class="no-data">
+        No goals set yet.
+      </p>
+    </div>
+
+    <!-- BMI History -->
+    <div class="report-section">
+      <h4>📈 BMI History This Week</h4>
+      <div *ngFor="let entry of weeklyReport.bmiHistory" class="report-bmi-row">
+        <span class="bmi-date">{{ entry.date }}</span>
+        <span>BMI: <b>{{ entry.bmi }}</b></span>
+        <span>Weight: {{ entry.weight }} kg</span>
+      </div>
+      <p *ngIf="weeklyReport.bmiHistory.length === 0" class="no-data">
+        No BMI history this week. Calculate your BMI above!
+      </p>
+    </div>
+
+  </div>
+</div>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- BADGES SECTION                             -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="card badges-card">
+    <div class="badges-header">
+      <span class="badges-icon">🏆</span>
+      <h3>My Rewards & Badges</h3>
+    </div>
+
+    <div class="badges-empty" *ngIf="badges.length === 0">
+      <p>🎯 Achieve your goals to earn badges and rewards!</p>
+      <small>7 days of water goal → spin the wheel to win prizes</small>
+    </div>
+<div class="badge-item" *ngFor="let badge of badges">
+  <div class="badge-icon-big">{{ getBadgeIcon(badge.badgeType) }}</div>
+  <p class="badge-type">{{ badge.badgeType }}</p>
+  <p class="badge-desc">{{ badge.description }}</p>
+  <p class="badge-date">{{ badge.earnedDate }}</p>
+  <button 
+    class="btn-use-badge"
+    *ngIf="getBadgeActionLabel(badge.badgeType)"
+    (click)="useBadge(badge)">
+    {{ getBadgeActionLabel(badge.badgeType) }}
+  </button>
+</div>
+  
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SPIN WHEEL — affiché si goal atteint       -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="card spin-card" *ngIf="showWheel">
+    <div class="spin-header">
+      <span class="spin-header-icon">🎡</span>
+      <h3>Congratulations! Spin the Wheel!</h3>
+      <p class="spin-subtitle">You achieved your goal — try your luck!</p>
+    </div>
+
+    <div class="wheel-container">
+
+      <!-- POINTER -->
+      <div class="wheel-pointer">▼</div>
+
+      <!-- WHEEL -->
+      <div class="wheel-wrapper">
+        <div class="wheel"
+             [style.transform]="'rotate(' + wheelRotation + 'deg)'"
+             [style.transition]="isSpinning ? 'transform 4s cubic-bezier(0.17,0.67,0.12,0.99)' : 'none'">
+
+          <!-- 6 segments -->
+       <!-- Ordre doit matcher backend: 0=BADGE, 1=DELIVERY, 2=COUPON5, 3=COUPON10, 4=RETRY, 5=RETRY -->
+<div class="segment seg-1">
+  <span class="seg-text">🏅<br>Badge</span>       <!-- index 0 -->
+</div>
+<div class="segment seg-2">
+  <span class="seg-text">🚚<br>Delivery</span>    <!-- index 1 -->
+</div>
+<div class="segment seg-3">
+  <span class="seg-text">🎟️<br>-5%</span>        <!-- index 2 -->
+</div>
+<div class="segment seg-4">
+  <span class="seg-text">🎫<br>-10%</span>        <!-- index 3 -->
+</div>
+<div class="segment seg-5">
+  <span class="seg-text">😅<br>Retry</span>       <!-- index 4 -->
+</div>
+<div class="segment seg-6">
+  <span class="seg-text">😅<br>Retry</span>       <!-- index 5 -->
+</div>
+
+          <!-- Center circle -->
+          <div class="wheel-center">🎯</div>
+        </div>
+      </div>
+
+      <!-- SPIN BUTTON -->
+      <button class="btn-spin"
+              (click)="spinWheel()"
+              [disabled]="!canSpin || isSpinning">
+        {{ isSpinning ? '🌀 Spinning...' : '🎰 SPIN!' }}
+      </button>
+
+      <!-- RESULT -->
+      <div class="spin-result-box" *ngIf="showSpinResult">
+        <p class="spin-result-text">{{ spinResult }}</p>
+        <button class="btn-spin-again" *ngIf="canSpin" (click)="spinWheel()">
+          🔄 Try Again!
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- CONGRATS MODAL -->
+<div class="congrats-overlay" *ngIf="showCongrats" (click)="showCongrats = false">
+  <div class="congrats-modal" (click)="$event.stopPropagation()">
+    <div class="congrats-emoji">🎊</div>
+    <h2>Congratulations!</h2>
+    <p>{{ congratsMessage }}</p>
+    <button class="btn-go-spin" (click)="showCongrats = false; scrollToSpin()">
+      🎡 Spin the Wheel!
+    </button>
+  </div>
+</div>

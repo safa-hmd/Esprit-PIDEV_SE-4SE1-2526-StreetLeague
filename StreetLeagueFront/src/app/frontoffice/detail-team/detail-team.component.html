@@ -1,0 +1,99 @@
+<div class="page-content">
+
+  <!-- Back -->
+  <div class="back-bar">
+    <button class="btn btn-ghost" (click)="goBack()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+        <line x1="19" y1="12" x2="5" y2="12"/>
+        <polyline points="12 19 5 12 12 5"/>
+      </svg>
+      Back to teams
+    </button>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="state-placeholder">
+    <div class="spinner-ring"></div>
+    <p>Loading team details…</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="errorMsg" class="alert alert-danger">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    {{ errorMsg }}
+  </div>
+
+  <!-- Main content -->
+  <div *ngIf="!isLoading && team" class="team-layout">
+
+    <!-- ── Header card ─────────────────────────────────── -->
+    <div class="card card-header-row">
+      <div class="header-left">
+        <div class="team-avatar">{{ (team.name || 'T')[0] }}</div>
+        <div>
+          <h1 class="team-name">{{ team.name }}</h1>
+          <div class="badge-row">
+            <span class="badge badge-red">{{ team.sport }}</span>
+            <span class="badge badge-blue">{{ team.level }}</span>
+          </div>
+          <p class="team-description">{{ team.description || 'No description provided.' }}</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <span class="meta-label">Created on</span>
+        <span class="meta-value">{{ team.creationDate | date:'dd MMM yyyy' }}</span>
+      </div>
+    </div>
+
+    <!-- ── Stats row ────────────────────────────────────── -->
+    <section>
+      <h2 class="section-heading">Team statistics</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-value">{{ team.playerCount || 0 }}</span>
+          <span class="stat-label">Members</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value accent-green">{{ team.victories || 0 }}</span>
+          <span class="stat-label">Wins</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value accent-red">{{ team.defeats || 0 }}</span>
+          <span class="stat-label">Losses</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{{ team.matches || 0 }}</span>
+          <span class="stat-label">Matches played</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Captain + Info ──────────────────────────────── -->
+    <div class="two-col">
+
+      <div class="card">
+        <h2 class="section-heading">Captain</h2>
+        <div class="captain-row">
+          <div class="avatar avatar-red">{{ (team.captainFullName || 'N')[0] }}</div>
+          <div>
+            <p class="captain-name">{{ team.captainFullName || 'Not assigned' }}</p>
+            <p class="captain-email">{{ team.captainEmail || '—' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-heading">Team info</h2>
+        <ul class="info-list">
+          <li><span class="info-key">Sport</span><span class="info-val">{{ team.sport }}</span></li>
+          <li><span class="info-key">Level</span><span class="info-val">{{ team.level }}</span></li>
+          <li class="no-border"><span class="info-key">Founded</span><span class="info-val">{{ team.creationDate | date:'MMMM yyyy' }}</span></li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+</div>

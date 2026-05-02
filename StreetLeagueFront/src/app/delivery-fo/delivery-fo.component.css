@@ -1,0 +1,265 @@
+/* ============================================================
+   StreetLeague – DeliveryFo Styles (Dark Theme — même base que BackOffice)
+   ============================================================ */
+
+:root {
+  --red:       #E61920;
+  --black:     #0A0A0A;
+  --bg:        #121212;
+  --card:      #1E1E1E;
+  --card-hover:#242424;
+  --border:    #2A2A2A;
+  --text:      #F0F0F0;
+  --muted:     #888888;
+  --sidebar-w: 240px;
+  --header-h:  57px;
+  --teal:      #4E8A9F;
+  --orange:    #E87040;
+  --coral:     #E85C7A;
+  --green:     #22c55e;
+  --blue:      #3b82f6;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); }
+
+/* ── SCROLLBAR ── */
+* { scrollbar-width: thin; scrollbar-color: var(--red) var(--card); }
+*::-webkit-scrollbar { width: 6px; }
+*::-webkit-scrollbar-track { background: var(--card); }
+*::-webkit-scrollbar-thumb { background: var(--red); border-radius: 10px; }
+
+/* ── HEADER ── */
+.dfo-header {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: #0f0f0f;
+  border-bottom: 1px solid var(--border);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1rem;
+}
+.dfo-header-left  { display: flex; align-items: center; gap: 1rem; }
+.dfo-header-right { display: flex; align-items: center; gap: 1rem; }
+
+.dfo-menu-toggle {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s; color: var(--text);
+}
+.dfo-menu-toggle:hover { background: rgba(255,255,255,0.08); }
+.dfo-menu-toggle svg { width: 20px; height: 20px; }
+
+.dfo-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.dfo-logo span:first-child { color: var(--red); }
+.dfo-logo-badge {
+  font-size: 0.7rem; font-family: 'Barlow', sans-serif;
+  background: var(--red); padding: 0.1rem 0.5rem;
+  border-radius: 4px; font-weight: 700; letter-spacing: 0;
+}
+
+.dfo-user { text-align: right; }
+.dfo-user-name { font-size: 0.88rem; font-weight: 700; }
+.dfo-user-role  { font-size: 0.72rem; color: var(--muted); }
+
+.dfo-logout-btn {
+  width: 36px; height: 36px; border-radius: 8px; color: var(--text);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.dfo-logout-btn:hover { background: rgba(230,25,32,0.15); }
+.dfo-logout-btn svg { width: 18px; height: 18px; }
+
+/* ── SIDEBAR ── */
+.dfo-sidebar {
+  position: fixed;
+  top: var(--header-h); left: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: #0f0f0f;
+  border-right: 1px solid var(--border);
+  overflow-y: auto; overflow-x: hidden;
+  transition: width 0.3s ease;
+  z-index: 900;
+}
+.dfo-sidebar.collapsed { width: 0; }
+
+.dfo-nav { padding: 1rem; }
+.dfo-nav-section-label {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--muted); padding: 0.5rem 0.75rem;
+}
+.dfo-nav-divider {
+  height: 1px; background: var(--border); margin: 0.75rem 0;
+}
+
+.dfo-link {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.65rem 0.75rem; border-radius: 8px;
+  font-size: 0.88rem; font-weight: 600; color: #aaa;
+  white-space: nowrap; transition: background 0.2s, color 0.2s;
+  margin-bottom: 0.15rem; text-decoration: none;
+}
+.dfo-link:hover     { background: rgba(255,255,255,0.06); color: #fff; }
+.dfo-link-active    { background: rgba(230,25,32,0.15) !important; color: var(--red) !important; }
+
+/* Légende statuts */
+.dfo-status-legend { padding: 0.5rem 0.75rem; }
+.dfo-legend-item {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.8rem; color: #aaa; margin-bottom: 0.4rem;
+}
+.dfo-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.dfo-dot.orange { background: var(--orange); }
+.dfo-dot.blue   { background: var(--blue); }
+.dfo-dot.green  { background: var(--green); }
+.dfo-dot.red    { background: var(--red); }
+
+/* ── OVERLAY (mobile) ── */
+.dfo-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 850;
+  background: rgba(0,0,0,0.5);
+}
+@media (max-width: 768px) {
+  .dfo-overlay { display: block; }
+}
+
+/* ── MAIN ── */
+.dfo-main {
+  margin-top: var(--header-h);
+  margin-left: 0;
+  padding: 1.5rem;
+  min-height: calc(100vh - var(--header-h));
+  transition: margin-left 0.3s ease;
+  background: var(--bg);
+}
+.dfo-main.sidebar-open { margin-left: var(--sidebar-w); }
+
+@media (max-width: 768px) {
+  .dfo-main.sidebar-open { margin-left: 0; }
+}
+
+/* ── CARDS & TABLE (réutilisés du backoffice) ── */
+.dfo-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.dfo-card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 0.75rem;
+}
+.dfo-card-title { font-size: 0.95rem; font-weight: 700; }
+.dfo-card-body  { padding: 1.25rem; }
+
+/* Stats */
+.dfo-stat-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem; margin-bottom: 1.5rem;
+}
+.dfo-stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 1rem;
+  display: flex; align-items: center; gap: 0.85rem;
+}
+.dfo-stat-icon {
+  width: 42px; height: 42px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.dfo-stat-val   { font-size: 1.4rem; font-weight: 800; }
+.dfo-stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+
+/* Table */
+.dfo-table-wrap { overflow-x: auto; }
+.dfo-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.dfo-table th {
+  text-align: left; padding: 0.75rem 1rem;
+  font-size: 0.75rem; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.dfo-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.dfo-table tr:last-child td { border-bottom: none; }
+.dfo-table tr:hover td { background: var(--card-hover); }
+
+/* Badges */
+.dfo-badge {
+  display: inline-block; padding: 0.2rem 0.65rem;
+  border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+}
+.dfo-badge-orange { background: rgba(232,112,64,0.18); color: var(--orange); }
+.dfo-badge-blue   { background: rgba(59,130,246,0.18); color: var(--blue); }
+.dfo-badge-green  { background: rgba(34,197,94,0.15);  color: var(--green); }
+.dfo-badge-red    { background: rgba(230,25,32,0.18);  color: var(--red); }
+.dfo-badge-gray   { background: rgba(136,136,136,0.15);color: var(--muted); }
+
+/* Buttons */
+.dfo-btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.45rem 1rem; border-radius: 8px;
+  font-size: 0.85rem; font-weight: 600;
+  transition: all 0.15s; cursor: pointer; border: none;
+}
+.dfo-btn-primary { background: var(--red); color: white; }
+.dfo-btn-primary:hover { background: #c0141a; }
+.dfo-btn-ghost {
+  background: transparent; color: #aaa;
+  border: 1px solid var(--border);
+}
+.dfo-btn-ghost:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.dfo-btn-sm { padding: 0.3rem 0.7rem; font-size: 0.8rem; }
+
+/* Form controls */
+.dfo-select {
+  background: #2a2a2a; border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.4rem 0.6rem;
+  color: var(--text); font-size: 0.82rem;
+  cursor: pointer; outline: none;
+}
+.dfo-select:focus { border-color: var(--red); }
+
+/* Page header */
+.dfo-page-header { margin-bottom: 1.5rem; }
+.dfo-page-title    { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.25rem; }
+.dfo-page-subtitle { font-size: 0.88rem; color: var(--muted); }
+
+/* Notifications */
+.dfo-alert {
+  padding: 0.75rem 1rem; border-radius: 8px;
+  margin-bottom: 1rem; font-size: 0.88rem; font-weight: 600;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.dfo-alert-success { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.dfo-alert-error   { background: rgba(230,25,32,0.12);  color: var(--red);   border: 1px solid rgba(230,25,32,0.3); }
+
+/* Status action buttons */
+.dfo-status-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.dfo-status-btn {
+  padding: 0.3rem 0.75rem; border-radius: 20px;
+  font-size: 0.78rem; font-weight: 700; cursor: pointer;
+  border: 1.5px solid transparent; transition: all 0.15s;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.dfo-status-btn:disabled { opacity: 0.4; cursor: default; }
+.dfo-status-btn.active-PREPAREE  { background: rgba(232,112,64,0.2); color: var(--orange); border-color: var(--orange); }
+.dfo-status-btn.active-EXPEDIEE  { background: rgba(59,130,246,0.2); color: var(--blue);   border-color: var(--blue); }
+.dfo-status-btn.active-EN_COURS  { background: rgba(59,130,246,0.2); color: var(--blue);   border-color: var(--blue); }
+.dfo-status-btn.active-LIVREE    { background: rgba(34,197,94,0.2);  color: var(--green);  border-color: var(--green); }
+.dfo-status-btn.active-ECHEC     { background: rgba(230,25,32,0.2);  color: var(--red);    border-color: var(--red); }
+.dfo-status-btn:not(:disabled):hover { opacity: 0.8; transform: scale(1.03); }

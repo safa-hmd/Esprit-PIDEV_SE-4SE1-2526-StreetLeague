@@ -53,11 +53,11 @@ ng serve
 | Name | Role |
 |------|------|
 | Safa Hamdi | Developer |
-| Malek Messaoudi | Developer |
+| Malek Messaoui | Developer |
 | Houssem Dridi | Developer |
 | Sarra Ouertani | Developer |
-| Iyed Essid | Developer |
 | Rania BenSalem | Developer |
+| Iyed Essid | Developer |
 
 **Supervised by:** Ms. Chahnez Sardouk & Ms. Sirine Naifar
 

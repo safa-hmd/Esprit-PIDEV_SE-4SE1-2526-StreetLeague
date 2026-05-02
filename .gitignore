@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 venv/ 
 __pycache__/ 
 *.pyc 
@@ -11,3 +12,30 @@ target/
 *.txt 
 *.log 
 *.pkl 
+=======
+# Spring Boot
+StreetLeague/target/
+StreetLeague/*.jar
+StreetLeague/.mvn/
+
+# Angular
+StreetLeagueFront/node_modules/
+StreetLeagueFront/dist/
+StreetLeagueFront/.angular/
+
+<<<<<<< HEAD
+# Flask API
+flask_api/venv/
+flask_api/__pycache__/
+flask_api/*.pyc
+flask_api/models/*.pkl
+flask_api/streetleague_dynamic_pricing.csv
+
+=======
+>>>>>>> feature/newsHealth
+# Python général
+venv/
+env/
+__pycache__/
+*.pyc
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

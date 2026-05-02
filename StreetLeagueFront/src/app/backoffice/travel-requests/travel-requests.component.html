@@ -1,0 +1,139 @@
+<div class="travel-requests-container" style="background-color: #f5f5f5; min-height: 100vh; padding: 2rem;">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-dark font-weight-bold"><i class="fas fa-route text-danger me-2"></i> Travel Requests Management (Transport)</h2>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMessage" class="alert alert-danger shadow-sm border-0 mb-3 rounded-lg">
+    <i class="fas fa-exclamation-triangle me-2"></i> {{ errorMessage }}
+  </div>
+  <div *ngIf="successMessage" class="alert alert-success shadow-sm border-0 mb-3 rounded-lg">
+    <i class="fas fa-check-circle me-2"></i> {{ successMessage }}
+  </div>
+
+  <!-- Main Table -->
+  <div class="card border-0 shadow-sm rounded-lg overflow-hidden bg-white">
+    <div class="table-responsive">
+      <table *ngIf="requests.length > 0" class="table table-hover mb-0">
+        <thead class="bg-light">
+          <tr class="text-muted small text-uppercase font-weight-bold">
+            <th class="px-4 py-3">Team & Coach</th>
+            <th class="px-4 py-3">Tournament</th>
+            <th class="px-4 py-3">Transport Type</th>
+            <th class="px-4 py-3 text-center">Members</th>
+            <th class="px-4 py-3 text-end">Total Price</th>
+            <th class="px-4 py-3 text-center">Status</th>
+            <th class="px-4 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let req of requests" class="align-middle border-top" 
+              [style.background-color]="req.status === 'PENDING' ? '#fff' : '#f8f9fa'">
+            <td class="px-4 py-3">
+              <div class="text-dark font-weight-bold">{{ req.teamName }}</div>
+              <div class="text-muted small">{{ req.teamCity }}</div>
+            </td>
+            <td class="px-4 py-3">
+              <div class="text-dark">{{ req.tournament?.name }}</div>
+              <div class="text-muted small">{{ req.tournament?.city }}</div>
+            </td>
+            <td class="px-4 py-3">
+              <span class="badge" [ngClass]="{
+                'bg-primary': req.transport?.type === 'BUS',
+                'bg-info': req.transport?.type === 'VAN',
+                'bg-warning text-dark': req.transport?.type === 'PRIVATE_CAR'
+              }">
+                {{ req.transport?.type || 'N/A' }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-center">
+              <span class="badge bg-light text-dark border">{{ req.selectedMemberIds?.length || 0 }} players</span>
+            </td>
+            <td class="px-4 py-3 text-end font-weight-bold text-danger">
+              {{ req.totalAmount | currency:'TND':'code' }}
+            </td>
+            <td class="px-4 py-3 text-center">
+              <span [class]="'badge shadow-sm rounded-pill ' + (req.status === 'APPROVED' ? 'bg-success' : (req.status === 'REJECTED' ? 'bg-danger' : 'bg-warning text-dark'))">
+                {{ req.status || 'PENDING' }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <div class="d-flex gap-2" *ngIf="req.status === 'PENDING'; else decisionActions">
+                <button class="btn btn-sm btn-success shadow-sm" (click)="openApproveModal(req)">
+                  ✓ APPROVE
+                </button>
+                <button class="btn btn-sm btn-outline-danger shadow-sm" (click)="openRejectModal(req)">
+                  ✗ REJECT
+                </button>
+              </div>
+              <ng-template #decisionActions>
+                <button class="btn btn-sm btn-secondary shadow-sm" (click)="downloadPdf(req.id)">
+                  <i class="fas fa-file-pdf me-1"></i> PDF
+                </button>
+              </ng-template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="requests.length === 0 && !loading" class="text-center py-5">
+      <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+      <h5 class="text-muted">No travel requests found.</h5>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center py-5">
+      <div class="spinner-border text-danger"></div>
+      <p class="mt-3 text-muted">Accessing logistics data...</p>
+    </div>
+  </div>
+
+  <!-- APPROVE MODAL -->
+  <div *ngIf="showApproveModal" class="modal-overlay" 
+       style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; display: flex; align-items: center; justify-content: center;">
+    <div class="modal-content border-0 shadow-lg rounded-lg bg-white p-4" style="max-width: 500px; width: 90%;">
+        <h4 class="font-weight-bold text-dark mb-3 border-bottom pb-2">Approve Travel Request</h4>
+        <div class="modal-body mb-4 bg-light p-3 rounded">
+            <p class="mb-2 text-dark"><strong>Team:</strong> {{ selectedRequest?.teamName }}</p>
+            <p class="mb-2 text-dark"><strong>Tournament:</strong> {{ selectedRequest?.tournament?.name }} ({{ selectedRequest?.tournament?.city }})</p>
+            <p class="mb-0 text-dark"><strong>Total Price:</strong> <span class="text-danger font-weight-bold">{{ selectedRequest?.totalAmount | currency:'TND':'code' }}</span></p>
+        </div>
+        <div class="mb-4">
+            <label class="form-label font-weight-bold text-muted small text-uppercase">Admin Comment (Optional)</label>
+            <textarea class="form-control bg-light border-0 rounded-lg" [(ngModel)]="adminComment" rows="3" placeholder="Add instructions for the coach..."></textarea>
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+            <button class="btn btn-light" (click)="closeModals()">Cancel</button>
+            <button class="btn btn-success px-4 shadow-sm" (click)="confirmApprove()" [disabled]="loading">
+               {{ loading ? 'Processing...' : 'Confirm Approve' }}
+            </button>
+        </div>
+    </div>
+  </div>
+
+  <!-- REJECT MODAL -->
+  <div *ngIf="showRejectModal" class="modal-overlay" 
+       style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; display: flex; align-items: center; justify-content: center;">
+    <div class="modal-content border-0 shadow-lg rounded-lg bg-white p-4" style="max-width: 500px; width: 90%;">
+        <h4 class="font-weight-bold text-dark mb-3 border-bottom pb-2 text-danger">Reject Travel Request</h4>
+        <div class="modal-body mb-4 bg-light p-3 rounded">
+            <p class="mb-2 text-dark"><strong>Team:</strong> {{ selectedRequest?.teamName }}</p>
+            <p class="mb-0 text-dark"><strong>Members:</strong> {{ selectedRequest?.selectedMemberIds?.length || 0 }} players</p>
+        </div>
+        <div class="mb-4">
+            <label class="form-label font-weight-bold text-muted small text-uppercase">Reason for Rejection (Required)</label>
+            <textarea class="form-control bg-light border-0 rounded-lg" [(ngModel)]="adminComment" rows="3" placeholder="Explain why this request is being rejected..."></textarea>
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+            <button class="btn btn-light" (click)="closeModals()">Cancel</button>
+            <button class="btn btn-danger px-4 shadow-sm" (click)="confirmReject()" [disabled]="loading || !adminComment.trim()">
+               {{ loading ? 'Processing...' : 'Confirm Reject' }}
+            </button>
+        </div>
+    </div>
+  </div>
+
+</div>

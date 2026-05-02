@@ -1,65 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
-
 import { AdminLoginComponent } from './admin-login.component';
-import { AuthService } from 'src/app/services/auth.service';
 
 describe('AdminLoginComponent', () => {
   let component: AdminLoginComponent;
   let fixture: ComponentFixture<AdminLoginComponent>;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-
-  const mockAdminResponse = {
-    token: 'admin-token',
-    email: 'admin@test.com',
-    role: 'ROLE_ADMIN',
-    idUser: 1
-  };
-
-  const mockPlayerResponse = {
-    token: 'player-token',
-    email: 'player@test.com',
-    role: 'PLAYER',
-    idUser: 2
-  };
 
   beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['login', 'logout', 'normalizeRole', 'readRoleFromJwt']);
-    authServiceSpy.readRoleFromJwt.and.returnValue(null);
-    authServiceSpy.normalizeRole.and.callFake((role: string | null) => {
-      if (!role) return null;
-      const r = role.trim();
-      if (!r) return null;
-      const upper = r.toUpperCase();
-      if (upper.startsWith('ROLE_')) {
-        return 'ROLE_' + upper.slice(5);
-      }
-      return 'ROLE_' + upper;
-    });
-    routerSpy      = jasmine.createSpyObj('Router', ['navigateByUrl']);
-
     TestBed.configureTestingModule({
       declarations: [AdminLoginComponent],
-      imports:      [ReactiveFormsModule],
-      providers: [
-        { provide: AuthService, useValue: authServiceSpy },
-        { provide: Router,      useValue: routerSpy      }
-      ]
+      imports: [HttpClientTestingModule, RouterTestingModule, ReactiveFormsModule]
     });
-
-    fixture   = TestBed.createComponent(AdminLoginComponent);
+    fixture = TestBed.createComponent(AdminLoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  // ── create ────────────────────────────────────────────────
-
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+<<<<<<< HEAD
 
   // ── form initial state ────────────────────────────────────
 
@@ -200,4 +162,6 @@ describe('AdminLoginComponent', () => {
 
     expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
   });
+=======
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
 });

@@ -1,53 +1,36 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
-
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 import { SelectRoleComponent } from './select-role.component';
 
 describe('SelectRoleComponent', () => {
   let component: SelectRoleComponent;
   let fixture: ComponentFixture<SelectRoleComponent>;
-  let httpMock: HttpTestingController;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let queryParamsSubject: Subject<any>;
-
-  const API_URL = 'http://localhost:8086/StreetLeague/auth/complete-google-register';
 
   beforeEach(() => {
-    routerSpy          = jasmine.createSpyObj('Router', ['navigateByUrl']);
-    queryParamsSubject = new Subject<any>();
-
     TestBed.configureTestingModule({
       declarations: [SelectRoleComponent],
-      imports:      [HttpClientTestingModule],
+      imports: [RouterTestingModule, HttpClientTestingModule],
       providers: [
-        { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
-          useValue: { queryParams: queryParamsSubject.asObservable() }
+          useValue: {
+            queryParams: of({ role: 'PLAYER' })
+          }
         }
       ]
     });
-
-    fixture   = TestBed.createComponent(SelectRoleComponent);
+    fixture = TestBed.createComponent(SelectRoleComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-
-    httpMock = TestBed.inject(HttpTestingController);
-    localStorage.clear();
   });
-
-  afterEach(() => {
-    httpMock.verify();
-    localStorage.clear();
-  });
-
-  // ── create ────────────────────────────────────────────────
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+<<<<<<< HEAD
 
   // ── initial state ─────────────────────────────────────────
 
@@ -213,3 +196,6 @@ describe('SelectRoleComponent', () => {
   });
 });
 
+=======
+});
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

@@ -16,7 +16,13 @@ export interface TournamentDto {
   endDate: string;               // yyyy-MM-dd
   registrationDeadline: string;  // yyyy-MM-dd
   maxParticipants: number;
+<<<<<<< HEAD
   lieu: string;
+=======
+  fieldId?: number;        // ✅
+  fieldName?: string;      // ✅
+  fieldLocation?: string;  // ✅
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
   prizePool?: number;
   registeredCount?: number;
 }

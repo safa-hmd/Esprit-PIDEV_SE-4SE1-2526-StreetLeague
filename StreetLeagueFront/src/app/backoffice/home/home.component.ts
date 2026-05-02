@@ -6,6 +6,16 @@ import { TrainingService } from 'src/app/services/training.service';
 import { Team } from 'src/app/models/team.model';
 import { MatchResponse } from 'src/app/models/match.model';
 import { TrainingResponse } from 'src/app/models/training.model';
+import {
+  FinancialSummary,
+  RevenueByField,
+  RevenueBySport,
+  RevenueByMonth,
+  TopPlayer
+} from 'src/app/models/dashboard.model';
+import { DashboardService } from 'src/app/services/dashboard.service';
+
+
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -17,16 +27,34 @@ Chart.register(...registerables);
 })
 export class HomeComponent implements OnInit, AfterViewInit {
 
+  //── ViewChild safa ────────────────────────────────────
   @ViewChild('matchStatusChart') matchStatusRef!: ElementRef;
   @ViewChild('trainingStatusChart') trainingStatusRef!: ElementRef;
   @ViewChild('sportChart') sportChartRef!: ElementRef;
   @ViewChild('playerChart') playerChartRef!: ElementRef;
 
-  // ── Stats ─────────────────────────────────────────────────
+    // ── ViewChild Sara ────────────────────────────────────────
+  @ViewChild('revenueByFieldChart') revenueByFieldRef!: ElementRef;
+  @ViewChild('revenueBySportChart') revenueBySportRef!: ElementRef;
+  @ViewChild('revenueByDayChart') revenueByMonthRef!: ElementRef;
+
+  // ── Stats safa─────────────────────────────────────────────────
   totalTeams     = 0;
   totalMatches   = 0;
   totalTrainings = 0;
   totalPlayers   = 0;
+
+    // ── Stats Sara ────────────────────────────────────────────
+  financialSummary: FinancialSummary = {
+    totalRevenue: 0,
+    totalPayments: 0,
+    totalRefunds: 0,
+    pendingCount: 0
+  };
+  revenueByField:  RevenueByField[]  = [];
+  revenueBySport:  RevenueBySport[]  = [];
+  revenueByMonth:  RevenueByMonth[]  = [];
+  topPlayers:      TopPlayer[]       = [];
 
   // ── Recent Data ───────────────────────────────────────────
   recentMatches:   MatchResponse[]    = [];
@@ -42,6 +70,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   isLoadingTeams     = false;
   isLoadingMatches   = false;
   isLoadingTrainings = false;
+  isLoadingDashboard  = false;
 
   dataReady = false;
   adminName = '';
@@ -52,7 +81,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private router: Router,
     private teamService: TeamService,
     private matchService: MatchService,
-    private trainingService: TrainingService
+    private trainingService: TrainingService,
+    private dashboardService: DashboardService
   ) {}
 
   ngOnInit(): void {
@@ -67,6 +97,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.isLoadingTeams = true;
     this.isLoadingMatches = true;
     this.isLoadingTrainings = true;
+    this.isLoadingDashboard = true;
 
     this.teamService.getAllTeams().subscribe({
       next: (data) => {
@@ -101,6 +132,36 @@ export class HomeComponent implements OnInit, AfterViewInit {
       },
       error: () => { this.isLoadingTrainings = false; this.checkReady(); }
     });
+        // ── Dashboard financier ───────────────────────────────
+    this.dashboardService.getSummary().subscribe({
+      next: (data) => { this.financialSummary = data; },
+      error: () => {}
+    });
+        this.dashboardService.getRevenueByField().subscribe({
+      next: (data) => { this.revenueByField = data; },
+      error: () => {}
+    });
+
+    this.dashboardService.getRevenueBySport().subscribe({
+      next: (data) => { this.revenueBySport = data; },
+      error: () => {}
+    });
+
+    this.dashboardService.getRevenueByMonth().subscribe({
+      next: (data) => { this.revenueByMonth = data; },
+      error: () => {}
+    });
+
+    this.dashboardService.getTopPlayers().subscribe({
+      next: (data) => {
+        this.topPlayers = data;
+        this.isLoadingDashboard = false;
+        this.checkReady();
+      },
+      error: () => { this.isLoadingDashboard = false; this.checkReady(); }
+    });
+
+    
   }
 
   private checkReady(): void {
@@ -114,12 +175,18 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private buildCharts(): void {
     this.charts.forEach(c => c.destroy());
     this.charts = [];
+    //safa
     this.buildMatchStatusChart();
     this.buildTrainingStatusChart();
     this.buildSportChart();
     this.buildPlayerChart();
+        // Sara
+    this.buildRevenueByFieldChart();
+    this.buildRevenueBySportChart();
+    this.buildRevenueByMonthChart();
   }
 
+    // ── Charts safaa ───────────────────────────
   private buildMatchStatusChart(): void {
     const counts = {
       SCHEDULED: this.allMatches.filter(m => m.statut === 'SCHEDULED').length,
@@ -238,11 +305,93 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }));
   }
 
+    // ── Charts Sara ───────────────────────────────────────────
+  private buildRevenueByFieldChart(): void {
+  const ctx = this.revenueByFieldRef?.nativeElement;
+  if (!ctx) return;
+  const colors = ['#e63946', '#4e8a9f', '#4ade80', '#fbbf24', '#c2748a', '#e87040'];
+  this.charts.push(new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: this.revenueByField.map(r => r.fieldName),
+      datasets: [{
+        label: 'Revenue (TND)',
+        data: this.revenueByField.map(r => r.revenue),
+        backgroundColor: this.revenueByField.map((_, i) => colors[i % colors.length]),
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' } },
+        y: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' }, beginAtZero: true }
+      }
+    }
+  }));
+}
+
+  private buildRevenueBySportChart(): void {
+    const ctx = this.revenueBySportRef?.nativeElement;
+    if (!ctx) return;
+    const colors = ['#e63946','#4e8a9f','#4ade80','#fbbf24','#c2748a','#e87040'];
+    this.charts.push(new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: this.revenueBySport.map(r => r.sportType),
+        datasets: [{
+          data: this.revenueBySport.map(r => r.revenue),
+          backgroundColor: colors.slice(0, this.revenueBySport.length),
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { color: '#aaa', font: { size: 11 } } } }
+      }
+    }));
+  }
+
+  private buildRevenueByMonthChart(): void {
+    const ctx = this.revenueByMonthRef?.nativeElement;
+    if (!ctx) return;
+    this.charts.push(new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: this.revenueByMonth.map(r => r.month),  // ← déjà "2026-04-21" après fix backend
+        datasets: [{
+          label: 'Revenue by Day (TND)',  // ✅ changer le label
+          data: this.revenueByMonth.map(r => r.revenue),
+          borderColor: '#e63946',
+          backgroundColor: 'rgba(230,57,70,0.1)',
+          pointBackgroundColor: '#e63946',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' } },
+          y: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' }, beginAtZero: true }
+        }
+      }
+    }));
+  }
+
   // ── Navigation ────────────────────────────────────────────
   goTo(path: string): void { this.router.navigate([path]); }
 
+<<<<<<< HEAD
   // ── Helpers ───────────────────────────────────────────────
   getMatchStatusClass(statut: string): string {
+=======
+  // ── Helpers safaa ───────────────────────────────────────────────
+  getMatchStatusClass(status: string): string {
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
     switch (status) {
       case 'SCHEDULED': return 'badge-scheduled';
       case 'ONGOING':   return 'badge-ongoing';

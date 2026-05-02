@@ -1,0 +1,77 @@
+<div class="bracket-view">
+
+  <div class="view-header">
+    <h2>🏆 {{ bracket?.tournamentName }}</h2>
+    <div class="toggle-btns">
+      <button [class.active]="viewMode === 'tree'"  (click)="viewMode = 'tree'">🌲 Tree</button>
+      <button [class.active]="viewMode === 'table'" (click)="viewMode = 'table'">📋 Table</button>
+    </div>
+  </div>
+
+  <div class="loader" *ngIf="loading">Loading bracket...</div>
+
+  <div class="empty" *ngIf="!loading && !bracket">
+    <p>The bracket is not available yet.</p>
+  </div>
+
+  <!-- TREE VIEW -->
+  <div class="tree-view" *ngIf="bracket && viewMode === 'tree'">
+    <div class="rounds-wrap">
+      <div class="round-col" *ngFor="let r of rounds">
+        <div class="round-title">{{ roundLabel(r) }}</div>
+        <div class="match-box" *ngFor="let match of getMatches(r)"
+             [class.completed]="match.status === 'COMPLETED'"
+             [class.bye]="match.status === 'BYE'">
+
+          <div *ngIf="match.status === 'BYE'" class="bye-label">BYE — automatic pass</div>
+
+          <ng-container *ngIf="match.status !== 'BYE'">
+            <div class="player-row" [class.is-winner]="match.winner?.id === match.participantA?.id">
+              {{ match.participantA?.name ?? 'TBD' }}
+              <span *ngIf="match.winner?.id === match.participantA?.id" class="crown">👑</span>
+            </div>
+            <div class="divider"></div>
+            <div class="player-row" [class.is-winner]="match.winner?.id === match.participantB?.id">
+              {{ match.participantB?.name ?? 'TBD' }}
+              <span *ngIf="match.winner?.id === match.participantB?.id" class="crown">👑</span>
+            </div>
+            <div class="match-meta" *ngIf="match.matchDate">
+              📅 {{ match.matchDate | date:'dd MMM, HH:mm' }}
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE VIEW -->
+  <div class="table-view" *ngIf="bracket && viewMode === 'table'">
+    <div class="round-block" *ngFor="let r of rounds">
+      <h3>{{ roundLabel(r) }}</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Match</th><th>Participant A</th><th>Participant B</th>
+            <th>Status</th><th>Winner</th><th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let match of getMatches(r)">
+            <td>#{{ match.position + 1 }}</td>
+            <td [class.bold]="match.winner?.id === match.participantA?.id">
+              {{ match.participantA?.name ?? '—' }}
+            </td>
+            <td [class.bold]="match.winner?.id === match.participantB?.id">
+              {{ match.status === 'BYE' ? 'BYE' : (match.participantB?.name ?? '—') }}
+            </td>
+            <td>
+              <span class="status-chip" [attr.data-status]="match.status">{{ match.status }}</span>
+            </td>
+            <td>{{ match.winner?.name ?? '—' }}</td>
+            <td>{{ match.matchDate ? (match.matchDate | date:'dd/MM HH:mm') : '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

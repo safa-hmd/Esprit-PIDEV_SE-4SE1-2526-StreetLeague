@@ -1,0 +1,98 @@
+<div class="coach-travel-page">
+  <div *ngIf="successMessage" class="page-success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="page-error">{{ errorMessage }}</div>
+
+  <!-- SECTION 1: Transports -->
+  <div class="section-container" *ngIf="!sameCity">
+    <h2 class="section-title">AVAILABLE TRANSPORTS</h2>
+    <div class="cards-grid">
+      <div class="travel-card" *ngFor="let t of transports" [class.selected]="selectedTransportId === t.id">
+        <div class="card-header">
+          <span class="card-type">{{ t.type }}</span>
+          <span class="card-price">{{ t.pricePerSeat }} TND</span>
+        </div>
+        <div class="card-body">
+          <p><strong>Destination:</strong> {{ t.destination }}</p>
+          <p><strong>Departure:</strong> {{ t.departureTime | date:'short' }}</p>
+          <p><strong>Return:</strong> {{ t.returnTime | date:'short' }}</p>
+        </div>
+        <div class="card-footer">
+          <button type="button" class="select-btn" (click)="onTransportSelect(t.id)">
+            {{ selectedTransportId === t.id ? 'SELECTED' : 'SELECT' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warning-box" *ngIf="sameCity">
+    Transport not available — your team is in the same city.
+  </div>
+
+  <!-- SECTION 2: Accommodations -->
+  <div class="section-container mt-32">
+    <h2 class="section-title">AVAILABLE ACCOMMODATIONS</h2>
+    <div class="info-box" *ngIf="sameCity">
+      Accommodation is mandatory for same-city teams.
+    </div>
+    <div class="cards-grid">
+      <div class="travel-card" *ngFor="let a of accommodations" [class.selected]="selectedAccommodationId === a.id">
+        <div class="card-header">
+          <span class="card-type">{{ a.type }}</span>
+          <span class="card-price">{{ a.pricePerNight }} TND / night</span>
+        </div>
+        <div class="card-body">
+          <p><strong>Formula:</strong> {{ a.formula }}</p>
+          <p><strong>Nights:</strong> {{ a.numberOfNights }}</p>
+        </div>
+        <div class="card-footer">
+          <button type="button" class="select-btn" (click)="onAccommodationSelect(a.id)">
+            {{ selectedAccommodationId === a.id ? 'SELECTED' : 'SELECT' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Submit -->
+  <div class="submit-section mt-32">
+    <h2 class="section-title">SUBMIT YOUR REQUEST</h2>
+    <div class="summary-box">
+      <p><strong>Transport:</strong> {{ sameCity ? 'None — same city' : (selectedTransportId ? 'Selected (#TR-' + selectedTransportId + ')' : 'Pending Selection') }}</p>
+      <p><strong>Accommodation:</strong> {{ selectedAccommodationId ? 'Selected (#SL-' + selectedAccommodationId + ')' : 'Pending Selection' }}</p>
+    </div>
+    <button type="button" class="submit-request-btn" (click)="submitRequest()">SUBMIT REQUEST</button>
+  </div>
+
+  <!-- SECTION 4: My Requests -->
+  <div class="section-container mt-32">
+    <h2 class="section-title">MY REQUESTS</h2>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>TOURNAMENT</th>
+            <th>STATUS</th>
+            <th>TOTAL</th>
+            <th>COMMENT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of myRequests">
+            <td>#REQ-{{ r.id }}</td>
+            <td>Tournament #{{ r.tournamentId }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="r.status?.toLowerCase()">{{ r.status }}</span>
+            </td>
+            <td>{{ r.totalCost || '0.00' }} TND</td>
+            <td>{{ r.comment }}</td>
+          </tr>
+          <tr *ngIf="myRequests.length === 0">
+            <td colspan="5" class="empty-cell">No requests found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -9,7 +9,7 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
   return password === confirmPassword ? null : { passwordMismatch: true };
 };
 
-type Role = 'PLAYER' | 'COACH' | 'SPONSOR' | 'DELIVERY' | 'ADMIN';
+type Role = 'PLAYER' |  'COACH' | 'SPONSOR' | 'DELIVERY';
 
 @Component({
   selector: 'app-register',
@@ -32,7 +32,6 @@ export class RegisterComponent {
     COACH:    'Coach',
     SPONSOR:  'Sponsor',
     DELIVERY: 'Delivery',
-    ADMIN:    'Admin',
   };
 
   private emailPlaceholders: Record<Role, string> = {
@@ -40,7 +39,6 @@ export class RegisterComponent {
     COACH:    'coach@streetleague.com',
     SPONSOR:  'sponsor@streetleague.com',
     DELIVERY: 'delivery@streetleague.com',
-    ADMIN:    'admin@streetleague.com',
   };
 
   get roleLabel():        string { return this.roleLabels[this.selectedRole]; }
@@ -92,6 +90,7 @@ export class RegisterComponent {
     this.authService.register({ fullName, email, password, role: this.selectedRole }).subscribe({
       next: () => {
         this.isLoading = false;
+<<<<<<< HEAD
         const isAdmin = this.selectedRole === 'ADMIN';
         this.successMessage = isAdmin
           ? 'Compte créé ! Redirection vers la login administrateur…'
@@ -106,6 +105,14 @@ export class RegisterComponent {
           (typeof body === 'object' && body !== null && 'message' in body && (body as { message?: string }).message) ||
           (typeof body === 'object' && body !== null && 'error' in body && String((body as { error?: unknown }).error)) ||
           'Une erreur est survenue. Please réessayer.';
+=======
+        this.successMessage = 'Compte créé ! Redirection vers la connexion…';
+        setTimeout(() => this.router.navigate(['/login']), 1500);
+      },
+      error: (error) => {
+        this.isLoading    = false;
+        this.errorMessage = error?.error?.message || 'Une erreur est survenue. Veuillez réessayer.';
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
         console.error(error);
       },
     });

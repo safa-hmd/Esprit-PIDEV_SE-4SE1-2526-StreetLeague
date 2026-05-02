@@ -85,6 +85,7 @@
       <div class="col-inscription">Entry Fee</div>
       <!--<div class="col-revenue">Revenue</div>-->
       <div class="col-actions">Actions</div>
+      
     </div>
 
     <!-- Table rows -->
@@ -99,7 +100,11 @@
             {{ svc.statutLabel(t.status!) }}
           </span>
         </div>
+<<<<<<< HEAD
         <div class="row-location" *ngIf="t.lieu">📍 {{ t.lieu }}</div>
+=======
+        <div class="row-fieldName" *ngIf="t.fieldName">📍 {{ t.fieldName }}</div>
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
       </div>
 
       <!-- Dates -->
@@ -138,6 +143,13 @@
 
       <!-- Actions -->
       <div class="col-actions">
+        <!-- Bracket -->
+      <button class="action-btn edit"
+         *ngIf="t.status === 'ONGOING' || t.status === 'UPCOMING'"
+           (click)="router.navigate(['/admin/tournaments', t.id, 'bracket'])"
+         title="Bracket">
+            🏆 Bracket
+    </button>
 
         <!-- Status labels (no-upcoming) -->
         <span class="action-state" *ngIf="t.status === 'ONGOING'">In Progress</span>
@@ -298,7 +310,13 @@
 
           <div class="form-field full">
             <label class="field-label">Location *</label>
-            <input class="field-input" formControlName="location" placeholder="e.g. Central Sports Complex">
+
+            <select formControlName="fieldId" class="field-input">
+  <option [ngValue]="null" disabled>-- Select a field --</option>
+  <option *ngFor="let f of fields" [ngValue]="f.id">
+    {{ f.name }} — {{ f.location }} ({{ f.sportType }})
+  </option>
+</select>
           </div>
 
           <div class="form-field full">
@@ -319,5 +337,8 @@
 
   </div>
 </div>
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

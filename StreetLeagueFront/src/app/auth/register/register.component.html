@@ -13,7 +13,7 @@
   <!-- Body -->
   <div class="card-body">
 
-    <!-- ── 5 rôles : Player, Coach, Sponsor, Delivery, Admin ── -->
+    <!-- ── 4 Roles ── -->
     <div class="role-select">
       <button type="button" class="role-btn" [class.active]="selectedRole === 'PLAYER'" (click)="selectRole('PLAYER')">
         <span class="role-emoji">👤</span>
@@ -30,10 +30,6 @@
       <button type="button" class="role-btn" [class.active]="selectedRole === 'DELIVERY'" (click)="selectRole('DELIVERY')">
         <span class="role-emoji">🚚</span>
         <span class="role-label">Delivery</span>
-      </button>
-      <button type="button" class="role-btn" [class.active]="selectedRole === 'ADMIN'" (click)="selectRole('ADMIN')">
-        <span class="role-emoji">🛡️</span>
-        <span class="role-label">Admin</span>
       </button>
     </div>
 

@@ -1,0 +1,118 @@
+package com.example.streetleague.Controller;
+
+import com.example.streetleague.Repository.TeamRepository;
+import com.example.streetleague.Repository.UserRepository;
+import com.example.streetleague.ServiceInterface.IteamService;
+import com.example.streetleague.domain.Role;
+import com.example.streetleague.domain.User;
+import com.example.streetleague.dto.LeaderboardDto;
+import com.example.streetleague.dto.TeamRequest;
+import com.example.streetleague.dto.TeamResponse;
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping("/team")
+public class TeamController {
+
+    IteamService   teamService;
+    UserRepository userRepository;
+    TeamRepository teamRepository;
+
+    // POST /team/add?email=captain@mail.com
+    @PostMapping("/add")
+    public TeamResponse addTeam(@RequestBody TeamRequest dto, @RequestParam String email) {
+        User captain = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found: " + email));
+        return teamService.addTeam(dto, captain.getIdUser());
+    }
+
+    @PutMapping("update/{teamId}")
+    public TeamResponse updateTeam(@PathVariable Long teamId,
+                                   @RequestBody TeamRequest dto,
+                                   @RequestParam String email) {
+        User captain = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        return teamService.updateTeam(teamId, dto, captain.getIdUser());
+    }
+
+    @PutMapping("updateStats/{teamId}")
+    public TeamResponse updateTeamStats(@PathVariable("teamId") Long teamId,
+                                        @RequestBody java.util.Map<String, Object> payload) {
+        try {
+            String email = payload.get("email").toString();
+            int victories = Integer.parseInt(payload.get("victories").toString());
+            int defeats   = Integer.parseInt(payload.get("defeats").toString());
+            int matches   = Integer.parseInt(payload.get("matches").toString());
+
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+
+            return teamService.updateTeamStats(teamId, victories, defeats, matches, user.getIdUser());
+
+        } catch (Exception e) {
+            System.out.println(" ERROR in updateTeamStats: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    @DeleteMapping("delete/{idTeam}")
+    public void deleteTeam(@PathVariable Long idTeam,
+                           @RequestParam String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+
+        //  Déléguer au service qui gère ADMIN + capitaine + FK
+        teamService.deleteTeam(idTeam, user.getIdUser());
+    }
+
+    @GetMapping("leaderboard")
+    public List<LeaderboardDto> getLeaderboard(@RequestParam("sport") String sport) {
+        return teamService.getLeaderboard(sport);
+    }
+
+    // GET /team/showTeams
+    @GetMapping("showTeams")
+    public List<TeamResponse> showTeams() {
+        return teamService.ShowTeams();
+    }
+
+    // GET /team/showTeamById/1
+    @GetMapping("showTeamById/{idTeam}")
+    public TeamResponse showTeam(@PathVariable Long idTeam) {
+        return teamService.ShowTeam(idTeam);
+    }
+
+    // POST /team/1/join?email=player@mail.com
+    @PostMapping("{idTeam}/join")
+    public TeamResponse joinTeam(@PathVariable Long idTeam, @RequestParam String email) {
+        User player = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found: " + email));
+        return teamService.joinTeam(idTeam, player.getIdUser());
+    }
+
+    // DELETE /team/1/leave?email=player@mail.com
+    @DeleteMapping("{idTeam}/leave")
+    public TeamResponse leaveTeam(@PathVariable Long idTeam, @RequestParam String email) {
+        User player = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found: " + email));
+        return teamService.leaveTeam(idTeam, player.getIdUser());
+    }
+
+
+    // GET /team/myTeams?email=captain@mail.com
+    @GetMapping("myTeams")
+    public List<TeamResponse> getMyTeams(@RequestParam String email) {
+        User captain = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        return teamService.getTeamsByCaptain(captain.getIdUser());
+    }
+
+    // GET /team/my-teams?captainId=3  ← used by matchmaking component
+    @GetMapping("my-teams")
+    public List<TeamResponse> getMyTeamsByCaptainId(@RequestParam Long captainId) {
+        return teamService.getTeamsByCaptain(captainId);
+    }
+}

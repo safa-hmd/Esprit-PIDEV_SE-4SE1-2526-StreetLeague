@@ -332,3 +332,57 @@
   overflow: hidden;
 }
 .mini-progress-fill { height: 100%; border-radius: 100px; transition: width 0.4s; }
+<<<<<<< HEAD
+=======
+/* ══════════════════════════════════════════════
+   SECTION SARA — Financial Dashboard
+══════════════════════════════════════════════ */
+
+/* ── Séparateur de section ── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  margin: 2rem 0 1.5rem;
+  gap: 1rem;
+}
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #2a2a2a;
+}
+.section-divider-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #e63946;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* ── Financial stat cards ── */
+.financial-card {
+  border-color: rgba(230, 57, 70, 0.15);
+}
+.financial-card:hover {
+  border-color: rgba(230, 57, 70, 0.4);
+}
+
+/* ── Rank badges top players ── */
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: #2a2a2a;
+  color: #888;
+}
+.rank-1 { background: rgba(251,191,36,0.2); color: #fbbf24; }
+.rank-2 { background: rgba(156,163,175,0.2); color: #9ca3af; }
+.rank-3 { background: rgba(180,107,72,0.2); color: #b46b48; }
+
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { API_BASE_URL } from 'src/environments/api-url';
 
 export interface RegisterRequest {
   fullName: string;
@@ -20,98 +19,66 @@ export interface AuthResponse {
   token: string;
   email: string;
   role: string;
-  /** Backend Java record sérialise en idUser */
-  id?: number;
-  userId?: number;
-  idUser?: number;
-}
 
-export interface ForgotPasswordRequest {
-  email: string;
-}
+  idUser: number;
 
-export interface ResetPasswordRequest {
-  token: string;
-  newPassword: string;
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root', 
 })
 export class AuthService {
 
-  constructor(private http: HttpClient) {}
+  private baseUrl = 'http://localhost:8086/StreetLeague'; // ✅ port + context path corrects
 
-  private readonly apiUrl = `${API_BASE_URL}/auth`;
+  constructor(private http: HttpClient) {}
 
   register(req: RegisterRequest): Observable<string> {
     return this.http.post(
-      `${this.apiUrl}/register`, req,
+      `${this.baseUrl}/auth/register`, req,
       { responseType: 'text' }
     );
   }
 
+  isLoggedIn(): boolean {
+  const token = localStorage.getItem('TokenUserConnect');
+  if (!token) return false;
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const isExpired = payload.exp * 1000 < Date.now();
+    if (isExpired) {
+      this.logout(); // nettoie automatiquement
+      return false;
+    }
+    return true;
+  } catch (e) {
+    this.logout(); // token corrompu → nettoie
+    return false;
+  }
+}
+
+getToken(): string | null {
+  if (!this.isLoggedIn()) return null; // vérifie expiration
+  return localStorage.getItem('TokenUserConnect');
+}
+
   login(req: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
-      `${this.apiUrl}/login`, req
+      `${this.baseUrl}/auth/login`, req
     ).pipe(
+
+
       tap(response => {
         localStorage.setItem('TokenUserConnect', response.token);
         localStorage.setItem('EmailUserConnect', response.email);
-        const role =
-          (response.role && String(response.role).trim()) ||
-          this.readRoleFromJwt(response.token) ||
-          '';
-        if (role) {
-          localStorage.setItem('RoleUserConnect', role);
-        }
-        const userId = response.id ?? response.userId ?? response.idUser;
-        if (userId !== undefined && userId !== null) {
-          localStorage.setItem('UserIdConnect', String(userId));
-        }
+        localStorage.setItem('RoleUserConnect',  response.role);
+
+       localStorage.setItem('UserIdConnect', String(response.idUser)); 
+
+
       })
     );
-  }
-
-  /** Claim `role` du JWT (ex. ROLE_ADMIN) si le JSON de login omet le champ role. */
-  readRoleFromJwt(token: string | null | undefined): string | null {
-    if (!token || typeof token !== 'string') return null;
-    const clean = token.replace(/"/g, '');
-    const parts = clean.split('.');
-    if (parts.length < 2) return null;
-    try {
-      let b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-      while (b64.length % 4) b64 += '=';
-      const json = atob(b64);
-      const payload = JSON.parse(json) as { role?: string };
-      const r = payload.role;
-      return typeof r === 'string' && r.trim() ? r.trim() : null;
-    } catch {
-      return null;
-    }
-  }
-
-  forgotPassword(email: string): Observable<string> {
-    const payload: ForgotPasswordRequest = { email };
-    return this.http.post(`${this.apiUrl}/forgot-password`, payload, {
-      responseType: 'text',
-    });
-  }
-
-  resetPassword(token: string, newPassword: string): Observable<string> {
-    const payload: ResetPasswordRequest = { token, newPassword };
-    return this.http.post(`${this.apiUrl}/reset-password`, payload, {
-      responseType: 'text',
-    });
-  }
-
-  loginWithGoogle(): void {
-    window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
-  }
-
-  getUserId(): number | null {
-    const id = localStorage.getItem('UserIdConnect');
-    return id ? parseInt(id, 10) : null;
   }
 
   logout(): void {
@@ -121,6 +88,7 @@ export class AuthService {
     localStorage.removeItem('UserIdConnect');
   }
 
+<<<<<<< HEAD
   getName(): string | null {
     // Backne le name basé sur le rôle de l'utilisateur
     const role = this.normalizeRole(this.getRole());
@@ -147,32 +115,73 @@ export class AuthService {
   isLoggedIn(): boolean {
     return !!localStorage.getItem('TokenUserConnect');
   }
+=======
+
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
 
   getRole(): string | null {
     return localStorage.getItem('RoleUserConnect');
   }
 
-  /**
-   * Unifie les rôles renvoyés par le back (ADMIN, ROLE_ADMIN, admin, etc.)
-   * pour que les redirections (login, OAuth2) reconnaissent bien ROLE_ADMIN.
-   */
-  normalizeRole(role: string | null): string | null {
-    if (!role) return null;
-    const r = role.trim();
-    if (!r) return null;
-    const upper = r.toUpperCase();
-    if (upper.startsWith('ROLE_')) {
-      return 'ROLE_' + upper.slice(5);
-    }
-    return 'ROLE_' + upper;
+
+
+  getEmail(): string | null {
+    return localStorage.getItem('EmailUserConnect');
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('TokenUserConnect');
+  getUserId(): string | null {
+    return localStorage.getItem('UserIdConnect');
   }
 
+<<<<<<< HEAD
   getEmail(): string | null {
     return localStorage.getItem('EmailUserConnect');
   }
 }
 
+=======
+  //add this without unitaire tests
+
+  loginWithGoogle(): void {
+  window.location.href = 
+    'http://localhost:8086/StreetLeague/oauth2/authorization/google';
+}
+
+
+
+forgotPassword(email: string): Observable<string> {
+  return this.http.post(
+    `http://localhost:8086/StreetLeague/auth/forgot-password`,
+    { email },
+    { responseType: 'text' }
+  );
+}
+
+resetPassword(token: string, newPassword: string): Observable<string> {
+  return this.http.post(
+    `http://localhost:8086/StreetLeague/auth/reset-password`,
+    { token, newPassword },
+    { responseType: 'text' }
+  );
+}
+
+// auth.service.ts - Ajouter cette méthode
+getCurrentUserEmail(): string {
+  return localStorage.getItem('EmailUserConnect') || '';
+}
+
+getCurrentUserId(): number {
+  const id = localStorage.getItem('UserIdConnect');
+  return id ? parseInt(id) : 0;
+}
+
+  // ✅ URL correcte avec port 8086 + context path /StreetLeague
+  getUserIdByEmail(): Observable<number> {
+    const email = localStorage.getItem('EmailUserConnect');
+    return this.http.get<number>(
+      `${this.baseUrl}/auth/getUserId?email=${email}`
+    );
+  }
+
+}
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

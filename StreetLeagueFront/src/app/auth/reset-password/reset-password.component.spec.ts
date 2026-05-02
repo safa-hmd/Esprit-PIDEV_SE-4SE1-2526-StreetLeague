@@ -1,54 +1,41 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
-
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 import { ResetPasswordComponent } from './reset-password.component';
-import { AuthService } from 'src/app/services/auth.service';
 
 describe('ResetPasswordComponent', () => {
   let component: ResetPasswordComponent;
   let fixture: ComponentFixture<ResetPasswordComponent>;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let routerSpy: jasmine.SpyObj<Router>;
 
-  // Helper to create the component with a specific token in the URL
-  function createComponent(token: string = 'valid-token') {
+  beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [ResetPasswordComponent],
-      imports:      [ReactiveFormsModule],
+      imports: [HttpClientTestingModule, RouterTestingModule, ReactiveFormsModule],
       providers: [
-        { provide: AuthService, useValue: authServiceSpy },
-        { provide: Router,      useValue: routerSpy      },
         {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              queryParamMap: { get: (key: string) => (key === 'token' ? token : null) }
-            }
+              queryParamMap: { get: (key: string) => 'test-token' }
+            },
+            queryParams: of({ token: 'test-token' }),
+            queryParamMap: of({ get: (key: string) => 'test-token' })
           }
         }
       ]
     });
-
-    fixture   = TestBed.createComponent(ResetPasswordComponent);
+    fixture = TestBed.createComponent(ResetPasswordComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  }
-
-  beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['resetPassword']);
-    routerSpy      = jasmine.createSpyObj('Router', ['navigateByUrl']);
   });
-
-  afterEach(() => TestBed.resetTestingModule());
-
-  // ── create ────────────────────────────────────────────────
 
   it('should create', () => {
-    createComponent();
     expect(component).toBeTruthy();
   });
+<<<<<<< HEAD
 
   // ── ngOnInit ──────────────────────────────────────────────
 
@@ -232,4 +219,6 @@ describe('ResetPasswordComponent', () => {
 
     expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
   }));
+=======
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
 });

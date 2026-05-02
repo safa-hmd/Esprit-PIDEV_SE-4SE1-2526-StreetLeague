@@ -1,36 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { of, throwError } from 'rxjs';
-
 import { ForgotPasswordComponent } from './forgot-password.component';
-import { AuthService } from 'src/app/services/auth.service';
 
 describe('ForgotPasswordComponent', () => {
   let component: ForgotPasswordComponent;
   let fixture: ComponentFixture<ForgotPasswordComponent>;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['forgotPassword']);
-
     TestBed.configureTestingModule({
       declarations: [ForgotPasswordComponent],
-      imports:      [ReactiveFormsModule],
-      providers: [
-        { provide: AuthService, useValue: authServiceSpy }
-      ]
+      imports: [HttpClientTestingModule, RouterTestingModule, ReactiveFormsModule]
     });
-
-    fixture   = TestBed.createComponent(ForgotPasswordComponent);
+    fixture = TestBed.createComponent(ForgotPasswordComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  // ── create ────────────────────────────────────────────────
-
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+<<<<<<< HEAD
 
   // ── form initial state ────────────────────────────────────
 
@@ -149,3 +140,6 @@ describe('ForgotPasswordComponent', () => {
   });
 });
 
+=======
+});
+>>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

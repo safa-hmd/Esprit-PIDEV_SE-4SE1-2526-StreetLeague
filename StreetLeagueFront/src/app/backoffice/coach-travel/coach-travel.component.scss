@@ -1,0 +1,244 @@
+.coach-travel-page {
+  padding: 24px;
+  color: #f5f5f5;
+  background-color: #0f0f0f;
+  min-height: 100vh;
+  font-family: 'Inter', 'Roboto', sans-serif;
+}
+
+.section-container {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.submit-section {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  padding: 24px;
+  border-left: 4px solid #e53935;
+}
+
+.mt-32 {
+  margin-top: 32px;
+}
+
+.section-title {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.travel-card {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+
+  &.selected {
+    border: 2px solid #e53935;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(229, 57, 53, 0.2);
+  }
+}
+
+.card-header {
+  background-color: #252525;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+}
+
+.card-type {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.card-price {
+  color: #e53935;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.card-body {
+  padding: 16px;
+  flex-grow: 1;
+
+  p {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #ccc;
+
+    strong {
+      color: #9e9e9e;
+    }
+  }
+}
+
+.card-footer {
+  padding: 16px;
+  border-top: 1px solid #333;
+}
+
+.select-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #2a2a2a;
+  color: #fff;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #333;
+  }
+}
+
+.travel-card.selected .select-btn {
+  background-color: #e53935;
+  color: #fff;
+}
+
+.warning-box {
+  background-color: #2a0000;
+  border: 1px solid #e53935;
+  color: #ff8a80;
+  padding: 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
+.info-box {
+  background-color: rgba(33, 150, 243, 0.1);
+  border: 1px solid #2196f3;
+  color: #64b5f6;
+  padding: 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.summary-box {
+  background-color: #252525;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+
+  p {
+    margin: 8px 0;
+    color: #f5f5f5;
+  }
+  strong {
+    color: #9e9e9e;
+  }
+}
+
+.submit-request-btn {
+  background-color: #e53935;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 14px;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #c62828;
+  }
+}
+
+.page-success {
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 1px solid #4caf50;
+  color: #4caf50;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+.page-error {
+  background-color: rgba(229, 57, 53, 0.1);
+  border: 1px solid #e53935;
+  color: #e53935;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    text-align: left;
+    color: #9e9e9e;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 1px solid #333;
+  }
+
+  td {
+    padding: 16px;
+    border-bottom: 1px solid #2a2a2a;
+    font-size: 14px;
+  }
+
+  tr:hover td {
+    background-color: #252525;
+  }
+}
+
+.status-badge {
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &.pending {
+    background-color: rgba(255, 152, 0, 0.2);
+    color: #ff9800;
+  }
+  &.approved {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+  }
+  &.rejected {
+    background-color: rgba(229, 57, 53, 0.2);
+    color: #e53935;
+  }
+}
+
+.empty-cell {
+  text-align: center;
+  color: #666;
+  padding: 32px !important;
+}
