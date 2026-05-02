@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
-type Role = 'PLAYER' | 'COACH' | 'SPONSOR' | 'DELIVERY' | 'ADMIN';
+type Role = 'PLAYER' | 'COACH' | 'SPONSOR' | 'DELIVERY';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +21,6 @@ private roleLabels: Record<Role, string> = {
   COACH:    'Coach',
   SPONSOR:  'Sponsor',
   DELIVERY: 'Delivery',
-  ADMIN:    'Admin',
 };
 
 private emailPlaceholders: Record<Role, string> = {
@@ -29,7 +28,6 @@ private emailPlaceholders: Record<Role, string> = {
   COACH:    'coach@streetleague.com',
   SPONSOR:  'sponsor@streetleague.com',
   DELIVERY: 'delivery@streetleague.com',
-  ADMIN:    'admin@streetleague.com',
 };
 
   get roleLabel():        string { return this.roleLabels[this.selectedRole]; }
@@ -78,24 +76,29 @@ private emailPlaceholders: Record<Role, string> = {
         this.errorMessage =
           (typeof err === 'string' ? err : null) ||
           (typeof msg === 'string' ? msg : null) ||
-          'Email ou mot de passe incorrect.';
+          'Email ou password incorrect.';
         console.error(error);
       },
     });
   }
 
-  /** Après login réussi : admin → /admin, coach → /coach, sinon espace client */
+  /** Après login réussi : admin → /admin, coach → /coach, sino espace client */
   private redirectAfterLogin(roleFromBackend: string) {
     const role = this.authService.normalizeRole(roleFromBackend);
-    if (role === 'ROLE_ADMIN') {
-      this.router.navigateByUrl('/admin');
-      return;
+    switch (role) {
+      case 'ROLE_ADMIN':
+        this.router.navigateByUrl('/admin');
+        break;
+      case 'ROLE_SPONSOR':
+        this.router.navigateByUrl('/sponsor');
+        break;
+      case 'ROLE_COACH':
+      case 'ROLE_PLAYER':
+      case 'ROLE_DELIVERY':
+      default:
+        this.router.navigateByUrl('/client');
+        break;
     }
-    if (role === 'ROLE_COACH') {
-      this.router.navigateByUrl('/coach');
-      return;
-    }
-    this.router.navigateByUrl('/client');
   }
   loginWithGoogle(): void {
   this.authService.loginWithGoogle();

@@ -6,7 +6,7 @@ import { AuthService } from 'src/app/services/auth.service';
   selector: 'app-oauth2-callback',
   template: `
     <div style="display:flex;justify-content:center;align-items:center;height:100vh">
-      <p>Connexion en cours...</p>
+      <p>Login in progress...</p>
     </div>
   `
 })
@@ -48,6 +48,10 @@ export class OAuth2CallbackComponent implements OnInit {
     }
     if (r === 'ROLE_COACH') {
       this.router.navigateByUrl('/coach');
+      return;
+    }
+    if (r === 'ROLE_SPONSOR') {
+      this.router.navigateByUrl('/sponsor');
       return;
     }
     this.router.navigateByUrl('/client');

@@ -94,8 +94,8 @@ export class RegisterComponent {
         this.isLoading = false;
         const isAdmin = this.selectedRole === 'ADMIN';
         this.successMessage = isAdmin
-          ? 'Compte créé ! Redirection vers la connexion administrateur…'
-          : 'Compte créé ! Redirection vers la connexion…';
+          ? 'Compte créé ! Redirection vers la login administrateur…'
+          : 'Compte créé ! Redirection vers la login…';
         const target = isAdmin ? '/admin-login' : '/login';
         setTimeout(() => this.router.navigateByUrl(target), 1500);
       },
@@ -105,7 +105,7 @@ export class RegisterComponent {
         this.errorMessage =
           (typeof body === 'object' && body !== null && 'message' in body && (body as { message?: string }).message) ||
           (typeof body === 'object' && body !== null && 'error' in body && String((body as { error?: unknown }).error)) ||
-          'Une erreur est survenue. Veuillez réessayer.';
+          'Une erreur est survenue. Please réessayer.';
         console.error(error);
       },
     });

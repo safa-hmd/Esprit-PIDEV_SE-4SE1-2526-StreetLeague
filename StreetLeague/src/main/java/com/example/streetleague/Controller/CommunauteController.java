@@ -5,6 +5,7 @@ import com.example.streetleague.dto.CommunauteDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class CommunauteController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_COMMUNITY_MANAGER', 'ROLE_PLAYER')")
     public ResponseEntity<CommunauteDTO> create(@Valid @RequestBody CommunauteDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
@@ -34,11 +36,13 @@ public class CommunauteController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_COMMUNITY_MANAGER', 'ROLE_PLAYER')")
     public ResponseEntity<CommunauteDTO> update(@PathVariable Long id, @Valid @RequestBody CommunauteDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_COMMUNITY_MANAGER', 'ROLE_PLAYER')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();

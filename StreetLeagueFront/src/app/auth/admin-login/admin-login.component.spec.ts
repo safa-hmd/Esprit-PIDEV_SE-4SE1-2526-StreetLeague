@@ -140,7 +140,7 @@ describe('AdminLoginComponent', () => {
     expect(component.errorMessage).toBe('');
   });
 
-  // ── onSubmit — non-ADMIN role ─────────────────────────────
+  // ── onSubmit — no-ADMIN role ─────────────────────────────
 
   it('onSubmitTest — should logout and show error when role is not ROLE_ADMIN', () => {
     authServiceSpy.login.and.returnValue(of(mockPlayerResponse));
@@ -163,7 +163,7 @@ describe('AdminLoginComponent', () => {
     expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
   });
 
-  it('onSubmitTest — should set isLoading to false after non-ADMIN role response', () => {
+  it('onSubmitTest — should set isLoading to false after no-ADMIN role response', () => {
     authServiceSpy.login.and.returnValue(of(mockPlayerResponse));
     component.loginForm.setValue({ email: 'player@test.com', password: 'Pass123!' });
 
@@ -175,16 +175,16 @@ describe('AdminLoginComponent', () => {
   // ── onSubmit — HTTP error ─────────────────────────────────
 
   it('onSubmitTest — should show error message on login failure', () => {
-    authServiceSpy.login.and.returnValue(throwError(() => ({ status: 401 })));
+    authServiceSpy.login.and.returnValue(throwError(() => ({ statut: 401 })));
     component.loginForm.setValue({ email: 'admin@test.com', password: 'wrongpass' });
 
     component.onSubmit();
 
-    expect(component.errorMessage).toBe('Email ou mot de passe incorrect.');
+    expect(component.errorMessage).toBe('Email ou password incorrect.');
   });
 
   it('onSubmitTest — should set isLoading to false on error', () => {
-    authServiceSpy.login.and.returnValue(throwError(() => ({ status: 401 })));
+    authServiceSpy.login.and.returnValue(throwError(() => ({ statut: 401 })));
     component.loginForm.setValue({ email: 'admin@test.com', password: 'wrongpass' });
 
     component.onSubmit();
@@ -193,7 +193,7 @@ describe('AdminLoginComponent', () => {
   });
 
   it('onSubmitTest — should NOT navigate on login error', () => {
-    authServiceSpy.login.and.returnValue(throwError(() => ({ status: 401 })));
+    authServiceSpy.login.and.returnValue(throwError(() => ({ statut: 401 })));
     component.loginForm.setValue({ email: 'admin@test.com', password: 'wrongpass' });
 
     component.onSubmit();

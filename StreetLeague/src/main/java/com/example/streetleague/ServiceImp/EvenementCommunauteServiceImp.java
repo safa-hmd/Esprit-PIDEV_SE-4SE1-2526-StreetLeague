@@ -4,10 +4,11 @@ import com.example.streetleague.Repository.CommunauteRepository;
 import com.example.streetleague.Repository.EvenementCommunauteRepository;
 import com.example.streetleague.Repository.SponsoringEvenementRepository;
 import com.example.streetleague.ServiceInterface.EvenementCommunauteService;
-import com.example.streetleague.domain.Communaute;
-import com.example.streetleague.domain.EvenementCommunaute;
-import com.example.streetleague.domain.SponsoringEvenement;
+import com.example.streetleague.Entity.Communaute;
+import com.example.streetleague.Entity.EvenementCommunaute;
+import com.example.streetleague.Entity.SponsoringEvenement;
 import com.example.streetleague.dto.EvenementCommunauteDTO;
+import com.example.streetleague.dto.EvenementSansSponsoringDTO;
 import com.example.streetleague.mapper.EvenementCommunauteMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,9 +80,20 @@ public class EvenementCommunauteServiceImp implements EvenementCommunauteService
     @Transactional
     public void delete(Long id) {
         // Supprimer d'abord les sponsorings liés (clé étrangère vers evenement_id)
-        java.util.List<SponsoringEvenement> sponsorings = sponsoringEvenementRepository.findByEvenementId(id);
-        sponsoringEvenementRepository.deleteAll(sponsorings);
+        sponsoringEvenementRepository.deleteAllForEvenement(id);
 
         repo.deleteById(id);
+    }
+
+    // ===== MÉTIER AVANCÉ : LEFT JOIN 3 TABLES =====
+    
+    @Override
+    public List<EvenementSansSponsoringDTO> getEvenementsSansSponsoring() {
+        return repo.getEvenementsSansSponsoring();
+    }
+
+    @Override
+    public List<EvenementSansSponsoringDTO> getEvenementsSansSponsoringApresDate(java.util.Date dateDebut) {
+        return repo.getEvenementsSansSponsoringApresDate(dateDebut);
     }
 }

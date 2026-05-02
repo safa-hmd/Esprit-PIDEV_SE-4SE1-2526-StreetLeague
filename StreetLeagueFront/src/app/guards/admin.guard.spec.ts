@@ -9,7 +9,7 @@ describe('AdminGuard', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['getRole']);
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['getRole', 'normalizeRole', 'isLoggedIn']);
     routerSpy      = jasmine.createSpyObj('Router', ['navigateByUrl']);
 
     TestBed.configureTestingModule({
@@ -29,6 +29,7 @@ describe('AdminGuard', () => {
 
   it('canActivateTest - should return true when role is ROLE_ADMIN', () => {
     authServiceSpy.getRole.and.returnValue('ROLE_ADMIN');
+    authServiceSpy.normalizeRole.and.returnValue('ROLE_ADMIN');
 
     const result = guard.canActivate();
 
@@ -38,6 +39,7 @@ describe('AdminGuard', () => {
 
   it('canActivateTest - should return false and redirect when role is ROLE_PLAYER', () => {
     authServiceSpy.getRole.and.returnValue('ROLE_PLAYER');
+    authServiceSpy.normalizeRole.and.returnValue('ROLE_PLAYER');
 
     const result = guard.canActivate();
 
@@ -47,6 +49,7 @@ describe('AdminGuard', () => {
 
   it('canActivateTest - should return false and redirect when role is ROLE_COACH', () => {
     authServiceSpy.getRole.and.returnValue('ROLE_COACH');
+    authServiceSpy.normalizeRole.and.returnValue('ROLE_COACH');
 
     const result = guard.canActivate();
 
@@ -55,7 +58,9 @@ describe('AdminGuard', () => {
   });
 
   it('canActivateTest - should return false and redirect when role is null', () => {
-    authServiceSpy.getRole.and.returnValue(null as any);
+    authServiceSpy.getRole.and.returnValue(null);
+    authServiceSpy.normalizeRole.and.returnValue(null);
+    authServiceSpy.isLoggedIn.and.returnValue(false);
 
     const result = guard.canActivate();
 

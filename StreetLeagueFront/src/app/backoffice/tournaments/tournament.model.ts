@@ -7,7 +7,7 @@ export type RegistrationStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED';
 
 export interface TournamentDto {
   id?: number;
-  name: string;
+  nom: string;
   description?: string;
   sportType: SportType;
   tournamentType: TournamentType;
@@ -16,7 +16,7 @@ export interface TournamentDto {
   endDate: string;               // yyyy-MM-dd
   registrationDeadline: string;  // yyyy-MM-dd
   maxParticipants: number;
-  location: string;
+  lieu: string;
   prizePool?: number;
   registeredCount?: number;
 }
@@ -36,5 +36,6 @@ export interface TournamentRegistrationDto {
 export interface TournamentFilters {
   search: string;
   sport:  SportType | '';
-  status: TournamentStatus | '';
+  statut: TournamentStatus | '';
 }
+

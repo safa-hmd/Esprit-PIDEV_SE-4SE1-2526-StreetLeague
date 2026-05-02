@@ -14,7 +14,7 @@ export class NoAuthGuard implements CanActivate {
   canActivate(_route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     const path = state.url.split('?')[0] || '/';
 
-    // Toujours autoriser les écrans d'authentification (token expiré / changement de compte).
+    // Toudays autoriser les écrans d'authentification (token expiré / changement de compte).
     const publicAuthPaths = [
       '/login',
       '/register',
@@ -40,11 +40,8 @@ export class NoAuthGuard implements CanActivate {
       this.router.navigateByUrl('/admin');
       return false;
     }
-    if (role === 'ROLE_COACH') {
-      this.router.navigateByUrl('/coach');
-      return false;
-    }
     if (
+      role === 'ROLE_COACH' ||
       role === 'ROLE_PLAYER' ||
       role === 'ROLE_SPONSOR' ||
       role === 'ROLE_DELIVERY'

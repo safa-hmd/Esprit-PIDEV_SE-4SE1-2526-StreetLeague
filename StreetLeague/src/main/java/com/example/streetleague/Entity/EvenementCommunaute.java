@@ -1,16 +1,11 @@
-package com.example.streetleague.domain;
+package com.example.streetleague.Entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Date;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "evenement_communaute")
 public class EvenementCommunaute {
     @Id
@@ -18,7 +13,6 @@ public class EvenementCommunaute {
     private Long id;
 
     private String titre;
-
     private String description;
 
     @FutureOrPresent(message = "La date doit être future ou présente")
@@ -30,4 +24,17 @@ public class EvenementCommunaute {
 
     @NotNull(message = "L'organisateur est obligatoire")
     private Long organisateurId;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getTitre() { return titre; }
+    public void setTitre(String titre) { this.titre = titre; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public Date getDate() { return date; }
+    public void setDate(Date date) { this.date = date; }
+    public Communaute getCommunaute() { return communaute; }
+    public void setCommunaute(Communaute communaute) { this.communaute = communaute; }
+    public Long getOrganisateurId() { return organisateurId; }
+    public void setOrganisateurId(Long organisateurId) { this.organisateurId = organisateurId; }
 }

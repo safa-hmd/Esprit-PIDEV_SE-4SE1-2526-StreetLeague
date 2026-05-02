@@ -64,6 +64,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()          // ✅ couvre /auth/complete-google-register
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                        .requestMatchers("/ws-chat/**").permitAll()        // ✅ WebSocket
+                        .requestMatchers("/api/chat/**").permitAll()      // ✅ Chat History
                         // Lecture publique (listes / détails) — écriture reste soumise à authenticated() plus bas
                         .requestMatchers(HttpMethod.GET,
                                 "/api/communaute", "/api/communaute/**",
@@ -71,10 +73,13 @@ public class SecurityConfig {
                                 "/api/contrat", "/api/contrat/**",
                                 "/api/contrat-sponsor", "/api/contrat-sponsor/**"
                         ).permitAll()
+                        // Ajout des endpoints de test pour sponsoring stats et recherche
+                        .requestMatchers("/api/sponsoring/test/**").permitAll()
                         // Aligné sur StreetLeagueApp (demo RBAC + APIs sponsor)
                         .requestMatchers("/student/**").hasRole("STUDENT")
                         .requestMatchers("/teacher/**").hasRole("TEACHER")
                         // Front /client (PLAYER, COACH, etc.) : CRUD API métier avec JWT valide
+                        .requestMatchers(HttpMethod.PATCH, "/api/sponsor/*/status").hasRole("ADMIN")
                         .requestMatchers("/api/sponsor/**").authenticated()
                         .requestMatchers("/api/sponsoring/**").authenticated()
                         .requestMatchers("/api/communaute/**").authenticated()
@@ -114,7 +119,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:4201"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

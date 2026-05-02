@@ -121,6 +121,29 @@ export class AuthService {
     localStorage.removeItem('UserIdConnect');
   }
 
+  getName(): string | null {
+    // Backne le name basé sur le rôle de l'utilisateur
+    const role = this.normalizeRole(this.getRole());
+    switch (role) {
+      case 'ROLE_PLAYER':
+        return 'Player';
+      case 'ROLE_SPONSOR':
+        return 'Sponsor';
+      case 'ROLE_ADMIN':
+        return 'Admin';
+      case 'ROLE_COMMUNITY_MANAGER':
+        return 'Manager';
+      default:
+        // Fallback : utilise une partie de l'email
+        const email = this.getEmail();
+        if (email) {
+          const namePart = email.split('@')[0];
+          return namePart.charAt(0).toUpperCase() + namePart.slice(1);
+        }
+        return null;
+    }
+  }
+
   isLoggedIn(): boolean {
     return !!localStorage.getItem('TokenUserConnect');
   }
@@ -147,4 +170,9 @@ export class AuthService {
   getToken(): string | null {
     return localStorage.getItem('TokenUserConnect');
   }
+
+  getEmail(): string | null {
+    return localStorage.getItem('EmailUserConnect');
+  }
 }
+

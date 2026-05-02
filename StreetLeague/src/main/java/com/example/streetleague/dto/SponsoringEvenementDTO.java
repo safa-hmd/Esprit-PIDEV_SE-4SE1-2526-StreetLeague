@@ -7,5 +7,6 @@ public record SponsoringEvenementDTO(
         Long sponsorId,
         Long evenementId,
         BigDecimal contribution,
-        String typeContribution
+        String typeContribution,
+        String statut
 ) {}

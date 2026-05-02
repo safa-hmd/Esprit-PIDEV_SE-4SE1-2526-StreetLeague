@@ -1,0 +1,10 @@
+﻿2026-03-28T23:12:08.956+01:00  WARN 16864 --- [StreetLeague] [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Could not enhance configuration class [com.example.streetleague.security.SecurityConfig]. Consider declaring @Configuration(proxyBeanMethods=false) without inter-bean references between @Bean methods on the configuration class, avoiding the need for CGLIB enhancement.
+org.springframework.beans.factory.BeanDefinitionStoreException: Could not enhance configuration class [com.example.streetleague.security.SecurityConfig]. Consider declaring @Configuration(proxyBeanMethods=false) without inter-bean references between @Bean methods on the configuration class, avoiding the need for CGLIB enhancement.
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanFactory(ConfigurationClassPostProcessor.java:311) ~[spring-context-6.2.10.jar:6.2.10]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:363) ~[spring-context-6.2.10.jar:6.2.10]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:153) ~[spring-context-6.2.10.jar:6.2.10]
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:791) ~[spring-context-6.2.10.jar:6.2.10]
+Caused by: org.springframework.cglib.core.CodeGenerationException: java.lang.IllegalStateException-->Unable to load cache item
+Caused by: java.lang.IllegalStateException: Unable to load cache item
+Caused by: java.lang.NoClassDefFoundError: CustomUserDetailsService
+Caused by: java.lang.ClassNotFoundException: CustomUserDetailsService

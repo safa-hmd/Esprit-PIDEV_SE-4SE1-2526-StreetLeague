@@ -56,7 +56,7 @@ export class ListTeamsComponent implements OnInit {
   // ── Load Matches ──────────────────────────────────────────
   loadMatches(): void {
     this.isLoadingMatches = true;
-    this.matchService.getAllMatchs().subscribe({
+    this.matchService.getAllMatches().subscribe({
       next: (data: MatchResponse[]) => {
         this.matches = data;
         this.filteredMatches = data;
@@ -75,7 +75,7 @@ export class ListTeamsComponent implements OnInit {
     const q = this.searchQuery.toLowerCase().trim();
     this.filteredTeams = this.teams.filter(team =>
       !q
-      || team.name.toLowerCase().includes(q)
+      || team.nom.toLowerCase().includes(q)
       || (team.captainFullName?.toLowerCase().includes(q) ?? false)
     );
   }
@@ -87,12 +87,12 @@ export class ListTeamsComponent implements OnInit {
       !q
       || m.teamAName?.toLowerCase().includes(q)
       || m.teamBName?.toLowerCase().includes(q)
-      || m.location?.toLowerCase().includes(q)
+      || m.lieu?.toLowerCase().includes(q)
     );
   }
 
   // ── Status badge CSS ──────────────────────────────────────
-  getStatusClass(status: string): string {
+  getStatusClass(statut: string): string {
     switch (status) {
       case 'SCHEDULED': return 'a-badge-blue';
       case 'ONGOING':   return 'a-badge-orange';
@@ -108,7 +108,7 @@ export class ListTeamsComponent implements OnInit {
   }
 
 deleteTeam(team: Team): void {
-  if (!confirm(`Delete "${team.name}" permanently?`)) return;
+  if (!confirm(`Delete "${team.nom}" permanently?`)) return;
 
   const idTeam = team.idTeam ?? 0;
   
@@ -126,7 +126,7 @@ deleteTeam(team: Team): void {
       this.applyFilter();
     },
     error: (err: any) => {
-      this.errorMsg = `Cannot delete "${team.name}": ${err.error?.message || err.status}`;
+      this.errorMsg = `Cannot delete "${team.nom}": ${err.error?.message || err.status}`;
       console.error(err);
     }
   });
@@ -149,3 +149,6 @@ deleteTeam(team: Team): void {
 
   openAddModal(): void {}
 }
+
+
+

@@ -295,7 +295,7 @@
 .date-main    { font-size: 0.85rem; font-weight: 600; color: #ddd; margin-bottom: 0.2rem; }
 .date-deadline { font-size: 0.72rem; color: #444; }
 
-/* Column: Équipes */
+/* Column: Teams */
 .col-equipes {}
 .progress-nums {
   display: flex;
@@ -334,8 +334,8 @@
 .money-null { color: #333; font-size: 0.85rem; }
 .type-tag   { font-size: 0.72rem; color: #444; margin-top: 0.2rem; }
 
-/* Column: Revenus */
-.col-revenus {}
+/* Column: Revenue */
+.col-revenue {}
 .revenue      { font-size: 0.95rem; font-weight: 600; color: #4ade80; }
 .revenue-null { color: #333; font-size: 0.85rem; }
 

@@ -16,4 +16,6 @@ public class SponsorDTO {
     private String contactEmail;
     private String telephone;
     private String adresse;
+    private String statut;
+    private String dateCreation;
 }

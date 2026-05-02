@@ -47,15 +47,16 @@ export class ResetPasswordComponent implements OnInit {
     this.authService.resetPassword(this.token, this.form.value.newPassword!).subscribe({
       next: () => {
         this.isLoading  = false;
-        this.successMsg = 'Mot de passe modifié ! Redirection...';
+        this.successMsg = 'Password modifié ! Redirection...';
         setTimeout(() => this.router.navigateByUrl('/login'), 2500);
       },
       error: (err: HttpErrorResponse) => {
         this.isLoading = false;
         this.errorMsg  = err.status === 400
-          ? 'Lien expiré ou invalide. Veuillez recommencer.'
+          ? 'Lien expiré ou invalide. Please recommencer.'
           : 'Une erreur est survenue.';
       }
     });
   }
 }
+

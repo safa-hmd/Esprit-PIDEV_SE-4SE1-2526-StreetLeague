@@ -1,0 +1,12 @@
+/* Styles pour la list of events sponsor */
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.btn-sm {
+  font-size: 0.875rem;
+}

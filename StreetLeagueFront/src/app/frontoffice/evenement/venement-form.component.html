@@ -1,0 +1,7 @@
+<h2>Create un Event</h2>
+<form (ngSubmit)="save()">
+    <input [(ngModel)]="evenement.titre" name="title" placeholder="Title" required>
+    <textarea [(ngModel)]="evenement.description" name="description" placeholder="Description"></textarea>
+    <input [(ngModel)]="evenement.date" name="date" type="date" required>
+    <button type="submit">Save</button>
+</form>

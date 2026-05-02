@@ -1,64 +1,59 @@
 package com.example.streetleague.domain;
 
-import com.example.streetleague.Entity.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Table(name = "users")
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    Long idUser;
+    private Long idUser;
 
     @Column(nullable = false)
-    String fullName;
+    private String fullName;
 
     @Column(nullable = false, unique = true)
-    String email;
+    private String email;
 
     @Column(nullable = false)
-    String password;
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    Role role;
+    private Role role;
 
     @Builder.Default
-    boolean enabled = true;
-
-    @OneToMany(mappedBy = "captain", cascade = CascadeType.ALL)
-    @JsonIgnore
-    List<Team> captainedTeams;
-
-    @ManyToMany(mappedBy = "players")
-    @JsonIgnore
-    List<Team> teams;
-
-    @ManyToMany(mappedBy = "participants")
-    @JsonIgnore
-    List<Training> trainings;
-
-    @OneToMany(mappedBy = "createdBy")
-    @JsonIgnore
-    List<Match> createdMatches;
+    private boolean enabled = true;
 
     @Column(name = "reset_token")
-    String resetToken;
+    private String resetToken;
 
     @Column(name = "reset_token_expiry")
-    LocalDateTime resetTokenExpiry;
+    private LocalDateTime resetTokenExpiry;
+
+    public Long getIdUser() { return idUser; }
+    public void setIdUser(Long idUser) { this.idUser = idUser; }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
+    public boolean isEnabled() { return enabled; }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public String getResetToken() { return resetToken; }
+    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
+    public LocalDateTime getResetTokenExpiry() { return resetTokenExpiry; }
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) { this.resetTokenExpiry = resetTokenExpiry; }
 }

@@ -3,8 +3,8 @@ package com.example.streetleague.ServiceImp;
 import com.example.streetleague.Repository.ContratSponsorRepository;
 import com.example.streetleague.Repository.SponsorRepository;
 import com.example.streetleague.ServiceInterface.ContratSponsorService;
-import com.example.streetleague.domain.ContratSponsor;
-import com.example.streetleague.domain.Sponsor;
+import com.example.streetleague.Entity.ContratSponsor;
+import com.example.streetleague.Entity.Sponsor;
 import com.example.streetleague.dto.ContratSponsorDTO;
 import com.example.streetleague.mapper.ContratSponsorMapper;
 import org.springframework.http.HttpStatus;
@@ -95,5 +95,24 @@ public class ContratSponsorServiceImp implements ContratSponsorService {
     @Override
     public void delete(Long id) {
         repo.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public ContratSponsorDTO updateStatus(Long id, String statut) {
+        ContratSponsor entity = repo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Contrat introuvable avec l'ID : " + id));
+        
+        // Si rejeté, supprimer automatiquement
+        if ("REJETÉ".equals(statut)) {
+            repo.delete(entity);
+            return null; // Indiquer que l'élément a été supprimé
+        }
+        
+        // Si approuvé, mettre à jour le statut
+        entity.setStatut(statut);
+        ContratSponsor updated = repo.save(entity);
+        return mapper.toDTO(updated);
     }
 }

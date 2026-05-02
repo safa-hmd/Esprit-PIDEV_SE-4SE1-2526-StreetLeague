@@ -164,7 +164,7 @@
           <div *ngFor="let t of recentTrainings" class="training-item">
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <div>
-                <div style="font-weight:600;font-size:0.9rem;">{{ t.title }}</div>
+                <div style="font-weight:600;font-size:0.9rem;">{{ t.titre }}</div>
                 <div style="font-size:0.78rem;color:#888;margin-top:0.2rem;">
                   {{ t.teamName || 'No team' }} · {{ t.trainingDate | date:'MMM d' }}
                 </div>
@@ -208,7 +208,7 @@
             </thead>
             <tbody>
               <tr *ngFor="let team of topTeams">
-                <td><strong>{{ team.name }}</strong></td>
+                <td><strong>{{ team.nom }}</strong></td>
                 <td>{{ team.captainFullName || '—' }}</td>
                 <td>{{ team.sport }}</td>
                 <td><span class="home-badge badge-default">{{ team.level }}</span></td>
@@ -227,3 +227,4 @@
     </div>
   </div>
 </div>
+

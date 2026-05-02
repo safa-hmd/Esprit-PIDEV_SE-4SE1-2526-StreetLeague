@@ -81,7 +81,7 @@ describe('ForgotPasswordComponent', () => {
     component.onSubmit();
 
     expect(component.successMsg).toBe(
-      'Un email de réinitialisation a été envoyé à votre adresse.'
+      'Un email de réinitialisation a été envoyé à votre address.'
     );
   });
 
@@ -107,16 +107,16 @@ describe('ForgotPasswordComponent', () => {
   // ── onSubmit — error ──────────────────────────────────────
 
   it('onSubmitTest — should set errorMsg on error', () => {
-    authServiceSpy.forgotPassword.and.returnValue(throwError(() => ({ status: 404 })));
+    authServiceSpy.forgotPassword.and.returnValue(throwError(() => ({ statut: 404 })));
     component.form.setValue({ email: 'unknown@test.com' });
 
     component.onSubmit();
 
-    expect(component.errorMsg).toBe('Aucun compte trouvé avec cet email.');
+    expect(component.errorMsg).toBe('none compte trouvé avec cet email.');
   });
 
   it('onSubmitTest — should clear successMsg on error', () => {
-    authServiceSpy.forgotPassword.and.returnValue(throwError(() => ({ status: 404 })));
+    authServiceSpy.forgotPassword.and.returnValue(throwError(() => ({ statut: 404 })));
     component.successMsg = 'old success';
     component.form.setValue({ email: 'unknown@test.com' });
 
@@ -126,7 +126,7 @@ describe('ForgotPasswordComponent', () => {
   });
 
   it('onSubmitTest — should set isLoading to false after error', () => {
-    authServiceSpy.forgotPassword.and.returnValue(throwError(() => ({ status: 404 })));
+    authServiceSpy.forgotPassword.and.returnValue(throwError(() => ({ statut: 404 })));
     component.form.setValue({ email: 'unknown@test.com' });
 
     component.onSubmit();
@@ -148,3 +148,4 @@ describe('ForgotPasswordComponent', () => {
     expect(component.errorMsg).toBe('');
   });
 });
+

@@ -145,8 +145,8 @@
             <td colspan="7" class="empty-row">No fields found</td>
           </tr>
           <tr *ngFor="let f of filteredFields">
-            <td class="cell-bold">{{ f.name }}</td>
-            <td>{{ f.location }}</td>
+            <td class="cell-bold">{{ f.nom }}</td>
+            <td>{{ f.lieu }}</td>
             <td>{{ capacityLabel(f.capacity) }}</td>
             <td>
               <span class="sport-tag">{{ f.sportType | titlecase }}</span>
@@ -386,3 +386,4 @@
   </svg>
   {{ toastMessage }}
 </div>
+

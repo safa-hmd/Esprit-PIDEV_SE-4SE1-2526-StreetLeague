@@ -6,3 +6,4 @@ export interface EvenementCommunauteDTO {
   communauteId: number;
   organisateurId: number;
 }
+

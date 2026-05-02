@@ -7,18 +7,25 @@
       </svg>
     </button>
     <div class="header-logo">Street<span>League</span>
-      <span style="font-size:0.65rem;background:#e61920;padding:0.1rem 0.45rem;border-radius:4px;vertical-align:middle;margin-left:4px;color:white;font-weight:700;">ADMIN</span>
+      <span *ngIf="isAdmin()" style="font-size:0.65rem;background:#e61920;padding:0.1rem 0.45rem;border-radius:4px;vertical-align:middle;margin-left:4px;color:white;font-weight:700;">ADMIN</span>
+      <span *ngIf="isPlayer()" style="font-size:0.65rem;background:#28a745;padding:0.1rem 0.45rem;border-radius:4px;vertical-align:middle;margin-left:4px;color:white;font-weight:700;">PLAYER</span>
+      <span *ngIf="isSponsor()" style="font-size:0.65rem;background:#ffc107;padding:0.1rem 0.45rem;border-radius:4px;vertical-align:middle;margin-left:4px;color:#212529;font-weight:700;">SPONSOR</span>
+      <span *ngIf="isCommunityManager()" style="font-size:0.65rem;background:#17a2b8;padding:0.1rem 0.45rem;border-radius:4px;vertical-align:middle;margin-left:4px;color:white;font-weight:700;">MANAGER</span>
     </div>
   </div>
   <div class="header-right">
     <div class="header-user">
-      <div class="header-user-name" id="adminUserName">Administrateur</div>
-      <div class="header-user-role">Super Admin</div>
+      <div class="header-user-name" id="adminUserName">{{ adminName }}</div>
+      <div class="header-user-role" *ngIf="isAdmin()">Super Admin</div>
+      <div class="header-user-role" *ngIf="isPlayer()">Joueur</div>
+      <div class="header-user-role" *ngIf="isSponsor()">Sponsor</div>
+      <div class="header-user-role" *ngIf="isCommunityManager()">Manager Community</div>
     </div>
-    <button class="btn-logout-admin" id="adminLogout" title="Déconnexion">
+    <button class="btn-logout-admin" id="adminLogout" title="Délogin" (click)="logout()">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
         <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
       </svg>
     </button>
   </div>
 </header>
+

@@ -23,7 +23,7 @@ describe('SponsorService', () => {
 
   it('should call getById with GET', () => {
     const sponsor: SponsorDTO = {
-      id: 3, nom: 'Nike', type: 'Gold', contactEmail: 'nike@test.com', telephone: '12345678', adresse: 'Tunis',
+      id: 3, nom: 'Nike', type: 'Gold', contactEmail: 'nike@test.com', telephone: '12345678', address: 'Tunis',
     };
     service.getById(3).subscribe((res) => expect(res).toEqual(sponsor));
 
@@ -40,3 +40,4 @@ describe('SponsorService', () => {
     req.flush(null);
   });
 });
+

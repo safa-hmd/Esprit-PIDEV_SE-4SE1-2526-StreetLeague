@@ -9,18 +9,18 @@ describe('ListTrainingComponent', () => {
   let trainingServiceSpy: jasmine.SpyObj<TrainingService>;
 
   const mockTrainings = [
-    { idTraining: 1, title: 'Soccer Techniques', status: 'PLANNED',
+    { idTraining: 1, titre: 'Soccer Techniques', statut: 'PLANNED',
       participantCount: 10, teamName: 'Thunder FC',
       trainingDate: '2026-05-01T10:00:00', durationInMinutes: 60,
-      location: 'Tunis', description: 'desc', exercises: '' },
-    { idTraining: 2, title: 'Basketball Drills', status: 'COMPLETED',
+      lieu: 'Tunis', description: 'desc', exercises: '' },
+    { idTraining: 2, titre: 'Basketball Drills', statut: 'COMPLETED',
       participantCount: 25, teamName: 'Lions FC',
       trainingDate: '2026-04-01T10:00:00', durationInMinutes: 90,
-      location: 'Sfax', description: 'desc2', exercises: '' },
-    { idTraining: 3, title: 'Volleyball Basics', status: 'CANCELLED',
+      lieu: 'Sfax', description: 'desc2', exercises: '' },
+    { idTraining: 3, titre: 'Volleyball Basics', statut: 'CANCELLED',
       participantCount: 5, teamName: 'Eagles',
       trainingDate: '2026-03-01T10:00:00', durationInMinutes: 45,
-      location: 'Sousse', description: 'desc3', exercises: '' }
+      lieu: 'Sousse', description: 'desc3', exercises: '' }
   ];
 
   beforeEach(async () => {
@@ -60,7 +60,7 @@ describe('ListTrainingComponent', () => {
 
   it('loadTrainingsTest — should set errorMsg when load fails', () => {
     trainingServiceSpy.getAllTrainings.and.returnValue(
-      throwError(() => ({ status: 500 }))
+      throwError(() => ({ statut: 500 }))
     );
     component.loadTrainings();
     expect(component.errorMsg).toContain('500');
@@ -173,9 +173,10 @@ describe('ListTrainingComponent', () => {
   it('deleteTrainingTest — should set errorMsg on delete error', () => {
     spyOn(window, 'confirm').and.returnValue(true);
     trainingServiceSpy.deleteTraining.and.returnValue(
-      throwError(() => ({ status: 403 }))
+      throwError(() => ({ statut: 403 }))
     );
     component.deleteTraining(1);
     expect(component.errorMsg).toContain('403');
   });
 });
+

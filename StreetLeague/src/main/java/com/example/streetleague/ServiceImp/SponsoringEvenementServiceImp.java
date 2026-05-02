@@ -4,10 +4,13 @@ import com.example.streetleague.Repository.EvenementCommunauteRepository;
 import com.example.streetleague.Repository.SponsorRepository;
 import com.example.streetleague.Repository.SponsoringEvenementRepository;
 import com.example.streetleague.ServiceInterface.SponsoringEvenementService;
-import com.example.streetleague.domain.EvenementCommunaute;
-import com.example.streetleague.domain.Sponsor;
-import com.example.streetleague.domain.SponsoringEvenement;
+import com.example.streetleague.Entity.EvenementCommunaute;
+import com.example.streetleague.Entity.Sponsor;
+import com.example.streetleague.Entity.SponsoringEvenement;
+import com.example.streetleague.dto.CommunauteStatsDTO;
+import com.example.streetleague.dto.DashboardSponsorCommunauteDTO;
 import com.example.streetleague.dto.SponsoringEvenementDTO;
+import com.example.streetleague.dto.TopCommunauteDTO;
 import com.example.streetleague.mapper.SponsoringEvenementMapper;
 
 import org.springframework.http.HttpStatus;
@@ -15,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,5 +95,42 @@ public class SponsoringEvenementServiceImp implements SponsoringEvenementService
         SponsoringEvenement entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sponsoring introuvable"));
         repo.delete(entity);
+    }
+
+    @Override
+    @Transactional
+    public SponsoringEvenementDTO updateStatus(Long id, String statut) {
+        SponsoringEvenement entity = repo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Sponsoring introuvable avec l'ID : " + id));
+        
+        // Si rejeté, supprimer automatiquement
+        if ("REJETÉ".equals(statut)) {
+            repo.delete(entity);
+            return null; // Indiquer que l'élément a été supprimé
+        }
+        
+        // Si approuvé, mettre à jour le statut
+        entity.setStatut(statut);
+        SponsoringEvenement updated = repo.save(entity);
+        return mapper.toDTO(updated);
+    }
+
+    
+    // ===== MÉTIERS AVANCÉS : JOINTURES 3+ TABLES =====
+    
+    @Override
+    public List<CommunauteStatsDTO> getContributionTotaleParCommunaute() {
+        return repo.getContributionTotaleParCommunaute();
+    }
+
+    @Override
+    public List<TopCommunauteDTO> getTopCommunautesAvecSponsorings(String statut, Long seuilMinimum) {
+        return repo.getTopCommunautesAvecSponsorings(statut, seuilMinimum);
+    }
+
+    @Override
+    public List<DashboardSponsorCommunauteDTO> getDashboardSponsorParCommunaute(String statut) {
+        return repo.getDashboardSponsorParCommunaute(statut);
     }
 }

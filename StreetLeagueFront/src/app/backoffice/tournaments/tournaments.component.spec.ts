@@ -16,26 +16,26 @@ describe('Backoffice TournamentComponent', () => {
   let svcSpy: jasmine.SpyObj<TournamentService>;
 
   const toastSubject$   = new Subject<string>();
-  const filtersSubject$ = new BehaviorSubject<any>({ search: '', sport: '', status: '' });
+  const filtersSubject$ = new BehaviorSubject<any>({ search: '', sport: '', statut: '' });
 
   const mockTournaments: TournamentDto[] = [
     {
-      id: 1, name: 'Cup A', sportType: 'FOOTBALL', status: 'UPCOMING',
+      id: 1, nom: 'Cup A', sportType: 'FOOTBALL', statut: 'UPCOMING',
       tournamentType: 'TEAM', maxParticipants: 8, registeredCount: 3,
-      prizePool: 500, location: 'Paris',
+      prizePool: 500, lieu: 'Paris',
       startDate: '2026-06-01', endDate: '2026-06-10', registrationDeadline: '2026-05-25'
     },
     {
-      id: 2, name: 'Open B', sportType: 'TENNIS', status: 'COMPLETED',
+      id: 2, nom: 'Open B', sportType: 'TENNIS', statut: 'COMPLETED',
       tournamentType: 'INDIVIDUAL', maxParticipants: 16, registeredCount: 16,
-      prizePool: 200, location: 'Lyon',
+      prizePool: 200, lieu: 'Lyon',
       startDate: '2026-04-01', endDate: '2026-04-05', registrationDeadline: '2026-03-25'
     }
   ];
 
   const mockRegs: TournamentRegistrationDto[] = [
-    { id: 101, status: 'PENDING',    tournamentId: 1 },
-    { id: 102, status: 'CONFIRMED',  tournamentId: 1 }
+    { id: 101, statut: 'PENDING',    tournamentId: 1 },
+    { id: 102, statut: 'CONFIRMED',  tournamentId: 1 }
   ];
 
   beforeEach(async () => {
@@ -55,7 +55,7 @@ describe('Backoffice TournamentComponent', () => {
 
     svcSpy.getAll.and.returnValue(of(mockTournaments));
     svcSpy.applyFilters.and.returnValue(mockTournaments);
-    svcSpy.getFilters.and.returnValue({ search: '', sport: '', status: '' } as any);
+    svcSpy.getFilters.and.returnValue({ search: '', sport: '', statut: '' } as any);
 
     await TestBed.configureTestingModule({
       declarations: [TournamentComponent],
@@ -96,14 +96,14 @@ describe('Backoffice TournamentComponent', () => {
   });
 
   it('should apply filters when filters$ emits', () => {
-    filtersSubject$.next({ search: 'cup', sport: '', status: '' });
+    filtersSubject$.next({ search: 'cup', sport: '', statut: '' });
     expect(svcSpy.applyFilters).toHaveBeenCalled();
   });
 
   // ── load error ────────────────────────────────────────────
 
   it('loadTest — should set errorMessage and stop loading on failure', () => {
-    svcSpy.getAll.and.returnValue(throwError(() => ({ status: 500 })));
+    svcSpy.getAll.and.returnValue(throwError(() => ({ statut: 500 })));
     component.load();
     expect(component.errorMessage).toBe('Failed to load tournaments.');
     expect(component.isLoading).toBeFalse();
@@ -126,7 +126,7 @@ describe('Backoffice TournamentComponent', () => {
   it('onStatusFilterTest — should call updateFilters with status value', () => {
     const event = { target: { value: 'COMPLETED' } } as any;
     component.onStatusFilter(event);
-    expect(svcSpy.updateFilters).toHaveBeenCalledWith({ status: 'COMPLETED' });
+    expect(svcSpy.updateFilters).toHaveBeenCalledWith({ statut: 'COMPLETED' });
   });
 
   // ── Stats ─────────────────────────────────────────────────
@@ -195,11 +195,11 @@ describe('Backoffice TournamentComponent', () => {
     expect(component.isRequestsModalOpen).toBeTrue();
     expect(component.selectedTournament).toBe(mockTournaments[0]);
     expect(component.pendingRegistrations.length).toBe(1);
-    expect(component.pendingRegistrations[0].status).toBe('PENDING');
+    expect(component.pendingRegistrations[0].statut).toBe('PENDING');
   });
 
   it('openRequestsTest — should call showToast on error', () => {
-    svcSpy.getRegistrationsByTournament.and.returnValue(throwError(() => ({ status: 500 })));
+    svcSpy.getRegistrationsByTournament.and.returnValue(throwError(() => ({ statut: 500 })));
     component.openRequests(mockTournaments[0]);
     expect(svcSpy.showToast).toHaveBeenCalledWith(jasmine.stringContaining('Failed'));
     expect(component.isLoadingRequests).toBeFalse();
@@ -220,7 +220,7 @@ describe('Backoffice TournamentComponent', () => {
   // ── acceptRegistration ────────────────────────────────────
 
   it('acceptRegistrationTest — should do nothing when reg has no id', () => {
-    component.acceptRegistration({ status: 'PENDING' } as any);
+    component.acceptRegistration({ statut: 'PENDING' } as any);
     expect(svcSpy.acceptRegistration).not.toHaveBeenCalled();
   });
 
@@ -243,7 +243,7 @@ describe('Backoffice TournamentComponent', () => {
   // ── rejectRegistration ────────────────────────────────────
 
   it('rejectRegistrationTest — should do nothing when reg has no id', () => {
-    component.rejectRegistration({ status: 'PENDING' } as any);
+    component.rejectRegistration({ statut: 'PENDING' } as any);
     expect(svcSpy.rejectRegistration).not.toHaveBeenCalled();
   });
 
@@ -278,7 +278,7 @@ describe('Backoffice TournamentComponent', () => {
     component.openEdit(mockTournaments[0]);
     expect(component.isFormModalOpen).toBeTrue();
     expect(component.editingTournament).toBe(mockTournaments[0]);
-    expect(component.tournamentForm.value.name).toBe('Cup A');
+    expect(component.tournamentForm.value.nom).toBe('Cup A');
     expect(component.tournamentForm.value.sportType).toBe('FOOTBALL');
   });
 
@@ -305,9 +305,9 @@ describe('Backoffice TournamentComponent', () => {
     svcSpy.create.and.returnValue(of(mockTournaments[0]));
     component.editingTournament = null;
     component.tournamentForm.setValue({
-      name: 'New Cup', description: '', sportType: 'FOOTBALL', tournamentType: 'TEAM',
+      nom: 'New Cup', description: '', sportType: 'FOOTBALL', tournamentType: 'TEAM',
       startDate: '2026-07-01', endDate: '2026-07-10', registrationDeadline: '2026-06-25',
-      maxParticipants: 8, location: 'Paris', prizePool: null
+      maxParticipants: 8, lieu: 'Paris', prizePool: null
     });
     component.submitForm();
     expect(svcSpy.create).toHaveBeenCalled();
@@ -319,9 +319,9 @@ describe('Backoffice TournamentComponent', () => {
     svcSpy.update.and.returnValue(of(mockTournaments[0]));
     component.editingTournament = mockTournaments[0];
     component.tournamentForm.setValue({
-      name: 'Cup A Updated', description: '', sportType: 'FOOTBALL', tournamentType: 'TEAM',
+      nom: 'Cup A Updated', description: '', sportType: 'FOOTBALL', tournamentType: 'TEAM',
       startDate: '2026-07-01', endDate: '2026-07-10', registrationDeadline: '2026-06-25',
-      maxParticipants: 8, location: 'Paris', prizePool: null
+      maxParticipants: 8, lieu: 'Paris', prizePool: null
     });
     component.submitForm();
     expect(svcSpy.update).toHaveBeenCalledWith(1, jasmine.any(Object));
@@ -330,13 +330,13 @@ describe('Backoffice TournamentComponent', () => {
 
   it('submitFormTest — should show field validation errors on 400 with object error', () => {
     svcSpy.create.and.returnValue(throwError(() => ({
-      status: 400, error: { name: 'too short', location: 'required' }
+      statut: 400, error: { nom: 'too short', lieu: 'required' }
     })));
     component.editingTournament = null;
     component.tournamentForm.setValue({
-      name: 'New Cup', description: '', sportType: 'FOOTBALL', tournamentType: 'TEAM',
+      nom: 'New Cup', description: '', sportType: 'FOOTBALL', tournamentType: 'TEAM',
       startDate: '2026-07-01', endDate: '2026-07-10', registrationDeadline: '2026-06-25',
-      maxParticipants: 8, location: 'Paris', prizePool: null
+      maxParticipants: 8, lieu: 'Paris', prizePool: null
     });
     component.submitForm();
     expect(svcSpy.showToast).toHaveBeenCalledWith(jasmine.stringContaining('name'));
@@ -345,13 +345,13 @@ describe('Backoffice TournamentComponent', () => {
 
   it('submitFormTest — should show message error on other errors', () => {
     svcSpy.create.and.returnValue(throwError(() => ({
-      status: 409, error: { message: 'Tournament name already exists' }
+      statut: 409, error: { message: 'Tournament name already exists' }
     })));
     component.editingTournament = null;
     component.tournamentForm.setValue({
-      name: 'New Cup', description: '', sportType: 'FOOTBALL', tournamentType: 'TEAM',
+      nom: 'New Cup', description: '', sportType: 'FOOTBALL', tournamentType: 'TEAM',
       startDate: '2026-07-01', endDate: '2026-07-10', registrationDeadline: '2026-06-25',
-      maxParticipants: 8, location: 'Paris', prizePool: null
+      maxParticipants: 8, lieu: 'Paris', prizePool: null
     });
     component.submitForm();
     expect(svcSpy.showToast).toHaveBeenCalledWith(jasmine.stringContaining('already exists'));
@@ -412,7 +412,7 @@ describe('Backoffice TournamentComponent', () => {
 
   it('deleteTournamentTest — should call showToast on error', () => {
     spyOn(window, 'confirm').and.returnValue(true);
-    svcSpy.delete.and.returnValue(throwError(() => ({ status: 500 })));
+    svcSpy.delete.and.returnValue(throwError(() => ({ statut: 500 })));
     component.deleteTournament(mockTournaments[0]);
     expect(svcSpy.showToast).toHaveBeenCalledWith(jasmine.stringContaining('Error'));
   });
@@ -425,3 +425,5 @@ describe('Backoffice TournamentComponent', () => {
     expect(spy).toHaveBeenCalled();
   });
 });
+
+

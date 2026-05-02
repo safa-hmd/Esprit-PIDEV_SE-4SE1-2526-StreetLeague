@@ -9,13 +9,13 @@ import { TrainingService } from 'src/app/services/training.service';
 
 // ── Minimal stubs ─────────────────────────────────────────────────────────────
 const makeTeams = (overrides: any[] = []) =>
-  overrides.map((o, i) => ({ id: i + 1, name: `Team${i}`, sport: 'Football', playerCount: 10, ...o }));
+  overrides.map((o, i) => ({ id: i + 1, nom: `Team${i}`, sport: 'Football', playerCount: 10, ...o }));
 
 const makeMatches = (statuses: string[]) =>
   statuses.map((status, i) => ({ id: i + 1, status, homeTeam: 'A', awayTeam: 'B' }));
 
 const makeTrainings = (statuses: string[]) =>
-  statuses.map((status, i) => ({ id: i + 1, status, title: `Training${i}` }));
+  statuses.map((status, i) => ({ id: i + 1, status, titre: `Training${i}` }));
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -27,17 +27,17 @@ describe('HomeComponent', () => {
 
   beforeEach(() => {
     teamServiceSpy     = jasmine.createSpyObj('TeamService',     ['getAllTeams']);
-    matchServiceSpy    = jasmine.createSpyObj('MatchService',    ['getAllMatchs']);
+    matchServiceSpy    = jasmine.createSpyObj('MatchService',    ['getAllMatches']);
     trainingServiceSpy = jasmine.createSpyObj('TrainingService', ['getAllTrainings']);
     routerSpy          = jasmine.createSpyObj('Router',          ['navigate']);
 
     // Default happy-path responses
     teamServiceSpy.getAllTeams.and.returnValue(of(makeTeams([
-      { name: 'Alpha', playerCount: 20 },
-      { name: 'Beta',  playerCount: 5  },
-      { name: 'Gamma', playerCount: 15 },
+      { nom: 'Alpha', playerCount: 20 },
+      { nom: 'Beta',  playerCount: 5  },
+      { nom: 'Gamma', playerCount: 15 },
     ]) as any));
-    matchServiceSpy.getAllMatchs.and.returnValue(of(makeMatches([
+    matchServiceSpy.getAllMatches.and.returnValue(of(makeMatches([
       'SCHEDULED', 'ONGOING', 'FINISHED', 'CANCELLED', 'SCHEDULED'
     ]) as any));
     trainingServiceSpy.getAllTrainings.and.returnValue(of(makeTrainings([
@@ -95,7 +95,7 @@ describe('HomeComponent', () => {
 
   it('loadAllDataTest — should set topTeams to first 6 teams', () => {
     teamServiceSpy.getAllTeams.and.returnValue(of(makeTeams(
-      Array.from({ length: 8 }, (_, i) => ({ name: `T${i}` }))
+      Array.from({ length: 8 }, (_, i) => ({ nom: `T${i}` }))
     ) as any));
     fixture.detectChanges();
     expect(component.topTeams.length).toBe(6);
@@ -112,20 +112,20 @@ describe('HomeComponent', () => {
   });
 
   it('loadAllDataTest — should set isLoadingTeams to false on teams error', () => {
-    teamServiceSpy.getAllTeams.and.returnValue(throwError(() => ({ status: 500 })));
+    teamServiceSpy.getAllTeams.and.returnValue(throwError(() => ({ statut: 500 })));
     fixture.detectChanges();
     expect(component.isLoadingTeams).toBeFalse();
   });
 
   // ── loadAllData — matches ─────────────────────────────────
 
-  it('loadAllDataTest — should set totalMatches from getAllMatchs', () => {
+  it('loadAllDataTest — should set totalMatches from getAllMatches', () => {
     fixture.detectChanges();
     expect(component.totalMatches).toBe(5);
   });
 
   it('loadAllDataTest — should set recentMatches to first 5 matches', () => {
-    matchServiceSpy.getAllMatchs.and.returnValue(of(makeMatches(
+    matchServiceSpy.getAllMatches.and.returnValue(of(makeMatches(
       Array.from({ length: 10 }, () => 'SCHEDULED')
     ) as any));
     fixture.detectChanges();
@@ -133,7 +133,7 @@ describe('HomeComponent', () => {
   });
 
   it('loadAllDataTest — should set recentMatches to all when fewer than 5', () => {
-    matchServiceSpy.getAllMatchs.and.returnValue(
+    matchServiceSpy.getAllMatches.and.returnValue(
       of(makeMatches(['SCHEDULED', 'ONGOING']) as any)
     );
     fixture.detectChanges();
@@ -146,7 +146,7 @@ describe('HomeComponent', () => {
   });
 
   it('loadAllDataTest — should set isLoadingMatches to false on matches error', () => {
-    matchServiceSpy.getAllMatchs.and.returnValue(throwError(() => ({ status: 500 })));
+    matchServiceSpy.getAllMatches.and.returnValue(throwError(() => ({ statut: 500 })));
     fixture.detectChanges();
     expect(component.isLoadingMatches).toBeFalse();
   });
@@ -180,7 +180,7 @@ describe('HomeComponent', () => {
   });
 
   it('loadAllDataTest — should set isLoadingTrainings to false on trainings error', () => {
-    trainingServiceSpy.getAllTrainings.and.returnValue(throwError(() => ({ status: 500 })));
+    trainingServiceSpy.getAllTrainings.and.returnValue(throwError(() => ({ statut: 500 })));
     fixture.detectChanges();
     expect(component.isLoadingTrainings).toBeFalse();
   });
@@ -194,16 +194,16 @@ describe('HomeComponent', () => {
   }));
 
   it('checkReadyTest — should set dataReady to true even when one service errors', fakeAsync(() => {
-    matchServiceSpy.getAllMatchs.and.returnValue(throwError(() => ({ status: 500 })));
+    matchServiceSpy.getAllMatches.and.returnValue(throwError(() => ({ statut: 500 })));
     fixture.detectChanges();
     tick(100);
     expect(component.dataReady).toBeTrue();
   }));
 
   it('checkReadyTest — should set dataReady to true even when all services error', fakeAsync(() => {
-    teamServiceSpy.getAllTeams.and.returnValue(throwError(() => ({ status: 500 })));
-    matchServiceSpy.getAllMatchs.and.returnValue(throwError(() => ({ status: 500 })));
-    trainingServiceSpy.getAllTrainings.and.returnValue(throwError(() => ({ status: 500 })));
+    teamServiceSpy.getAllTeams.and.returnValue(throwError(() => ({ statut: 500 })));
+    matchServiceSpy.getAllMatches.and.returnValue(throwError(() => ({ statut: 500 })));
+    trainingServiceSpy.getAllTrainings.and.returnValue(throwError(() => ({ statut: 500 })));
     fixture.detectChanges();
     tick(100);
     expect(component.dataReady).toBeTrue();
@@ -211,7 +211,7 @@ describe('HomeComponent', () => {
 
   it('checkReadyTest — should NOT set dataReady until all 3 services have responded', () => {
     // Block matches from emitting — dataReady must stay false
-    matchServiceSpy.getAllMatchs.and.returnValue(new Observable(() => {}));
+    matchServiceSpy.getAllMatches.and.returnValue(new Observable(() => {}));
     fixture.detectChanges();
     expect(component.dataReady).toBeFalse();
   });
@@ -312,3 +312,4 @@ describe('HomeComponent', () => {
     expect(component.getProgressColor(26)).toBe('#f87171');
   });
 });
+

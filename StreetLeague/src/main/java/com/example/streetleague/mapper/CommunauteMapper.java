@@ -1,6 +1,6 @@
 package com.example.streetleague.mapper;
 
-import com.example.streetleague.domain.Communaute;
+import com.example.streetleague.Entity.Communaute;
 import com.example.streetleague.dto.CommunauteDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;

@@ -83,7 +83,7 @@
       <div class="col-dates">Dates</div>
       <div class="col-equipes">Teams / Players</div>
       <div class="col-inscription">Entry Fee</div>
-      <!--<div class="col-revenus">Revenue</div>-->
+      <!--<div class="col-revenue">Revenue</div>-->
       <div class="col-actions">Actions</div>
     </div>
 
@@ -92,14 +92,14 @@
 
       <!-- Name + badges -->
       <div class="col-name">
-        <div class="row-name">{{ t.name }}</div>
+        <div class="row-name">{{ t.nom }}</div>
         <div class="row-badges">
           <span class="badge" [ngClass]="svc.sportBadge(t.sportType)">{{ t.sportType }}</span>
           <span class="status-pill" [ngClass]="getStatusClass(t.status!)">
-            {{ svc.statusLabel(t.status!) }}
+            {{ svc.statutLabel(t.status!) }}
           </span>
         </div>
-        <div class="row-location" *ngIf="t.location">📍 {{ t.location }}</div>
+        <div class="row-location" *ngIf="t.lieu">📍 {{ t.lieu }}</div>
       </div>
 
       <!-- Dates -->
@@ -131,7 +131,7 @@
       </div>
 
       <!-- Revenue -->
-      <!--<div class="col-revenus">
+      <!--<div class="col-revenue">
         <span class="revenue" *ngIf="t.prizePool">${{ (t.registeredCount ?? 0) * t.prizePool! | number }}</span>
         <span class="revenue-null" *ngIf="!t.prizePool">—</span>
       </div>-->
@@ -139,7 +139,7 @@
       <!-- Actions -->
       <div class="col-actions">
 
-        <!-- Status labels (non-upcoming) -->
+        <!-- Status labels (no-upcoming) -->
         <span class="action-state" *ngIf="t.status === 'ONGOING'">In Progress</span>
         <span class="action-state completed" *ngIf="t.status === 'COMPLETED'">Completed</span>
         <span class="action-state cancelled" *ngIf="t.status === 'CANCELLED'">Cancelled</span>
@@ -185,7 +185,7 @@
     <div class="modal-head">
       <div>
         <span class="modal-title">Pending Requests</span>
-        <div *ngIf="selectedTournament" class="modal-sub">{{ selectedTournament.name }}</div>
+        <div *ngIf="selectedTournament" class="modal-sub">{{ selectedTournament.nom }}</div>
       </div>
       <button class="modal-close-btn" (click)="closeRequests()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -319,3 +319,5 @@
 
   </div>
 </div>
+
+

@@ -6,18 +6,17 @@ import { FrontofficeRoutingModule } from './frontoffice-routing.module';
 import { FrontofficeComponent } from './frontoffice.component';
 import { FooterComponent } from './footer/footer.component';
 import { NavbarComponent } from './navbar/navbar.component';
+import { HomeComponent } from './home/home.component';
 
-import { CommunauteModule } from '../components/communaute/communaute.module';
-import { EvenementModule } from '../components/evenement/evenement.module';
-import { SponsorModule } from '../components/sponsor/sponsor.module';
-import { SponsoringEvenementModule } from '../components/sponsoring-evenement/sponsoring-evenement.module';
-import { ContratSponsorModule } from '../components/contrat-sponsor/contrat-sponsor.module';
+import { CommunauteModule } from './communaute/communaute.module';
+import { EvenementModule } from './evenement/evenement.module';
 
 @NgModule({
   declarations: [
     FrontofficeComponent,
     NavbarComponent,
-    FooterComponent
+    FooterComponent,
+    HomeComponent
   ],
   imports: [
     CommonModule,
@@ -25,9 +24,6 @@ import { ContratSponsorModule } from '../components/contrat-sponsor/contrat-spon
     FrontofficeRoutingModule,
     CommunauteModule,
     EvenementModule,
-    SponsorModule,
-    SponsoringEvenementModule,
-    ContratSponsorModule,
   ]
 })
 export class FrontofficeModule { }

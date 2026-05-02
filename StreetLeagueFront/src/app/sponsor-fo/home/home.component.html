@@ -1,0 +1,136 @@
+<app-sponsor-navbar></app-sponsor-navbar>
+
+<!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1><span>Sponsor</span> Platform</h1>
+      <p>Gérez vos partenariats, soutenez les events et connectez-vous avec la community sportive.</p>
+      <div class="hero-btns">
+        <a routerLink="/sponsor/sponsor" class="btn-hero-primary">Mon Profil</a>
+        <a routerLink="/sponsor/evenement" class="btn-hero-outline">Découvrir les Events</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS STRIP -->
+  <div class="stats-strip">
+    <div class="stats-strip-inner">
+      <div><div class="strip-stat-val">456</div><div class="strip-stat-label">Sponsors Actifs</div></div>
+      <div><div class="strip-stat-val">1,234</div><div class="strip-stat-label">Events Sponsorisés</div></div>
+      <div><div class="strip-stat-val">89</div><div class="strip-stat-label">Communities Partenaires</div></div>
+      <div><div class="strip-stat-val">23</div><div class="strip-stat-label">Newx Contracts</div></div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="section">
+    <div class="section-inner">
+      <h2 class="section-title">Outils de Sponsoring</h2>
+      <p class="section-sub">Gérez facilement vos partenariats sportifs</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(230,25,32,0.1);">
+            <svg fill="none" stroke="#E61920" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <div class="feature-title">Gestion Sponsor</div>
+          <div class="feature-desc">Gérez votre profil et vos informations de sponsoring</div>
+          <a routerLink="/sponsor/sponsor" class="feature-link">En savoir plus</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(153,0,0,0.1);">
+            <svg fill="none" stroke="#990000" viewBox="0 0 24 24" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div class="feature-title">Contracts</div>
+          <div class="feature-desc">Suivez vos contracts de sponsoring</div>
+          <a routerLink="/sponsor/contract-sponsor" class="feature-link">En savoir plus</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(230,25,32,0.1);">
+            <svg fill="none" stroke="#E61920" viewBox="0 0 24 24" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="feature-title">Events</div>
+          <div class="feature-desc">Découvrez les events à sponsoriser</div>
+          <a routerLink="/sponsor/evenement" class="feature-link">En savoir plus</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(100,100,100,0.1);">
+            <svg fill="none" stroke="#555" viewBox="0 0 24 24" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div class="feature-title">Sponsorings Actifs</div>
+          <div class="feature-desc">Suivez vos sponsoring in progress</div>
+          <a routerLink="/sponsor/sponsoring-evenement" class="feature-link">En savoir plus</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(153,0,0,0.1);">
+            <svg fill="none" stroke="#990000" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="feature-title">Communities</div>
+          <div class="feature-desc">Explorez les communities sportives</div>
+          <a routerLink="/sponsor/communaute" class="feature-link">En savoir plus</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(230,25,32,0.1);">
+            <svg fill="none" stroke="#E61920" viewBox="0 0 24 24" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="feature-title">Analytics</div>
+          <div class="feature-desc">Suivez l'impact de vos sponsoring</div>
+          <a href="#" class="feature-link">En savoir plus</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UPCOMING EVENTS -->
+  <section class="section section-dark">
+    <div class="section-inner">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+        <h2 class="section-title" style="text-align:left;margin-bottom:0;">Events à Venir</h2>
+        <a routerLink="/sponsor/evenement" class="btn btn-outline btn-sm">Voir tout</a>
+      </div>
+      <div class="grid-3">
+        <div class="match-card">
+          <div class="match-teams">
+            <div class="match-team">Tournoi de Street Soccer</div>
+            <div class="match-vs">VS</div>
+            <div class="match-team">Sponsoring Disponible</div>
+          </div>
+          <div class="match-meta">
+            <div class="match-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Fév 15, 2026 à 18:00</div>
+            <div class="match-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Central Park Arena</div>
+          </div>
+        </div>
+        <div class="match-card">
+          <div class="match-teams">
+            <div class="match-team">Championnat Urbain</div>
+            <div class="match-vs">VS</div>
+            <div class="match-team">Partenariat Or</div>
+          </div>
+          <div class="match-meta">
+            <div class="match-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Fév 20, 2026 à 19:30</div>
+            <div class="match-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Downtown Stadium</div>
+          </div>
+        </div>
+        <div class="match-card">
+          <div class="match-teams">
+            <div class="match-team">Festival Sportif</div>
+            <div class="match-vs">VS</div>
+            <div class="match-team">Sponsoring Premium</div>
+          </div>
+          <div class="match-meta">
+            <div class="match-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Fév 25, 2026 à 14:00</div>
+            <div class="match-meta-row"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Riverside Court</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Prêt à Soutenir le Sport?</h2>
+    <p>Commencez à sponsoriser des events, soutenez des communities et développez votre marque.</p>
+    <a routerLink="/sponsor/sponsoring-evenement" class="btn-cta">Proposer un Sponsoring</a>
+  </section>
+
+<app-sponsor-footer></app-sponsor-footer>
+

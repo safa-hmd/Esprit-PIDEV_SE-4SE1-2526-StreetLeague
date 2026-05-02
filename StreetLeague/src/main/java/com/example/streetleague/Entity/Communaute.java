@@ -1,18 +1,13 @@
-package com.example.streetleague.domain;
+package com.example.streetleague.Entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Date;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "communaute")
 public class Communaute {
     @Id
@@ -23,7 +18,6 @@ public class Communaute {
     private String nom;
 
     private String description;
-
     private String type;
 
     @PastOrPresent(message = "La date de création doit être passée ou présente")
@@ -35,4 +29,18 @@ public class Communaute {
     @OneToMany(mappedBy = "communaute", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EvenementCommunaute> evenements;
 
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getNom() { return nom; }
+    public void setNom(String nom) { this.nom = nom; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
+    public Date getDateCreation() { return dateCreation; }
+    public void setDateCreation(Date dateCreation) { this.dateCreation = dateCreation; }
+    public Long getCreateurId() { return createurId; }
+    public void setCreateurId(Long createurId) { this.createurId = createurId; }
+    public List<EvenementCommunaute> getEvenements() { return evenements; }
+    public void setEvenements(List<EvenementCommunaute> evenements) { this.evenements = evenements; }
 }

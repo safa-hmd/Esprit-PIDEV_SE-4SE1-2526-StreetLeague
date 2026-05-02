@@ -65,9 +65,9 @@ describe('UserService', () => {
       });
 
       const req = httpMock.expectOne(`${base}/profile`);
-      req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+      req.flush('Unauthorized', { statut: 401, statusText: 'Unauthorized' });
 
-      expect(errorResponse.status).toBe(401);
+      expect(errorResponse.statut).toBe(401);
     });
   });
 
@@ -108,9 +108,9 @@ describe('UserService', () => {
       });
 
       const req = httpMock.expectOne(`${base}/profile`);
-      req.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
+      req.flush('Forbidden', { statut: 403, statusText: 'Forbidden' });
 
-      expect(errorResponse.status).toBe(403);
+      expect(errorResponse.statut).toBe(403);
     });
   });
 
@@ -171,9 +171,9 @@ describe('UserService', () => {
       });
 
       const req = httpMock.expectOne(`${base}/change-password`);
-      req.flush('Bad Request', { status: 400, statusText: 'Bad Request' });
+      req.flush('Bad Request', { statut: 400, statusText: 'Bad Request' });
 
-      expect(errorResponse.status).toBe(400);
+      expect(errorResponse.statut).toBe(400);
     });
   });
 
@@ -217,9 +217,9 @@ describe('UserService', () => {
       });
 
       const req = httpMock.expectOne(`${base}/profile`);
-      req.flush('Not Found', { status: 404, statusText: 'Not Found' });
+      req.flush('Not Found', { statut: 404, statusText: 'Not Found' });
 
-      expect(errorResponse.status).toBe(404);
+      expect(errorResponse.statut).toBe(404);
     });
   });
 
@@ -255,3 +255,4 @@ describe('UserService', () => {
     });
   });
 });
+

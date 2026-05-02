@@ -1,0 +1,78 @@
+<div class="admin-page">
+  <div class="admin-page-header">
+    <div class="page-title">
+      <button (click)="cancel()" class="btn-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+      <div><h1>New sponsor</h1><p>Create un profil sponsor</p></div>
+    </div>
+  </div>
+  <div *ngIf="error" class="alert alert-error">⚠ {{ error }}</div>
+  <div class="form-card">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Name <span class="req">*</span></label>
+        <input type="text" [(ngModel)]="formData.nom" name="name" class="form-input" placeholder="Ex: NikeAfrica" [disabled]="loading"/>
+      </div>
+      <div class="form-group">
+        <label>Sponsor type</label>
+        <div class="select-wrap">
+          <select [(ngModel)]="formData.type" name="type" class="form-select" [disabled]="loading">
+            <option *ngFor="let t of typeOptions" [value]="t">{{ t }}</option>
+          </select>
+          <svg class="select-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email de contact <span class="req">*</span></label>
+        <input type="email" [(ngModel)]="formData.contactEmail" name="contactEmail" class="form-input" placeholder="contact@sponsor.tn" [disabled]="loading"/>
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="tel" [(ngModel)]="formData.telephone" name="telephone" class="form-input" placeholder="+216 XX XXX XXX" [disabled]="loading"/>
+      </div>
+      <div class="form-group form-group-full">
+        <label>Address</label>
+        <input type="text" [(ngModel)]="formData.address" name="address" class="form-input" placeholder="Avenue Habib Bourguiba, Tunis" [disabled]="loading"/>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button (click)="cancel()" class="btn-cancel" [disabled]="loading">Cancel</button>
+      <button (click)="save()" class="btn-save btn-green" [disabled]="loading" id="btn-save-sponsor">
+        <span *ngIf="!loading">Create le sponsor</span>
+        <span *ngIf="loading" class="btn-spin"><span class="mini-spinner"></span>In progress...</span>
+      </button>
+    </div>
+  </div>
+</div>
+<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{font-family:'Inter',sans-serif;box-sizing:border-box;}
+.admin-page{padding:28px 32px;background:#f4f6fa;min-height:100vh;}
+.admin-page-header{margin-bottom:24px;}
+.page-title{display:flex;align-items:center;gap:12px;}
+.btn-back{width:36px;height:36px;border:1.5px solid #e0e4ee;background:white;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.btn-back svg{width:18px;height:18px;stroke:#555;}
+.page-title h1{margin:0 0 2px;font-size:20px;font-weight:800;color:#1a1a2e;}
+.page-title p{margin:0;font-size:13px;color:#888;}
+.alert{padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;font-weight:500;}
+.alert-error{background:#fdecea;color:#c0392b;border:1px solid #f5c6cb;}
+.form-card{background:white;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #edf0f7;padding:28px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.form-group{display:flex;flex-direction:column;gap:7px;}
+.form-group-full{grid-column:1/-1;}
+.form-group label{font-size:13px;font-weight:600;color:#444;}
+.req{color:#e61920;}
+.form-input,.form-select{width:100%;padding:10px 13px;border:1.5px solid #e8ecf3;border-radius:9px;font-size:14px;color:#1a1a2e;background:#fafbfd;transition:border-color 0.2s;font-family:'Inter',sans-serif;}
+.form-input:focus,.form-select:focus{outline:none;border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,0.1);background:white;}
+.select-wrap{position:relative;}
+.form-select{appearance:none;padding-right:36px;cursor:pointer;}
+.select-arr{position:absolute;right:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:#999;pointer-events:none;}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid #f0f2f7;}
+.btn-cancel{padding:10px 20px;background:#f4f6fa;border:1.5px solid #e0e4ee;border-radius:9px;color:#666;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-save{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;color:white;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-green{background:linear-gradient(135deg,#059669,#10b981);box-shadow:0 4px 12px rgba(5,150,105,0.3);}
+.btn-green:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 18px rgba(5,150,105,0.4);}
+.btn-save:disabled{opacity:0.65;cursor:not-allowed;transform:none;}
+.btn-spin{display:inline-flex;align-items:center;gap:8px;}
+.mini-spinner{width:13px;height:13px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}</style>
+
+

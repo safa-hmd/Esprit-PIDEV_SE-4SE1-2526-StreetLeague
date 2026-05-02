@@ -56,3 +56,4 @@ describe('EvenementCommunauteService', () => {
     req.flush(dto);
   });
 });
+

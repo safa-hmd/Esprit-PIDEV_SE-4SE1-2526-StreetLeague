@@ -64,14 +64,17 @@ export class SelectRoleComponent implements OnInit {
 
         // Rediriger selon le rôle
         switch (response.role) {
-          case 'ROLE_ADMIN':    this.router.navigateByUrl('/admin');  break;
-          case 'ROLE_COACH':    this.router.navigateByUrl('/coach');  break;
-          default:              this.router.navigateByUrl('/client'); break;
+          case 'ROLE_ADMIN':           this.router.navigateByUrl('/admin');    break;
+          case 'ROLE_COACH':           this.router.navigateByUrl('/coach');    break;
+          case 'ROLE_SPONSOR':
+          case 'ROLE_PLAYER':
+          case 'ROLE_COMMUNITY_MANAGER':
+          default:                     this.router.navigateByUrl('/client');    break;
         }
       },
       error: () => {
         this.isLoading    = false;
-        this.errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+        this.errorMessage = 'Une erreur est survenue. Please réessayer.';
       }
     });
   }

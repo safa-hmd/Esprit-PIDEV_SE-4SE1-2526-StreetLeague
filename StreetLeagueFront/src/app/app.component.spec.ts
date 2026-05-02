@@ -17,7 +17,7 @@ describe('AppComponent', () => {
   it(`should have as title 'StreetLeagueFront'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('StreetLeagueFront');
+    expect(app.titre).toEqual('StreetLeagueFront');
   });
 
   // ← test "should render title" supprimé car le HTML n'a pas de .content span

@@ -2,7 +2,7 @@ package com.example.streetleague.ServiceImp;
 
 import com.example.streetleague.Repository.CommunauteRepository;
 import com.example.streetleague.ServiceInterface.CommunauteService;
-import com.example.streetleague.domain.Communaute;
+import com.example.streetleague.Entity.Communaute;
 import com.example.streetleague.dto.CommunauteDTO;
 import com.example.streetleague.mapper.CommunauteMapper;
 
@@ -41,9 +41,7 @@ public class CommunauteServiceImp implements CommunauteService {
     @Override
     public CommunauteDTO update(Long id, CommunauteDTO dto) {
         Communaute entity = repo.findById(id).orElseThrow(() -> new RuntimeException("Communauté introuvable"));
-        Communaute updated = mapper.toEntity(dto);
-        updated.setId(entity.getId());
-        return mapper.toDTO(repo.save(updated));
+        entity.setNom(dto.nom()); entity.setDescription(dto.description()); entity.setType(dto.type()); entity.setDateCreation(dto.dateCreation()); entity.setCreateurId(dto.createurId()); return mapper.toDTO(repo.save(entity));
     }
 
     @Override
@@ -51,3 +49,4 @@ public class CommunauteServiceImp implements CommunauteService {
         repo.deleteById(id);
     }
 }
+

@@ -57,7 +57,7 @@ export class AdminLoginComponent {
         this.errorMessage =
           (typeof err === 'string' ? err : null) ||
           (typeof msg === 'string' ? msg : null) ||
-          'Email ou mot de passe incorrect.';
+          'Email ou password incorrect.';
       }
     });
   }

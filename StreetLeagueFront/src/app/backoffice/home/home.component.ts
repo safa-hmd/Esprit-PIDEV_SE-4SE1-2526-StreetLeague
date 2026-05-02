@@ -80,7 +80,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       error: () => { this.isLoadingTeams = false; this.checkReady(); }
     });
 
-    this.matchService.getAllMatchs().subscribe({
+    this.matchService.getAllMatches().subscribe({
       next: (data) => {
         this.allMatches    = data;
         this.totalMatches  = data.length;
@@ -122,10 +122,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   private buildMatchStatusChart(): void {
     const counts = {
-      SCHEDULED: this.allMatches.filter(m => m.status === 'SCHEDULED').length,
-      ONGOING:   this.allMatches.filter(m => m.status === 'ONGOING').length,
-      FINISHED:  this.allMatches.filter(m => m.status === 'FINISHED').length,
-      CANCELLED: this.allMatches.filter(m => m.status === 'CANCELLED').length,
+      SCHEDULED: this.allMatches.filter(m => m.statut === 'SCHEDULED').length,
+      ONGOING:   this.allMatches.filter(m => m.statut === 'ONGOING').length,
+      FINISHED:  this.allMatches.filter(m => m.statut === 'FINISHED').length,
+      CANCELLED: this.allMatches.filter(m => m.statut === 'CANCELLED').length,
     };
     const ctx = this.matchStatusRef?.nativeElement;
     if (!ctx) return;
@@ -151,9 +151,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   private buildTrainingStatusChart(): void {
     const counts = {
-      PLANNED:   this.allTrainings.filter(t => t.status === 'PLANNED').length,
-      COMPLETED: this.allTrainings.filter(t => t.status === 'COMPLETED').length,
-      CANCELLED: this.allTrainings.filter(t => t.status === 'CANCELLED').length,
+      PLANNED:   this.allTrainings.filter(t => t.statut === 'PLANNED').length,
+      COMPLETED: this.allTrainings.filter(t => t.statut === 'COMPLETED').length,
+      CANCELLED: this.allTrainings.filter(t => t.statut === 'CANCELLED').length,
     };
     const ctx = this.trainingStatusRef?.nativeElement;
     if (!ctx) return;
@@ -217,7 +217,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.charts.push(new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: top.map(t => t.name),
+        labels: top.map(t => t.nom),
         datasets: [{
           label: 'Players',
           data: top.map(t => t.playerCount || 0),
@@ -242,7 +242,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   goTo(path: string): void { this.router.navigate([path]); }
 
   // ── Helpers ───────────────────────────────────────────────
-  getMatchStatusClass(status: string): string {
+  getMatchStatusClass(statut: string): string {
     switch (status) {
       case 'SCHEDULED': return 'badge-scheduled';
       case 'ONGOING':   return 'badge-ongoing';
@@ -252,7 +252,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  getTrainingStatusClass(status: string): string {
+  getTrainingStatusClass(statut: string): string {
     switch (status) {
       case 'PLANNED':   return 'badge-scheduled';
       case 'COMPLETED': return 'badge-finished';
@@ -268,3 +268,5 @@ export class HomeComponent implements OnInit, AfterViewInit {
     return '#4e8a9f';
   }
 }
+
+

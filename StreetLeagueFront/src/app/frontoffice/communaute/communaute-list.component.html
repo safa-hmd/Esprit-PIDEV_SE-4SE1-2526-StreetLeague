@@ -1,0 +1,455 @@
+<div class="list-page">
+
+  <!-- Hero Header -->
+  <div class="list-hero">
+    <div class="list-hero-content">
+      <div class="list-hero-left">
+        <h1>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          Communities
+        </h1>
+        <p>Join sports communities and share your passion</p>
+      </div>
+      <button (click)="createNew()" [disabled]="loading" class="btn-create" *ngIf="canCreate()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        New Community
+      </button>
+    </div>
+  </div>
+
+  <!-- Main container -->
+  <div class="list-container">
+
+    <!-- Success alert -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      {{ successMessage }}
+    </div>
+
+    <!-- Error alert -->
+    <div *ngIf="error" class="alert alert-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      {{ error }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading && communautes.length === 0" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Chargement des communities...</p>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading && communautes.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </div>
+      <h3>nonee community</h3>
+      <p>Soyez le premier à create une community !</p>
+      <button (click)="createNew()" class="btn-create-empty" *ngIf="canCreate()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        Create une community
+      </button>
+    </div>
+
+    <!-- Communities grid -->
+    <div *ngIf="communautes.length > 0" class="communities-grid">
+      <div *ngFor="let c of communautes" class="community-card">
+
+        <!-- Card top accent -->
+        <div class="card-accent"></div>
+
+        <!-- Card header -->
+        <div class="card-header">
+          <div class="card-avatar">
+            <span>{{ c.nom.charAt(0).toUpperCase() }}</span>
+          </div>
+          <div class="card-meta">
+            <div class="card-badges">
+              <span class="badge badge-type">{{ c.type }}</span>
+              <span *ngIf="c.estMembre" class="badge badge-member">✓ Membre</span>
+            </div>
+            <h3>{{ c.nom }}</h3>
+            <p class="card-date">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              {{ c.dateCreation | date:'dd/MM/yyyy' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <p class="card-description">{{ c.description || 'nonee description disponible.' }}</p>
+
+        <!-- Divider -->
+        <hr class="card-divider">
+
+        <!-- Actions -->
+        <div class="card-actions">
+          <!-- Join / Leave -->
+          <button *ngIf="!c.estMembre && canJoin()" (click)="join(c.id)" [disabled]="loading" class="btn-join">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+            </svg>
+            Join
+          </button>
+          <button *ngIf="c.estMembre && canJoin()" (click)="leave(c.id)" [disabled]="loading" class="btn-leave">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            Leave
+          </button>
+
+          <!-- Voir details -->
+          <button (click)="viewDetail(c.id)" class="btn-detail">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+            Details
+          </button>
+
+          <!-- Edit -->
+          <button (click)="editCommunaute(c.id)" class="btn-edit" *ngIf="canEdit()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            Edit
+          </button>
+
+          <!-- Delete -->
+          <button (click)="delete(c.id)" [disabled]="loading" class="btn-delete" *ngIf="canDelete()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+.list-page {
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  background: #f4f6fa;
+}
+
+/* Hero */
+.list-hero {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+.list-hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -5%;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(230, 25, 32, 0.18) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.list-hero-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.list-hero-left h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 6px 0;
+  color: white;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+.list-hero-left h1 svg { width: 26px; height: 26px; stroke: #e61920; }
+.list-hero-left p { margin: 0; color: rgba(255,255,255,0.55); font-size: 14px; }
+
+.btn-create {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  background: linear-gradient(135deg, #e61920, #ff3d44);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(230, 25, 32, 0.35);
+  flex-shrink: 0;
+}
+.btn-create:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(230, 25, 32, 0.45); }
+.btn-create:disabled { opacity: 0.65; cursor: not-allowed; }
+.btn-create svg { width: 17px; height: 17px; }
+
+/* Container */
+.list-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+}
+
+/* Alerts */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.alert svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+.alert-success { background: #d4edda; border: 1px solid #b8dfc5; color: #1a6b3a; }
+.alert-success svg { stroke: #1a6b3a; }
+.alert-error { background: #fdecea; border: 1px solid #f5c6cb; color: #c0392b; }
+.alert-error svg { stroke: #c0392b; }
+
+/* Loading */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  gap: 14px;
+  color: #888;
+  font-size: 15px;
+}
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e8e8e8;
+  border-top-color: #e61920;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+}
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+.empty-icon svg { width: 40px; height: 40px; stroke: #ccc; }
+.empty-state h3 { margin: 0 0 8px; font-size: 20px; color: #333; }
+.empty-state p { margin: 0 0 24px; color: #888; font-size: 15px; }
+.btn-create-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #e61920, #ff3d44);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+}
+.btn-create-empty svg { width: 16px; height: 16px; }
+
+/* Grid */
+.communities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* Community card */
+.community-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  border: 1px solid #edf0f7;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+.community-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+}
+
+.card-accent {
+  height: 4px;
+  background: linear-gradient(90deg, #e61920, #ff8c42);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px 20px 14px;
+}
+
+.card-avatar {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+.card-avatar span {
+  font-size: 22px;
+  font-weight: 800;
+  color: white;
+}
+
+.card-meta { flex: 1; min-width: 0; }
+
+.card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.badge {
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.badge-type { background: #eef2ff; color: #4f46e5; border: 1px solid #ddd6fe; }
+.badge-member { background: #d4edda; color: #1a6b3a; border: 1px solid #b8dfc5; }
+
+.card-meta h3 {
+  margin: 0 0 5px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a2e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-date {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  color: #999;
+  font-size: 12px;
+}
+.card-date svg { width: 12px; height: 12px; }
+
+.card-description {
+  margin: 0;
+  padding: 0 20px 16px;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.65;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-divider {
+  border: none;
+  border-top: 1px solid #f0f2f7;
+  margin: 0;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 16px;
+  flex-wrap: wrap;
+}
+
+/* Action buttons */
+.btn-join, .btn-leave, .btn-detail, .btn-edit, .btn-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+}
+.btn-join svg, .btn-leave svg, .btn-detail svg, .btn-edit svg, .btn-delete svg { width: 14px; height: 14px; }
+
+.btn-join { background: #d4edda; color: #1a6b3a; }
+.btn-join:hover:not(:disabled) { background: #c3e6cb; }
+
+.btn-leave { background: #fdecea; color: #c0392b; }
+.btn-leave:hover:not(:disabled) { background: #f5c6cb; }
+
+.btn-detail { background: #e0f0ff; color: #1a6b9a; }
+.btn-detail:hover { background: #cce5ff; }
+
+.btn-edit { background: #fff3cd; color: #856404; }
+.btn-edit:hover { background: #ffeeba; }
+
+.btn-delete {
+  background: #fff0f0;
+  color: #c0392b;
+  margin-left: auto;
+  padding: 7px 10px;
+}
+.btn-delete:hover:not(:disabled) { background: #fdecea; }
+.btn-delete:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-join:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-leave:disabled { opacity: 0.5; cursor: not-allowed; }
+</style>
+
+
+

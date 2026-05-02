@@ -203,12 +203,12 @@ describe('LoginComponent', () => {
   });
 
   it('onSubmitTest — should set errorMessage on login failure', () => {
-    authServiceSpy.login.and.returnValue(throwError(() => ({ status: 401 })));
+    authServiceSpy.login.and.returnValue(throwError(() => ({ statut: 401 })));
 
     component.loginForm.setValue({ email: 'test@test.com', password: 'wrongpass' });
     component.onSubmit();
 
-    expect(component.errorMessage).toBe('Email ou mot de passe incorrect.');
+    expect(component.errorMessage).toBe('Email ou password incorrect.');
     expect(component.isLoading).toBeFalse();
   });
 

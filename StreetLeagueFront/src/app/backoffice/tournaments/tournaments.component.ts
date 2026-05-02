@@ -80,7 +80,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
 
   private buildForm(): void {
     this.tournamentForm = this.fb.group({
-      name:                 ['', [Validators.required, Validators.minLength(3)]],
+      nom:                 ['', [Validators.required, Validators.minLength(3)]],
       description:          [''],
       sportType:            ['FOOTBALL',   Validators.required],
       tournamentType:       ['TEAM',       Validators.required],
@@ -88,7 +88,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
       endDate:              ['',           Validators.required],
       registrationDeadline: ['',           Validators.required],
       maxParticipants:      [8, [Validators.required, Validators.min(2)]],
-      location:             ['',           Validators.required],
+      lieu:             ['',           Validators.required],
       prizePool:            [null],
     });
   }
@@ -117,7 +117,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
     this.svc.updateFilters({ sport: (e.target as HTMLSelectElement).value as SportType | '' });
   }
   onStatusFilter(e: Event): void {
-    this.svc.updateFilters({ status: (e.target as HTMLSelectElement).value as TournamentStatus | '' });
+    this.svc.updateFilters({ statut: (e.target as HTMLSelectElement).value as TournamentStatus | '' });
   }
 
   // ── Requests modal (Admin: see PENDING registrations) ─────────────────────
@@ -131,7 +131,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
     this.svc.getRegistrationsByTournament(t.id!).pipe(takeUntil(this.destroy$)).subscribe({
       next: regs => {
         // Only show PENDING registrations to admin
-        this.pendingRegistrations = regs.filter(r => r.status === 'PENDING');
+        this.pendingRegistrations = regs.filter(r => r.statut === 'PENDING');
         this.isLoadingRequests = false;
       },
       error: () => {
@@ -206,7 +206,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
     error: err => {
       this.isSaving = false;
 
-      // Erreurs @Valid → { name: "...", location: "..." }
+      // Erreurs @Valid → { nom: "...", lieu: "..." }
       if (err.status === 400 && typeof err.error === 'object' && !err.error.message) {
         const messages = Object.entries(err.error)
           .map(([field, msg]) => `• ${field}: ${msg}`)
@@ -225,7 +225,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
   // ── Admin actions ─────────────────────────────────────────────────────────
 
   cancelTournament(t: TournamentDto): void {
-    if (!t.id || !confirm(`Cancel "${t.name}"?`)) return;
+    if (!t.id || !confirm(`Cancel "${t.nom}"?`)) return;
     this.svc.cancel(t.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => { this.svc.showToast('Tournament cancelled.'); this.load(); },
       error: err => this.svc.showToast(`❌ ${err?.error?.message ?? 'Error'}`)
@@ -233,7 +233,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
   }
 
   deleteTournament(t: TournamentDto): void {
-    if (!t.id || !confirm(`Permanently delete "${t.name}"?`)) return;
+    if (!t.id || !confirm(`Permanently delete "${t.nom}"?`)) return;
     this.svc.delete(t.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => { this.svc.showToast('Tournament deleted.'); this.load(); },
       error: () => this.svc.showToast('❌ Error deleting tournament.')
@@ -264,12 +264,12 @@ export class TournamentComponent implements OnInit, OnDestroy {
     return this.allTournaments.reduce((sum, t) => sum + (t.prizePool ?? 0), 0);
   }
 
-  getCountByStatus(status: TournamentStatus): number {
-    return this.allTournaments.filter(t => t.status === status).length;
+  getCountByStatus(statut: TournamentStatus): number {
+    return this.allTournaments.filter(t => t.statut === status).length;
   }
 
   // ── Classes CSS dynamiques ─────────────────────────────────────────────────
-  getStatusClass(status: TournamentStatus): string {
+  getStatusClass(statut: TournamentStatus): string {
     const map: Record<TournamentStatus, string> = {
       'UPCOMING':  'status-upcoming',
       'ONGOING':   'status-ongoing',
@@ -287,3 +287,6 @@ export class TournamentComponent implements OnInit, OnDestroy {
   }
 
 }
+
+
+

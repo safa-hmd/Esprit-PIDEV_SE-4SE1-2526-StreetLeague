@@ -1,4 +1,4 @@
-package com.example.streetleague.domain;
+package com.example.streetleague.Entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;

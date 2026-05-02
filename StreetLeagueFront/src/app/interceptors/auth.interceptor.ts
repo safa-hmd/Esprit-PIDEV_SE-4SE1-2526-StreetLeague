@@ -19,15 +19,15 @@ export class AuthInterceptor implements HttpInterceptor {
     // Récupérer le token depuis localStorage
     const token = localStorage.getItem('TokenUserConnect');
 
-    // Si pas de token → envoyer la requête sans modification (endpoint public)
+    // Si pas de token → send la requête sans modification (endpoint public)
     if (!token) {
       return next.handle(request);
     }
 
-    // Nettoyer le token (supprimer les guillemets JSON éventuels)
+    // Nettoyer le token (delete les guillemets JSON éventuels)
     const cleanToken = token.replace(/"/g, '');
 
-    // Cloner la requête et ajouter le header Authorization
+    // Cloner la requête et add le header Authorization
     const authRequest = request.clone({
       setHeaders: {
         Authorization: `Bearer ${cleanToken}`,

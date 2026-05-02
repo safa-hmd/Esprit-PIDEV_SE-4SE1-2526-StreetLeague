@@ -10,4 +10,5 @@ public interface ContratSponsorService {
     ContratSponsorDTO getById(Long id);
     ContratSponsorDTO update(Long id, ContratSponsorDTO dto);
     void delete(Long id);
+    ContratSponsorDTO updateStatus(Long id, String statut);
 }

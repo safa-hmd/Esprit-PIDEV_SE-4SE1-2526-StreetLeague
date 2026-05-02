@@ -7,9 +7,9 @@ import { Observable, of } from 'rxjs';
 export class AdherenceCommunauteService {
 
   /**
-   * Ajouter un utilisateur à une communauté (localStorage)
+   * Add un utilisateur à une community (localStorage)
    */
-  rejoindre(userId: number, communauteId: number): Observable<any> {
+  join(userId: number, communauteId: number): Observable<any> {
     const adherences = this.getAdherencesFromStorage();
     
     // Vérifier si l'adhésion existe déjà
@@ -22,7 +22,7 @@ export class AdherenceCommunauteService {
   }
 
   /**
-   * Vérifier si l'utilisateur fait déjà partie de la communauté
+   * Vérifier si l'utilisateur fait déjà partie de la community
    */
   estMembre(userId: number, communauteId: number): Observable<boolean> {
     const adherences = this.getAdherencesFromStorage();
@@ -31,9 +31,9 @@ export class AdherenceCommunauteService {
   }
 
   /**
-   * Quitter une communauté (localStorage)
+   * Leave une community (localStorage)
    */
-  quitter(userId: number, communauteId: number): Observable<void> {
+  leave(userId: number, communauteId: number): Observable<void> {
     const adherences = this.getAdherencesFromStorage();
     const filtered = adherences.filter(a => !(a.userId === userId && a.communauteId === communauteId));
     localStorage.setItem('MesCommunautes', JSON.stringify(filtered));
@@ -41,7 +41,7 @@ export class AdherenceCommunauteService {
   }
 
   /**
-   * Récupérer les communautés rejointes par l'utilisateur
+   * Récupérer les communities rejointes par l'utilisateur
    */
   getMesCommunautes(userId: number): Observable<number[]> {
     const adherences = this.getAdherencesFromStorage();
@@ -52,9 +52,9 @@ export class AdherenceCommunauteService {
   }
 
   /**
-   * Récupérer les membres d'une communauté
+   * Récupérer les members d'une community
    */
-  getMembres(communauteId: number): Observable<number[]> {
+  getMembers(communauteId: number): Observable<number[]> {
     const adherences = this.getAdherencesFromStorage();
     const userIds = adherences
       .filter(a => a.communauteId === communauteId)

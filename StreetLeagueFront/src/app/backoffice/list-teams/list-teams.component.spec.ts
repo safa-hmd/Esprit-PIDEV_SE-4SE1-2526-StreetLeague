@@ -12,25 +12,25 @@ describe('ListTeamsComponent', () => {
   let matchServiceSpy: jasmine.SpyObj<MatchService>;
 
   const mockTeams = [
-    { idTeam: 1, name: 'Thunder FC', sport: 'Soccer', captainFullName: 'John', playerCount: 5 },
-    { idTeam: 2, name: 'Lions FC',   sport: 'Basketball', captainFullName: 'Sara', playerCount: 3 }
+    { idTeam: 1, nom: 'Thunder FC', sport: 'Soccer', captainFullName: 'John', playerCount: 5 },
+    { idTeam: 2, nom: 'Lions FC',   sport: 'Basketball', captainFullName: 'Sara', playerCount: 3 }
   ];
 
   const mockMatches = [
     { idMatch: 1, teamAName: 'Thunder FC', teamBName: 'Lions FC',
-      location: 'Park', status: 'SCHEDULED', matchDate: '2026-05-01T18:00:00',
+      lieu: 'Park', statut: 'SCHEDULED', matchDate: '2026-05-01T18:00:00',
       scoreTeamA: 0, scoreTeamB: 0, captainName: 'John' },
     { idMatch: 2, teamAName: 'Team A', teamBName: 'Team B',
-      location: 'Arena', status: 'FINISHED', matchDate: '2026-04-01T18:00:00',
+      lieu: 'Arena', statut: 'FINISHED', matchDate: '2026-04-01T18:00:00',
       scoreTeamA: 2, scoreTeamB: 1, captainName: 'Ali' }
   ];
 
   beforeEach(async () => {
     teamServiceSpy  = jasmine.createSpyObj('TeamService',  ['getAllTeams', 'deleteTeam']);
-    matchServiceSpy = jasmine.createSpyObj('MatchService', ['getAllMatchs', 'deleteMatch']);
+    matchServiceSpy = jasmine.createSpyObj('MatchService', ['getAllMatches', 'deleteMatch']);
 
     teamServiceSpy.getAllTeams.and.returnValue(of(mockTeams as any));
-    matchServiceSpy.getAllMatchs.and.returnValue(of(mockMatches as any));
+    matchServiceSpy.getAllMatches.and.returnValue(of(mockMatches as any));
 
     await TestBed.configureTestingModule({
       declarations: [ListTeamsComponent],
@@ -58,7 +58,7 @@ describe('ListTeamsComponent', () => {
   });
 
   it('should load matches on init', () => {
-    expect(matchServiceSpy.getAllMatchs).toHaveBeenCalled();
+    expect(matchServiceSpy.getAllMatches).toHaveBeenCalled();
     expect(component.matches.length).toBe(2);
   });
 
@@ -73,7 +73,7 @@ describe('ListTeamsComponent', () => {
   // ── loadTeams error ───────────────────────────────────────
 
   it('should set errorMsg when loadTeams fails', () => {
-    teamServiceSpy.getAllTeams.and.returnValue(throwError(() => ({ status: 500 })));
+    teamServiceSpy.getAllTeams.and.returnValue(throwError(() => ({ statut: 500 })));
     component.loadTeams();
     expect(component.errorMsg).toBe('Error loading teams.');
     expect(component.isLoading).toBeFalse();
@@ -82,7 +82,7 @@ describe('ListTeamsComponent', () => {
   // ── loadMatches error ─────────────────────────────────────
 
   it('should set matchErrorMsg when loadMatches fails', () => {
-    matchServiceSpy.getAllMatchs.and.returnValue(throwError(() => ({ status: 500 })));
+    matchServiceSpy.getAllMatches.and.returnValue(throwError(() => ({ statut: 500 })));
     component.loadMatches();
     expect(component.matchErrorMsg).toBe('Error loading matches.');
     expect(component.isLoadingMatches).toBeFalse();
@@ -94,7 +94,7 @@ describe('ListTeamsComponent', () => {
     component.searchQuery = 'thunder';
     component.applyFilter();
     expect(component.filteredTeams.length).toBe(1);
-    expect(component.filteredTeams[0].name).toBe('Thunder FC');
+    expect(component.filteredTeams[0].nom).toBe('Thunder FC');
   });
 
   it('applyFilterTest — should filter teams by captainFullName', () => {
@@ -189,7 +189,7 @@ describe('ListTeamsComponent', () => {
     spyOn(window, 'confirm').and.returnValue(true);
     localStorage.setItem('EmailUserConnect', 'admin@test.com');
     teamServiceSpy.deleteTeam.and.returnValue(
-      throwError(() => ({ error: { message: 'Forbidden' }, status: 403 }))
+      throwError(() => ({ error: { message: 'Forbidden' }, statut: 403 }))
     );
     component.deleteTeam(mockTeams[0] as any);
     expect(component.errorMsg).toContain('Thunder FC');
@@ -217,9 +217,10 @@ describe('ListTeamsComponent', () => {
   it('deleteMatchTest — should set matchErrorMsg on error', () => {
     spyOn(window, 'confirm').and.returnValue(true);
     matchServiceSpy.deleteMatch.and.returnValue(
-      throwError(() => ({ status: 500 }))
+      throwError(() => ({ statut: 500 }))
     );
     component.deleteMatch(1);
     expect(component.matchErrorMsg).toBe('Cannot delete this match.');
   });
 });
+

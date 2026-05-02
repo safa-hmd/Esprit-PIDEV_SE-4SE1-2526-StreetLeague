@@ -154,7 +154,7 @@ describe('ResetPasswordComponent', () => {
 
     component.onSubmit();
 
-    expect(component.successMsg).toBe('Mot de passe modifié ! Redirection...');
+    expect(component.successMsg).toBe('Password modifié ! Redirection...');
   });
 
   it('onSubmitTest — should set isLoading to false after success', () => {
@@ -194,17 +194,17 @@ describe('ResetPasswordComponent', () => {
 
   it('onSubmitTest — should set errorMsg for status 400', () => {
     createComponent();
-    authServiceSpy.resetPassword.and.returnValue(throwError(() => ({ status: 400 })));
+    authServiceSpy.resetPassword.and.returnValue(throwError(() => ({ statut: 400 })));
     component.form.setValue({ newPassword: 'NewPass1!', confirmPassword: 'NewPass1!' });
 
     component.onSubmit();
 
-    expect(component.errorMsg).toBe('Lien expiré ou invalide. Veuillez recommencer.');
+    expect(component.errorMsg).toBe('Lien expiré ou invalide. Please recommencer.');
   });
 
-  it('onSubmitTest — should set generic errorMsg for non-400 errors', () => {
+  it('onSubmitTest — should set generic errorMsg for no-400 errors', () => {
     createComponent();
-    authServiceSpy.resetPassword.and.returnValue(throwError(() => ({ status: 500 })));
+    authServiceSpy.resetPassword.and.returnValue(throwError(() => ({ statut: 500 })));
     component.form.setValue({ newPassword: 'NewPass1!', confirmPassword: 'NewPass1!' });
 
     component.onSubmit();
@@ -214,7 +214,7 @@ describe('ResetPasswordComponent', () => {
 
   it('onSubmitTest — should set isLoading to false after error', () => {
     createComponent();
-    authServiceSpy.resetPassword.and.returnValue(throwError(() => ({ status: 500 })));
+    authServiceSpy.resetPassword.and.returnValue(throwError(() => ({ statut: 500 })));
     component.form.setValue({ newPassword: 'NewPass1!', confirmPassword: 'NewPass1!' });
 
     component.onSubmit();
@@ -224,7 +224,7 @@ describe('ResetPasswordComponent', () => {
 
   it('onSubmitTest — should NOT navigate on error', fakeAsync(() => {
     createComponent();
-    authServiceSpy.resetPassword.and.returnValue(throwError(() => ({ status: 400 })));
+    authServiceSpy.resetPassword.and.returnValue(throwError(() => ({ statut: 400 })));
     component.form.setValue({ newPassword: 'NewPass1!', confirmPassword: 'NewPass1!' });
 
     component.onSubmit();

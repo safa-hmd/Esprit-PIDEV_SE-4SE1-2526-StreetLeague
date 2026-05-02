@@ -1,6 +1,6 @@
 package com.example.streetleague.mapper;
 
-import com.example.streetleague.domain.SponsoringEvenement;
+import com.example.streetleague.Entity.SponsoringEvenement;
 import com.example.streetleague.dto.SponsoringEvenementDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -78,12 +78,12 @@ describe('SelectRoleComponent', () => {
   // ── ngOnInit ──────────────────────────────────────────────
 
   it('ngOnInitTest — should read email from queryParams', () => {
-    queryParamsSubject.next({ email: 'john@test.com', name: 'John Doe' });
+    queryParamsSubject.next({ email: 'john@test.com', nom: 'John Doe' });
     expect(component.email).toBe('john@test.com');
   });
 
   it('ngOnInitTest — should read fullName from queryParams', () => {
-    queryParamsSubject.next({ email: 'john@test.com', name: 'John Doe' });
+    queryParamsSubject.next({ email: 'john@test.com', nom: 'John Doe' });
     expect(component.fullName).toBe('John Doe');
   });
 
@@ -117,7 +117,7 @@ describe('SelectRoleComponent', () => {
   // ── confirm — request ─────────────────────────────────────
 
   it('confirmTest — should call POST complete-google-register with correct body', () => {
-    queryParamsSubject.next({ email: 'john@test.com', name: 'John Doe' });
+    queryParamsSubject.next({ email: 'john@test.com', nom: 'John Doe' });
     component.selectRole('COACH');
 
     component.confirm();
@@ -196,19 +196,20 @@ describe('SelectRoleComponent', () => {
 
   it('confirmTest — should set errorMessage on failure', () => {
     component.confirm();
-    httpMock.expectOne(API_URL).flush(null, { status: 500, statusText: 'Server Error' });
-    expect(component.errorMessage).toBe('Une erreur est survenue. Veuillez réessayer.');
+    httpMock.expectOne(API_URL).flush(null, { statut: 500, statusText: 'Server Error' });
+    expect(component.errorMessage).toBe('Une erreur est survenue. Please réessayer.');
   });
 
   it('confirmTest — should set isLoading to false after error', () => {
     component.confirm();
-    httpMock.expectOne(API_URL).flush(null, { status: 500, statusText: 'Server Error' });
+    httpMock.expectOne(API_URL).flush(null, { statut: 500, statusText: 'Server Error' });
     expect(component.isLoading).toBeFalse();
   });
 
   it('confirmTest — should NOT navigate on error', () => {
     component.confirm();
-    httpMock.expectOne(API_URL).flush(null, { status: 500, statusText: 'Server Error' });
+    httpMock.expectOne(API_URL).flush(null, { statut: 500, statusText: 'Server Error' });
     expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
   });
 });
+

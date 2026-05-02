@@ -109,7 +109,7 @@ export class FieldReservationComponent implements OnInit {
         const d = new Date(r.createdAt || '');
         return d.getMonth() === now.getMonth() &&
                d.getFullYear() === now.getFullYear() &&
-               r.status === ReservationStatus.APPROVED;
+               r.statut === ReservationStatus.APPROVED;
       })
       .reduce((sum, r) => sum + (r.totalPrice ?? 0), 0);
   }
@@ -229,8 +229,8 @@ export class FieldReservationComponent implements OnInit {
     const q = this.searchQuery.toLowerCase().trim();
     this.filteredFields = q
       ? this.fields.filter(f =>
-          f.name.toLowerCase().includes(q) ||
-          f.location.toLowerCase().includes(q) ||
+          f.nom.toLowerCase().includes(q) ||
+          f.lieu.toLowerCase().includes(q) ||
           f.sportType.toLowerCase().includes(q)
         )
       : [...this.fields];
@@ -253,7 +253,7 @@ export class FieldReservationComponent implements OnInit {
     return `${capacity}v${capacity}`;
   }
 
-  statusClass(status: ReservationStatus | undefined): string {
+  statusClass(statut: ReservationStatus | undefined): string {
     switch (status) {
       case ReservationStatus.APPROVED:  return 'badge-approved';
       case ReservationStatus.REJECTED:  return 'badge-rejected';
@@ -273,10 +273,10 @@ export class FieldReservationComponent implements OnInit {
 
   private buildFieldForm(): void {
     this.fieldForm = this.fb.group({
-      name:         ['', [Validators.required, Validators.minLength(3)]],
+      nom:         ['', [Validators.required, Validators.minLength(3)]],
       description:  [''],
       sportType:    [SportType.FOOTBALL, Validators.required],
-      location:     ['', Validators.required],
+      lieu:     ['', Validators.required],
       imageUrl:     [''],
       pricePerHour: [null, [Validators.required, Validators.min(0)]],
       capacity:     [null, [Validators.required, Validators.min(1)]],
@@ -291,3 +291,6 @@ export class FieldReservationComponent implements OnInit {
     setTimeout(() => (this.showToast = false), 3000);
   }
 }
+
+
+

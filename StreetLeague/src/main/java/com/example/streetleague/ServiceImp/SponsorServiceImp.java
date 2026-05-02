@@ -4,7 +4,8 @@ import com.example.streetleague.Repository.ContratSponsorRepository;
 import com.example.streetleague.Repository.SponsorRepository;
 import com.example.streetleague.Repository.SponsoringEvenementRepository;
 import com.example.streetleague.ServiceInterface.SponsorService;
-import com.example.streetleague.domain.Sponsor;
+import com.example.streetleague.Entity.Sponsor;
+import com.example.streetleague.dto.ComparaisonSponsorDTO;
 import com.example.streetleague.dto.SponsorDTO;
 import com.example.streetleague.mapper.SponsorMapper;
 
@@ -69,5 +70,35 @@ public class SponsorServiceImp implements SponsorService {
         sponsoringEvenementRepository.deleteAllForSponsor(id);
         contratSponsorRepository.deleteAllForSponsor(id);
         repo.delete(sponsor);
+    }
+
+    @Override
+    @Transactional
+    public SponsorDTO updateStatus(Long id, String statut) {
+        Sponsor sponsor = repo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Sponsor introuvable avec l'ID : " + id));
+        
+        // Si rejeté, supprimer automatiquement
+        if ("REJETÉ".equals(statut)) {
+            // Supprimer les relations d'abord
+            sponsoringEvenementRepository.deleteAllForSponsor(id);
+            contratSponsorRepository.deleteAllForSponsor(id);
+            // Supprimer le sponsor
+            repo.delete(sponsor);
+            return null; // Indiquer que l'élément a été supprimé
+        }
+        
+        // Si approuvé, mettre à jour le statut
+        sponsor.setStatut(statut);
+        Sponsor updated = repo.save(sponsor);
+        return mapper.toDTO(updated);
+    }
+
+    // ===== MÉTIER AVANCÉ : SOUS-REQUÊTES CORRÉLÉES 3 TABLES =====
+    
+    @Override
+    public List<ComparaisonSponsorDTO> getComparaisonContratsVsSponsorings() {
+        return repo.getComparaisonContratsVsSponsorings();
     }
 }
