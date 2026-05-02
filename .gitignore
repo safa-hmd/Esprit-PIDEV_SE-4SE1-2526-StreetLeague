@@ -8,6 +8,7 @@ StreetLeagueFront/node_modules/
 StreetLeagueFront/dist/
 StreetLeagueFront/.angular/
 
+<<<<<<< HEAD
 # Flask API
 flask_api/venv/
 flask_api/__pycache__/
@@ -15,6 +16,8 @@ flask_api/*.pyc
 flask_api/models/*.pkl
 flask_api/streetleague_dynamic_pricing.csv
 
+=======
+>>>>>>> feature/newsHealth
 # Python général
 venv/
 env/

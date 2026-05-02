@@ -219,23 +219,22 @@ public class MatchServiceImpl implements ImatchService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
         boolean isAdmin    = user.getRole() == Role.ADMIN;
-
         boolean isCaptainA = match.getTeamA().getCaptain().getIdUser().equals(userId);
         boolean isCaptainB = match.getTeamB().getCaptain().getIdUser().equals(userId);
 
         if (!isAdmin && !isCaptainA && !isCaptainB)
             throw new RuntimeException("Only the captain of TeamA or TeamB can delete this match");
-        if (match.getStatus() == MatchStatus.FINISHED)
-            throw new RuntimeException("Cannot delete a finished match");
+
+        // ✅ Supprimer cette ligne :
+        // if (match.getStatus() == MatchStatus.FINISHED)
+        //     throw new RuntimeException("Cannot delete a finished match");
 
         Team teamA = match.getTeamA();
         Team teamB = match.getTeamB();
 
-        // ── Notification suppression ──────────────────────────────────
         String notifMsg = String.format(
                 "Match Cancelled\n%s vs %s\nWas scheduled for: %s\nLocation: %s",
-                teamA.getName(),
-                teamB.getName(),
+                teamA.getName(), teamB.getName(),
                 match.getMatchDate().format(FMT),
                 match.getLocation()
         );

@@ -3,6 +3,7 @@ package com.example.streetleague.ServiceImp;
 import com.example.streetleague.Entity.Team;
 import com.example.streetleague.Repository.MatchRepository;
 import com.example.streetleague.Repository.TeamRepository;
+import com.example.streetleague.Repository.TournamentMatchRepository;
 import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.IteamService;
 import com.example.streetleague.domain.Role;
@@ -23,13 +24,16 @@ public class TeamServiceImpl implements IteamService {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final MatchRepository matchRepository;
+    private final TournamentMatchRepository tournamentMatchRepository;
 
-    public TeamServiceImpl(TeamRepository teamRepository, 
-                           UserRepository userRepository, 
-                           MatchRepository matchRepository) {
+    public TeamServiceImpl(TeamRepository teamRepository,
+                           UserRepository userRepository,
+                           MatchRepository matchRepository,
+                           TournamentMatchRepository tournamentMatchRepository) {
         this.teamRepository = teamRepository;
         this.userRepository = userRepository;
         this.matchRepository = matchRepository;
+        this.tournamentMatchRepository = tournamentMatchRepository;
     }
 
     @Transactional
@@ -127,6 +131,7 @@ public class TeamServiceImpl implements IteamService {
     }
 
     @Override
+    @Transactional
     public void deleteTeam(Long idTeam, Long userId) {
         Team team = teamRepository.findById(idTeam)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + idTeam));
@@ -134,19 +139,21 @@ public class TeamServiceImpl implements IteamService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
-        // ✅ ADMIN peut supprimer n'importe quelle team, sinon seulement le capitaine
         boolean isAdmin = user.getRole() == Role.ADMIN;
         if (!isAdmin && !team.getCaptain().getIdUser().equals(userId))
             throw new RuntimeException("Only the team captain or an admin can delete this team");
 
-        // ✅ 1. Supprimer les matchs associés (teamA ou teamB)
+        // ✅ 1. Casser les liens FK dans tournament_matches avant de supprimer les matchs
+        tournamentMatchRepository.clearMatchLinkByTeamId(idTeam);
+
+        // ✅ 2. Supprimer les matchs associés
         matchRepository.deleteByTeamAIdOrTeamBId(idTeam);
 
-        // ✅ 2. Retirer tous les joueurs de la team (évite la contrainte FK)
+        // ✅ 3. Retirer les joueurs
         team.getPlayers().clear();
         teamRepository.save(team);
 
-        // ✅ 3. Supprimer la team
+        // ✅ 4. Supprimer la team
         teamRepository.deleteById(idTeam);
     }
 

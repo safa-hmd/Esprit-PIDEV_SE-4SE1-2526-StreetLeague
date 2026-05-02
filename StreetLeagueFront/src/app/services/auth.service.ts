@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
 
 export interface RegisterRequest {
   fullName: string;
@@ -30,11 +29,13 @@ export interface AuthResponse {
 })
 export class AuthService {
 
+  private baseUrl = 'http://localhost:8086/StreetLeague'; // ✅ port + context path corrects
+
   constructor(private http: HttpClient) {}
 
   register(req: RegisterRequest): Observable<string> {
     return this.http.post(
-      `http://localhost:8086/StreetLeague/auth/register`, req,
+      `${this.baseUrl}/auth/register`, req,
       { responseType: 'text' }
     );
   }
@@ -64,8 +65,9 @@ getToken(): string | null {
 
   login(req: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
-      `http://localhost:8086/StreetLeague/auth/login`, req
+      `${this.baseUrl}/auth/login`, req
     ).pipe(
+
 
       tap(response => {
         localStorage.setItem('TokenUserConnect', response.token);
@@ -73,6 +75,7 @@ getToken(): string | null {
         localStorage.setItem('RoleUserConnect',  response.role);
 
        localStorage.setItem('UserIdConnect', String(response.idUser)); 
+
 
       })
     );
@@ -135,4 +138,13 @@ getCurrentUserId(): number {
   const id = localStorage.getItem('UserIdConnect');
   return id ? parseInt(id) : 0;
 }
+
+  // ✅ URL correcte avec port 8086 + context path /StreetLeague
+  getUserIdByEmail(): Observable<number> {
+    const email = localStorage.getItem('EmailUserConnect');
+    return this.http.get<number>(
+      `${this.baseUrl}/auth/getUserId?email=${email}`
+    );
+  }
+
 }

@@ -45,11 +45,16 @@ public class MatchController {
 
     // DELETE /match/delete/1?email=captain@mail.com
     @DeleteMapping("delete/{idMatch}")
-    public void deleteMatch(@PathVariable Long idMatch,
-                            @RequestParam String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found: " + email));
-        imatchService.deleteMatch(idMatch, user.getIdUser());
+    public ResponseEntity<?> deleteMatch(@PathVariable Long idMatch,
+                                         @RequestParam String email) {
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+            imatchService.deleteMatch(idMatch, user.getIdUser());
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     // GET /match/showMatchs

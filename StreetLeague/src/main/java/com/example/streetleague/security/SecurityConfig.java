@@ -23,9 +23,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.client.RestTemplate;
-import java.util.List;
 
+import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
@@ -59,6 +58,7 @@ public class SecurityConfig {
             @Qualifier("authProvider") DaoAuthenticationProvider daoAuthProvider
     ) throws Exception {
         http
+
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authenticationProvider(daoAuthProvider)
@@ -76,9 +76,7 @@ public class SecurityConfig {
                                 "/api/contrat", "/api/contrat/**",
                                 "/api/contrat-sponsor", "/api/contrat-sponsor/**"
                         ).permitAll()
-                        // Aligné sur StreetLeagueApp (demo RBAC + APIs sponsor)
-                        .requestMatchers("/student/**").hasRole("STUDENT")
-                        .requestMatchers("/teacher/**").hasRole("TEACHER")
+
                         // Front /client (PLAYER, COACH, etc.) : CRUD API métier avec JWT valide
                         .requestMatchers("/api/sponsor/**").authenticated()
                         .requestMatchers("/api/sponsoring/**").authenticated()
@@ -91,6 +89,11 @@ public class SecurityConfig {
                         //.requestMatchers("/matchmaking/**").permitAll()
                         .requestMatchers("/api/matchmaking/**").permitAll()
                         .requestMatchers("/api/performance/**").permitAll()
+                        .requestMatchers("/api/fields/**").permitAll()
+                        .requestMatchers("/api/registrations/**").permitAll()
+                        .requestMatchers("/api/tournaments/**").permitAll()
+
+
 
                         .requestMatchers("/team/add", "/team/update/**").hasAnyRole("PLAYER", "COACH")
                         .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
@@ -108,24 +111,41 @@ public class SecurityConfig {
                         .requestMatchers("/api/pricing/**").permitAll()
 
                         // Endpoints publics (login, register, forgot/reset password)
+
+                        //houssem
+
+                        .requestMatchers("/api/transporteurs/**").permitAll()
+                        .requestMatchers("/livraisons/**").permitAll()
+
+
+
+                        // Auth publique
+
                         .requestMatchers("/auth/**").permitAll()
-                        // Endpoints protégés par rôle
+
+                        // WebSocket — DOIT être avant tout autre règle
+                        .requestMatchers("/ws/**").permitAll()
+
+                        // Health
+                        .requestMatchers("/health/**").permitAll()
+
                         // Posts
                         .requestMatchers(HttpMethod.GET,    "/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/posts/like/**").hasRole("PLAYER")
+                        .requestMatchers(HttpMethod.POST,   "/posts/like/**").hasRole("PLAYER")
+                        .requestMatchers(HttpMethod.POST,   "/posts/dislike/**").hasRole("PLAYER")
                         .requestMatchers(HttpMethod.POST,   "/posts/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/posts/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/posts/**").hasRole("ADMIN")
 
-
-                        // Comments - PLAYER
-                        .requestMatchers(HttpMethod.GET,    "/comments/**").hasAnyRole("ADMIN", "PLAYER") //
+                        // Comments
+                        .requestMatchers(HttpMethod.GET,    "/comments/**").hasAnyRole("ADMIN", "PLAYER")
                         .requestMatchers(HttpMethod.POST,   "/comments/**").hasRole("PLAYER")
                         .requestMatchers(HttpMethod.PUT,    "/comments/**").hasRole("PLAYER")
                         .requestMatchers(HttpMethod.DELETE, "/comments/**").hasRole("PLAYER")
 
-
+                        // Water reminders
                         .requestMatchers("/water-reminders/**").hasRole("PLAYER")
+
 
 
                         // Tout autre endpoint nécessite une authentification
@@ -145,12 +165,14 @@ public class SecurityConfig {
                         .successHandler(new OAuth2AuthSuccessHandler(userRepository, jwtService))
                 );
 
+
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
+
 
         config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:4201"));
 
@@ -161,13 +183,12 @@ public class SecurityConfig {
         // Méthodes HTTP autorisées (OPTIONS obligatoire pour les requêtes CORS preflight)
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE" ,"PATCH","OPTIONS"));
+
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-
-
 
 }

@@ -1,6 +1,10 @@
 package com.example.streetleague.Controller;
 
+
 import com.example.streetleague.ServiceImp.EmailService;
+
+import com.example.streetleague.Repository.UserRepository;
+
 import com.example.streetleague.ServiceInterface.IAuthService;
 import com.example.streetleague.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -8,13 +12,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-//@CrossOrigin("*")
+
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final IAuthService authService;
+
     private final EmailService emailService;
+
+    private final UserRepository userRepository;
+
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
@@ -27,6 +35,7 @@ public class AuthController {
         AuthResponse response = authService.login(req);
         return ResponseEntity.ok(response);
     }
+
 
     @PostMapping("/complete-google-register")
     public ResponseEntity<AuthResponse> completeGoogleRegister(@RequestBody CompleteGoogleRegisterRequest req) {
@@ -45,5 +54,14 @@ public class AuthController {
         authService.resetPassword(req);
         return ResponseEntity.ok("Mot de passe réinitialisé avec succès");
     }
+//        @GetMapping("/getUserId")
+//    public Long getUserId(@RequestParam String email) {
+//        return userRepository.findByEmail(email)
+//                .orElseThrow(() -> new RuntimeException("User not found"))
+//                .getId();
+//    }
 
 }
+
+
+

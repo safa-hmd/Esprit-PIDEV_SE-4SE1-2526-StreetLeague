@@ -27,8 +27,15 @@ public class GlobalExceptionHandler {
      * - Token invalide / expiré / déjà utilisé
      * - Mot de passe actuel incorrect
      */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException ex) {
+//    @ExceptionHandler(IllegalArgumentException.class)
+//    public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException ex) {
+//        return ResponseEntity.badRequest().body(Map.of(
+//                "error", ex.getMessage()
+//        ));
+//    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<?> handleIllegalState(IllegalStateException ex) {
         return ResponseEntity.badRequest().body(Map.of(
                 "error", ex.getMessage()
         ));

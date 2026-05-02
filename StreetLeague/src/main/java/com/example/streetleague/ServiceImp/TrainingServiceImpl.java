@@ -402,6 +402,7 @@ public class TrainingServiceImpl implements ItrainingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TrainingResponse> getUpcomingTrainingsWithDetails() {
         return trainingRepo.findUpcomingTrainingsWithTeamAndCoach(LocalDateTime.now())
                 .stream()

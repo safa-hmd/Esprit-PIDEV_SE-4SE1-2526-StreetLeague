@@ -21,6 +21,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   userRole     = '';
   userInitials = '';   // NEW — displayed in avatar circle
 
+
   dropdownOpen = false;
   menuOpen     = false;
   notifOpen    = false;
@@ -197,4 +198,5 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (!t.closest('.account-menu')) this.dropdownOpen = false;
     if (!t.closest('.notif-menu'))   this.notifOpen   = false;
   }
+
 }

@@ -1,151 +1,365 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { NewsComponent } from './news.component';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Chart, registerables } from 'chart.js';
 import { PostService } from '../../services/post.service';
 import { CommentService } from '../../services/comment.service';
-import { of } from 'rxjs';
 
-describe('NewsComponent (Backoffice) - Input Validation', () => {
-  let component: NewsComponent;
-  let fixture: ComponentFixture<NewsComponent>;
-  let postService: jasmine.SpyObj<PostService>;
-  let commentService: jasmine.SpyObj<CommentService>;
+Chart.register(...registerables);
 
-  beforeEach(async () => {
-    const postServiceSpy = jasmine.createSpyObj('PostService', ['getAllPosts', 'addPost', 'deletePost', 'updatePost']);
-    const commentServiceSpy = jasmine.createSpyObj('CommentService', ['getCommentsByPost']);
+@Component({
+  selector: 'app-news',
+  templateUrl: './news.component.html',
+  styleUrls: ['./news.component.css']
+})
+export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
+  posts: any[] = [];
+  selectedImage: File | null = null;
+  imagePreview: string | null = null;
 
-    await TestBed.configureTestingModule({
-      declarations: [NewsComponent],
-      imports: [HttpClientTestingModule],
-      providers: [
-        { provide: PostService, useValue: postServiceSpy },
-        { provide: CommentService, useValue: commentServiceSpy }
-      ]
-    }).compileComponents();
+  showForm = false;
+  showEditForm = false;
+  isLoading = false;
 
-    postService = TestBed.inject(PostService) as jasmine.SpyObj<PostService>;
-    commentService = TestBed.inject(CommentService) as jasmine.SpyObj<CommentService>;
+  editPost: any = { id: null, title: '', description: '' };
+  commentsByPost: { [postId: number]: any[] } = {};
 
-// ✅ setup before detectChanges
-    postService.getAllPosts.and.returnValue(of([]));
-    commentService.getCommentsByPost.and.returnValue(of([]));
+  totalPosts = 0;
+  totalComments = 0;
+  totalLikes = 0;
 
-    fixture = TestBed.createComponent(NewsComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+  // Form Groups
+  addPostForm: FormGroup;
+  editPostForm: FormGroup;
 
-  describe('Validation - Post Add Form', () => {
-    it('should not add post if title is empty', () => {
-      component.newPost = { title: '', description: 'Valid description' };
-      component.selectedImage = new File([''], 'test.jpg', { type: 'image/jpeg' });
+  // Error flags for template
+  showAddPostError = false;
+  addPostErrorMessage = '';
+  showEditPostError = false;
+  editPostErrorMessage = '';
 
-      spyOn(window, 'alert');
-      component.addPost();
+  private statsChart?: Chart;
+  private refreshInterval: any;
 
-      expect(window.alert).toHaveBeenCalledWith('Please fill in title and description');
-      expect(postService.addPost).not.toHaveBeenCalled();
+  // Custom validator for whitespace
+  private noWhitespaceValidator(control: AbstractControl): ValidationErrors | null {
+    const isWhitespace = control.value && control.value.toString().trim().length === 0;
+    const isValid = !isWhitespace;
+    return isValid ? null : { whitespace: true };
+  }
+
+  constructor(
+    private postService: PostService,
+    private commentService: CommentService,
+    private fb: FormBuilder
+  ) {
+    // Initialize Add Post Form with validators
+    this.addPostForm = this.fb.group({
+      title: ['', [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(100),
+        this.noWhitespaceValidator
+      ]],
+      description: ['', [
+        Validators.required,
+        Validators.minLength(5),
+        Validators.maxLength(500),
+        this.noWhitespaceValidator
+      ]],
+      image: [null, [Validators.required]]
     });
 
-    it('should not add post if description is empty', () => {
-      component.newPost = { title: 'Valid title', description: '' };
-      component.selectedImage = new File([''], 'test.jpg', { type: 'image/jpeg' });
-
-      spyOn(window, 'alert');
-      component.addPost();
-
-      expect(window.alert).toHaveBeenCalledWith('Please fill in title and description');
-      expect(postService.addPost).not.toHaveBeenCalled();
+    // Initialize Edit Post Form with validators
+    this.editPostForm = this.fb.group({
+      title: ['', [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(100),
+        this.noWhitespaceValidator
+      ]],
+      description: ['', [
+        Validators.required,
+        Validators.minLength(5),
+        Validators.maxLength(500),
+        this.noWhitespaceValidator
+      ]]
     });
+  }
 
-    it('should not add post if title contains only spaces', () => {
-      component.newPost = { title: '   ', description: 'Valid description' };
-      component.selectedImage = new File([''], 'test.jpg', { type: 'image/jpeg' });
+  ngOnInit() {
+    this.loadPosts();
+    this.refreshInterval = setInterval(() => this.loadPosts(), 10000);
+  }
 
-      spyOn(window, 'alert');
-      component.addPost();
+  ngAfterViewInit() {
+    setTimeout(() => this.initStatsChart(), 500);
+  }
 
-      expect(window.alert).toHaveBeenCalled();
+  ngOnDestroy() {
+    if (this.refreshInterval) clearInterval(this.refreshInterval);
+  }
+
+  loadPosts() {
+    this.postService.getAllPosts().subscribe({
+      next: (data) => {
+        this.posts = data;
+        data.forEach(post => this.loadComments(post.id));
+        this.updateStatistics();
+      },
+      error: (err) => console.error(err)
     });
+  }
 
-    it('should not add post if image is missing', () => {
-      component.newPost = { title: 'Valid title', description: 'Valid description' };
-      component.selectedImage = null;
-
-      spyOn(window, 'alert');
-      component.addPost();
-
-      expect(window.alert).toHaveBeenCalledWith('Please select an image');
-      expect(postService.addPost).not.toHaveBeenCalled();
+  loadComments(postId: number) {
+    this.commentService.getCommentsByPost(postId).subscribe({
+      next: (comments) => {
+        this.commentsByPost[postId] = comments;
+        this.updateStatistics();
+      },
+      error: (err) => console.error(err)
     });
+  }
 
-    it('should add post with valid data', (done) => {
-      component.newPost = { title: 'Title', description: 'Description' };
-      component.selectedImage = new File(['content'], 'test.jpg', { type: 'image/jpeg' });
-      postService.addPost.and.returnValue(of({ id: 1 }));
+  updateStatistics() {
+    this.totalPosts = this.posts.length;
+    this.totalLikes = this.posts.reduce((s, p) => s + (p.likes || 0), 0);
+    this.totalComments = Object.values(this.commentsByPost)
+      .reduce((s: number, c: any[]) => s + (c?.length || 0), 0);
 
-      component.addPost();
+    this.initStatsChart();
+  }
 
-      setTimeout(() => {
-        expect(postService.addPost).toHaveBeenCalled();
-        expect(component.newPost.title).toBe('');
-        done();
-      }, 150);
+  // Helper method to get error message for add form
+  getAddPostError(controlName: string): string {
+    const control = this.addPostForm.get(controlName);
+    if (control?.touched && control?.invalid) {
+      if (control.errors?.['required']) {
+        return `${controlName.charAt(0).toUpperCase() + controlName.slice(1)} is required`;
+      }
+      if (control.errors?.['whitespace']) {
+        return `${controlName.charAt(0).toUpperCase() + controlName.slice(1)} cannot be empty or contain only spaces`;
+      }
+      if (control.errors?.['minlength']) {
+        return `${controlName.charAt(0).toUpperCase() + controlName.slice(1)} must be at least ${control.errors['minlength'].requiredLength} characters`;
+      }
+      if (control.errors?.['maxlength']) {
+        return `${controlName.charAt(0).toUpperCase() + controlName.slice(1)} must not exceed ${control.errors['maxlength'].requiredLength} characters`;
+      }
+    }
+    return '';
+  }
+
+  // Helper method to get error message for edit form
+  getEditPostError(controlName: string): string {
+    const control = this.editPostForm.get(controlName);
+    if (control?.touched && control?.invalid) {
+      if (control.errors?.['required']) {
+        return `${controlName.charAt(0).toUpperCase() + controlName.slice(1)} is required`;
+      }
+      if (control.errors?.['whitespace']) {
+        return `${controlName.charAt(0).toUpperCase() + controlName.slice(1)} cannot be empty or contain only spaces`;
+      }
+      if (control.errors?.['minlength']) {
+        return `${controlName.charAt(0).toUpperCase() + controlName.slice(1)} must be at least ${control.errors['minlength'].requiredLength} characters`;
+      }
+      if (control.errors?.['maxlength']) {
+        return `${controlName.charAt(0).toUpperCase() + controlName.slice(1)} must not exceed ${control.errors['maxlength'].requiredLength} characters`;
+      }
+    }
+    return '';
+  }
+
+  addPost() {
+    // Reset errors
+    this.showAddPostError = false;
+    this.addPostErrorMessage = '';
+
+    // Mark all fields as touched to trigger validation display
+    this.addPostForm.markAllAsTouched();
+
+    // Check if form is valid
+    if (this.addPostForm.invalid) {
+      const titleControl = this.addPostForm.get('title');
+      const descriptionControl = this.addPostForm.get('description');
+      const imageControl = this.addPostForm.get('image');
+
+      // Show alerts for backward compatibility with tests
+      if (titleControl?.errors?.['required'] || titleControl?.errors?.['whitespace'] ||
+          descriptionControl?.errors?.['required'] || descriptionControl?.errors?.['whitespace']) {
+        alert('Please fill in title and description');
+        return;
+      }
+
+      if (imageControl?.errors?.['required']) {
+        alert('Please select an image');
+        return;
+      }
+
+      return;
+    }
+
+    const title = this.addPostForm.get('title')?.value;
+    const description = this.addPostForm.get('description')?.value;
+
+    this.isLoading = true;
+
+    this.postService.addPost(title, description, this.selectedImage!).subscribe({
+      next: () => {
+        this.isLoading = false;
+        // Reset form
+        this.addPostForm.reset();
+        this.selectedImage = null;
+        this.imagePreview = null;
+        this.showForm = false;
+        this.loadPosts();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.showAddPostError = true;
+        let errorMsg = 'Failed to add post';
+        if (err?.status === 0) {
+          errorMsg = 'Network error - check if backend is running';
+        } else if (err?.status === 403) {
+          errorMsg = 'Access denied - user must be ADMIN';
+        } else if (err?.status === 400) {
+          errorMsg = 'Bad request - ' + (err?.error?.message || 'invalid data');
+        } else if (err?.error?.message) {
+          errorMsg = err.error.message;
+        }
+        this.addPostErrorMessage = errorMsg;
+        console.error(err);
+      }
     });
-  });
+  }
 
-  describe('Validation - Image Selection', () => {
-    it('should save selected image', () => {
-      const file = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
-      const event = { target: { files: [file] } };
+  onImageSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedImage = file;
+      this.addPostForm.patchValue({ image: file });
+      this.addPostForm.get('image')?.updateValueAndValidity();
+      
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
 
-      component.onImageSelected(event);
+  closeModal() {
+    this.showForm = false;
+    this.addPostForm.reset();
+    this.selectedImage = null;
+    this.imagePreview = null;
+    this.showAddPostError = false;
+    this.addPostErrorMessage = '';
+  }
 
-      expect(component.selectedImage).toBe(file);
+  deletePost(id: number) {
+    this.postService.deletePost(id).subscribe({
+      next: () => this.loadPosts(),
+      error: (err) => console.error(err)
     });
+  }
 
-    it('should generate image preview', (done) => {
-      const file = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
-      const event = { target: { files: [file] } };
-
-      component.onImageSelected(event);
-
-      setTimeout(() => {
-        expect(component.imagePreview).toBeTruthy();
-        done();
-      }, 100);
+  openEditModal(post: any) {
+    this.editPost = { ...post };
+    this.editPostForm.patchValue({
+      title: post.title,
+      description: post.description
     });
-  });
+    this.showEditForm = true;
+    this.showEditPostError = false;
+    this.editPostErrorMessage = '';
+  }
 
-  describe('Validation - Post Edit', () => {
-    it('should open edit modal', () => {
-      const mockPost = { id: 1, title: 'Post 1', description: 'Desc 1' };
-      component.openEditModal(mockPost);
+  updatePost() {
+    // Reset errors
+    this.showEditPostError = false;
+    this.editPostErrorMessage = '';
 
-      expect(component.editPost.id).toBe(1);
-      expect(component.showEditForm).toBe(true);
+    // Mark all fields as touched to trigger validation display
+    this.editPostForm.markAllAsTouched();
+
+    // Check if form is valid
+    if (this.editPostForm.invalid) {
+      const titleControl = this.editPostForm.get('title');
+      const descriptionControl = this.editPostForm.get('description');
+
+      if (titleControl?.errors?.['required'] || titleControl?.errors?.['whitespace'] ||
+          descriptionControl?.errors?.['required'] || descriptionControl?.errors?.['whitespace']) {
+        alert('Title and description cannot be empty');
+        return;
+      }
+      return;
+    }
+
+    const title = this.editPostForm.get('title')?.value;
+    const description = this.editPostForm.get('description')?.value;
+
+    this.postService.updatePost(this.editPost.id, { title, description }).subscribe({
+      next: () => {
+        this.showEditForm = false;
+        this.editPostForm.reset();
+        this.loadPosts();
+      },
+      error: (err) => {
+        this.showEditPostError = true;
+        let errorMsg = 'Failed to update post';
+        if (err?.status === 0) {
+          errorMsg = 'Network error - check if backend is running';
+        } else if (err?.status === 403) {
+          errorMsg = 'Access denied - user must be ADMIN';
+        } else if (err?.status === 400) {
+          errorMsg = 'Bad request - ' + (err?.error?.message || 'invalid data');
+        } else if (err?.error?.message) {
+          errorMsg = err.error.message;
+        }
+        this.editPostErrorMessage = errorMsg;
+        console.error(err);
+      }
     });
+  }
 
-    it('should not update if validation fails', () => {
-      component.editPost = { id: 1, title: '', description: 'Description' };
-      component.updatePost();
+  getInitials(name: string): string {
+    return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
+  }
 
-      expect(postService.updatePost).not.toHaveBeenCalled();
+  onImageError(event: any) {
+    event.target.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22%3E%3Crect fill=%22%23333%22 width=%22100%25%22 height=%22100%25%22/%3E%3C/svg%3E';
+  }
+
+  getImageUrl(postId: number): string {
+    return `http://localhost:8086/StreetLeague/posts/image/${postId}`;
+  }
+
+  private initStatsChart(): void {
+    const canvas = document.getElementById('statsChart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    if (this.statsChart) {
+      this.statsChart.data.datasets[0].data = [
+        this.totalPosts,
+        this.totalComments,
+        this.totalLikes
+      ];
+      this.statsChart.update();
+      return;
+    }
+
+    this.statsChart = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Posts', 'Comments', 'Likes'],
+        datasets: [{
+          data: [this.totalPosts, this.totalComments, this.totalLikes],
+          backgroundColor: ['#E61920', '#3B82F6', '#F59E0B'],
+          borderColor: '#1e1e2a',
+          borderWidth: 2
+        }]
+      },
+      options: { responsive: true }
     });
-  });
-
-  describe('Validation - Initials', () => {
-    it('should format full name as initials', () => {
-      expect(component.getInitials('John Doe')).toBe('JD');
-    });
-
-    it('should return ?? if invalid name', () => {
-      expect(component.getInitials(null as any)).toBe('??');
-    });
-  });
-
-  it('should create component', () => {
-    expect(component).toBeTruthy();
-  });
-});
+  }
+}

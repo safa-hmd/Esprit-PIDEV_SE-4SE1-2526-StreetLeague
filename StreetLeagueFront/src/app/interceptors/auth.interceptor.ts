@@ -19,6 +19,10 @@ export class AuthInterceptor implements HttpInterceptor {
     // Récupérer le token depuis localStorage
     const token = localStorage.getItem('TokenUserConnect');
 
+    if (request.url.includes('/auth/')) {
+  return next.handle(request);
+}
+
     // Si pas de token → envoyer la requête sans modification (endpoint public)
     if (!token) {
       return next.handle(request);
