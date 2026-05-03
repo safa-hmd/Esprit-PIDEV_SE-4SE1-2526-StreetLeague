@@ -1,0 +1,104 @@
+.admin-sidebar {
+  width: 220px;
+  background: #111;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  height: calc(100vh - 60px);
+  position: sticky;
+  top: 60px;
+  overflow-y: auto;
+  flex-shrink: 0;
+  transition: width 0.25s ease;
+  font-family: 'Barlow', sans-serif;
+}
+
+.admin-sidebar::-webkit-scrollbar { width: 4px; }
+.admin-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+.sidebar-nav { padding: 1rem 0.75rem; }
+
+.sidebar-section { margin-bottom: 1.75rem; }
+
+.sidebar-section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0 8px;
+  margin-bottom: 6px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 8px;
+  border-radius: 7px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-link svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.sidebar-link span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.2s;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sidebar-link.active {
+  background: rgba(230, 25, 32, 0.15);
+  color: #e61920;
+}
+
+.sidebar-link.active svg { color: #e61920; }
+
+/* ── Collapsed mode ── */
+.admin-sidebar.collapsed {
+  width: 56px;
+}
+
+.admin-sidebar.collapsed .sidebar-section-label { opacity: 0; }
+.admin-sidebar.collapsed .sidebar-link span { opacity: 0; width: 0; }
+.admin-sidebar.collapsed .sidebar-link { justify-content: center; padding: 7px; }
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 80;
+}
+
+.sidebar-overlay.visible { display: block; }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: -220px;
+    height: 100vh;
+    z-index: 90;
+    transition: left 0.25s ease;
+  }
+  .admin-sidebar.mobile-open {
+    left: 0;
+  }
+}

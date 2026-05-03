@@ -1,0 +1,329 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Barlow+Condensed:ital,wght@0,700;0,800;1,800&display=swap');
+
+:host {
+  display: block;
+  background-color: #0b0c10; /* Deep dark theme */
+  color: #c5c6c7;
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── Hero ── */
+.hero {
+  position: relative;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  background: radial-gradient(circle at center, rgba(11, 12, 16, 0.4) 0%, #0b0c10 100%),
+              url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1400&auto=format&fit=crop') center/cover no-repeat;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(11,12,16,0) 50%, #0b0c10 100%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  color: white;
+  text-align: center;
+}
+
+.hero h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 1rem;
+  letter-spacing: 2px;
+  text-shadow: 0 5px 20px rgba(0,0,0,0.8);
+}
+.hero h1 span {
+  color: #ff3d44;
+  text-shadow: 0 0 20px rgba(255, 61, 68, 0.6);
+}
+
+.hero p {
+  font-size: 1.25rem;
+  opacity: 0.85;
+  max-width: 600px;
+  margin: 0 auto 3rem;
+}
+
+.hero-btns {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.btn-hero-primary {
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, #ff3d44 0%, #d4141a 100%);
+  color: white;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  box-shadow: 0 8px 25px rgba(255, 61, 68, 0.4);
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+.btn-hero-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(255, 61, 68, 0.6);
+}
+
+.btn-hero-outline {
+  padding: 1rem 2.5rem;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(5px);
+  color: white;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+.btn-hero-outline:hover {
+  background: white;
+  color: #0b0c10;
+  border-color: white;
+}
+
+/* ── Sections ── */
+.section {
+  padding: 5rem 1.5rem;
+}
+.section-dark {
+  background: #0b0c10;
+}
+.section-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+}
+.section-sub {
+  text-align: center;
+  color: #888;
+  font-size: 1.1rem;
+  margin-bottom: 4rem;
+}
+
+/* ── Feature Cards (Glassmorphism) ── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+@media(max-width: 900px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width: 600px) { .features-grid { grid-template-columns: 1fr; } }
+
+.feature-card {
+  background: rgba(31, 40, 51, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 2.5rem;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 4px;
+  background: linear-gradient(90deg, #ff3d44, transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+.feature-card:hover {
+  transform: translateY(-10px);
+  background: rgba(31, 40, 51, 0.8);
+  border-color: rgba(255, 61, 68, 0.3);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+.feature-card:hover::before {
+  transform: scaleX(1);
+}
+
+.feature-icon {
+  width: 65px;
+  height: 65px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  background: rgba(255, 61, 68, 0.1);
+  border: 1px solid rgba(255, 61, 68, 0.2);
+}
+.feature-title {
+  color: white;
+  font-weight: 800;
+  font-size: 1.3rem;
+  margin-bottom: 0.75rem;
+}
+.feature-desc {
+  font-size: 0.95rem;
+  color: #a0a0a0;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+.feature-link {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #ff3d44;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.feature-link:hover { text-decoration: underline; }
+
+/* ── Leaderboard UI Overhaul ── */
+.leaderboard-container {
+  background: rgba(31, 40, 51, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  backdrop-filter: blur(10px);
+}
+.rank-row {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.3s ease, transform 0.3s ease;
+  border-radius: 12px;
+}
+.rank-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateX(5px);
+}
+.rank-row.top-3 {
+  background: linear-gradient(90deg, rgba(255, 61, 68, 0.05), transparent);
+  border: 1px solid rgba(255, 61, 68, 0.1);
+}
+
+.rank-badge {
+  font-size: 2.2rem;
+  width: 60px;
+  text-align: center;
+  flex-shrink: 0;
+  text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+/* ── Buttons ── */
+.btn-sport {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+.btn-sport.active, .btn-sport:hover {
+  background: #ff3d44;
+  border-color: #ff3d44;
+  box-shadow: 0 0 15px rgba(255, 61, 68, 0.4);
+}
+
+/* ── CTA ── */
+.cta-section {
+  background: linear-gradient(135deg, #1f2833 0%, #0b0c10 100%);
+  border-top: 2px solid #ff3d44;
+  padding: 6rem 1.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: -50px; left: 50%;
+  transform: translateX(-50%);
+  width: 300px; height: 300px;
+  background: rgba(255, 61, 68, 0.15);
+  filter: blur(100px);
+}
+.cta-section h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  color: white;
+  font-size: 3.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.leaderboard-container {
+  background: rgba(31, 40, 51, 0.3);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+  overflow: hidden;
+  max-width: 900px;
+  margin: 0 auto;
+  backdrop-filter: blur(10px);
+}
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 0.5px solid rgba(255,255,255,0.05);
+  transition: background 0.15s;
+}
+.rank-row:last-child { border-bottom: none; }
+.rank-row:hover      { background: rgba(255,255,255,0.03); }
+.rank-row.top-1      { background: rgba(186,117,23,0.08); }
+.rank-row.top-2      { background: rgba(136,135,128,0.08); }
+.rank-row.top-3      { background: rgba(216,90,48,0.08); }
+
+.rank-badge { width: 36px; text-align: center; flex-shrink: 0; }
+.medal      { font-size: 20px; line-height: 1; }
+.rank-num   { font-size: 13px; font-weight: 500; color: #555; }
+
+.lb-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 500;
+  flex-shrink: 0;
+}
+.lb-info   { flex: 1; min-width: 0; }
+.lb-name   { font-size: 15px; font-weight: 500; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-meta   { display: flex; gap: 12px; margin-top: 3px; flex-wrap: wrap; }
+.lb-stat   { font-size: 12px; color: #a0a0a0; display: flex; align-items: center; gap: 4px; }
+.dot       { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.dot-green { background: #639922; }
+.dot-red   { background: #A32D2D; }
+.dot-gray  { background: #555; }
+.lb-captain { font-size: 11px; color: #555; margin-top: 2px; }
+
+.lb-score      { text-align: right; flex-shrink: 0; }
+.score-label   { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+.score-val     { font-size: 28px; font-weight: 500; line-height: 1.1; }
+.score-gold    { color: #BA7517; }
+.score-silver  { color: #888780; }
+.score-bronze  { color: #D85A30; }
+.score-default { color: white; }

@@ -1,0 +1,43 @@
+package com.example.streetleague.domain;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.util.List;
+
+
+@Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name = "commandes")
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Commande {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+            @JsonIgnore
+    User user;
+
+    double montantTotal;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    CommandeStatus statut;
+
+    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL)
+            @JsonIgnore
+        List<LigneCommande> lignes;
+}

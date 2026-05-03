@@ -1,0 +1,57 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { box-sizing: border-box; }
+  .page-wrapper { min-height: 100vh; padding: 2rem; background: linear-gradient(135deg, #f4f6fb 0%, #e8edf7 100%); font-family: 'Inter', sans-serif; }
+  .form-card { background: white; border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.1); max-width: 640px; margin: 0 auto; overflow: hidden; }
+  .form-header { background: linear-gradient(135deg, #8b5cf6, #7c3aed); padding: 2rem; color: white; }
+  .form-header h1 { font-size: 1.5rem; font-weight: 800; }
+  .form-header p { opacity: 0.85; font-size: 0.9rem; margin-top: 0.25rem; }
+  .form-body { padding: 2rem; }
+  .form-group { margin-bottom: 1.4rem; }
+  label { display: block; font-weight: 600; font-size: 0.85rem; color: #374151; margin-bottom: 0.4rem; }
+  label span { color: #e11d48; }
+  input, select { width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s, box-shadow 0.2s; background: #fafafa; }
+  input:focus, select:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,0.12); background: white; }
+  .alert-error { background: #fff1f2; border: 1px solid #fecdd3; color: #be123c; padding: 0.9rem 1.1rem; border-radius: 10px; margin-bottom: 1.2rem; font-size: 0.88rem; }
+  .form-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+  .btn-save { flex: 1; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border: none; padding: 0.8rem; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn-save:hover:not(:disabled) { transform: translateY(-1px); }
+  .btn-save:disabled { opacity: 0.65; cursor: not-allowed; }
+  .btn-cancel { background: #f9fafb; color: #6b7280; border: 1.5px solid #e5e7eb; padding: 0.8rem 1.5rem; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+</style>
+
+<div class="page-wrapper">
+  <div class="form-card">
+    <div class="form-header">
+      <h1>⚡ Nouveau Sponsoring Événement</h1>
+      <p>Associez un sponsor à un événement</p>
+    </div>
+    <div class="form-body">
+      <div class="alert-error" *ngIf="error">⚠️ {{ error }}</div>
+      <div class="form-group">
+        <label for="sponsorId">ID du Sponsor <span>*</span></label>
+        <input id="sponsorId" type="number" [(ngModel)]="formData.sponsorId" placeholder="Ex: 1" min="1" />
+      </div>
+      <div class="form-group">
+        <label for="evenementId">ID de l'Événement <span>*</span></label>
+        <input id="evenementId" type="number" [(ngModel)]="formData.evenementId" placeholder="Ex: 5" min="1" />
+      </div>
+      <div class="form-group">
+        <label for="contribution">Montant de contribution (€)</label>
+        <input id="contribution" type="number" [(ngModel)]="formData.contribution" placeholder="Ex: 5000" min="0" step="100" />
+      </div>
+      <div class="form-group">
+        <label for="typeContrib">Type de contribution <span>*</span></label>
+        <select id="typeContrib" [(ngModel)]="formData.typeContribution">
+          <option *ngFor="let t of typeOptions" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn-cancel" (click)="cancel()" id="btn-cancel-sp">Annuler</button>
+        <button class="btn-save" (click)="save()" [disabled]="loading" id="btn-save-sp">
+          {{ loading ? 'Enregistrement…' : '✅ Créer le Sponsoring' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,162 @@
+<div class="bracket-admin">
+
+  <!-- Header -->
+  <div class="bracket-header">
+    <h2>🏆 Bracket Manager</h2>
+    <div class="header-controls">
+      <div class="view-toggle">
+        <button [class.active]="viewMode === 'tree'" (click)="viewMode = 'tree'">🌲 Tree</button>
+        <button [class.active]="viewMode === 'table'" (click)="viewMode = 'table'">📋 Table</button>
+      </div>
+      <div class="generate-controls">
+        <select [(ngModel)]="selectedType">
+          <option value="SINGLE_ELIMINATION">Single Elimination</option>
+          <option value="ROUND_ROBIN">Round Robin</option>
+        </select>
+        <button class="btn-generate" (click)="generate()" [disabled]="loading">
+          {{ loading ? 'Generating...' : (bracket ? '🔄 Regenerate' : '⚡ Generate Bracket') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert success" *ngIf="success">{{ success }}</div>
+  <div class="alert error"   *ngIf="error">{{ error }}</div>
+
+  <!-- Loader -->
+  <div class="loader" *ngIf="loading">Loading...</div>
+
+  <!-- No bracket yet -->
+  <div class="empty-state" *ngIf="!loading && !bracket">
+    <p>No bracket generated yet. Select a format and click <strong>Generate</strong>.</p>
+  </div>
+
+  <!-- ═══════════════ TREE VIEW ═══════════════ -->
+  <div class="bracket-tree" *ngIf="bracket && viewMode === 'tree'">
+    <div class="rounds-container">
+      <div class="round-col" *ngFor="let r of rounds">
+        <div class="round-label">{{ roundLabel(r) }}</div>
+        <div class="match-cards">
+          <div class="match-card" [class]="statusClass(match.status)"
+               *ngFor="let match of getMatches(r)">
+
+            <!-- BYE -->
+            <div *ngIf="match.status === 'BYE'" class="bye-badge">BYE — automatic pass</div>
+
+            <!-- Normal match -->
+            <ng-container *ngIf="match.status !== 'BYE'">
+              <div class="participant" [class.winner]="match.winner?.id === match.participantA?.id">
+                <span class="seed">A</span>
+                <span class="name">{{ match.participantA?.name ?? '—' }}</span>
+                <span class="score" *ngIf="match.status === 'COMPLETED'">
+                  {{ match.participantA?.id === match.winner?.id ? '✓' : '' }}
+                </span>
+              </div>
+              <div class="vs">VS</div>
+              <div class="participant" [class.winner]="match.winner?.id === match.participantB?.id">
+                <span class="seed">B</span>
+                <span class="name">{{ match.participantB?.name ?? '—' }}</span>
+                <span class="score" *ngIf="match.status === 'COMPLETED'">
+                  {{ match.participantB?.id === match.winner?.id ? '✓' : '' }}
+                </span>
+              </div>
+
+              <div class="match-footer">
+                <span class="match-date" *ngIf="match.matchDate">
+                  📅 {{ match.matchDate | date:'dd/MM HH:mm' }}
+                </span>
+                <button class="btn-result"
+                  *ngIf="match.status === 'PENDING' && match.participantA && match.participantB"
+                  (click)="openResultModal(match)">
+                  Enter Result
+                </button>
+                <span class="winner-badge" *ngIf="match.winner">🏆 {{ match.winner.name }}</span>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ TABLE VIEW ═══════════════ -->
+  <div class="bracket-table" *ngIf="bracket && viewMode === 'table'">
+    <div *ngFor="let r of rounds" class="round-section">
+      <h3>{{ roundLabel(r) }}</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Participant A</th>
+            <th>Participant B</th>
+            <th>Status</th>
+            <th>Winner</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let match of getMatches(r)" [class]="statusClass(match.status)">
+            <td>{{ match.position + 1 }}</td>
+            <td>{{ match.participantA?.name ?? '—' }}</td>
+            <td>{{ match.status === 'BYE' ? 'BYE' : (match.participantB?.name ?? '—') }}</td>
+            <td><span class="badge" [class]="statusClass(match.status)">{{ match.status }}</span></td>
+            <td>{{ match.winner?.name ?? '—' }}</td>
+            <td>{{ match.matchDate ? (match.matchDate | date:'dd/MM HH:mm') : '—' }}</td>
+            <td>
+              <button class="btn-result small"
+                *ngIf="match.status === 'PENDING' && match.participantA && match.participantB"
+                (click)="openResultModal(match)">
+                Result
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════ RESULT MODAL ═══════════════ -->
+  <div class="modal-overlay" *ngIf="selectedMatch" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3>Enter Match Result</h3>
+      <p class="match-title">
+        {{ selectedMatch.participantA?.name }} vs {{ selectedMatch.participantB?.name }}
+      </p>
+
+      <div class="form-group">
+        <label>Score — {{ selectedMatch.participantA?.name }}</label>
+        <input type="number" [(ngModel)]="scoreA" min="0" />
+      </div>
+      <div class="form-group">
+        <label>Score — {{ selectedMatch.participantB?.name }}</label>
+        <input type="number" [(ngModel)]="scoreB" min="0" />
+      </div>
+
+      <div class="form-group">
+        <label>Winner *</label>
+        <div class="winner-choice">
+          <button
+            [class.selected]="winnerId === selectedMatch.participantA?.id"
+            (click)="winnerId = selectedMatch.participantA!.id">
+            🏆 {{ selectedMatch.participantA?.name }}
+          </button>
+          <button
+            [class.selected]="winnerId === selectedMatch.participantB?.id"
+            (click)="winnerId = selectedMatch.participantB!.id">
+            🏆 {{ selectedMatch.participantB?.name }}
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closeModal()">Cancel</button>
+        <button class="btn-confirm" (click)="submitResult()" [disabled]="winnerId === null">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

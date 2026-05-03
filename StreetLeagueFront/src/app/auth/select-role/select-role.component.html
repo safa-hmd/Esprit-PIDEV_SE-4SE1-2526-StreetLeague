@@ -1,0 +1,30 @@
+<div class="card">
+
+  <div class="card-head">
+    <div class="logo">Street<span>League</span></div>
+    <h2>Choose your role</h2>
+    <p>Welcome, <strong>{{ fullName }}</strong></p>
+  </div>
+
+  <div class="card-body">
+
+    <div class="role-select">
+      <button type="button" class="role-btn"
+              *ngFor="let r of roles"
+              [class.active]="selectedRole === r.value"
+              (click)="selectRole(r.value)">
+        <span class="role-emoji">{{ r.emoji }}</span>
+        <span class="role-label">{{ r.label }}</span>
+      </button>
+    </div>
+
+    <div class="error-msg" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <button type="button" class="btn-submit" (click)="confirm()" [disabled]="isLoading">
+      <span class="spinner-ring" *ngIf="isLoading"></span>
+      <span>{{ isLoading ? 'Loading...' : 'Confirm my role' }}</span>
+    </button>
+
+  </div>
+
+</div>

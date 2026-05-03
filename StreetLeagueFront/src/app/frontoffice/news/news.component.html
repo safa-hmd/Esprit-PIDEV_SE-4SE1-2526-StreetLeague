@@ -1,0 +1,232 @@
+<!-- Modal Add Comment -->
+<div *ngIf="showForm" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#ffffff;border:1.5px solid #eee;border-radius:12px;padding:2rem;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+      <h3 style="margin:0;color:#1a1a2e;">✍️ New Comment</h3>
+      <button (click)="showForm = false" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#999;">&times;</button>
+    </div>
+    <div style="margin-bottom:1.5rem;">
+      <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#333;">Comment</label>
+      <textarea [(ngModel)]="newComment[selectedPostId]" placeholder="Write your comment..." rows="4"
+        style="width:100%;padding:0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;color:#333;"></textarea>
+      <small style="display:block;margin-top:0.25rem;color:#999;">{{ newComment[selectedPostId].length || 0 }}/500 characters</small>
+      <small *ngIf="showCommentError[selectedPostId]" style="display:block;margin-top:0.25rem;color:#E61920;font-weight:600;">Error: {{ commentErrorMessage[selectedPostId] }}</small>
+    </div>
+    <div style="display:flex;gap:1rem;justify-content:flex-end;">
+      <button (click)="showForm = false" style="padding:0.75rem 1.5rem;border:1px solid #ddd;border-radius:8px;background:white;cursor:pointer;color:#666;">Cancel</button>
+      <button (click)="addComment(selectedPost)" style="padding:0.75rem 1.5rem;border:none;border-radius:8px;background:#E61920;color:white;cursor:pointer;font-weight:600;">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Edit Comment -->
+<div *ngIf="showEditCommentForm" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#ffffff;border:1.5px solid #eee;border-radius:12px;padding:2rem;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+      <h3 style="margin:0;color:#1a1a2e;">✏️ Edit Comment</h3>
+      <button (click)="showEditCommentForm = false" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#999;">&times;</button>
+    </div>
+    <div style="margin-bottom:1.5rem;">
+      <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#333;">Comment</label>
+      <textarea [(ngModel)]="editCommentContent" placeholder="Edit your comment..." rows="4"
+        style="width:100%;padding:0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;color:#333;"></textarea>
+      <small style="display:block;margin-top:0.25rem;color:#999;">{{ editCommentContent.length || 0 }}/500 characters</small>
+      <small *ngIf="showEditError" style="display:block;margin-top:0.25rem;color:#E61920;font-weight:600;">Error: {{ editErrorMessage }}</small>
+    </div>
+    <div style="display:flex;gap:1rem;justify-content:flex-end;">
+      <button (click)="showEditCommentForm = false" style="padding:0.75rem 1.5rem;border:1px solid #ddd;border-radius:8px;background:white;cursor:pointer;color:#666;">Cancel</button>
+      <button (click)="saveEditComment(selectedPost)" style="padding:0.75rem 1.5rem;border:none;border-radius:8px;background:#E61920;color:white;cursor:pointer;font-weight:600;">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE -->
+<div class="page-content" style="background:#f8f8f8;min-height:100vh;padding:2rem;">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+    <div>
+      <h1 class="page-title">News Feed</h1>
+      <p class="page-subtitle">The latest news from your sports community</p>
+    </div>
+  </div>
+
+  <!-- SEARCH BAR -->
+  <div style="background:#ffffff;border:1px solid #eee;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+
+      <input [(ngModel)]="searchKeyword"
+             (input)="onSearch()"
+             placeholder="🔍 Search posts..."
+             style="flex:1;min-width:200px;padding:0.65rem 1rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;color:#333;outline:none;"/>
+
+      <select [(ngModel)]="searchCategory"
+              (change)="onSearch()"
+              style="padding:0.65rem 1rem;border:1px solid #ddd;border-radius:8px;font-size:0.9rem;color:#333;background:white;min-width:150px;">
+        <option value="">All Categories</option>
+        <option value="Event">Event</option>
+        <option value="Health">Health</option>
+        <option value="Celebration">Celebration</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Tournament">Tournament</option>
+        <option value="Promotion">Promotion</option>
+      </select>
+
+      <button *ngIf="isSearching"
+              (click)="clearSearch()"
+              style="padding:0.65rem 1rem;background:#E61920;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.9rem;">
+        ✕ Clear
+      </button>
+    </div>
+
+    <div *ngIf="isSearching" style="margin-top:0.75rem;font-size:0.85rem;color:#666;">
+      Found <strong style="color:#E61920;">{{ posts.length }}</strong> results
+      <span *ngIf="searchKeyword"> for <strong>"{{ searchKeyword }}"</strong></span>
+      <span *ngIf="searchCategory"> in <strong>{{ searchCategory }}</strong></span>
+    </div>
+  </div>
+
+  <div class="news-layout">
+    <div>
+
+      <!-- POSTS LIST -->
+      <div class="post-card" *ngFor="let post of posts">
+
+        <!-- Post Header -->
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+          <div class="post-avatar" style="background:#E61920;color:white;">SL</div>
+          <div>
+            <div class="post-author">StreetLeague Official</div>
+<div class="post-time">{{ getTimeAgo(post) }}</div>          </div>
+          <span [style]="getCategoryStyle(post.category)" style="margin-left:auto;">{{ post.category }}</span>
+        </div>
+
+        <!-- Image -->
+        <img [src]="post.imageUrl"
+             (error)="post.imageUrl = 'assets/placeholder.png'"
+             style="width:100%;max-height:300px;object-fit:cover;border-radius:8px;margin-bottom:0.75rem;"
+             alt="Post image"/>
+
+        <!-- Post Content -->
+        <div class="post-content">
+          <strong style="color:#1a1a2e;">{{ post.title }}</strong><br/>
+          {{ post.description }}
+        </div>
+
+        <!-- Post Actions -->
+        <div class="post-actions">
+
+          <!-- Like Button -->
+          <button class="action-btn"
+                  [style.color]="post.liked ? '#E61920' : ''"
+                  (click)="toggleLike(post)"
+                  [disabled]="likeInProgress[post.id]"
+                  [style.opacity]="likeInProgress[post.id] ? '0.6' : '1'"
+                  [style.cursor]="likeInProgress[post.id] ? 'not-allowed' : 'pointer'"
+                  style="position:relative;transition:all 0.2s ease;">
+            <svg [attr.fill]="post.liked ? '#E61920' : 'none'"
+                 [attr.stroke]="post.liked ? '#E61920' : 'currentColor'"
+                 viewBox="0 0 24 24" stroke-width="2"
+                 [style.transition]="'all 0.3s ease'"
+                 [style.transform]="likeInProgress[post.id] ? 'scale(1.1)' : 'scale(1)'">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            <span>{{ post.likes || 0 }}</span>
+            <small *ngIf="post.liked && !likeInProgress[post.id]"
+                   style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#E61920;color:white;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;">
+              ❤️ Liked
+            </small>
+            <small *ngIf="likeInProgress[post.id]"
+                   style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#606078;color:white;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;">
+              ⏳ Processing...
+            </small>
+          </button>
+
+          <!-- Comment Toggle -->
+          <button class="action-btn" (click)="toggleComments(post)">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>{{ post.commentCount }}</span>
+          </button>
+        </div>
+
+        <!-- Comments Section -->
+        <div *ngIf="post.showComments" style="margin-top:1rem;border-top:1px solid #f0f0f0;padding-top:1rem;">
+
+          <div *ngFor="let comment of post.comments" style="display:flex;gap:0.75rem;margin-bottom:1rem;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#f0f0f0;color:#1a1a2e;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">
+              {{ getInitials(comment.user?.fullName) }}
+            </div>
+            <div style="flex:1;background:#f8f8f8;border-radius:8px;padding:0.75rem;border:1px solid #eee;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
+                <span style="font-weight:700;font-size:0.85rem;color:#1a1a2e;">{{ comment.user?.fullName || 'Player' }}</span>
+                <div style="display:flex;gap:0.5rem;align-items:center;">
+<span style="font-size:0.75rem;color:#999;">{{ getTimeAgo(comment) }}</span>
+                  <button (click)="openEditComment(comment, post)" style="background:none;border:none;cursor:pointer;color:#f59e0b;font-size:0.8rem;padding:0.1rem 0.3rem;">✏️</button>
+                  <button (click)="deleteComment(comment.id, post)" style="background:none;border:none;cursor:pointer;color:#E61920;font-size:0.8rem;padding:0.1rem 0.3rem;">🗑️</button>
+                </div>
+              </div>
+              <p style="margin:0;font-size:0.87rem;color:#555;">{{ comment.content }}</p>
+            </div>
+          </div>
+
+          <div *ngIf="post.comments?.length === 0" style="text-align:center;color:#999;font-size:0.85rem;padding:0.5rem;">
+            No comments yet. Be the first!
+          </div>
+
+          <div style="display:flex;gap:0.75rem;margin-top:0.75rem;flex-direction:column;">
+            <div style="display:flex;gap:0.75rem;">
+              <input [(ngModel)]="newComment[post.id]" placeholder="Write a comment..."
+                style="flex:1;padding:0.6rem 1rem;border:1px solid #ddd;border-radius:8px;background:white;color:#333;font-size:0.87rem;outline:none;"/>
+              <button (click)="addComment(post)" style="padding:0.6rem 1.2rem;background:#E61920;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.87rem;">Send</button>
+            </div>
+            <small *ngIf="showCommentError[post.id]" style="color:#E61920;font-weight:600;font-size:0.8rem;">⚠️ {{ commentErrorMessage[post.id] }}</small>
+<small style="color:#999;font-size:0.8rem;">{{ (newComment[post.id] || '').length }}/500 caractères</small>          </div>
+        </div>
+
+      </div>
+      <!-- END *ngFor -->
+
+      <!-- No posts -->
+      <div *ngIf="posts.length === 0 && !isLoading" style="text-align:center;color:#999;padding:2rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+        <p *ngIf="isSearching">No results found. Try different keywords.</p>
+        <p *ngIf="!isSearching">No posts available.</p>
+      </div>
+
+      <!-- ✅ SENTINEL — Infinite Scroll trigger -->
+      <div #sentinel style="height: 10px;"></div>
+
+      <!-- Loading indicator -->
+      <div *ngIf="isLoading"
+           style="text-align:center;padding:1.5rem;color:#999;font-size:0.9rem;">
+        ⏳ Loading more posts...
+      </div>
+
+      <!-- End of list -->
+      <div *ngIf="isLastPage && !isLoading && posts.length > 0"
+           style="text-align:center;padding:1rem;color:#aaa;font-size:0.85rem;border-top:1px solid #eee;margin-top:1rem;">
+        ✓ You've seen all posts
+      </div>
+
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+      <div class="sidebar-card">
+        <h4>🔥 Trends</h4>
+        <div class="trend-item"><div class="trend-tag">#SummerChampionship</div><div class="trend-count">1 234 posts</div></div>
+        <div class="trend-item"><div class="trend-tag">#StreetSoccer</div><div class="trend-count">892 posts</div></div>
+        <div class="trend-item"><div class="trend-tag">#BasketballLeague</div><div class="trend-count">756 posts</div></div>
+        <div class="trend-item"><div class="trend-tag">#CommunityEvents</div><div class="trend-count">534 posts</div></div>
+      </div>
+      <div class="sidebar-card">
+        <h4>⚡ Quick Links</h4>
+                <a href="client/health" class="btn btn-gray btn-full btn-sm">Track your health</a>
+        <a href="client/team" class="btn btn-outline btn-full btn-sm" style="margin-bottom:0.5rem;">My Teams</a>
+        <a href="client/tournaments" class="btn btn-gray btn-full btn-sm" style="margin-bottom:0.5rem;">View Tournaments</a>
+      </div>
+    </div>
+  </div>
+</div>

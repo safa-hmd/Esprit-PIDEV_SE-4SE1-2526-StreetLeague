@@ -1,0 +1,484 @@
+<div class="admin-main-inner">
+
+  <div class="page-header-admin">
+    <h1 class="page-title-admin">Players Health Dashboard</h1>
+    <p class="page-subtitle-admin">Medical monitoring, performance metrics and health tracking</p>
+  </div>
+
+  <!-- TAB NAVIGATION -->
+  <div class="health-tabs-container">
+    <div class="health-tabs">
+      <button [class.active]="activeTab === 'hydration'" (click)="switchTab('hydration')" class="health-tab-btn">
+        💧 Hydration Reminders
+      </button>
+      <button [class.active]="activeTab === 'health'" (click)="switchTab('health')" class="health-tab-btn">
+        ❤️ Health Status
+      </button>
+      <button [class.active]="activeTab === 'goals'" (click)="switchTab('goals')" class="health-tab-btn">
+        🎯 Goals
+      </button>
+      <button [class.active]="activeTab === 'badges'" (click)="switchTab('badges')" class="health-tab-btn">
+        🏆 Badges
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== TAB 1: HYDRATION REMINDERS ===== -->
+  <div *ngIf="activeTab === 'hydration'" class="health-tab-content">
+
+    <!-- ===== EXISTING STATS CARDS ===== -->
+    <div class="stat-grid cols-4" style="margin-bottom:1.5rem;">
+      <div class="a-stat">
+        <div class="a-stat-icon" style="background:rgba(34,197,94,0.12);color:var(--green);">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 6v6m0 4v.01"/>
+          </svg>
+        </div>
+        <div><div class="a-stat-val">{{ totalUsers }}</div><div class="a-stat-label">Total Users</div></div>
+      </div>
+      <div class="a-stat">
+        <div class="a-stat-icon" style="background:rgba(232,112,64,0.15);color:var(--orange);">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <div><div class="a-stat-val">{{ activeReminders }}</div><div class="a-stat-label">Active Reminders</div></div>
+      </div>
+      <div class="a-stat">
+        <div class="a-stat-icon" style="background:rgba(107,158,210,0.15);color:var(--pastel-blue);">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <div><div class="a-stat-val">{{ avgFrequency }}</div><div class="a-stat-label">Avg Frequency</div></div>
+      </div>
+      <div class="a-stat">
+        <div class="a-stat-icon" style="background:rgba(232,92,122,0.15);color:var(--coral);">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          </svg>
+        </div>
+        <div><div class="a-stat-val">{{ avgQuantity }}</div><div class="a-stat-label">Avg Quantity</div></div>
+      </div>
+    </div>
+
+    <!-- HYDRATION STATS CARDS -->
+    <div class="a-card" style="margin-bottom:1.25rem;">
+      <div class="a-card-header">
+        <span class="a-card-title">Statistics — Hydration Reminders</span>
+      </div>
+      <div class="a-card-body">
+
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="health-loading">
+          <div class="health-spinner"></div>
+          <span>Loading data...</span>
+        </div>
+
+        <ng-container *ngIf="!isLoading">
+
+          <!-- 4 stat cards -->
+          <div class="reminder-stats-grid">
+            <div class="reminder-stat-card">
+              <div class="reminder-stat-icon" style="color:#3B8BD4;"> 👥 </div>
+              <div class="reminder-stat-val">{{ totalUsers }}</div>
+              <div class="reminder-stat-label">Tracked Users</div>
+            </div>
+
+            <div class="reminder-stat-card">
+              <div class="reminder-stat-icon" style="color:#1D9E75;"> ✅ </div>
+              <div class="reminder-stat-val">{{ activeReminders }}</div>
+              <div class="reminder-stat-label">Active Reminders</div>
+            </div>
+
+            <div class="reminder-stat-card">
+              <div class="reminder-stat-icon" style="color:#EF9F27;"> ⏱️ </div>
+              <div class="reminder-stat-val">{{ avgFrequency }}</div>
+              <div class="reminder-stat-label">Average Frequency</div>
+            </div>
+
+            <div class="reminder-stat-card">
+              <div class="reminder-stat-icon" style="color:#E61920;"> 💧 </div>
+              <div class="reminder-stat-val">{{ avgQuantity }}</div>
+              <div class="reminder-stat-label">Average Quantity</div>
+            </div>
+          </div>
+
+          <!-- Charts -->
+          <div class="health-charts-grid">
+            <div class="health-chart-card">
+              <p class="health-section-title">Frequency Distribution</p>
+              <div style="position:relative;height:220px;">
+                <canvas id="freqChart"></canvas>
+              </div>
+              <div class="health-chart-legend">
+                <span><i style="background:#E61920"></i>≤ 30 min</span>
+                <span><i style="background:#EF9F27"></i>31–60 min</span>
+                <span><i style="background:#3B8BD4"></i>61–90 min</span>
+                <span><i style="background:#1D9E75"></i>> 90 min</span>
+              </div>
+            </div>
+
+            <div class="health-chart-card">
+              <p class="health-section-title">Quantity per User (ml)</p>
+              <div style="position:relative;height:220px;">
+                <canvas id="qtyChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- REMINDERS TABLE -->
+    <div class="a-card">
+      <div class="a-card-header" style="justify-content:space-between;">
+        <span class="a-card-title">
+          Hydration Reminders — All Users
+          <span class="health-count-badge" *ngIf="!isLoading">{{ reminders.length }}</span>
+        </span>
+        <div class="a-search" style="width:220px;">
+          <input class="a-form-control" placeholder="Search user..." (input)="onSearchReminders($event)">
+        </div>
+      </div>
+
+      <div class="a-card-body" style="padding:0;">
+
+        <div *ngIf="isLoading" class="health-loading" style="padding:2rem;">
+          <div class="health-spinner"></div>
+          <span>Loading...</span>
+        </div>
+
+        <div *ngIf="!isLoading && filteredReminders.length === 0" class="health-empty">
+          No reminders found.
+        </div>
+
+        <div class="a-table-wrap" *ngIf="!isLoading && filteredReminders.length > 0">
+          <table class="a-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Frequency</th>
+                <th>Quantity</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of filteredReminders">
+                <td>
+                  <div class="health-user-cell">
+                    <div class="health-avatar">{{ r.userName.charAt(0) || '?' }}</div>
+                    <strong>{{ r.userName || 'Unknown' }}</strong>
+                  </div>
+                </td>
+                <td style="color:var(--text-muted);">{{ r.userEmail }}</td>
+                <td>{{ freqLabel(r.frequency) }}</td>
+                <td>{{ r.quantity }} ml</td>
+                <td>
+                  <span [class]="r.active ? 'badge-active' : 'badge-inactive'">
+                    {{ r.active ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== TAB 2: HEALTH STATUS ===== -->
+  <div *ngIf="activeTab === 'health'" class="health-tab-content">
+
+    <!-- STATS -->
+    <div class="stat-grid cols-4" style="margin-bottom:1.5rem;">
+      <div class="a-stat">
+        <div class="a-stat-icon" style="background:rgba(107,158,210,0.15);color:var(--pastel-blue);">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4v.01"/>
+          </svg>
+        </div>
+        <div><div class="a-stat-val">{{ allUsersHealth.length }}</div><div class="a-stat-label">Total Users</div></div>
+      </div>
+      <div class="a-stat">
+        <div class="a-stat-icon" style="background:rgba(232,92,122,0.15);color:var(--coral);">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M12 2v20M2 12h20"/>
+          </svg>
+        </div>
+        <div><div class="a-stat-val">{{ avgBmi }}</div><div class="a-stat-label">Average BMI</div></div>
+      </div>
+      <div class="a-stat">
+        <div class="a-stat-icon" style="background:rgba(34,197,94,0.12);color:var(--green);">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+          </svg>
+        </div>
+        <div><div class="a-stat-val">{{ (allUsersHealth | slice:0:5).length }}</div><div class="a-stat-label">Sample Users</div></div>
+      </div>
+    </div>
+
+    <!-- HEALTH STATUS TABLE -->
+    <div class="a-card">
+      <div class="a-card-header" style="justify-content:space-between;">
+        <span class="a-card-title">
+          User Health Status
+          <span class="health-count-badge">{{ filteredUsersHealth.length }}</span>
+        </span>
+        <div class="a-search" style="width:220px;">
+          <input class="a-form-control" placeholder="Search user..." (input)="onSearchHealth($event)">
+        </div>
+      </div>
+
+      <div class="a-card-body" style="padding:0;">
+
+        <div *ngIf="filteredUsersHealth.length === 0" class="health-empty">
+          No users found.
+        </div>
+
+        <div class="a-table-wrap" *ngIf="filteredUsersHealth.length > 0">
+          <table class="a-table">
+            <thead>
+              <tr>
+                <th>User Name</th>
+                <th>Email</th>
+                <th>Height (cm)</th>
+                <th>Weight (kg)</th>
+                <th>BMI</th>
+                <th>Status</th>
+                <th>Last Updated</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of filteredUsersHealth" [class.selected-row]="selectedUserId === user.userId">
+                <td>
+                  <div class="health-user-cell">
+                    <div class="health-avatar">{{ user.fullName.charAt(0) || '?' }}</div>
+                    <strong>{{ user.fullName }}</strong>
+                  </div>
+                </td>
+                <td style="color:var(--text-muted);">{{ user.email }}</td>
+                <td>{{ user.height }} cm</td>
+                <td>{{ user.weight }} kg</td>
+                <td style="font-weight:700;" [style.color]="getBmiStatusColor(user.bmi)">
+                  {{ user.bmi.toFixed(1) }}
+                </td>
+                <td>
+                  <span class="health-status-badge" [style.background]="getBmiStatusColor(user.bmi) + '20'" 
+                        [style.color]="getBmiStatusColor(user.bmi)">
+                    {{ getBmiStatus(user.bmi) }}
+                  </span>
+                </td>
+                <td style="color:var(--text-muted);">{{ user.lastUpdated | date:'short' }}</td>
+                <td>
+                  <button (click)="selectUser(user.userId)" class="health-action-btn">
+                    View Details
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- USER DETAILS PANEL -->
+    <div *ngIf="selectedUserId && getSelectedUser()" class="a-card" style="margin-top:1.5rem;">
+      <div class="a-card-header">
+        <span class="a-card-title">{{ getSelectedUser()?.fullName }} — Detailed Health Profile</span>
+        <button (click)="selectedUserId = null" class="close-btn">✕</button>
+      </div>
+      <div class="a-card-body">
+        <div class="health-detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Email</span>
+            <span class="detail-value">{{ getSelectedUser()?.email }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Height</span>
+            <span class="detail-value">{{ getSelectedUser()?.height }} cm</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Weight</span>
+            <span class="detail-value">{{ getSelectedUser()?.weight }} kg</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">BMI</span>
+            <span class="detail-value" [style.color]="getBmiStatusColor(getSelectedUser()!.bmi)">
+              {{ getSelectedUser()!.bmi.toFixed(1) }}
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">BMI Status</span>
+            <span class="detail-value" [style.color]="getBmiStatusColor(getSelectedUser()!.bmi)">
+              {{ getBmiStatus(getSelectedUser()!.bmi) }}
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Last Updated</span>
+            <span class="detail-value">{{ getSelectedUser()?.lastUpdated | date:'medium' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== TAB 3: GOALS ===== -->
+  <div *ngIf="activeTab === 'goals'" class="health-tab-content">
+
+    <!-- SELECT USER FOR GOALS -->
+    <div class="a-card" style="margin-bottom:1.5rem;">
+      <div class="a-card-header">
+        <span class="a-card-title">Select a User to View Goals</span>
+      </div>
+      <div class="a-card-body">
+        <div *ngIf="allUsersHealth.length === 0" class="health-empty">
+          No users available.
+        </div>
+        <div *ngIf="allUsersHealth.length > 0" class="health-users-grid">
+          <button *ngFor="let user of allUsersHealth" 
+                  (click)="selectUser(user.userId)"
+                  [class.active]="selectedUserId === user.userId"
+                  class="user-card-btn">
+            <div class="user-card-avatar">{{ user.fullName.charAt(0) || '?' }}</div>
+            <div class="user-card-name">{{ user.fullName }}</div>
+            <div class="user-card-email">{{ user.email }}</div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- USER GOALS DISPLAY -->
+    <div *ngIf="selectedUserId" class="a-card">
+      <div class="a-card-header">
+        <span class="a-card-title">{{ getSelectedUser()?.fullName }} — Health Goals</span>
+      </div>
+      <div class="a-card-body">
+
+        <div *ngIf="userGoals.length === 0" class="health-empty">
+          No goals set for this user.
+        </div>
+
+        <div *ngIf="userGoals.length > 0" class="goals-grid">
+          <div *ngFor="let goal of userGoals" class="goal-card">
+            <div class="goal-header">
+              <span class="goal-type-badge" [class]="'badge-' + goal.goalType.toLowerCase()">
+                {{ goal.goalType }}
+              </span>
+              <span [class]="goal.achieved ? 'badge-achieved' : 'badge-pending'">
+                {{ goal.achieved ? '✅ Achieved' : '⏳ Pending' }}
+              </span>
+            </div>
+            <div class="goal-content">
+              <div class="goal-target">
+                <span class="goal-label">Target Value</span>
+                <span class="goal-value">
+                  {{ goal.targetValue }}
+                  <span class="goal-unit" *ngIf="goal.goalType === 'WATER'">ml</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== TAB 4: BADGES ===== -->
+  <div *ngIf="activeTab === 'badges'" class="health-tab-content">
+
+    <!-- SELECT USER FOR BADGES -->
+    <div class="a-card" style="margin-bottom:1.5rem;">
+      <div class="a-card-header">
+        <span class="a-card-title">Select a User to View Badges</span>
+      </div>
+      <div class="a-card-body">
+        <div *ngIf="allUsersHealth.length === 0" class="health-empty">
+          No users available.
+        </div>
+        <div *ngIf="allUsersHealth.length > 0" class="health-users-grid">
+          <button *ngFor="let user of allUsersHealth" 
+                  (click)="selectUser(user.userId)"
+                  [class.active]="selectedUserId === user.userId"
+                  class="user-card-btn">
+            <div class="user-card-avatar">{{ user.fullName.charAt(0) || '?' }}</div>
+            <div class="user-card-name">{{ user.fullName }}</div>
+            <div class="user-card-email">{{ user.email }}</div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- USER BADGES DISPLAY -->
+    <div *ngIf="selectedUserId" class="a-card">
+      <div class="a-card-header">
+        <span class="a-card-title">{{ getSelectedUser()?.fullName }} — Earned Badges</span>
+        <span class="health-count-badge">{{ userBadges.length }}</span>
+      </div>
+      <div class="a-card-body">
+
+        <div *ngIf="userBadges.length === 0" class="health-empty">
+          No badges earned yet.
+        </div>
+
+        <div *ngIf="userBadges.length > 0" class="badges-grid">
+          <div *ngFor="let badge of userBadges" class="badge-card">
+            <div class="badge-icon">🏆</div>
+            <div class="badge-content">
+              <div class="badge-type">{{ badge.badgeType }}</div>
+              <div class="badge-description">{{ badge.description }}</div>
+              <div class="badge-date">Earned: {{ badge.earnedDate | date:'short' }}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- WATER LOGS -->
+    <div *ngIf="selectedUserId && waterLogs.length > 0" class="a-card" style="margin-top:1.5rem;">
+      <div class="a-card-header">
+        <span class="a-card-title">{{ getSelectedUser()?.fullName }} — Water Consumption Log</span>
+      </div>
+      <div class="a-card-body" style="padding:0;">
+        <div class="a-table-wrap">
+          <table class="a-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Total (ml)</th>
+                <th>Goal (ml)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let log of waterLogs">
+                <td>{{ log.date | date:'short' }}</td>
+                <td>{{ log.totalMl }} ml</td>
+                <td>{{ log.goalMl }} ml</td>
+                <td>
+                  <span [class]="log.goalReached ? 'badge-active' : 'badge-inactive'">
+                    {{ log.goalReached ? '✅ Goal Reached' : '❌ Not Reached' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="section-divider">
+  
+</div>

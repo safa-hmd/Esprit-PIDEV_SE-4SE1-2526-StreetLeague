@@ -1,0 +1,271 @@
+<!-- performance-prediction.component.html — redesigned -->
+<div class="pp-shell">
+
+  <!-- ══ Ambient glows ══ -->
+  <div class="pp-glow pp-glow--gold"></div>
+  <div class="pp-glow pp-glow--blue"></div>
+
+  <!-- ══ HEADER ══ -->
+  <header class="pp-header">
+    <div class="pp-header-left">
+      <div class="pp-header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+          <polyline points="17 6 23 6 23 12"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="pp-title">PERFORMANCE ENGINE</h1>
+        <p class="pp-subtitle">Streak Prediction · Level Forecast · Momentum Analysis</p>
+      </div>
+    </div>
+    <div class="pp-header-controls">
+      <div class="pp-view-toggle">
+        <button [class.active]="viewMode === 'cards'" (click)="viewMode = 'cards'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+          </svg>
+          Cards
+        </button>
+        <button [class.active]="viewMode === 'table'" (click)="viewMode = 'table'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+            <line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          Table
+        </button>
+      </div>
+      <button class="pp-btn-refresh" (click)="loadData()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══ LOADING ══ -->
+  <div class="pp-loading" *ngIf="loading">
+    <div class="pp-spinner"></div>
+    <span>Computing predictions…</span>
+  </div>
+
+  <!-- ══ ERROR ══ -->
+  <div class="pp-error" *ngIf="error && !loading">
+    ⚠️ {{ error }}
+    <button (click)="loadData()">Retry</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+
+    <!-- ══ KPI ROW ══ -->
+    <div class="pp-kpi-row">
+      <div class="pp-kpi pp-kpi--elite">
+        <div class="pp-kpi-val">{{ elitePlayers.length }}</div>
+        <div class="pp-kpi-icon">👑</div>
+        <div class="pp-kpi-label">ELITE</div>
+      </div>
+      <div class="pp-kpi pp-kpi--pro">
+        <div class="pp-kpi-val">{{ proPLayers.length }}</div>
+        <div class="pp-kpi-icon">⭐</div>
+        <div class="pp-kpi-label">PRO</div>
+      </div>
+      <div class="pp-kpi pp-kpi--inter">
+        <div class="pp-kpi-val">{{ interPlayers.length }}</div>
+        <div class="pp-kpi-icon">🔵</div>
+        <div class="pp-kpi-label">INTERMEDIATE</div>
+      </div>
+      <div class="pp-kpi pp-kpi--beginner">
+        <div class="pp-kpi-val">{{ beginPlayers.length }}</div>
+        <div class="pp-kpi-icon">🟢</div>
+        <div class="pp-kpi-label">BEGINNER</div>
+      </div>
+      <div class="pp-kpi pp-kpi--avg">
+        <div class="pp-kpi-val">{{ getAverageProb() }}%</div>
+        <div class="pp-kpi-icon">📊</div>
+        <div class="pp-kpi-label">AVG PROBABILITY</div>
+      </div>
+    </div>
+
+    <!-- ══ ALGORITHM BOX ══ -->
+    <div class="pp-algo">
+      <div class="pp-algo-title">🔬 Prediction Algorithm</div>
+      <div class="pp-algo-steps">
+        <div class="pp-algo-step">
+          <span class="pp-step-num">01</span>
+          <span>Consistency (30-day regularity) + Momentum (exponential decay) + Inverse Fatigue</span>
+        </div>
+        <div class="pp-algo-step">
+          <span class="pp-step-num">02</span>
+          <span>P(continuation) = Consistency × (1 − Fatigue) × Momentum / 100</span>
+        </div>
+        <div class="pp-algo-step">
+          <span class="pp-step-num">03</span>
+          <span>Streak +7d: P≥70% → +7 | P≥40% → +3 | otherwise → −2</span>
+        </div>
+        <div class="pp-algo-step">
+          <span class="pp-step-num">04</span>
+          <span>Level: ELITE (≥100pts, ≥21d, ≥70%) → PRO → INTERMEDIATE → BEGINNER</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ RISING STARS ══ -->
+    <div class="pp-rising" *ngIf="getRisingStars().length > 0">
+      <div class="pp-rising-title">🚀 Rising Stars</div>
+      <div class="pp-rising-list">
+        <div *ngFor="let p of getRisingStars()" class="pp-rising-card">
+          <div class="pp-rising-avatar">{{ (p.playerName || '?').charAt(0) }}</div>
+          <div class="pp-rising-info">
+            <div class="pp-rising-name">{{ p.playerName }}</div>
+            <div class="pp-rising-level" [style.color]="getLevelColor(p.performanceLevel)">
+              {{ p.performanceLevel }}
+            </div>
+          </div>
+          <div class="pp-rising-prob" [class]="getProbabilityClass(p.streakContinuationProbability)">
+            {{ p.streakContinuationProbability | number:'1.0-0' }}%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CARDS VIEW ══ -->
+    <ng-container *ngIf="viewMode === 'cards'">
+      <div *ngFor="let group of groups" class="pp-level-group">
+
+        <div class="pp-group-header" [style.--group-color]="group.color">
+          <span class="pp-group-icon">{{ group.icon }}</span>
+          <div>
+            <div class="pp-group-title">{{ group.level }}</div>
+            <div class="pp-group-desc">{{ group.description }}</div>
+          </div>
+          <div class="pp-group-count">{{ group.players.length }}</div>
+        </div>
+
+        <div class="pp-cards-grid" *ngIf="group.players.length > 0">
+          <div *ngFor="let p of group.players; let i = index"
+               class="pp-player-card"
+               [style.--level-color]="group.color"
+               [style.animation-delay]="(i * 0.05) + 's'">
+
+            <!-- Card top -->
+            <div class="pp-card-header">
+              <div class="pp-card-avatar">{{ (p.playerName || '?').charAt(0) }}</div>
+              <div>
+                <div class="pp-card-name">{{ p.playerName }}</div>
+                <div class="pp-card-pts">{{ p.totalPoints }} pts</div>
+              </div>
+              <div class="pp-card-level-chip">{{ p.performanceLevel }}</div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="pp-card-metrics">
+              <div class="pp-metric">
+                <span class="pp-metric-val">{{ p.currentStreak }}d</span>
+                <span class="pp-metric-label">Current streak</span>
+              </div>
+              <div class="pp-metric">
+                <span class="pp-metric-val" [style.color]="group.color">
+                  {{ p.consistencyScore | number:'1.0-0' }}%
+                </span>
+                <span class="pp-metric-label">Consistency</span>
+              </div>
+              <div class="pp-metric">
+                <span class="pp-metric-val">{{ p.momentumScore | number:'1.0-0' }}</span>
+                <span class="pp-metric-label">Momentum</span>
+              </div>
+            </div>
+
+            <!-- Predicted streak -->
+            <div class="pp-streak-pred">
+              <span class="pp-streak-label">Streak in 7 days</span>
+              <div class="pp-streak-val">
+                <strong>{{ p.predictedStreakIn7Days }}d</strong>
+                <span class="pp-change-badge"
+                      [class]="getPredictedChangeClass(p.currentStreak, p.predictedStreakIn7Days)">
+                  {{ getPredictedChange(p.currentStreak, p.predictedStreakIn7Days) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Probability bar -->
+            <div class="pp-prob-section">
+              <div class="pp-prob-track">
+                <div class="pp-prob-fill"
+                     [class]="getProbabilityClass(p.streakContinuationProbability)"
+                     [style.width.%]="p.streakContinuationProbability || 0"></div>
+              </div>
+              <div class="pp-prob-label" [class]="getProbabilityClass(p.streakContinuationProbability)">
+                {{ p.streakContinuationProbability | number:'1.0-1' }}% —
+                {{ getProbabilityLabel(p.streakContinuationProbability) }}
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="pp-empty-group" *ngIf="group.players.length === 0">
+          No players at this level currently.
+        </div>
+
+      </div>
+    </ng-container>
+
+    <!-- ══ TABLE VIEW ══ -->
+    <ng-container *ngIf="viewMode === 'table'">
+      <div class="pp-table-wrap">
+        <table class="pp-table">
+          <thead>
+            <tr>
+              <th>PLAYER</th>
+              <th>LEVEL</th>
+              <th>STREAK</th>
+              <th>+7 DAYS</th>
+              <th>Δ</th>
+              <th>PROBABILITY</th>
+              <th>CONSISTENCY</th>
+              <th>MOMENTUM</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of predictions">
+              <td>
+                <div class="pp-table-player">
+                  <div class="pp-table-avatar" [style.background]="getLevelColor(p.performanceLevel)">
+                    {{ (p.playerName || '?').charAt(0) }}
+                  </div>
+                  {{ p.playerName }}
+                </div>
+              </td>
+              <td>
+                <span class="pp-level-chip" [style.color]="getLevelColor(p.performanceLevel)"
+                      [style.border-color]="getLevelColor(p.performanceLevel) + '40'">
+                  {{ p.performanceLevel }}
+                </span>
+              </td>
+              <td class="pp-mono">{{ p.currentStreak }}d</td>
+              <td class="pp-mono"><strong>{{ p.predictedStreakIn7Days }}d</strong></td>
+              <td>
+                <span class="pp-change-badge"
+                      [class]="getPredictedChangeClass(p.currentStreak, p.predictedStreakIn7Days)">
+                  {{ getPredictedChange(p.currentStreak, p.predictedStreakIn7Days) }}
+                </span>
+              </td>
+              <td>
+                <span [class]="getProbabilityClass(p.streakContinuationProbability)" class="pp-mono">
+                  {{ p.streakContinuationProbability | number:'1.0-1' }}%
+                </span>
+              </td>
+              <td class="pp-mono">{{ p.consistencyScore | number:'1.0-0' }}%</td>
+              <td class="pp-mono">{{ p.momentumScore | number:'1.0-0' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+
+  </ng-container>
+</div>

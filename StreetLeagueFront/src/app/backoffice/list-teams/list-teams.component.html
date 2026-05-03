@@ -1,0 +1,169 @@
+<div class="admin-main-inner">
+
+  <!-- Page Header -->
+  <div class="page-header-admin" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1 class="page-title-admin">Teams & Matches</h1>
+      <p class="page-subtitle-admin">Supervise teams, moderate matches and view statistics</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- TEAMS TABLE                                            -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="a-card" style="margin-bottom:1.5rem;">
+    <div class="a-card-header" style="justify-content:space-between;">
+      <span class="a-card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
+             style="width:16px;height:16px;margin-right:0.4rem;vertical-align:middle;">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+        </svg>
+        Teams Supervision
+      </span>
+      <div style="display:flex;gap:0.75rem;align-items:center;">
+        <div class="a-search" style="width:220px;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input class="a-form-control" placeholder="Search teams..."
+                 [(ngModel)]="searchQuery" (input)="applyFilter()">
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="errorMsg" style="padding:0.75rem 1.25rem;">
+      <div class="a-badge a-badge-red" style="padding:0.4rem 1rem;border-radius:8px;font-size:0.85rem;">
+        {{ errorMsg }}
+      </div>
+    </div>
+
+    <div class="a-card-body" style="padding:0;">
+      <!-- Loading -->
+      <div *ngIf="isLoading" style="padding:2rem;text-align:center;color:var(--muted);">
+        Loading teams...
+      </div>
+
+      <div *ngIf="!isLoading" class="a-table-wrap">
+        <table class="a-table">
+          <thead>
+            <tr>
+              <th>Team</th>
+              <th>Captain</th>
+              <th>Players</th>
+              <th>Sport</th>
+              <th>Level</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let team of filteredTeams">
+              <td><strong>{{ team.name }}</strong></td>
+              <td>{{ team.captainFullName || 'Not defined' }}</td>
+              <td>{{ team.playerCount  || 0 }}</td>
+              <td>{{ team.sport }}</td>
+              <td>{{ team.level }}</td>
+              <td style="text-align:right;">
+               
+                <button class="a-btn a-btn-sm"
+                        style="color:#ff6b72;border:1.5px solid rgba(230,25,32,0.3);border-radius:8px;"
+                        (click)="deleteTeam(team)">Delete</button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredTeams.length === 0">
+              <td colspan="6" style="text-align:center;color:var(--muted);padding:2rem;">
+                No teams found.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- MATCHES TABLE                                          -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="a-card" style="margin-bottom:1.5rem;">
+    <div class="a-card-header" style="justify-content:space-between;">
+      <span class="a-card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
+             style="width:16px;height:16px;margin-right:0.4rem;vertical-align:middle;">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Matches Supervision
+      </span>
+      <div style="display:flex;gap:0.75rem;align-items:center;">
+        <div class="a-search" style="width:220px;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input class="a-form-control" placeholder="Search matches..."
+                 [(ngModel)]="matchSearchQuery" (input)="applyMatchFilter()">
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="matchErrorMsg" style="padding:0.75rem 1.25rem;">
+      <div class="a-badge a-badge-red" style="padding:0.4rem 1rem;border-radius:8px;font-size:0.85rem;">
+        {{ matchErrorMsg }}
+      </div>
+    </div>
+
+    <div class="a-card-body" style="padding:0;">
+      <!-- Loading -->
+      <div *ngIf="isLoadingMatches" style="padding:2rem;text-align:center;color:var(--muted);">
+        Loading matches...
+      </div>
+
+      <div *ngIf="!isLoadingMatches" class="a-table-wrap">
+        <table class="a-table">
+          <thead>
+            <tr>
+              <th>Team A</th>
+              <th>Team B</th>
+              <th>Date</th>
+              <th>Location</th>
+              <th>Score</th>
+              <th>Status</th>
+              <th>Captain</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let match of filteredMatches">
+              <td><strong>{{ match.teamAName }}</strong></td>
+              <td><strong>{{ match.teamBName }}</strong></td>
+              <td>{{ match.matchDate | date:'MMM d, y · h:mm a' }}</td>
+              <td>{{ match.location || '—' }}</td>
+              <td>
+                <span *ngIf="match.status === 'FINISHED'" style="font-weight:700;">
+                  {{ match.scoreTeamA }} – {{ match.scoreTeamB }}
+                </span>
+                <span *ngIf="match.status !== 'FINISHED'" style="color:var(--muted);">—</span>
+              </td>
+              <td>
+                <span class="a-badge" [ngClass]="getStatusClass(match.status)">
+                  {{ match.status }}
+                </span>
+              </td>
+              <td>{{ match.captainName || '—' }}</td>
+              <td style="text-align:right;">
+                <button class="a-btn a-btn-sm"
+                        style="color:#ff6b72;border:1.5px solid rgba(230,25,32,0.3);border-radius:8px;"
+                        (click)="deleteMatch(match.idMatch)">Delete</button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredMatches.length === 0">
+              <td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">
+                No matches found.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>

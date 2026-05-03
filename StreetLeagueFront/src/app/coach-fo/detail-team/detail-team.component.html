@@ -1,0 +1,127 @@
+<div class="page-content">
+
+  <!-- Back button -->
+  <div style="margin-bottom:1.5rem;">
+    <button class="btn btn-gray" (click)="goBack()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="width:16px;height:16px;margin-right:6px;">
+        <line x1="19" y1="12" x2="5" y2="12"/>
+        <polyline points="12 19 5 12 12 5"/>
+      </svg>
+      Back to Teams
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" style="text-align:center;padding:3rem;color:var(--gray-text);">
+    Loading team details...
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+
+  <!-- Team Detail -->
+  <div *ngIf="!isLoading && team">
+
+    <!-- Header Card -->
+    <div style="background:white;border:1.5px solid #eee;border-radius:16px;padding:2rem;margin-bottom:1.5rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <h1 style="font-size:2rem;font-weight:800;margin:0;">{{ team.name }}</h1>
+          <div style="margin-top:0.5rem;">
+            <span class="badge badge-red" style="font-size:0.9rem;padding:0.3rem 0.8rem;">{{ team.sport }}</span>
+            <span class="badge badge-blue" style="font-size:0.9rem;padding:0.3rem 0.8rem;margin-left:0.5rem;">{{ team.level }}</span>
+          </div>
+          <p style="margin-top:0.75rem;color:var(--gray-text);max-width:600px;">
+            {{ team.description || 'No description provided.' }}
+          </p>
+        </div>
+        <div style="text-align:right;">
+          <p style="font-size:0.85rem;color:var(--gray-text);margin:0;">Created</p>
+          <p style="font-weight:700;margin:0;">{{ team.creationDate | date:'MMM d, yyyy' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Row + Edit Logic -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+      <h3 style="font-weight:700; margin:0; font-size:1.2rem;">Team Statistics</h3>
+      <button *ngIf="!isEditingStats" class="btn btn-blue" (click)="toggleEditStats()">Edit Stats</button>
+      <div *ngIf="isEditingStats" style="display:flex; gap:0.5rem;">
+        <button class="btn btn-green" (click)="saveStats()">Save</button>
+        <button class="btn btn-gray" (click)="toggleEditStats()">Cancel</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;">
+      <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
+        <div style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.playerCount || 0 }}</div>
+        <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Members</div>
+      </div>
+      
+      <!-- Wins -->
+      <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
+        <div *ngIf="!isEditingStats" style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.victories || 0 }}</div>
+        <input *ngIf="isEditingStats" type="number" [(ngModel)]="editVictories" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
+        <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Wins</div>
+      </div>
+      
+      <!-- Losses -->
+      <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
+        <div *ngIf="!isEditingStats" style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.defeats || 0 }}</div>
+        <input *ngIf="isEditingStats" type="number" [(ngModel)]="editDefeats" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
+        <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Losses</div>
+      </div>
+      
+      <!-- Matches -->
+      <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
+        <div *ngIf="!isEditingStats" style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.matches || 0 }}</div>
+        <input *ngIf="isEditingStats" type="number" [(ngModel)]="editMatches" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
+        <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Matches</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+      <!-- Captain Info -->
+      <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.5rem;">
+        <h3 style="font-weight:700;margin-bottom:1rem;font-size:1rem;">👑 Captain</h3>
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <div style="width:48px;height:48px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:1.2rem;">
+            {{ (team.captainFullName || 'N')[0] }}
+          </div>
+          <div>
+            <div style="font-weight:700;">{{ team.captainFullName || 'Not defined' }}</div>
+            <div style="font-size:0.82rem;color:var(--gray-text);">{{ team.captainEmail || '' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Info -->
+      <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.5rem;">
+        <h3 style="font-weight:700;margin-bottom:1rem;font-size:1rem;">ℹ️ Team Info</h3>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--gray-text);font-size:0.85rem;">Sport</span>
+            <span style="font-weight:600;">{{ team.sport }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--gray-text);font-size:0.85rem;">Level</span>
+            <span style="font-weight:600;">{{ team.level }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--gray-text);font-size:0.85rem;">Members</span>
+            <span style="font-weight:600;">{{ team.playerCount || 0 }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--gray-text);font-size:0.85rem;">Created</span>
+            <span style="font-weight:600;">{{ team.creationDate | date:'MMM yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+  </div>
+</div>

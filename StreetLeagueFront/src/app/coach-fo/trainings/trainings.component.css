@@ -1,0 +1,41 @@
+
+    .session-card{background:white;border:1.5px solid #eee;border-radius:12px;transition:all 0.2s;}
+    .session-card:hover{border-color:rgba(230,25,32,0.35);box-shadow:0 6px 24px rgba(230,25,32,0.1);}
+    .session-head{padding:1.25rem 1.25rem 0.75rem;border-bottom:1px solid #f0f0f0;}
+    .session-title{font-weight:800;font-size:1.05rem;margin-top:0.5rem;}
+    .session-body{padding:1.25rem;}
+    .session-desc{font-size:0.87rem;color:var(--gray-text);margin-bottom:1rem;line-height:1.55;}
+    .meta-row{display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--gray-text);margin-bottom:0.4rem;}
+    .meta-row svg{width:15px;height:15px;flex-shrink:0;color:var(--red);}
+    .prog-bar{height:6px;background:#f0f0f0;border-radius:100px;overflow:hidden;margin:0.5rem 0 0.25rem;}
+    .prog-fill{height:100%;background:var(--red);border-radius:100px;}
+    .prog-label{display:flex;justify-content:space-between;font-size:0.78rem;color:var(--gray-text);}
+
+
+    .invalid-feedback {
+  color: #e61920;
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.is-invalid {
+  border-color: #e61920 !important;
+  outline: none;
+}
+
+.is-invalid:focus {
+  border-color: #e61920 !important;
+  box-shadow: 0 0 0 2px rgba(230, 25, 32, 0.15);
+}
+
+:host .invalid-feedback {
+  color: #e61920 !important;
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
+  display: block !important;
+}
+
+:host .is-invalid {
+  border-color: #e61920 !important;
+}

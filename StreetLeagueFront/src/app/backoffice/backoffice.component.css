@@ -1,0 +1,33 @@
+.admin-content {
+  background: #121212;
+  flex: 1;
+  overflow-y: auto;
+}
+/* Force dark sur tout le backoffice */
+:host {
+  display: block;
+  background: #0a0a0a;
+  min-height: 100vh;
+  color-scheme: dark;
+}
+
+/* Neutralise les fonds blancs Bootstrap sur les cards */
+:host ::ng-deep .card,
+:host ::ng-deep .card-body,
+:host ::ng-deep .card-header {
+  background-color: #1E1E1E !important;
+  border-color: #2A2A2A !important;
+  color: #F0F0F0 !important;
+}
+
+/* Stat cards spécifiquement */
+:host ::ng-deep .stat-card {
+  background: #161616 !important;
+  border: 1px solid #2A2A2A !important;
+  color: #F0F0F0 !important;
+}
+
+:host ::ng-deep .stat-number,
+:host ::ng-deep .stat-label {
+  color: #F0F0F0 !important;
+}

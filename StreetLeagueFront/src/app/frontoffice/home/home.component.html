@@ -1,0 +1,150 @@
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>The <span>Amateur Sports</span> Platform</h1>
+    <p>Manage your teams, book fields, join tournaments, and connect with your street sports community.</p>
+    <div class="hero-btns">
+      <a routerLink="/client/team" class="btn-hero-primary">Get Started</a>
+      <a routerLink="/client/training" class="btn-hero-outline">View Trainings</a>
+    </div>
+  </div>
+</section>
+
+<!-- GLOBAL LEADERBOARD -->
+<section class="section">
+  <div class="section-inner">
+    <div style="text-align:center; margin-bottom:2rem;">
+      <h2 class="section-title">Global Leaderboard</h2>
+      <p class="section-sub">Top ranked teams according to their performance score</p>
+
+      <!-- Sport Filters -->
+      <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin-bottom:3rem;">
+        <button class="btn-sport" [class.active]="selectedSport === 'Football'"    (click)="switchSport('Football')">⚽ Football</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Basketball'"  (click)="switchSport('Basketball')">🏀 Basketball</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Tennis'"      (click)="switchSport('Tennis')">🎾 Tennis</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Handball'"    (click)="switchSport('Handball')">🤾 Handball</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Volleyball'"  (click)="switchSport('Volleyball')">🏐 Volleyball</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Rugby'"       (click)="switchSport('Rugby')">🏉 Rugby</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Baseball'"    (click)="switchSport('Baseball')">⚾ Baseball</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Cricket'"     (click)="switchSport('Cricket')">🏏 Cricket</button>
+        <button class="btn-sport" [class.active]="selectedSport === 'Padel'"       (click)="switchSport('Padel')">🏓 Padel</button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoadingLeaderboard" style="text-align:center; padding:3rem; color:#ff3d44; font-weight:800;">
+      Fetching the Elite...
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="leaderboardError" style="text-align:center; color:#ff3d44; padding:2rem;">
+      {{ leaderboardError }}
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="!isLoadingLeaderboard && topTeams.length === 0"
+         style="text-align:center; color:#888; padding:3rem;">
+      No teams are dominating the {{ selectedSport }} scene yet!
+    </div>
+
+    <!-- Leaderboard List -->
+    <div *ngIf="!isLoadingLeaderboard && topTeams.length > 0" class="leaderboard-container">
+
+      <div *ngFor="let team of topTeams; let i = index"
+           class="rank-row"
+           [ngClass]="{ 'top-1': i === 0, 'top-2': i === 1, 'top-3': i === 2 }">
+
+        <!-- Rank -->
+        <div class="rank-badge">
+          <span *ngIf="i === 0" class="medal">🥇</span>
+          <span *ngIf="i === 1" class="medal">🥈</span>
+          <span *ngIf="i === 2" class="medal">🥉</span>
+          <span *ngIf="i > 2"   class="rank-num">#{{ i + 1 }}</span>
+        </div>
+
+        <!-- Avatar initiales -->
+        <div class="lb-avatar" [ngStyle]="getAvatarStyle(i)">
+          {{ team.teamName.substring(0, 2).toUpperCase() }}
+        </div>
+
+        <!-- Info équipe -->
+        <div class="lb-info">
+          <div class="lb-name">{{ team.teamName }}</div>
+          <div class="lb-meta">
+            <span class="lb-stat">
+              <span class="dot dot-green"></span>{{ team.victories || 0 }} wins
+            </span>
+            <span class="lb-stat">
+              <span class="dot dot-red"></span>{{ team.defeats || 0 }} losses
+            </span>
+            <span class="lb-stat">
+              <span class="dot dot-gray"></span>{{ team.matches || 0 }} played
+            </span>
+          </div>
+          <div class="lb-captain">
+            Captain: {{ team.captainFullName }}
+            <span *ngIf="team.lastOpponentName"> &nbsp;·&nbsp; Last vs {{ team.lastOpponentName }}</span>
+          </div>
+        </div>
+
+        <!-- Score -->
+        <div class="lb-score">
+          <div class="score-label">Score</div>
+          <div class="score-val" [ngClass]="getScoreClass(i)">
+            {{ team.points }}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section section-dark">
+  <div class="section-inner">
+    <h2 class="section-title">Everything You Need</h2>
+    <p class="section-sub">Complete tools to organize your urban sports life</p>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg fill="none" stroke="#ff3d44" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="feature-title">Team Management</div>
+        <div class="feature-desc">Create and manage your street teams, add players, and track your stats.</div>
+        <a routerLink="/client/team" class="feature-link">Learn more →</a>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg fill="none" stroke="#ff3d44" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+            <path d="M4 22h16"/>
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+          </svg>
+        </div>
+        <div class="feature-title">Tournaments</div>
+        <div class="feature-desc">Join competitive underground tournaments and dominate the global rankings.</div>
+        <a routerLink="/client/tournaments" class="feature-link">Learn more →</a>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg fill="none" stroke="#ff3d44" viewBox="0 0 24 24" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <div class="feature-title">Field Booking</div>
+        <div class="feature-desc">Reserve local sports facilities and courts in just a few clicks.</div>
+        <a routerLink="/client/fields" class="feature-link">Learn more →</a>
+      </div>
+
+    </div>
+  </div>
+</section>

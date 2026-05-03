@@ -1,0 +1,112 @@
+<div class="coach-home">
+  <!-- HERO -->
+  <section class="hero-coach">
+    <div class="hero-content">
+      <div class="badge-new">Coach Edition</div>
+      <h1>Master Your <span>Tactics</span></h1>
+      <p>Your centralized command center. Analyze player stats, strategize match formations, schedule intense trainings, and lead your team to victory.</p>
+      <div class="hero-btns">
+        <a routerLink="/coach/teamCoach" class="btn-coach-primary">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Manage Teams
+        </a>
+        <a routerLink="/coach/trainingCoach" class="btn-coach-outline">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          Schedule Training
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICK STATS -->
+  <div class="coach-stats-grid">
+    <div class="stat-card glass">
+      <div class="stat-icon"><svg fill="none" stroke="#ff3d44" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <div class="stat-info">
+        <span class="stat-val">3</span>
+        <span class="stat-label">Active Squads</span>
+      </div>
+    </div>
+    <div class="stat-card glass">
+      <div class="stat-icon"><svg fill="none" stroke="#ff3d44" viewBox="0 0 24 24" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="stat-info">
+        <span class="stat-val">87%</span>
+        <span class="stat-label">Win Rate</span>
+      </div>
+    </div>
+    <div class="stat-card glass">
+      <div class="stat-icon"><svg fill="none" stroke="#ff3d44" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="stat-info">
+        <span class="stat-val">12</span>
+        <span class="stat-label">Upcoming Trainings</span>
+      </div>
+    </div>
+    <div class="stat-card glass">
+      <div class="stat-icon"><svg fill="none" stroke="#ff3d44" viewBox="0 0 24 24" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+      <div class="stat-info">
+        <span class="stat-val">Top 5</span>
+        <span class="stat-label">League Ranking</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULES -->
+  <section class="modules-section">
+    <div class="section-header">
+      <h2>Managerial Toolkit</h2>
+      <p>Access your specialized coach features below</p>
+    </div>
+    
+    <div class="modules-grid">
+      <!-- Roster Management -->
+      <a routerLink="/coach/teamCoach" class="module-card">
+        <div class="module-bg" style="background-image: url('https://images.unsplash.com/photo-1574629810360-7efbc5ae008b?q=80&w=600&auto=format&fit=crop');"></div>
+        <div class="module-content">
+          <div class="module-icon-wrap">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3>Roster & Teams</h3>
+          <p>Assemble your dream team, manage substitutions, and edit player roles.</p>
+          <span class="module-action">Manage Roster →</span>
+        </div>
+      </a>
+
+      <!-- Training Sessions -->
+      <a routerLink="/coach/trainingCoach" class="module-card">
+        <div class="module-bg" style="background-image: url('https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=600&auto=format&fit=crop');"></div>
+        <div class="module-content">
+          <div class="module-icon-wrap">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path d="M6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>
+          </div>
+          <h3>Training Planner</h3>
+          <p>Schedule drills, fitness sessions, and track attendance levels.</p>
+          <span class="module-action">Plan Session →</span>
+        </div>
+      </a>
+
+      <!-- Performance Analytics -->
+      <a routerLink="/coach/profile" class="module-card">
+        <div class="module-bg" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop');"></div>
+        <div class="module-content">
+          <div class="module-icon-wrap">
+            <svg fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h3>Performance Analytics</h3>
+          <p>Dive deep into player statistics to find areas of improvement.</p>
+          <span class="module-action">View Analytics →</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-banner">
+    <div class="cta-content">
+      <h2>Build Your Legacy</h2>
+      <p>Transform your passionate players into a championship-winning team today.</p>
+    </div>
+    <div class="cta-action">
+      <a routerLink="/coach/trainingCoach" class="btn-cta-glow">Start New Training</a>
+    </div>
+  </section>
+</div>
