@@ -11,8 +11,8 @@
         </svg>
       </div>
       <div>
-        <h1 class="ir-title">Risque de blessure</h1>
-        <p class="ir-subtitle">Fatigue · Charge de travail · Récupération</p>
+        <h1 class="ir-title">Injury Risk</h1>
+        <p class="ir-subtitle">Fatigue · Workload · Recovery</p>
       </div>
     </div>
     <button class="ir-btn-refresh" (click)="loadData()">
@@ -20,14 +20,14 @@
         <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
       </svg>
-      Actualiser
+      Refresh
     </button>
   </header>
 
   <!-- ══ LOADING ══ -->
   <div class="ir-loading" *ngIf="loading">
     <div class="ir-spinner"></div>
-    <span>Analyse des risques en cours…</span>
+    <span>Analyzing risks…</span>
   </div>
 
   <!-- ══ ERROR ══ -->
@@ -37,7 +37,7 @@
       <line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
     {{ error }}
-    <button (click)="loadData()">Réessayer</button>
+    <button (click)="loadData()">Retry</button>
   </div>
 
   <ng-container *ngIf="!loading && !error">
@@ -49,8 +49,8 @@
               (click)="setFilter('CRITICAL')">
         <span class="ir-sum-icon">⚠️</span>
         <div class="ir-sum-count">{{ criticalCount }}</div>
-        <div class="ir-sum-label">Critique</div>
-        <div class="ir-sum-trend">{{ criticalCount > 0 ? 'Action immédiate' : 'Aucun' }}</div>
+        <div class="ir-sum-label">Critical</div>
+        <div class="ir-sum-trend">{{ criticalCount > 0 ? 'Immediate action' : 'None' }}</div>
       </button>
 
       <button class="ir-sum-card ir-sum-card--high"
@@ -58,8 +58,8 @@
               (click)="setFilter('HIGH')">
         <span class="ir-sum-icon">🔴</span>
         <div class="ir-sum-count">{{ highCount }}</div>
-        <div class="ir-sum-label">Élevé</div>
-        <div class="ir-sum-trend">Surveillance requise</div>
+        <div class="ir-sum-label">High</div>
+        <div class="ir-sum-trend">Monitoring required</div>
       </button>
 
       <button class="ir-sum-card ir-sum-card--moderate"
@@ -67,8 +67,8 @@
               (click)="setFilter('MODERATE')">
         <span class="ir-sum-icon">🟡</span>
         <div class="ir-sum-count">{{ moderateCount }}</div>
-        <div class="ir-sum-label">Modéré</div>
-        <div class="ir-sum-trend">À surveiller</div>
+        <div class="ir-sum-label">Moderate</div>
+        <div class="ir-sum-trend">Watch closely</div>
       </button>
 
       <button class="ir-sum-card ir-sum-card--low"
@@ -76,8 +76,8 @@
               (click)="setFilter('LOW')">
         <span class="ir-sum-icon">🟢</span>
         <div class="ir-sum-count">{{ lowCount }}</div>
-        <div class="ir-sum-label">Faible</div>
-        <div class="ir-sum-trend">Bon état</div>
+        <div class="ir-sum-label">Low</div>
+        <div class="ir-sum-trend">Good condition</div>
       </button>
 
       <button class="ir-sum-card ir-sum-card--all"
@@ -85,14 +85,14 @@
               (click)="setFilter('ALL')">
         <span class="ir-sum-icon">👥</span>
         <div class="ir-sum-count">{{ players.length }}</div>
-        <div class="ir-sum-label">Tous</div>
-        <div class="ir-sum-trend">Vue d'ensemble</div>
+        <div class="ir-sum-label">All</div>
+        <div class="ir-sum-trend">Overview</div>
       </button>
     </div>
 
     <!-- ══ FORMULA ══ -->
     <div class="ir-formula">
-      <span class="ir-formula-label">Méthode</span>
+      <span class="ir-formula-label">Method</span>
       <div class="ir-formula-body">
         <div class="ir-formula-factor">
           <span class="ir-factor-dot" style="background:#dc2626"></span>
@@ -102,21 +102,21 @@
         <span class="ir-formula-plus">+</span>
         <div class="ir-formula-factor">
           <span class="ir-factor-dot" style="background:#d97706"></span>
-          <span>Charge</span>
+          <span>Workload</span>
           <strong>35%</strong>
         </div>
         <span class="ir-formula-plus">+</span>
         <div class="ir-formula-factor">
           <span class="ir-factor-dot" style="background:#16a34a"></span>
-          <span>Récupération</span>
+          <span>Recovery</span>
           <strong>25%</strong>
         </div>
       </div>
       <div class="ir-formula-thresholds">
-        <span class="ir-th ir-th--critical">≥75 → Critique</span>
-        <span class="ir-th ir-th--high">50–74 → Élevé</span>
-        <span class="ir-th ir-th--moderate">25–49 → Modéré</span>
-        <span class="ir-th ir-th--low">&lt;25 → Faible</span>
+        <span class="ir-th ir-th--critical">≥75 → Critical</span>
+        <span class="ir-th ir-th--high">50–74 → High</span>
+        <span class="ir-th ir-th--moderate">25–49 → Moderate</span>
+        <span class="ir-th ir-th--low">&lt;25 → Low</span>
       </div>
     </div>
 
@@ -136,7 +136,7 @@
           </div>
           <div class="ir-player-info">
             <div class="ir-player-name">{{ p.playerName }}</div>
-            <span class="ir-stat-badge">Série actuelle : {{ p.currentStreak }}j</span>
+            <span class="ir-stat-badge">Current streak : {{ p.currentStreak }}d</span>
           </div>
           <div class="ir-risk-badge"
                [style.background]="getRiskColor(p.injuryRiskLevel)"
@@ -173,7 +173,7 @@
                 <span class="ir-score-max">/100</span>
               </div>
             </div>
-            <div class="ir-score-label">Score risque</div>
+            <div class="ir-score-label">Risk score</div>
           </div>
 
           <!-- Metric Bars -->
@@ -191,12 +191,12 @@
                      style="background:#dc2626"
                      [style.width.%]="(p.fatigueRisk || 0) * 100"></div>
               </div>
-              <div class="ir-metric-weight">Pondération : 40%</div>
+              <div class="ir-metric-weight">Weight : 40%</div>
             </div>
 
             <div class="ir-metric-item">
               <div class="ir-metric-header">
-                <span class="ir-metric-name">Charge de travail</span>
+                <span class="ir-metric-name">Workload</span>
                 <span class="ir-metric-value" style="color:#d97706">
                   {{ ((p.workloadFactor || 0) * 100) | number:'1.0-0' }}%
                 </span>
@@ -206,12 +206,12 @@
                      style="background:#d97706"
                      [style.width.%]="(p.workloadFactor || 0) * 100"></div>
               </div>
-              <div class="ir-metric-weight">Pondération : 35%</div>
+              <div class="ir-metric-weight">Weight : 35%</div>
             </div>
 
             <div class="ir-metric-item">
               <div class="ir-metric-header">
-                <span class="ir-metric-name">Récupération</span>
+                <span class="ir-metric-name">Recovery</span>
                 <span class="ir-metric-value" style="color:#16a34a">
                   {{ p.recoveryScore | number:'1.0-0' }}%
                 </span>
@@ -221,7 +221,7 @@
                      style="background:#16a34a"
                      [style.width.%]="p.recoveryScore"></div>
               </div>
-              <div class="ir-metric-weight">Pondération : 25%</div>
+              <div class="ir-metric-weight">Weight : 25%</div>
             </div>
 
           </div>
@@ -242,7 +242,7 @@
       <!-- Empty state -->
       <div *ngIf="filteredPlayers.length === 0" class="ir-empty">
         <div class="ir-empty-icon">🎯</div>
-        <p>Aucun joueur dans cette catégorie.</p>
+        <p>No players in this category.</p>
       </div>
 
     </div>

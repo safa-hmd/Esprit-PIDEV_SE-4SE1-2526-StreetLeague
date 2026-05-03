@@ -138,4 +138,33 @@ public class PerformanceController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ENDPOINTS TEST / DÉMO — injecter des données simulées en un clic
+    //
+    //  POST /api/performance/test/seed/{playerId}
+    //  Paramètres :
+    //    pattern = "drop" | "spike" | "overload" | "regular" | "custom"
+    //    presentDays (custom only) = nb de jours présents (défaut 20)
+    //    skipLast    (custom only) = nb de jours absents à la fin (défaut 5)
+    //
+    //  POST /api/performance/test/reset/{playerId}
+    //  Supprime toutes les présences + remet le streak à zéro
+    // ══════════════════════════════════════════════════════════════════════
+
+    @PostMapping("/test/seed/{playerId}")
+    public ResponseEntity<java.util.Map<String, Object>> seedTestData(
+            @PathVariable Long playerId,
+            @RequestParam(defaultValue = "drop") String pattern,
+            @RequestParam(defaultValue = "20")   int presentDays,
+            @RequestParam(defaultValue = "5")    int skipLast) {
+        return ResponseEntity.ok(
+                performanceService.seedTestData(playerId, pattern, presentDays, skipLast));
+    }
+
+    @PostMapping("/test/reset/{playerId}")
+    public ResponseEntity<java.util.Map<String, Object>> resetPlayerData(
+            @PathVariable Long playerId) {
+        return ResponseEntity.ok(performanceService.resetPlayerData(playerId));
+    }
 }

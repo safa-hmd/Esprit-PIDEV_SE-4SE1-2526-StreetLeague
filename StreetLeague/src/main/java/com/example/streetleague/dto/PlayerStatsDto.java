@@ -126,4 +126,30 @@ public class PlayerStatsDto {
      * Indique si une alerte coach a été ou doit être envoyée.
      */
     private Boolean coachAlertSent;
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  STATISTIQUES AVANCÉES — Fiabilité du signal
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * true si l'historique est insuffisant (< 7 jours actifs).
+     * Dans ce cas, anomalyType = NORMAL mais ce n'est PAS une vraie zone fiable.
+     * Le frontend doit afficher "Données insuffisantes" au lieu d'un score de risque.
+     */
+    private Boolean insufficientHistory;
+
+    /**
+     * Confiance du signal anomalie (0.0 – 1.0).
+     * Calculée selon le nombre de jours actifs et la cohérence Z-Score / EWMA.
+     * < 0.4  → signal peu fiable (peu de data)
+     * 0.4–0.7 → signal modéré
+     * > 0.7  → signal fiable (confirmé par les deux méthodes)
+     */
+    private Double signalConfidence;
+
+    /**
+     * Nombre de jours actifs utilisés pour le calcul de l'anomalie.
+     * Affiché dans le dashboard coach pour la transparence du signal.
+     */
+    private Integer anomalyDataPoints;
 }

@@ -1,36 +1,5 @@
-/* You can add global styles to this file, and also import other style files */
-/* ============================================================
-   styles.css — Global Theme Variables
-   ============================================================ */
-
-/* ── Dark (défaut) ── */
-:root, [data-theme="dark"] {
-  --bg:          #121212;
-  --card:        #1E1E1E;
-  --card-bg:     #161616;
-  --card-inner:  #171717;
-  --card-hover:  #242424;
-  --border:      #2A2A2A;
-  --text:        #F0F0F0;
-  --muted:       #888888;
-  --red:         #E61920;
-  --red-dark:    #990000;
-  --teal:        #4E8A9F;
-  --orange:      #E87040;
-  --coral:       #E85C7A;
-  --pastel-blue: #6B9ED2;
-  --old-rose:    #C2748A;
-  --green:       #22c55e;
-  --yellow:      #eab308;
-  --black:       #0A0A0A;
-  --sidebar-w:   256px;
-  --header-h:    57px;
-  --header-bg:   #0f0f0f;
-  --sidebar-bg:  #0f0f0f;
-}
-
-/* ── Light ── */
-[data-theme="light"] {
+/* ── Light (défaut) ── */
+:root, [data-theme="light"] {
   --bg:          #F0F2F5;
   --card:        #FFFFFF;
   --card-bg:     #F8F9FA;
@@ -53,4 +22,30 @@
   --header-h:    57px;
   --header-bg:   #FFFFFF;
   --sidebar-bg:  #FFFFFF;
+}
+
+/* ── Dark ── */
+[data-theme="dark"] {
+  --bg:          #121212;
+  --card:        #1E1E1E;
+  --card-bg:     #161616;
+  --card-inner:  #171717;
+  --card-hover:  #242424;
+  --border:      #2A2A2A;
+  --text:        #F0F0F0;
+  --muted:       #888888;
+  --red:         #E61920;
+  --red-dark:    #990000;
+  --teal:        #4E8A9F;
+  --orange:      #E87040;
+  --coral:       #E85C7A;
+  --pastel-blue: #6B9ED2;
+  --old-rose:    #C2748A;
+  --green:       #22c55e;
+  --yellow:      #eab308;
+  --black:       #0A0A0A;
+  --sidebar-w:   256px;
+  --header-h:    57px;
+  --header-bg:   #0f0f0f;
+  --sidebar-bg:  #0f0f0f;
 }

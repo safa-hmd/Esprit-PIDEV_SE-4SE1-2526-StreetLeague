@@ -65,7 +65,7 @@ public final class AcwrCalculator {
                 .mapToDouble(a -> sessionWeight(a.getAttendanceType()))
                 .sum();
 
-        // ── Charge chronique (28 derniers jours, moyenne sur 4 semaines) ─
+        // ── Charge chronique (28 derniers jours, moyenne dynamique) ──────
         double totalChronicLoad = attendances.stream()
                 .filter(a -> Boolean.TRUE.equals(a.getIsPresent()))
                 .filter(a -> !a.getAttendanceDate().isBefore(chronicFrom)
@@ -73,11 +73,29 @@ public final class AcwrCalculator {
                 .mapToDouble(a -> sessionWeight(a.getAttendanceType()))
                 .sum();
 
-        // Moyenne hebdomadaire sur 4 semaines
-        double chronicLoad = totalChronicLoad / 4.0;
+        // Nombre de jours actifs dans la fenêtre de 28j
+        long activeDays = attendances.stream()
+                .filter(a -> Boolean.TRUE.equals(a.getIsPresent()))
+                .filter(a -> !a.getAttendanceDate().isBefore(chronicFrom)
+                        && !a.getAttendanceDate().isAfter(today))
+                .map(PlayerAttendance::getAttendanceDate)
+                .distinct()
+                .count();
+
+        // Minimum History Gate : moins de 7 jours d'historique → ACWR non fiable
+        // On retourne un résultat marqué insufficientHistory=true au lieu de le masquer en "neutre"
+        if (activeDays < 7) {
+            double fatigueRiskEarly = 0.15; // valeur neutre basse, pas 0 pour ne pas cacher
+            double normalizedEarly  = Math.min(1.0, acuteLoad / MAX_ACUTE_LOAD);
+            return new AcwrResult(acuteLoad, acuteLoad, 1.0, fatigueRiskEarly, normalizedEarly, true);
+        }
+
+        // Dynamic Chronic Window : on divise par le nombre réel de semaines couvertes
+        // → évite de pénaliser un joueur qui a peu d'historique
+        double actualWeeks  = Math.max(1.0, activeDays / 7.0);
+        double chronicLoad  = totalChronicLoad / actualWeeks;
 
         // ── Calcul du ratio ──────────────────────────────────────────────
-        // Si charge chronique nulle (joueur nouveau), on retourne un ACWR neutre
         double acwr = (chronicLoad < 0.01) ? 1.0 : (acuteLoad / chronicLoad);
 
         // ── Clamp pour éviter des valeurs aberrantes ─────────────────────
@@ -89,7 +107,7 @@ public final class AcwrCalculator {
         // ── Charge normalisée (0–1) ──────────────────────────────────────
         double normalizedAcuteLoad = Math.min(1.0, acuteLoad / MAX_ACUTE_LOAD);
 
-        return new AcwrResult(acuteLoad, chronicLoad, acwr, fatigueRisk, normalizedAcuteLoad);
+        return new AcwrResult(acuteLoad, chronicLoad, acwr, fatigueRisk, normalizedAcuteLoad, false);
     }
 
     /**
@@ -164,15 +182,17 @@ public final class AcwrCalculator {
      * Résultat complet du calcul ACWR.
      */
     public record AcwrResult(
-            double acuteLoad,            // Charge aiguë absolue (7j)
-            double chronicLoad,          // Charge chronique moyenne (28j / 4 semaines)
-            double acwr,                 // Ratio ACWR (acute / chronic)
-            double fatigueRisk,          // Fatigue normalisée 0–1 (compatible PlayerStreak)
-            double normalizedAcuteLoad   // Charge aiguë normalisée 0–1 (workloadFactor)
+            double acuteLoad,
+            double chronicLoad,
+            double acwr,
+            double fatigueRisk,
+            double normalizedAcuteLoad,
+            boolean insufficientHistory   // true si < 7 jours actifs → données non fiables
     ) {
         public AcwrZone zone() { return computeZone(acwr); }
         public String recommendation() { return buildRecommendation(acwr, zone()); }
         public String riskLevel() {
+            if (insufficientHistory) return "UNKNOWN";
             return switch (zone()) {
                 case UNDERLOAD -> "MODERATE";
                 case OPTIMAL   -> "LOW";

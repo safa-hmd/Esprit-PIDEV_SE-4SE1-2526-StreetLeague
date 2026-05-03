@@ -5,7 +5,6 @@ import com.example.streetleague.dto.LeaderboardDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
@@ -14,7 +13,6 @@ import java.util.Optional;
 @Repository
 public interface TeamRepository extends JpaRepository<Team, Long> {
 
-    List<Team> findByCaptain_IdUser(Long captainId);
     @Query("""
     SELECT new com.example.streetleague.dto.LeaderboardDto(
         t.idTeam,
@@ -73,5 +71,14 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
      */
     @Query("SELECT t FROM Team t WHERE t.coach.idUser = :coachId")
     Optional<Team> findByCoachId(@Param("coachId") Long coachId);
-}
 
+    @Query("""
+    SELECT DISTINCT t FROM Team t
+    LEFT JOIN t.players p
+    WHERE p.idUser = :playerId
+       OR t.captain.idUser = :playerId
+    """)
+    List<Team> findTeamsByPlayerId(@Param("playerId") Long playerId);
+
+    List<Team> findByCaptain_IdUser(Long coachId);
+}

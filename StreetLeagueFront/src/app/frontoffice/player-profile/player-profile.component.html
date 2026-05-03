@@ -478,11 +478,78 @@
         </div>
       </div>
 
-      <!-- Check-in Button -->
+      <!-- Check-in Section avec sélecteur de type -->
       <div class="checkin-section">
-        <button class="btn-checkin-full" (click)="doCheckin()">
-          📝 DAILY CHECK-IN
+
+        <div class="checkin-title">📝 DAILY CHECK-IN</div>
+        <div class="checkin-subtitle">Sélectionne ton type de session avant de valider</div>
+
+        <!-- Sélecteur Training / Match / Both -->
+        <div class="type-selector">
+
+          <div class="type-card" [class.type-selected]="checkinType === 'TRAINING'"
+               (click)="checkinType = 'TRAINING'">
+            <div class="type-card-bg training-bg"></div>
+            <div class="type-card-inner">
+              <div class="type-emoji">🏋️</div>
+              <div class="type-label">Training</div>
+              <div class="type-desc">Entraînement individuel ou collectif</div>
+              <span class="pts-badge">+1 pt</span>
+            </div>
+            <div class="type-selected-bar training-bar" *ngIf="checkinType === 'TRAINING'"></div>
+            <div class="type-check" *ngIf="checkinType === 'TRAINING'">✓</div>
+          </div>
+
+          <div class="type-card" [class.type-selected]="checkinType === 'MATCH'"
+               (click)="checkinType = 'MATCH'">
+            <div class="type-card-bg match-bg"></div>
+            <div class="type-card-inner">
+              <div class="type-emoji">⚽</div>
+              <div class="type-label">Match</div>
+              <div class="type-desc">Compétition officielle ou amicale</div>
+              <span class="pts-badge match-pts">+2 pts</span>
+            </div>
+            <div class="type-selected-bar match-bar" *ngIf="checkinType === 'MATCH'"></div>
+            <div class="type-check match-check" *ngIf="checkinType === 'MATCH'">✓</div>
+          </div>
+
+          <div class="type-card type-card-both" [class.type-selected]="checkinType === 'BOTH'"
+               (click)="checkinType = 'BOTH'">
+            <div class="type-card-bg both-bg"></div>
+            <div class="type-card-inner">
+              <div class="type-emoji">🔥</div>
+              <div class="type-label">Both</div>
+              <div class="type-desc">Training + Match dans la même journée</div>
+              <span class="pts-badge both-pts">+3 pts ⚡</span>
+            </div>
+            <div class="type-selected-bar both-bar" *ngIf="checkinType === 'BOTH'"></div>
+            <div class="type-check both-check" *ngIf="checkinType === 'BOTH'">✓</div>
+          </div>
+
+        </div>
+
+        <!-- Pill informatif -->
+        <div class="session-info-pill"
+             [class.pill-training]="checkinType === 'TRAINING'"
+             [class.pill-match]="checkinType === 'MATCH'"
+             [class.pill-both]="checkinType === 'BOTH'"
+             *ngIf="checkinType">
+          <span *ngIf="checkinType === 'TRAINING'">🏋️ Session Training — +1 point</span>
+          <span *ngIf="checkinType === 'MATCH'">⚽ Session Match — +2 points bonus compétition</span>
+          <span *ngIf="checkinType === 'BOTH'">🔥 Double session Training + Match — +3 pts ⚡</span>
+        </div>
+
+        <!-- Bouton valider -->
+        <button class="btn-checkin-full" (click)="doCheckin()" [disabled]="checkinLoading || !checkinType">
+          <span *ngIf="!checkinLoading">
+            <span *ngIf="checkinType === 'TRAINING'">🏋️ VALIDER — TRAINING</span>
+            <span *ngIf="checkinType === 'MATCH'">⚽ VALIDER — MATCH</span>
+            <span *ngIf="checkinType === 'BOTH'">🔥 VALIDER — TRAINING + MATCH</span>
+            <span *ngIf="!checkinType">📝 CHOISIR UN TYPE CI-DESSUS</span>
+          </span>
+          <span *ngIf="checkinLoading">⏳ Enregistrement...</span>
         </button>
+
         <p class="checkin-hint">Check in every day to build your streak and earn badges!</p>
       </div>
 

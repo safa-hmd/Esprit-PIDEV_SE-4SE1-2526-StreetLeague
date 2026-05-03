@@ -57,7 +57,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let team of filteredTeams">
+<tr *ngFor="let team of pagedTeams">
               <td><strong>{{ team.name }}</strong></td>
               <td>{{ team.captainFullName || 'Not defined' }}</td>
               <td>{{ team.playerCount  || 0 }}</td>
@@ -77,6 +77,32 @@
             </tr>
           </tbody>
         </table>
+        <!-- Pagination Teams -->
+<div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.25rem;border-top:1px solid var(--border,#2A2A2A);">
+  <span style="color:var(--muted,#888);font-size:0.82rem;">
+    Page {{ teamPage }} of {{ teamTotalPages }} — {{ filteredTeams.length }} teams
+  </span>
+  <div style="display:flex;gap:0.4rem;">
+    <button class="a-btn a-btn-sm" (click)="changeTeamPage(teamPage - 1)"
+            [disabled]="teamPage === 1"
+            style="border:1.5px solid var(--border,#2A2A2A);border-radius:8px;">
+      ‹
+    </button>
+    <button *ngFor="let p of [].constructor(teamTotalPages); let i = index"
+            class="a-btn a-btn-sm"
+            (click)="changeTeamPage(i + 1)"
+            [style]="(i+1) === teamPage
+              ? 'background:var(--red,#E61920);color:#fff;border-radius:8px;border:none;'
+              : 'border:1.5px solid var(--border,#2A2A2A);border-radius:8px;'">
+      {{ i + 1 }}
+    </button>
+    <button class="a-btn a-btn-sm" (click)="changeTeamPage(teamPage + 1)"
+            [disabled]="teamPage === teamTotalPages"
+            style="border:1.5px solid var(--border,#2A2A2A);border-radius:8px;">
+      ›
+    </button>
+  </div>
+</div>
       </div>
     </div>
   </div>
@@ -132,7 +158,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let match of filteredMatches">
+            <tr *ngFor="let match of pagedMatches">
               <td><strong>{{ match.teamAName }}</strong></td>
               <td><strong>{{ match.teamBName }}</strong></td>
               <td>{{ match.matchDate | date:'MMM d, y · h:mm a' }}</td>
@@ -162,6 +188,31 @@
             </tr>
           </tbody>
         </table>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.25rem;border-top:1px solid var(--border,#2A2A2A);">
+  <span style="color:var(--muted,#888);font-size:0.82rem;">
+    Page {{ matchPage }} of {{ matchTotalPages }} — {{ filteredMatches.length }} matches
+  </span>
+  <div style="display:flex;gap:0.4rem;">
+    <button class="a-btn a-btn-sm" (click)="changeMatchPage(matchPage - 1)"
+            [disabled]="matchPage === 1"
+            style="border:1.5px solid var(--border,#2A2A2A);border-radius:8px;">
+      ‹
+    </button>
+    <button *ngFor="let p of [].constructor(matchTotalPages); let i = index"
+            class="a-btn a-btn-sm"
+            (click)="changeMatchPage(i + 1)"
+            [style]="(i+1) === matchPage
+              ? 'background:var(--red,#E61920);color:#fff;border-radius:8px;border:none;'
+              : 'border:1.5px solid var(--border,#2A2A2A);border-radius:8px;'">
+      {{ i + 1 }}
+    </button>
+    <button class="a-btn a-btn-sm" (click)="changeMatchPage(matchPage + 1)"
+            [disabled]="matchPage === matchTotalPages"
+            style="border:1.5px solid var(--border,#2A2A2A);border-radius:8px;">
+      ›
+    </button>
+  </div>
+</div>
       </div>
     </div>
   </div>
