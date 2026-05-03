@@ -58,7 +58,7 @@
           </thead>
           <tbody>
             <tr *ngFor="let team of filteredTeams">
-              <td><strong>{{ team.nom }}</strong></td>
+              <td><strong>{{ team.name }}</strong></td>
               <td>{{ team.captainFullName || 'Not defined' }}</td>
               <td>{{ team.playerCount  || 0 }}</td>
               <td>{{ team.sport }}</td>
@@ -136,7 +136,7 @@
               <td><strong>{{ match.teamAName }}</strong></td>
               <td><strong>{{ match.teamBName }}</strong></td>
               <td>{{ match.matchDate | date:'MMM d, y · h:mm a' }}</td>
-              <td>{{ match.lieu || '—' }}</td>
+              <td>{{ match.location || '—' }}</td>
               <td>
                 <span *ngIf="match.status === 'FINISHED'" style="font-weight:700;">
                   {{ match.scoreTeamA }} – {{ match.scoreTeamB }}
@@ -144,11 +144,11 @@
                 <span *ngIf="match.status !== 'FINISHED'" style="color:var(--muted);">—</span>
               </td>
               <td>
-                <span class="a-badge" [ngClass]="getStatusClass(match.status)">
+                <span class="a-badge" [ngClass]="getStatusClass(match.status || '')">
                   {{ match.status }}
                 </span>
               </td>
-              <td>{{ match.captainName || '—' }}</td>
+              <td>{{ match.captainAName || match.captainBName || '—' }}</td>
               <td style="text-align:right;">
                 <button class="a-btn a-btn-sm"
                         style="color:#ff6b72;border:1.5px solid rgba(230,25,32,0.3);border-radius:8px;"

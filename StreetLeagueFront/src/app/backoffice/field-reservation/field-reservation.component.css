@@ -1,4 +1,4 @@
-﻿/* ─── Page wrapper ─────────────────────────────────────────────────── */
+/* ─── Page wrapper ─────────────────────────────────────────────────── */
 .page-wrapper {
   padding: 28px 32px;
   background: #0d0d0d;
@@ -489,8 +489,7 @@
   .form-row     { grid-template-columns: 1fr; }
   .detail-grid  { grid-template-columns: 1fr; }
 }
-<<<<<<< HEAD
-=======
+
 /* ══════════════════════════════════════════════════════════════════════════
    PLANNING MODAL
 ══════════════════════════════════════════════════════════════════════════ */
@@ -808,4 +807,3 @@
   cursor: pointer;
 }
 .btn-ghost-sm:hover { border-color: #888; color: #fff; }
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

@@ -46,7 +46,7 @@
           <td><span class="id-badge">#{{ c.id }}</span></td>
           <td><span class="ref-badge">Sponsor #{{ c.sponsorId }}</span></td>
           <td><span class="ref-badge ref-equipe">Équipe #{{ c.equipeId }}</span></td>
-          <td><strong class="amount-cell">{{ c.montant | number:'1.2-2' }} €</strong></td>
+          <td><strong class="amount-cell">{{ c.montantTotal | number:'1.2-2' }} €</strong></td>
           <td>{{ c.dateDebut | date:'dd/MM/yyyy' }}</td>
           <td>{{ c.dateFin | date:'dd/MM/yyyy' }}</td>
           <td><span class="badge" [ngClass]="getStatusBadgeClass(c.statut)">{{ c.statut || 'PENDING' }}</span></td>
@@ -131,5 +131,6 @@
 .btn-row-delete:hover{background:#f5c6cb;}
 .btn-row-edit svg,.btn-row-delete svg{width:15px;height:15px;}
 </style>
+
 
 

@@ -59,7 +59,7 @@ export class SponsorEvenementListComponent implements OnInit {
   }
 
   canCreateSponsoring(): boolean {
-    return this.currentUserRole === 'ROLE_SPONSOR';
+    return this.currentUserRole === 'SPONSOR';
   }
 
   formatDate(date: Date): string {
@@ -119,3 +119,4 @@ export class SponsorEvenementListComponent implements OnInit {
     }
   }
 }
+

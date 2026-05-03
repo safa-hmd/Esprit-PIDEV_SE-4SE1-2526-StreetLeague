@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FieldReservationService } from '../../services/field-reservation.service';
 import {
@@ -127,7 +127,7 @@ export class FieldReservationComponent implements OnInit {
         const d = new Date(r.createdAt || '');
         return d.getMonth() === now.getMonth() &&
                d.getFullYear() === now.getFullYear() &&
-               r.statut === ReservationStatus.APPROVED;
+               r.status === ReservationStatus.APPROVED;
       })
       .reduce((sum, r) => sum + (r.totalPrice ?? 0), 0);
   }
@@ -247,8 +247,8 @@ export class FieldReservationComponent implements OnInit {
     const q = this.searchQuery.toLowerCase().trim();
     this.filteredFields = q
       ? this.fields.filter(f =>
-          f.nom.toLowerCase().includes(q) ||
-          f.lieu.toLowerCase().includes(q) ||
+          f.name.toLowerCase().includes(q) ||
+          f.location.toLowerCase().includes(q) ||
           f.sportType.toLowerCase().includes(q)
         )
       : [...this.fields];
@@ -272,7 +272,7 @@ export class FieldReservationComponent implements OnInit {
   }
 
   statusClass(statut: ReservationStatus | undefined): string {
-    switch (status) {
+    switch (statut) {
       case ReservationStatus.APPROVED:  return 'badge-approved';
       case ReservationStatus.REJECTED:  return 'badge-rejected';
       case ReservationStatus.CANCELLED: return 'badge-cancelled';
@@ -293,10 +293,10 @@ export class FieldReservationComponent implements OnInit {
 
   private buildFieldForm(): void {
     this.fieldForm = this.fb.group({
-      nom:         ['', [Validators.required, Validators.minLength(3)]],
+      name:         ['', [Validators.required, Validators.minLength(3)]],
       description:  [''],
       sportType:    [SportType.FOOTBALL, Validators.required],
-      lieu:     ['', Validators.required],
+      location:     ['', Validators.required],
       imageUrl:     [''],
       pricePerHour: [null, [Validators.required, Validators.min(0)]],
       capacity:     [null, [Validators.required, Validators.min(1)]],
@@ -304,13 +304,86 @@ export class FieldReservationComponent implements OnInit {
     });
   }
 
+
   private toast(msg: string, type: 'success' | 'error' = 'success'): void {
     this.toastMessage = msg;
     this.toastType    = type;
     this.showToast    = true;
     setTimeout(() => (this.showToast = false), 3000);
   }
+
+  // ─── Payment helpers (used in template) ─────────────────────────
+  get approvedReservations(): FieldReservation[] {
+    return this.allReservations.filter(r => r.status === ReservationStatus.APPROVED);
+  }
+
+  getPaymentStatusClass(status?: string): string {
+    switch (status?.toUpperCase()) {
+      case 'PAID':    return 'badge-approved';
+      case 'PENDING': return 'badge-pending';
+      case 'FAILED':  return 'badge-rejected';
+      default:        return 'badge-pending';
+    }
+  }
+
+  refundPayment(reservationId: number): void {
+    if (!confirm('Confirm refund for this payment?')) return;
+    this.toast('Refund processed successfully');
+  }
+
+  // ─── Payment loader ─────────────────────────────────────────────
+  loadAllPayments(): void {
+    this.allReservations.forEach(r => {
+      if (r.id) {
+        this.svc.getPaymentByReservation(r.id).subscribe({
+          next: p => { if (p) this.payments.set(r.id!, p); },
+          error: () => {}
+        });
+      }
+    });
+  }
+
+  // ─── Schedule (planning) modal ───────────────────────────────────
+  openSchedule(field: Field): void {
+    this.scheduleField = field;
+    this.isScheduleModalOpen = true;
+    this.scheduleEntries = [];
+  }
+
+  closeScheduleModal(): void {
+    this.isScheduleModalOpen = false;
+    this.scheduleField = null;
+  }
+
+  // ─── Price suggestion (AI) ───────────────────────────────────────
+  suggestPrice(): void {
+    if (!this.selectedField?.id || this.isSuggestingPrice) return;
+    this.isSuggestingPrice = true;
+    // Stub: show a simulated suggestion
+    setTimeout(() => {
+      this.suggestedPriceData = {
+        suggestedPrice: (this.fieldForm.value?.pricePerHour ?? 50) * 1.1,
+        basePrice: this.fieldForm.value?.pricePerHour ?? 50,
+        deltaPercent: 10
+      };
+      this.showPriceSuggestion = true;
+      this.isSuggestingPrice = false;
+    }, 500);
+  }
+
+  closePriceSuggestion(): void {
+    this.showPriceSuggestion = false;
+    this.suggestedPriceData = null;
+  }
+
+  applySuggestedPrice(): void {
+    if (this.suggestedPriceData) {
+      this.fieldForm.patchValue({ pricePerHour: this.suggestedPriceData.suggestedPrice });
+    }
+    this.closePriceSuggestion();
+  }
 }
+
 
 
 

@@ -11,13 +11,13 @@ export class AdminContractSponsorEditComponent implements OnInit {
   formData = {
     sponsorId: 0,
     equipeId: 0,
-    montant: 0,
+    montantTotal: 0,
     dateDebut: '',
     dateFin: '',
-    statut: 'En attente',
+    statut: 'PENDING',
     conditions: ''
   };
-  statusOptions = ['En attente', 'Actif', 'Expiré', 'Résilié', 'Suspendu'];
+  statusOptions = ['PENDING', 'APPROUVÉ', 'REJETÉ'];
   contractId = 0;
   loading = false;
   saving = false;
@@ -42,7 +42,7 @@ export class AdminContractSponsorEditComponent implements OnInit {
         this.formData = {
           sponsorId: data.sponsorId,
           equipeId: data.equipeId,
-          montant: data.montant,
+          montantTotal: data.montantTotal ?? data.montant ?? 0,
           dateDebut: data.dateDebut ? new Date(data.dateDebut).toISOString().split('T')[0] : '',
           dateFin: data.dateFin ? new Date(data.dateFin).toISOString().split('T')[0] : '',
           statut: data.statut,
@@ -58,7 +58,7 @@ export class AdminContractSponsorEditComponent implements OnInit {
     this.error = '';
     if (!this.formData.sponsorId || this.formData.sponsorId <= 0) { this.error = 'L\'ID sponsor est obligatoire.'; return; }
     if (!this.formData.equipeId || this.formData.equipeId <= 0) { this.error = 'L\'ID équipe est obligatoire.'; return; }
-    if (this.formData.montant < 0) { this.error = 'Le amount ne peut pas être négatif.'; return; }
+    if (this.formData.montantTotal < 0) { this.error = 'Le amount ne peut pas être négatif.'; return; }
     if (!this.formData.dateDebut) { this.error = 'La start date est obligatoire.'; return; }
     if (!this.formData.dateFin) { this.error = 'La end date est obligatoire.'; return; }
     this.saving = true;
@@ -66,9 +66,9 @@ export class AdminContractSponsorEditComponent implements OnInit {
       id: this.contractId,
       sponsorId: this.formData.sponsorId,
       equipeId: this.formData.equipeId,
-      montant: this.formData.montant,
-      dateDebut: new Date(this.formData.dateDebut),
-      dateFin: new Date(this.formData.dateFin),
+      montantTotal: this.formData.montantTotal,
+      dateDebut: this.formData.dateDebut,
+      dateFin: this.formData.dateFin,
       statut: this.formData.statut,
       conditions: this.formData.conditions
     };

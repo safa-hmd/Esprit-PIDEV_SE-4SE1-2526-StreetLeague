@@ -42,7 +42,7 @@ public class EvenementCommunauteServiceImp implements EvenementCommunauteService
         entity.setCommunaute(communaute);
         entity.setTitre(dto.getTitre());
         entity.setDescription(dto.getDescription());
-        entity.setDate(new java.util.Date(dto.getDateEvenement().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()));
+        entity.setDate(dto.getDate() != null ? new java.util.Date(dto.getDate().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()) : null);
         entity.setOrganisateurId(dto.getOrganisateurId());
 
         return mapper.toDTO(repo.save(entity));
@@ -70,7 +70,7 @@ public class EvenementCommunauteServiceImp implements EvenementCommunauteService
         entity.setCommunaute(communaute);
         entity.setTitre(dto.getTitre());
         entity.setDescription(dto.getDescription());
-        entity.setDate(new java.util.Date(dto.getDateEvenement().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()));
+        entity.setDate(dto.getDate() != null ? new java.util.Date(dto.getDate().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()) : null);
         entity.setOrganisateurId(dto.getOrganisateurId());
 
         return mapper.toDTO(repo.save(entity));

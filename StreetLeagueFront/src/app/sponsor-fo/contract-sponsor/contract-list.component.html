@@ -60,7 +60,7 @@
           <td><span class="id-badge">#{{ c.id }}</span></td>
           <td><span class="ref-badge">Sponsor #{{ c.sponsorId }}</span></td>
           <td><span class="ref-badge ref-green">Équipe #{{ c.equipeId }}</span></td>
-          <td><strong class="money">{{ c.montant | number:'1.2-2' }} €</strong></td>
+          <td><strong class="money">{{ c.montantTotal | number:'1.2-2' }} €</strong></td>
           <td>{{ c.dateDebut | date:'dd/MM/yyyy' }}</td>
           <td>{{ c.dateFin | date:'dd/MM/yyyy' }}</td>
           <td>
@@ -180,4 +180,5 @@
 .items-per-page{display:flex;align-items:center;gap:0.5rem;color:#6b7280;font-size:0.875rem;}
 .items-per-page select{background:white;border:1px solid #e5e7eb;padding:0.375rem 0.75rem;border-radius:6px;font-size:0.875rem;color:#374151;}
 </style>
+
 

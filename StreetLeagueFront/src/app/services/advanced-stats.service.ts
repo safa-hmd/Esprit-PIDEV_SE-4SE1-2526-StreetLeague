@@ -57,7 +57,7 @@ export class AdvancedStatsService {
 
   // 1. Contribution totale par community
   getContributionTotaleParCommunaute(): Observable<CommunauteStatsDTO[]> {
-    return this.http.get<CommunauteStatsDTO[]>(`${this.apiUrl}/sponsoring/stats/communaute`);
+    return this.http.get<CommunauteStatsDTO[]>(`${this.apiUrl}/sponsoring/test/stats/communaute`);
   }
 
   // 2. Top communities avec seuil
@@ -66,7 +66,7 @@ export class AdvancedStatsService {
     if (status) {
       params = params.set('status', status);
     }
-    return this.http.get<TopCommunauteDTO[]>(`${this.apiUrl}/sponsoring/stats/top-communautes`, { params });
+    return this.http.get<TopCommunauteDTO[]>(`${this.apiUrl}/sponsoring/test/stats/top-communautes`, { params });
   }
 
   // 3. Dashboard Sponsor-Community
@@ -75,17 +75,17 @@ export class AdvancedStatsService {
     if (status) {
       params = params.set('status', status);
     }
-    return this.http.get<DashboardSponsorCommunauteDTO[]>(`${this.apiUrl}/sponsoring/stats/dashboard-sponsor`, { params });
+    return this.http.get<DashboardSponsorCommunauteDTO[]>(`${this.apiUrl}/sponsoring/test/stats/dashboard-sponsor`, { params });
   }
 
   // 4. Events sans sponsoring
   getEvenementsSansSponsoring(): Observable<EvenementSansSponsoringDTO[]> {
-    return this.http.get<EvenementSansSponsoringDTO[]>(`${this.apiUrl}/evenement/stats/sans-sponsoring`);
+    return this.http.get<EvenementSansSponsoringDTO[]>(`${this.apiUrl}/evenement/test/stats/sans-sponsoring`);
   }
 
   // 5. Comparaison contracts vs sponsorings
   getComparaisonContractsVsSponsorings(): Observable<ComparaisonSponsorDTO[]> {
-    return this.http.get<ComparaisonSponsorDTO[]>(`${this.apiUrl}/sponsor/stats/comparaison-contrats`);
+    return this.http.get<ComparaisonSponsorDTO[]>(`${this.apiUrl}/sponsor/test/stats/comparaison-contrats`);
   }
 }
 

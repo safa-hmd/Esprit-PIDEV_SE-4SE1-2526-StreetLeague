@@ -53,8 +53,11 @@ public class ContratSponsorServiceImp implements ContratSponsorService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ContratSponsorDTO> getAll() {
-        return repo.findAll().stream().map(mapper::toDTO).collect(Collectors.toList());
+        return repo.findAllWithSponsor().stream()
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override

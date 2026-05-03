@@ -111,19 +111,19 @@ export class SponsoringListComponent implements OnInit {
 
   // Méthodes pour vérifier les permissions
   canCreate(): boolean {
-    return this.currentUserRole === 'ROLE_ADMIN' || this.currentUserRole === 'ROLE_SPONSOR';
+    return this.currentUserRole === 'ADMIN' || this.currentUserRole === 'SPONSOR';
   }
 
   canEdit(): boolean {
-    return this.currentUserRole === 'ROLE_ADMIN' || this.currentUserRole === 'ROLE_SPONSOR';
+    return this.currentUserRole === 'ADMIN' || this.currentUserRole === 'SPONSOR';
   }
 
   canDelete(): boolean {
-    return this.currentUserRole === 'ROLE_ADMIN' || this.currentUserRole === 'ROLE_SPONSOR';
+    return this.currentUserRole === 'ADMIN' || this.currentUserRole === 'SPONSOR';
   }
 
   isAdmin(): boolean {
-    return this.currentUserRole === 'ROLE_ADMIN';
+    return this.currentUserRole === 'ADMIN';
   }
 
   getContribBadgeClass(type: string): string {
@@ -181,4 +181,5 @@ export class SponsoringListComponent implements OnInit {
     }
   }
 }
+
 

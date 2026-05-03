@@ -1,4 +1,4 @@
-﻿// src/app/backoffice/tournaments/tournament.component.ts
+// src/app/backoffice/tournaments/tournament.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -147,7 +147,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
     this.svc.getRegistrationsByTournament(t.id!).pipe(takeUntil(this.destroy$)).subscribe({
       next: regs => {
         // Only show PENDING registrations to admin
-        this.pendingRegistrations = regs.filter(r => r.statut === 'PENDING');
+        this.pendingRegistrations = regs.filter(r => r.status === 'PENDING');
         this.isLoadingRequests = false;
       },
       error: () => {
@@ -284,8 +284,8 @@ export class TournamentComponent implements OnInit, OnDestroy {
     return this.allTournaments.reduce((sum, t) => sum + (t.prizePool ?? 0), 0);
   }
 
-  getCountByStatus(statut: TournamentStatus): number {
-    return this.allTournaments.filter(t => t.statut === status).length;
+  getCountByStatus(status: TournamentStatus): number {
+    return this.allTournaments.filter(t => t.status === status).length;
   }
 
   // ── Classes CSS dynamiques ─────────────────────────────────────────────────
@@ -296,7 +296,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
       'COMPLETED': 'status-completed',
       'CANCELLED': 'status-cancelled',
     };
-    return map[status] ?? '';
+    return map[status as TournamentStatus] ?? '';
   }
 
   getProgressClass(pct: number): string {

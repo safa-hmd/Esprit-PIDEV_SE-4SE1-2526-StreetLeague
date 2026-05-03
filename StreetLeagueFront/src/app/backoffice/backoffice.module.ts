@@ -16,12 +16,30 @@ import { AdminSponsorModule } from './sponsor/admin-sponsor.module';
 import { AdminSponsoringEvenementModule } from './sponsoring-evenement/admin-sponsoring-evenement.module';
 import { AdminContractSponsorModule } from './contract-sponsor/admin-contract-sponsor.module';
 
+import { HealthComponent } from './health/health.component';
+import { TransportComponent } from './transport/transport.component';
+import { AccommodationComponent } from './accommodation/accommodation.component';
+
+import { NewsComponent } from './news/news.component';
+import { FieldReservationComponent } from './field-reservation/field-reservation.component';
+import { TournamentComponent } from './tournaments/tournaments.component';
+import { ListTeamsComponent } from './list-teams/list-teams.component';
+import { ListTrainingComponent } from './list-training/list-training.component';
+
 @NgModule({
   declarations: [
     BackofficeComponent,
     HeaderComponent,
     MenuComponent,
-    AdvancedDashboardComponent
+    AdvancedDashboardComponent,
+    HealthComponent,
+    TransportComponent,
+    AccommodationComponent,
+    NewsComponent,
+    FieldReservationComponent,
+    TournamentComponent,
+    ListTeamsComponent,
+    ListTrainingComponent
   ],
   imports: [
     CommonModule,
@@ -30,6 +48,7 @@ import { AdminContractSponsorModule } from './contract-sponsor/admin-contract-sp
     HttpClientModule,
     RouterModule,
     BackofficeRoutingModule,
+    AdminCommunauteModule,
     AdminEvenementModule,
     AdminSponsorModule,
     AdminSponsoringEvenementModule,

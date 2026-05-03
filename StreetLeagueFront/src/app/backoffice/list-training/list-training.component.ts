@@ -30,10 +30,10 @@ export class ListTrainingComponent implements OnInit {
 
   // ── Computed stats ────────────────────────────────────────
   get plannedCount(): number {
-    return this.trainings.filter(t => t.statut === 'PLANNED').length;
+    return this.trainings.filter(t => t.status === 'PLANNED').length;
   }
   get completedCount(): number {
-    return this.trainings.filter(t => t.statut === 'COMPLETED').length;
+    return this.trainings.filter(t => t.status === 'COMPLETED').length;
   }
   get totalParticipants(): number {
     return this.trainings.reduce((sum, t) => sum + (t.participantCount || 0), 0);

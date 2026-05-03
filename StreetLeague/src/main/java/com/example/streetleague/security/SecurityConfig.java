@@ -80,6 +80,8 @@ public class SecurityConfig {
                         ).permitAll()
                         // Ajout des endpoints de test pour sponsoring stats et recherche
                         .requestMatchers("/api/sponsoring/test/**").permitAll()
+                        .requestMatchers("/api/sponsor/test/**").permitAll()
+                        .requestMatchers("/api/evenement/test/**").permitAll()
                         // Aligné sur StreetLeagueApp (demo RBAC + APIs sponsor)
                         .requestMatchers("/student/**").hasRole("STUDENT")
                         .requestMatchers("/teacher/**").hasRole("TEACHER")

@@ -38,7 +38,7 @@
         <div class="form-row">
           <div class="form-group">
             <label for="amount">Amount (€) <span class="req">*</span></label>
-            <input id="amount" type="number" [(ngModel)]="formData.montant" name="amount"
+            <input id="amount" type="number" [(ngModel)]="formData.montantTotal" name="amount"
                    placeholder="0.00" class="form-input" min="0" step="0.01" required>
           </div>
           <div class="form-group">
@@ -120,4 +120,5 @@ textarea.form-input{resize:vertical;}
 @keyframes spin{to{transform:rotate(360deg);}}
 @media(max-width:640px){.form-row{grid-template-columns:1fr;}}
 </style>
+
 

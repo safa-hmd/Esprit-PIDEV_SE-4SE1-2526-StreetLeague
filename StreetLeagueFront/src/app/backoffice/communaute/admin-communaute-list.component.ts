@@ -50,26 +50,26 @@ export class AdminCommunauteListComponent implements OnInit {
 
   // Méthodes pour vérifier les permissions
   canCreate(): boolean {
-    return this.currentUserRole === 'ROLE_ADMIN' || this.currentUserRole === 'ROLE_COMMUNITY_MANAGER' || this.currentUserRole === 'ROLE_PLAYER';
+    return this.currentUserRole === 'ADMIN' || this.currentUserRole === 'COMMUNITY_MANAGER' || this.currentUserRole === 'PLAYER';
   }
 
   canEdit(): boolean {
-    return this.currentUserRole === 'ROLE_ADMIN' || this.currentUserRole === 'ROLE_COMMUNITY_MANAGER' || this.currentUserRole === 'ROLE_PLAYER';
+    return this.currentUserRole === 'ADMIN' || this.currentUserRole === 'COMMUNITY_MANAGER' || this.currentUserRole === 'PLAYER';
   }
 
   canDelete(): boolean {
-    return this.currentUserRole === 'ROLE_ADMIN' || this.currentUserRole === 'ROLE_COMMUNITY_MANAGER' || this.currentUserRole === 'ROLE_PLAYER';
+    return this.currentUserRole === 'ADMIN' || this.currentUserRole === 'COMMUNITY_MANAGER' || this.currentUserRole === 'PLAYER';
   }
 
   // Méthodes pour join/leave (PLAYER uniquement)
   joinCommunaute(id: number): void {
-    if (this.currentUserRole !== 'ROLE_PLAYER') return;
+    if (this.currentUserRole !== 'PLAYER') return;
     // Implémentation à add
     console.log('Join community', id);
   }
 
   leaveCommunaute(id: number): void {
-    if (this.currentUserRole !== 'ROLE_PLAYER') return;
+    if (this.currentUserRole !== 'PLAYER') return;
     // Implémentation à add
     console.log('Leave community', id);
   }

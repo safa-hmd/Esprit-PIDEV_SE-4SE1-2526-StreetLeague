@@ -12,7 +12,7 @@
         </h1>
         <p>Join sports communities and share your passion</p>
       </div>
-      <button (click)="createNew()" [disabled]="loading" class="btn-create" *ngIf="canCreate()">
+      <button routerLink="/client/communaute/new" [disabled]="loading" class="btn-create" *ngIf="canCreate()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
         </svg>
@@ -55,7 +55,7 @@
       </div>
       <h3>nonee community</h3>
       <p>Soyez le premier à create une community !</p>
-      <button (click)="createNew()" class="btn-create-empty" *ngIf="canCreate()">
+      <button routerLink="/client/communaute/new" class="btn-create-empty" *ngIf="canCreate()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
         </svg>

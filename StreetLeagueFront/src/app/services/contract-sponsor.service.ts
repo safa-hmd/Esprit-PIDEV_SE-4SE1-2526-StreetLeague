@@ -33,7 +33,7 @@ export class ContractSponsorService {
   }
 
   updateStatus(id: number, statut: string): Observable<ContractSponsorDTO> {
-    return this.http.patch<ContractSponsorDTO>(`${this.apiUrl}/${id}/status`, { status });
+    return this.http.patch<ContractSponsorDTO>(`${this.apiUrl}/${id}/status`, { statut });
   }
 }
 

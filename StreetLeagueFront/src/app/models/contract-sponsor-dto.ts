@@ -1,11 +1,16 @@
 export interface ContractSponsorDTO {
   id: number;
   sponsorId: number;
+  sponsorNom?: string;
   equipeId: number;
-  montant: number;
-  dateDebut: Date;
-  dateFin: Date;
+  montantTotal: number;
+  montant?: number;
+  dateDebut: string;
+  dateFin: string;
+  dateCreation?: string;
   statut: string;
   conditions: string;
+  titre?: string;
+  description?: string;
+  typeContrat?: string;
 }
-

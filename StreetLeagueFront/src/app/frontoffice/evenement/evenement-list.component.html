@@ -16,7 +16,7 @@
         </h1>
         <p>Organize and participate in sporting events for your community</p>
       </div>
-      <button (click)="createNew()" [disabled]="loading" class="btn-create" id="btn-create-event" *ngIf="canCreate()">
+      <button routerLink="/client/evenement/new" [disabled]="loading" class="btn-create" id="btn-create-event" *ngIf="canCreate()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
         </svg>
@@ -62,7 +62,7 @@
       </div>
       <h3>none event planifié</h3>
       <p>Soyez le premier à organiser un event !</p>
-      <button (click)="createNew()" class="btn-create-empty" *ngIf="canCreate()">
+      <button routerLink="/client/evenement/new" class="btn-create-empty" *ngIf="canCreate()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
         </svg>

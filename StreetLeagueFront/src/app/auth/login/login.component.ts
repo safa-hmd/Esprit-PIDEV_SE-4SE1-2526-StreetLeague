@@ -83,19 +83,23 @@ private emailPlaceholders: Record<Role, string> = {
     });
   }
 
-  /** Après login réussi : admin → /admin, coach → /coach, sino espace client */
+  /** Après login réussi : redirige selon le rôle normalisé */
   private redirectAfterLogin(roleFromBackend: string) {
     const role = this.authService.normalizeRole(roleFromBackend);
     switch (role) {
-      case 'ROLE_ADMIN':
+      case 'ADMIN':
         this.router.navigateByUrl('/admin');
         break;
-      case 'ROLE_SPONSOR':
+      case 'SPONSOR':
         this.router.navigateByUrl('/sponsor');
         break;
-      case 'ROLE_COACH':
-      case 'ROLE_PLAYER':
-      case 'ROLE_DELIVERY':
+      case 'COACH':
+        this.router.navigateByUrl('/coach');
+        break;
+      case 'DELIVERY':
+        this.router.navigateByUrl('/delivery');
+        break;
+      case 'PLAYER':
       default:
         this.router.navigateByUrl('/client');
         break;

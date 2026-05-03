@@ -1,4 +1,4 @@
-﻿<!-- tournaments.component.html — ADMIN BACKOFFICE (redesigned) -->
+<!-- tournaments.component.html — ADMIN BACKOFFICE (redesigned) -->
 
 <!-- ── Toast ── -->
 <div *ngIf="toastMessage"
@@ -97,7 +97,7 @@
         <div class="row-badges">
           <span class="badge" [ngClass]="svc.sportBadge(t.sportType)">{{ t.sportType }}</span>
           <span class="status-pill" [ngClass]="getStatusClass(t.status!)">
-            {{ svc.statutLabel(t.status!) }}
+            {{ svc.statusLabel(t.status!) }}
           </span>
         </div>
         <div class="row-location" *ngIf="t.lieu">📍 {{ t.lieu }}</div>
@@ -333,8 +333,3 @@
 
   </div>
 </div>
-<<<<<<< HEAD
-
-
-=======
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

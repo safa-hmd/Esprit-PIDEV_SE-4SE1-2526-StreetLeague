@@ -15,8 +15,7 @@ public class EvenementCommunauteDTO {
     private String titre;
     private String description;
     private String lieu;
-    @JsonProperty("dateEvenement")
-    private LocalDateTime dateEvenement;
+    private LocalDateTime date;
     private String statut;
     @JsonProperty("communauteId")
     private Long communauteId;

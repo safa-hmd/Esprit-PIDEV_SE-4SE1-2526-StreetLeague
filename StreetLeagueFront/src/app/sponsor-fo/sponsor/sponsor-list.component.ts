@@ -61,15 +61,15 @@ export class SponsorListComponent implements OnInit {
 
   // Méthodes pour vérifier les permissions SPONSOR
   canCreate(): boolean {
-    return this.currentUserRole === 'ROLE_ADMIN' || this.currentUserRole === 'ROLE_SPONSOR';
+    return this.currentUserRole === 'ADMIN' || this.currentUserRole === 'SPONSOR';
   }
 
   canEdit(): boolean {
-    return this.currentUserRole === 'ROLE_ADMIN' || this.currentUserRole === 'ROLE_SPONSOR';
+    return this.currentUserRole === 'ADMIN' || this.currentUserRole === 'SPONSOR';
   }
 
   canDelete(): boolean {
-    return this.currentUserRole === 'ROLE_ADMIN' || this.currentUserRole === 'ROLE_SPONSOR';
+    return this.currentUserRole === 'ADMIN' || this.currentUserRole === 'SPONSOR';
   }
 
   getTypeBadgeClass(type: string): string {
@@ -135,3 +135,4 @@ export class SponsorListComponent implements OnInit {
     }
   }
 }
+

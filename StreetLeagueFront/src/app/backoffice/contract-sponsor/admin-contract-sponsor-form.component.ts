@@ -11,13 +11,13 @@ export class AdminContractSponsorFormComponent implements OnInit {
   formData = {
     sponsorId: 0,
     equipeId: 0,
-    montant: 0,
+    montantTotal: 0,
     dateDebut: '',
     dateFin: '',
-    statut: 'En attente',
+    statut: 'PENDING',
     conditions: ''
   };
-  statusOptions = ['En attente', 'Actif', 'Expiré', 'Résilié', 'Suspendu'];
+  statusOptions = ['PENDING', 'APPROUVÉ', 'REJETÉ'];
   loading = false;
   error = '';
 
@@ -35,7 +35,7 @@ export class AdminContractSponsorFormComponent implements OnInit {
     this.error = '';
     if (!this.formData.sponsorId || this.formData.sponsorId <= 0) { this.error = 'L\'ID sponsor est obligatoire.'; return; }
     if (!this.formData.equipeId || this.formData.equipeId <= 0) { this.error = 'L\'ID équipe est obligatoire.'; return; }
-    if (this.formData.montant < 0) { this.error = 'Le amount ne peut pas être négatif.'; return; }
+    if (this.formData.montantTotal < 0) { this.error = 'Le amount ne peut pas être négatif.'; return; }
     if (!this.formData.dateDebut) { this.error = 'La start date est obligatoire.'; return; }
     if (!this.formData.dateFin) { this.error = 'La end date est obligatoire.'; return; }
     this.loading = true;
@@ -43,9 +43,9 @@ export class AdminContractSponsorFormComponent implements OnInit {
       id: null,
       sponsorId: this.formData.sponsorId,
       equipeId: this.formData.equipeId,
-      montant: this.formData.montant,
-      dateDebut: new Date(this.formData.dateDebut),
-      dateFin: new Date(this.formData.dateFin),
+      montantTotal: this.formData.montantTotal,
+      dateDebut: this.formData.dateDebut,
+      dateFin: this.formData.dateFin,
       statut: this.formData.statut,
       conditions: this.formData.conditions
     };

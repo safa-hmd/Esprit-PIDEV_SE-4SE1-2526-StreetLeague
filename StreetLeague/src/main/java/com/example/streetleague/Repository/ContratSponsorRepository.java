@@ -13,6 +13,9 @@ import java.util.List;
 public interface ContratSponsorRepository extends JpaRepository<ContratSponsor, Long> {
     List<ContratSponsor> findByStatut(String statut);
 
+    @Query("SELECT c FROM ContratSponsor c JOIN FETCH c.sponsor")
+    List<ContratSponsor> findAllWithSponsor();
+
     @Query("SELECT c FROM ContratSponsor c WHERE c.sponsor.id = :sponsorId")
     List<ContratSponsor> findBySponsorId(@Param("sponsorId") Long sponsorId);
 

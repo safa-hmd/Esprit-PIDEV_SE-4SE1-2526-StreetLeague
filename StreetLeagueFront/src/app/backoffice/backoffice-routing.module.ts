@@ -1,7 +1,17 @@
-﻿import { NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { BackofficeComponent } from './backoffice.component';
 import { AdvancedDashboardComponent } from './dashboard/advanced-dashboard.component';
+
+import { HealthComponent } from './health/health.component';
+import { TransportComponent } from './transport/transport.component';
+import { AccommodationComponent } from './accommodation/accommodation.component';
+
+import { NewsComponent } from './news/news.component';
+import { FieldReservationComponent } from './field-reservation/field-reservation.component';
+import { TournamentComponent } from './tournaments/tournaments.component';
+import { ListTeamsComponent } from './list-teams/list-teams.component';
+import { ListTrainingComponent } from './list-training/list-training.component';
 
 // Admin Community
 import { AdminCommunauteListComponent } from './communaute/admin-communaute-list.component';
@@ -59,6 +69,24 @@ const routes: Routes = [
       { path: 'contract-sponsor', component: AdminContractSponsorListComponent },
       { path: 'contract-sponsor/new', component: AdminContractSponsorFormComponent },
       { path: 'contract-sponsor/:id/edit', component: AdminContractSponsorEditComponent },
+
+      // Sponsor — CRUD complet admin
+      { path: 'sponsor', component: AdminSponsorListComponent },
+      { path: 'sponsor/new', component: AdminSponsorFormComponent },
+      { path: 'sponsor/:id', component: AdminSponsorDetailComponent },
+      { path: 'sponsor/:id/edit', component: AdminSponsorEditComponent },
+
+      // Services
+      { path: 'health', component: HealthComponent },
+      { path: 'transport', component: TransportComponent },
+      { path: 'accommodation', component: AccommodationComponent },
+
+      // Other features
+      { path: 'news', component: NewsComponent },
+      { path: 'field-reservation', component: FieldReservationComponent },
+      { path: 'tournaments', component: TournamentComponent },
+      { path: 'teamAdmin', component: ListTeamsComponent },
+      { path: 'trainingAdmin', component: ListTrainingComponent }
     ]
   }
 ];
