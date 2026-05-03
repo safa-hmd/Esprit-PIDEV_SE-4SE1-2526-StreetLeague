@@ -27,11 +27,7 @@ import { LivraisonFormComponent } from './livraison/livraison-form/livraison-for
 import { TransporteurListComponent } from './transporteur/transporteur-list/transporteur-list.component';
 import { MaterielListComponent } from './materiel/materiel-list/materiel-list.component';
 import { CommandeListComponent } from './commande/commande-list/commande-list.component';
-import { AdminEvenementModule } from '../components/admin-evenement/admin-evenement.module';
-import { AdminSponsorModule } from '../components/admin-sponsor/admin-sponsor.module';
-import { AdminSponsoringEvenementModule } from '../components/admin-sponsoring-evenement/admin-sponsoring-evenement.module';
-import { AdminContratSponsorModule } from '../components/admin-contrat-sponsor/admin-contrat-sponsor.module';
-import { AdminCommunauteModule } from '../components/admin-communaute/admin-communaute.module';
+
 
 import { NewsComponent } from './news/news.component';
 
@@ -73,11 +69,6 @@ import { BracketComponent } from './bracket/bracket.component';
     HttpClientModule,                 // ✅ HttpClient
     RouterModule,                     // ✅ routerLink
     BackofficeRoutingModule,          // ✅ routing
-    AdminEvenementModule,
-    AdminSponsorModule,
-    AdminSponsoringEvenementModule,
-    AdminContratSponsorModule,
-    AdminCommunauteModule,
     
   ]
 })

@@ -4,29 +4,7 @@ import { FrontofficeComponent } from './frontoffice.component';
 import { NewsComponent } from './news/news.component';
 import { HealthComponent } from './health/health.component';
 
-import { ContratListComponent } from '../components/contrat-sponsor/contrat-list.component';
-import { ContratFormComponent } from '../components/contrat-sponsor/contrat-form.component';
-import { ContratEditComponent } from '../components/contrat-sponsor/contrat-edit.component';
 
-import { CommunauteListComponent } from '../components/communaute/communaute-list.component';
-import { CommunauteFormComponent } from '../components/communaute/communaute-form.component';
-import { CommunauteDetailComponent } from '../components/communaute/communaute-detail.component';
-import { CommunauteEditComponent } from '../components/communaute/communaute-edit.component';
-
-import { EvenementListComponent } from '../components/evenement/evenement-list.component';
-import { EvenementFormComponent } from '../components/evenement/evenement-form.component';
-import { EvenementDetailComponent } from '../components/evenement/evenement-detail.component';
-import { EvenementEditComponent } from '../components/evenement/evenement-edit.component';
-
-import { SponsorListComponent } from '../components/sponsor/sponsor-list.component';
-import { SponsorFormComponent } from '../components/sponsor/sponsor-form.component';
-import { SponsorDetailComponent } from '../components/sponsor/sponsor-detail.component';
-import { SponsorEditComponent } from '../components/sponsor/sponsor-edit.component';
-
-import { SponsoringListComponent } from '../components/sponsoring-evenement/sponsoring-list.component';
-import { SponsoringFormComponent } from '../components/sponsoring-evenement/sponsoring-form.component';
-import { SponsoringDetailComponent } from '../components/sponsoring-evenement/sponsoring-detail.component';
-import { SponsoringEditComponent } from '../components/sponsoring-evenement/sponsoring-edit.component';
 
 import { HomeComponent } from './home/home.component';
 import { TeamComponent } from './team/team.component';
@@ -62,25 +40,7 @@ const routes: Routes = [
       { path: 'tournaments', component: TournamentsComponent },
       { path: 'field-reservation', component: FieldReservationComponent },
       { path: 'tournaments/:id/bracket', component: BracketComponent },
-      { path: 'communaute', component: CommunauteListComponent },
-      { path: 'communaute/new', component: CommunauteFormComponent },
-      { path: 'communaute/:id', component: CommunauteDetailComponent },
-      { path: 'communaute/:id/edit', component: CommunauteEditComponent },
-      { path: 'evenement', component: EvenementListComponent },
-      { path: 'evenement/new', component: EvenementFormComponent },
-      { path: 'evenement/:id', component: EvenementDetailComponent },
-      { path: 'evenement/:id/edit', component: EvenementEditComponent },
-      { path: 'sponsor', component: SponsorListComponent },
-      { path: 'sponsor/new', component: SponsorFormComponent },
-      { path: 'sponsor/:id', component: SponsorDetailComponent },
-      { path: 'sponsor/:id/edit', component: SponsorEditComponent },
-      { path: 'sponsoring-evenement', component: SponsoringListComponent },
-      { path: 'sponsoring-evenement/new', component: SponsoringFormComponent },
-      { path: 'sponsoring-evenement/:id', component: SponsoringDetailComponent },
-      { path: 'sponsoring-evenement/:id/edit', component: SponsoringEditComponent },
-      { path: 'contrat-sponsor', component: ContratListComponent },
-      { path: 'contrat-sponsor/new', component: ContratFormComponent },
-      { path: 'contrat-sponsor/:id/edit', component: ContratEditComponent },
+
       { path: 'shop', component: ShopListComponent },
       { path: 'cart', component: CartComponent },
       { path: 'news', component: NewsComponent },

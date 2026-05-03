@@ -2,7 +2,6 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from 'src/app/services/user.service';
 
-
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -21,6 +20,9 @@ export class HeaderComponent implements OnInit {
   constructor(private router: Router, private userService: UserService) {}
 
   ngOnInit(): void {
+      const saved = localStorage.getItem('theme');
+  this.isDark = saved ? saved === 'dark' : true;
+  document.documentElement.setAttribute('data-theme', this.isDark ? 'dark' : 'light');
     this.userService.getProfile().subscribe({
       next: (profile) => {
         this.adminName    = profile.fullName;
@@ -49,4 +51,14 @@ export class HeaderComponent implements OnInit {
     const target = event.target as HTMLElement;
     if (!target.closest('.account-wrap')) this.dropdownOpen = false;
   }
+
+  isDark: boolean = true;
+
+
+toggleTheme(): void {
+  this.isDark = !this.isDark;
+  const theme = this.isDark ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+}
 }

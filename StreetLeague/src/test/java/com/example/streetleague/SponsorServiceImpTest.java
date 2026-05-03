@@ -1,11 +1,5 @@
 package com.example.streetleague;
 
-import com.example.streetleague.Repository.ContratSponsorRepository;
-import com.example.streetleague.Repository.SponsorRepository;
-import com.example.streetleague.Repository.SponsoringEvenementRepository;
-import com.example.streetleague.ServiceImp.SponsorServiceImp;
-import com.example.streetleague.domain.Sponsor;
-import com.example.streetleague.dto.SponsorDTO;
 import com.example.streetleague.mapper.SponsorMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

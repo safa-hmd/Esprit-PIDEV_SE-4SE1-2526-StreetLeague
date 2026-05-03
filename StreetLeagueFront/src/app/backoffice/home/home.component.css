@@ -1,95 +1,75 @@
 /* ============================================================
-   list-teams.component.css — Dark Theme Fix
+   home.component.css — Dashboard (Theme-aware)
    ============================================================ */
 
 :host {
   display: block;
-  background: var(--bg, #121212);
+  background: var(--bg);
   min-height: 100vh;
-  color: var(--text, #F0F0F0);
+  color: var(--text);
 }
 
-/* Force dark background on the inner container */
 .admin-main-inner {
-  background: var(--bg, #121212);
-  color: var(--text, #F0F0F0);
+  background: var(--bg);
+  color: var(--text);
+  padding: 1.75rem;
 }
 
-/* Page title */
-.page-title-admin {
-  color: var(--text, #F0F0F0);
-}
+/* ── Page titles ── */
+.page-title-admin    { color: var(--text); }
+.page-subtitle-admin { color: var(--muted); }
 
-.page-subtitle-admin {
-  color: var(--muted, #888888);
-}
-
-/* Stat cards dark */
+/* ── Stat cards (shared classes) ── */
 .a-stat {
-  background: var(--card, #1E1E1E);
-  border: 1px solid var(--border, #2A2A2A);
-  color: var(--text, #F0F0F0);
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: background 0.3s, border-color 0.3s;
 }
+.a-stat-val   { color: var(--text); }
+.a-stat-label { color: var(--muted); }
 
-.a-stat-val {
-  color: var(--text, #F0F0F0);
-}
-
-.a-stat-label {
-  color: var(--muted, #888888);
-}
-
-/* Table card dark */
+/* ── Cards ── */
 .a-card {
-  background: var(--card, #1E1E1E);
-  border: 1px solid var(--border, #2A2A2A);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: background 0.3s, border-color 0.3s;
 }
-
 .a-card-header {
-  border-bottom: 1px solid var(--border, #2A2A2A);
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
 }
+.a-card-title { color: var(--text); }
 
-.a-card-title {
-  color: var(--text, #F0F0F0);
-}
-
-/* Table dark */
+/* ── Tables ── */
 .a-table thead th {
-  background: #171717;
-  color: var(--muted, #888888);
-  border-bottom: 1px solid var(--border, #2A2A2A);
+  background: var(--card-inner);
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
 }
-
 .a-table tbody td {
-  color: var(--text, #F0F0F0);
-  border-bottom: 1px solid var(--border, #2A2A2A);
-  background: var(--card, #1E1E1E);
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
 }
+.a-table tbody tr:hover td { background: var(--card-hover); }
 
-.a-table tbody tr:hover td {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-/* Search input dark */
+/* ── Form controls ── */
 .a-form-control {
-  background: #171717;
-  border: 1px solid var(--border, #2A2A2A);
-  color: var(--text, #F0F0F0);
+  background: var(--card-inner);
+  border: 1px solid var(--border);
+  color: var(--text);
 }
+.a-form-control::placeholder { color: var(--muted); opacity: 0.7; }
+.a-form-control:focus { border-color: var(--red); outline: none; }
 
-.a-form-control::placeholder {
-  color: #555;
-}
-
-.a-form-control:focus {
-  border-color: var(--red, #E61920);
-  outline: none;
-}
-
-/* Action buttons */
+/* ── Action buttons ── */
 .btn-action-suspend {
   color: #ff6b72;
-  border: 1.5px solid rgba(230, 25, 32, 0.3);
+  border: 1.5px solid rgba(230,25,32,0.3);
   border-radius: 8px;
   background: transparent;
   padding: 0.3rem 0.75rem;
@@ -99,13 +79,12 @@
   transition: all 0.2s;
 }
 .btn-action-suspend:hover {
-  background: rgba(230, 25, 32, 0.1);
-  border-color: rgba(230, 25, 32, 0.6);
+  background: rgba(230,25,32,0.1);
+  border-color: rgba(230,25,32,0.6);
 }
-
 .btn-action-reactivate {
   color: #4ade80;
-  border: 1.5px solid rgba(34, 197, 94, 0.3);
+  border: 1.5px solid rgba(34,197,94,0.3);
   border-radius: 8px;
   background: transparent;
   padding: 0.3rem 0.75rem;
@@ -115,144 +94,57 @@
   transition: all 0.2s;
 }
 .btn-action-reactivate:hover {
-  background: rgba(34, 197, 94, 0.1);
-  border-color: rgba(34, 197, 94, 0.6);
+  background: rgba(34,197,94,0.1);
+  border-color: rgba(34,197,94,0.6);
 }
 
-/* Warning */
-.warning-badge {
-  color: var(--orange, #E87040);
-  font-weight: 700;
-}
-
-/* Empty state */
-.empty-state {
-  text-align: center;
-  color: var(--muted, #888888);
-  padding: 2.5rem;
-}
-/* ============================================================
-   list-training.component.css
-   ============================================================ */
-
-:host {
-  display: block;
-  background: var(--bg, #121212);
-  min-height: 100vh;
-  color: var(--text, #F0F0F0);
-}
-
-.admin-main-inner {
-  background: var(--bg, #121212);
-  color: var(--text, #F0F0F0);
-  padding: 1.75rem;
-}
-
-/* ── Stat cards ── */
-.a-stat {
-  background: var(--card, #1E1E1E);
-  border: 1px solid var(--border, #2A2A2A);
-}
-
-.a-stat-val { color: var(--text, #F0F0F0); }
-.a-stat-label { color: var(--muted, #888); }
-
-/* ── Cards ── */
-.a-card {
-  background: var(--card, #1E1E1E);
-  border: 1px solid var(--border, #2A2A2A);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.a-card-header {
-  background: var(--card, #1E1E1E);
-  border-bottom: 1px solid var(--border, #2A2A2A);
-  color: var(--text, #F0F0F0);
-}
-
-.a-card-title { color: var(--text, #F0F0F0); }
-
-/* ── Table ── */
-.a-table thead th {
-  background: #171717;
-  color: var(--muted, #888);
-  border-bottom: 1px solid var(--border, #2A2A2A);
-}
-
-.a-table tbody td {
-  color: var(--text, #F0F0F0);
-  border-bottom: 1px solid var(--border, #2A2A2A);
-  background: var(--card, #1E1E1E);
-}
-
-.a-table tbody tr:hover td {
-  background: rgba(255,255,255,0.03);
-}
+.warning-badge { color: var(--orange); font-weight: 700; }
+.empty-state   { text-align: center; color: var(--muted); padding: 2.5rem; }
 
 /* ── Session items ── */
 .session-item {
-  background: #171717;
+  background: var(--card-inner);
   border-radius: 8px;
   padding: 0.85rem;
   margin-bottom: 0.75rem;
+  transition: background 0.3s;
 }
-
-.session-title {
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--text, #F0F0F0);
-}
-
-.session-meta {
-  font-size: 0.8rem;
-  color: var(--muted, #888);
-  margin-top: 0.2rem;
-}
+.session-title { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+.session-meta  { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
 
 /* ── Progress bar ── */
 .prog-bar-wrap {
   height: 4px;
-  background: var(--border, #2A2A2A);
+  background: var(--border);
   border-radius: 100px;
   margin-top: 0.6rem;
   overflow: hidden;
 }
-
 .prog-bar-fill {
   height: 100%;
   border-radius: 100px;
   transition: width 0.4s ease;
 }
 
-/* ── Page title ── */
-.page-title-admin { color: var(--text, #F0F0F0); }
-.page-subtitle-admin { color: var(--muted, #888); }
-
-
-
-
-
-
-
 /* ── Welcome Banner ── */
 .welcome-banner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-  border: 1px solid var(--border, #2a2a2a);
+  background: linear-gradient(135deg, var(--card) 0%, var(--card-hover) 100%);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
+  transition: background 0.3s, border-color 0.3s;
 }
-.welcome-title { font-size: 1.4rem; font-weight: 700; margin: 0; }
-.welcome-sub   { font-size: 0.85rem; color: #888; margin: 0.3rem 0 0; }
+.welcome-title { font-size: 1.4rem; font-weight: 700; margin: 0; color: var(--text); }
+.welcome-sub   { font-size: 0.85rem; color: var(--muted); margin: 0.3rem 0 0; }
 .welcome-actions { display: flex; gap: 0.75rem; }
 
-/* ── Stat Cards ── */
+/* ── Stat Cards (dashboard-specific) ── */
 .stat-grid-home {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -263,16 +155,16 @@
 @media (max-width: 500px) { .stat-grid-home { grid-template-columns: 1fr; } }
 
 .stat-card {
-  background: var(--card-bg, #161616);
-  border: 1px solid var(--border, #2a2a2a);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.25rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: transform 0.2s, border-color 0.2s;
+  transition: transform 0.2s, border-color 0.2s, background 0.3s;
 }
-.stat-card:hover { transform: translateY(-2px); border-color: #4e8a9f; }
+.stat-card:hover { transform: translateY(-2px); border-color: var(--teal); }
 .stat-icon-wrap {
   width: 46px; height: 46px;
   border-radius: 10px;
@@ -280,8 +172,8 @@
   flex-shrink: 0;
 }
 .stat-icon-wrap svg { width: 22px; height: 22px; }
-.stat-number { font-size: 1.6rem; font-weight: 800; line-height: 1; }
-.stat-label  { font-size: 0.78rem; color: #888; margin-top: 0.25rem; }
+.stat-number { font-size: 1.6rem; font-weight: 800; line-height: 1; color: var(--text); }
+.stat-label  { font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem; }
 
 /* ── Charts ── */
 .charts-grid {
@@ -292,8 +184,10 @@
 }
 @media (max-width: 800px) { .charts-grid { grid-template-columns: 1fr; } }
 
-.chart-card  { height: 100%; }
-.chart-body  { display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.chart-card { height: 100%; }
+.chart-body {
+  display: flex; align-items: center; justify-content: center; padding: 1rem;
+}
 .chart-body canvas { max-height: 260px; }
 
 /* ── Dashboard Grid ── */
@@ -316,70 +210,20 @@
 .badge-ongoing   { background: rgba(232,112,64,0.15);  color: #e87040; }
 .badge-finished  { background: rgba(74,222,128,0.15);  color: #4ade80; }
 .badge-cancelled { background: rgba(248,113,113,0.15); color: #f87171; }
-.badge-default   { background: rgba(255,255,255,0.07); color: #888; }
+.badge-default   { background: rgba(128,128,128,0.12); color: var(--muted); }
 
-/* ── Training Item ── */
+/* ── Training Items (dashboard) ── */
 .training-item {
   padding: 0.75rem;
-  background: #1a1a1a;
+  background: var(--card-inner);
   border-radius: 8px;
+  transition: background 0.3s;
 }
 .mini-progress {
   height: 4px;
-  background: #2a2a2a;
+  background: var(--border);
   border-radius: 100px;
   margin: 0.5rem 0 0.25rem;
   overflow: hidden;
 }
 .mini-progress-fill { height: 100%; border-radius: 100px; transition: width 0.4s; }
-/* ══════════════════════════════════════════════
-   SECTION SARA — Financial Dashboard
-══════════════════════════════════════════════ */
-
-/* ── Séparateur de section ── */
-.section-divider {
-  display: flex;
-  align-items: center;
-  margin: 2rem 0 1.5rem;
-  gap: 1rem;
-}
-.section-divider::before,
-.section-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: #2a2a2a;
-}
-.section-divider-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #e63946;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-}
-
-/* ── Financial stat cards ── */
-.financial-card {
-  border-color: rgba(230, 57, 70, 0.15);
-}
-.financial-card:hover {
-  border-color: rgba(230, 57, 70, 0.4);
-}
-
-/* ── Rank badges top players ── */
-.rank-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  font-size: 0.78rem;
-  font-weight: 700;
-  background: #2a2a2a;
-  color: #888;
-}
-.rank-1 { background: rgba(251,191,36,0.2); color: #fbbf24; }
-.rank-2 { background: rgba(156,163,175,0.2); color: #9ca3af; }
-.rank-3 { background: rgba(180,107,72,0.2); color: #b46b48; }
-
