@@ -25,7 +25,14 @@ jobs:
       - name: Build Spring Boot
         run: |
           cd StreetLeague
-          mvn clean package -DskipTests -Dspring-boot.run.profiles=prod
+          mvn clean package -DskipTests
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend
+          path: StreetLeague/target/*.jar
+
 
 # =========================
 # 2. BUILD FRONTEND
@@ -41,30 +48,52 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Angular
+      - name: Install & Build Angular
         run: |
           cd StreetLeagueFront
           npm install
-          npm run build --prod
+          npm run build --configuration production
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend
+          path: StreetLeagueFront/dist/
+
 
 # =========================
-# 3. DEPLOY TO AZURE
+# 3. DEPLOY
 # =========================
   deploy:
     needs: [backend, frontend]
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend
+          path: backend
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend
+          path: frontend
+
+
       - name: Deploy Backend to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "your-backend-app"
+          app-name: "streetleaguebackend"
           publish-profile: ${{ secrets.AZURE_BACKEND_PUBLISH_PROFILE }}
-          package: backend/target/*.jar
+          package: backend/*.jar
+
 
       - name: Deploy Frontend to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "your-frontend-app"
+          app-name: "streetleaguefrontend"
           publish-profile: ${{ secrets.AZURE_FRONTEND_PUBLISH_PROFILE }}
-          package: frontend/dist/
+          package: frontend/
