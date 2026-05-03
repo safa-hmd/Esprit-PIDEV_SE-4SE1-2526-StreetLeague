@@ -17,7 +17,7 @@ export class TournamentService {
   private readonly API  = 'http://localhost:8086/StreetLeague/api/tournaments';
   private readonly REG  = 'http://localhost:8086/StreetLeague/api/registrations';
 
-  private filtersSubject = new BehaviorSubject<TournamentFilters>({ search: '', sport: '', status: '' });
+  private filtersSubject = new BehaviorSubject<TournamentFilters>({ search: '', sport: '', statut: '' });
   filters$ = this.filtersSubject.asObservable();
 
   private toastSubject = new BehaviorSubject<string | null>(null);
@@ -114,10 +114,10 @@ export class TournamentService {
   applyFilters(list: TournamentDto[], f: TournamentFilters): TournamentDto[] {
     return list.filter(t => {
       const matchSearch = !f.search ||
-        t.name.toLowerCase().includes(f.search.toLowerCase()) ||
-        (t.fieldLocation ?? '').toLowerCase().includes(f.search.toLowerCase()); 
+        (t.nom && t.nom.toLowerCase().includes(f.search.toLowerCase())) ||
+        ((t.fieldLocation || t.lieu) ?? '').toLowerCase().includes(f.search.toLowerCase()); 
       const matchSport  = !f.sport  || t.sportType === f.sport;
-      const matchStatus = !f.status || t.status    === f.status;
+      const matchStatus = !f.statut || t.status    === f.statut;
       return matchSearch && matchSport && matchStatus;
     });
   }

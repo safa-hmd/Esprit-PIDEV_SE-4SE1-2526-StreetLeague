@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -241,7 +241,6 @@ describe('LoginComponent', () => {
 
     expect(navigateSpy).toHaveBeenCalledWith('/client');
   });
-<<<<<<< HEAD
 
   it('redirectByRoleTest — ROLE_ADMIN navigates to /admin', () => {
     authServiceSpy.login.and.returnValue(of({
@@ -255,6 +254,3 @@ describe('LoginComponent', () => {
     expect(navigateSpy).toHaveBeenCalledWith('/admin');
   });
 });
-=======
-});
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

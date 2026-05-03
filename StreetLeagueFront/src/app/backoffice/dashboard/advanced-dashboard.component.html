@@ -10,7 +10,7 @@
       <div class="kpi-icon">💰</div>
       <div class="kpi-info">
         <h3>Total Investi (Sponsorings)</h3>
-        <p class="kpi-value">${{ totalSponsoringsGlobal | number:'1.0-0' }}</p>
+        <p class="kpi-value">${{ totalSponsoringsGlobal?.toLocaleString() }}</p>
       </div>
     </div>
 
@@ -76,8 +76,8 @@
               <td class="font-semibold">{{ item.sponsorNom }} <span class="badge">{{ item.sponsorType }}</span></td>
               <td>{{ item.communauteNom }}</td>
               <td class="text-center">{{ item.nombreEvenements }}</td>
-              <td class="font-bold text-blue-600">${{ item.totalContribution | number:'1.0-0' }}</td>
-              <td class="text-gray-500">${{ item.moyenneContribution | number:'1.0-0' }}</td>
+              <td class="font-bold text-blue-600">${{ item.totalContribution?.toFixed(0) }}</td>
+              <td class="text-gray-500">${{ item.moyenneContribution?.toFixed(0) }}</td>
             </tr>
             <tr *ngIf="dashboardSponsorCommunaute.length === 0">
               <td colspan="5" class="text-center py-4">nonee donnée disponible.</td>
@@ -95,7 +95,7 @@
       <div *ngFor="let ev of evenementsSansSponsoring" class="orphan-card">
         <h4>{{ ev.evenementTitre }}</h4>
         <p class="communaute-name">{{ ev.communauteNom }}</p>
-        <p class="date">{{ ev.evenementDate | date:'mediumDate' }}</p>
+        <p class="date">{{ formatDate(ev.evenementDate) }}</p>
       </div>
       <div *ngIf="evenementsSansSponsoring.length === 0" class="text-green-600 p-4 font-semibold">
         All events ont au moins un sponsor ! 🎉

@@ -1,15 +1,8 @@
-<<<<<<< HEAD
-<nav class="navbar">
-  <div class="navbar-inner">
-    <a routerLink="/client" class="navbar-logo">
-=======
-
 <nav class="navbar">
   <div class="navbar-inner">
 
     <!-- Logo -->
-    <a routerLink="/home" class="navbar-logo">
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
+    <a routerLink="/client/home" class="navbar-logo">
       <div class="navbar-logo-icon">
         <svg viewBox="0 0 24 24" fill="white">
           <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
@@ -18,61 +11,10 @@
       <span class="navbar-logo-text">Street<span>League</span></span>
     </a>
 
-    <div class="navbar-links" [class.open]="menuOpen">
-      <a routerLink="/client" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
-      <a routerLink="/client/communaute" routerLinkActive="active" class="nav-link">Communities</a>
-      <a routerLink="/client/evenement" routerLinkActive="active" class="nav-link">Events</a>
-      <a routerLink="/client/ml-segmentation" routerLinkActive="active" class="nav-link">Segmentation ML</a>
-    </div>
-
-<<<<<<< HEAD
-    <div class="navbar-actions">
-      <!-- ACCOUNT DROPDOWN -->
-      <div class="account-menu" (click)="toggleDropdown()" [class.open]="dropdownOpen"> 
-        <!-- Trigger : avatar + name + chevron -->
-        <div class="account-trigger">
-          <div class="account-avatar">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="8" r="4"/>
-              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-            </svg>
-          </div>
-          <div class="account-info">
-            <span class="account-name">{{ userName }}</span>
-            <span class="account-role">{{ userRole }}</span>
-          </div>
-          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 9l6 6 6-6"/>
-          </svg>
-        </div>
-
-        <!-- Dropdown Panel -->
-        <div class="account-dropdown" (click)="$event.stopPropagation()">
-          <hr class="dropdown-divider"/>
-          <a routerLink="/profile" class="dropdown-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="8" r="4"/>
-              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-            </svg>
-            Mon Profil
-          </a>
-          <a routerLink="/settings" class="dropdown-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06.06A1.65 1.65 0 0 0 1 1.51 1z"/>
-            </svg>
-            Paramètres
-          </a>
-          <hr class="dropdown-divider"/>
-          <button class="dropdown-item logout" (click)="logout()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-=======
     <div class="navbar-divider"></div>
 
     <!-- Nav Links — grouped by category -->
     <div class="navbar-links" [class.open]="menuOpen">
-
 
       <!-- Group 1: Core -->
       <div class="link-group">
@@ -95,7 +37,8 @@
       <!-- Group 4: Places & Community -->
       <div class="link-group">
         <a routerLink="field-reservation"    routerLinkActive="active" class="nav-link">Fields</a>
-        <a routerLink="community" routerLinkActive="active" class="nav-link">Community</a>
+        <a routerLink="communaute" routerLinkActive="active" class="nav-link">Community</a>
+        <a routerLink="evenement" routerLinkActive="active" class="nav-link">Events</a>
         <a routerLink="news"      routerLinkActive="active" class="nav-link">News</a>
       </div>
 
@@ -105,10 +48,7 @@
       <div class="link-group link-group--extras">
         <a routerLink="shop"          routerLinkActive="active" class="nav-link">Shop</a>
         <a routerLink="health"        routerLinkActive="active" class="nav-link">Health</a>
-        <a routerLink="transport"     routerLinkActive="active" class="nav-link">Transport</a>
-        <a routerLink="accommodation" routerLinkActive="active" class="nav-link">Stay</a>
       </div>
-
 
     </div>
 
@@ -211,16 +151,11 @@
           <hr class="dropdown-divider"/>
           <button class="dropdown-item logout" (click)="logout()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
               <polyline points="16 17 21 12 16 7"/>
               <line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
-<<<<<<< HEAD
-            Délogin
-=======
             Logout
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
           </button>
         </div>
       </div>
@@ -231,13 +166,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
-<<<<<<< HEAD
+
     </div>
   </div>
 </nav>
-
-=======
-
-    </div>
-  </div>
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

@@ -37,7 +37,7 @@
         </div>
         <div style="text-align:right;">
           <p style="font-size:0.85rem;color:var(--gray-text);margin:0;">Created</p>
-          <p style="font-weight:700;margin:0;">{{ team.creationDate | date:'MMM d, yyyy' }}</p>
+          <p style="font-weight:700;margin:0;">{{ formatDate(team.creationDate) }}</p>
         </div>
       </div>
     </div>
@@ -61,21 +61,21 @@
       <!-- Wins -->
       <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
         <div *ngIf="!isEditingStats" style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.victories || 0 }}</div>
-        <input *ngIf="isEditingStats" type="number" [(ngModel)]="editVictories" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
+        <input *ngIf="isEditingStats" type="number" [value]="editVictories" (input)="editVictories = +$any($event.target).value" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
         <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Wins</div>
       </div>
       
       <!-- Losses -->
       <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
         <div *ngIf="!isEditingStats" style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.defeats || 0 }}</div>
-        <input *ngIf="isEditingStats" type="number" [(ngModel)]="editDefeats" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
+        <input *ngIf="isEditingStats" type="number" [value]="editDefeats" (input)="editDefeats = +$any($event.target).value" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
         <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Losses</div>
       </div>
       
       <!-- Matches -->
       <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.25rem;text-align:center;">
         <div *ngIf="!isEditingStats" style="font-size:2rem;font-weight:800;color:var(--red);">{{ team.matches || 0 }}</div>
-        <input *ngIf="isEditingStats" type="number" [(ngModel)]="editMatches" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
+        <input *ngIf="isEditingStats" type="number" [value]="editMatches" (input)="editMatches = +$any($event.target).value" style="width: 100%; font-size: 1.5rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 0.2rem;">
         <div style="font-size:0.82rem;color:var(--gray-text);margin-top:0.25rem;">Matches</div>
       </div>
     </div>
@@ -114,7 +114,7 @@
           </div>
           <div style="display:flex;justify-content:space-between;">
             <span style="color:var(--gray-text);font-size:0.85rem;">Created</span>
-            <span style="font-weight:600;">{{ team.creationDate | date:'MMM yyyy' }}</span>
+            <span style="font-weight:600;">{{ formatMonthYear(team.creationDate) }}</span>
           </div>
         </div>
       </div>

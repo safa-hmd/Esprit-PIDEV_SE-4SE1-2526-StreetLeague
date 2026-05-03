@@ -82,7 +82,7 @@
 
       <!-- Title + description -->
       <div class="card-body">
-        <h3 class="card-title">{{ t.name }}</h3>
+        <h3 class="card-title">{{ t.nom }}</h3>
         <p *ngIf="t.description" class="card-desc">{{ t.description }}</p>
 
         <!-- Meta info -->
@@ -192,7 +192,7 @@
     <div class="modal-header">
       <div>
         <h2 class="modal-title">Register for Tournament</h2>
-        <p *ngIf="selectedTournament" class="modal-sub">{{ selectedTournament.name }}</p>
+        <p *ngIf="selectedTournament" class="modal-sub">{{ selectedTournament?.nom }}</p>
       </div>
       <button class="modal-close" (click)="closeRegister()" aria-label="Close">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="20" height="20">
@@ -206,14 +206,14 @@
       <!-- Tournament summary -->
       <div class="modal-summary">
         <div class="summary-row">
-          <span>📅 {{ selectedTournament.startDate }} → {{ selectedTournament.endDate }}</span>
-          <span *ngIf="selectedTournament.fieldName">
-      📍 {{ selectedTournament.fieldName }} — {{ selectedTournament.fieldLocation }}
+          <span>📅 {{ selectedTournament?.startDate }} → {{ selectedTournament?.endDate }}</span>
+          <span *ngIf="selectedTournament?.fieldName">
+      📍 {{ selectedTournament?.fieldName }} — {{ selectedTournament?.fieldLocation }}
           </span>
         </div>
-        <div class="summary-row" *ngIf="selectedTournament.prizePool">
-          <span>🏆 Prize Pool: ${{ selectedTournament.prizePool }}</span>
-          <span>👥 {{ selectedTournament.tournamentType === 'TEAM' ? 'Team' : 'Individual' }}</span>
+        <div class="summary-row" *ngIf="selectedTournament?.prizePool">
+          <span>🏆 Prize Pool: ${{ selectedTournament?.prizePool }}</span>
+          <span>👥 {{ selectedTournament?.tournamentType === 'TEAM' ? 'Team' : 'Individual' }}</span>
         </div>
       </div>
 

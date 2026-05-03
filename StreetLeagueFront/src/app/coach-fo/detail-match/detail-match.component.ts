@@ -68,4 +68,9 @@ export class DetailMatchComponent implements OnInit {
       default:          return '';
     }
   }
+
+  formatDate(dateStr: string | undefined): string {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' });
+  }
 }

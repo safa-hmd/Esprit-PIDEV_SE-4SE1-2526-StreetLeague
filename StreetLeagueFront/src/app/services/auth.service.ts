@@ -88,21 +88,14 @@ getToken(): string | null {
     localStorage.removeItem('UserIdConnect');
   }
 
-<<<<<<< HEAD
   getName(): string | null {
-    // Backne le name basé sur le rôle de l'utilisateur
     const role = this.normalizeRole(this.getRole());
     switch (role) {
-      case 'ROLE_PLAYER':
-        return 'Player';
-      case 'ROLE_SPONSOR':
-        return 'Sponsor';
-      case 'ROLE_ADMIN':
-        return 'Admin';
-      case 'ROLE_COMMUNITY_MANAGER':
-        return 'Manager';
+      case 'PLAYER': return 'Player';
+      case 'SPONSOR': return 'Sponsor';
+      case 'ADMIN': return 'Admin';
+      case 'COMMUNITY_MANAGER': return 'Manager';
       default:
-        // Fallback : utilise une partie de l'email
         const email = this.getEmail();
         if (email) {
           const namePart = email.split('@')[0];
@@ -112,18 +105,13 @@ getToken(): string | null {
     }
   }
 
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('TokenUserConnect');
-  }
-=======
-
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
-
   getRole(): string | null {
     return localStorage.getItem('RoleUserConnect');
   }
 
-
+  normalizeRole(role: string | null): string {
+    return role ? role.replace('ROLE_', '') : '';
+  }
 
   getEmail(): string | null {
     return localStorage.getItem('EmailUserConnect');
@@ -133,55 +121,39 @@ getToken(): string | null {
     return localStorage.getItem('UserIdConnect');
   }
 
-<<<<<<< HEAD
-  getEmail(): string | null {
-    return localStorage.getItem('EmailUserConnect');
-  }
-}
-
-=======
-  //add this without unitaire tests
-
   loginWithGoogle(): void {
-  window.location.href = 
-    'http://localhost:8086/StreetLeague/oauth2/authorization/google';
-}
+    window.location.href = 'http://localhost:8086/StreetLeague/oauth2/authorization/google';
+  }
 
+  forgotPassword(email: string): Observable<string> {
+    return this.http.post(
+      `http://localhost:8086/StreetLeague/auth/forgot-password`,
+      { email },
+      { responseType: 'text' }
+    );
+  }
 
+  resetPassword(token: string, newPassword: string): Observable<string> {
+    return this.http.post(
+      `http://localhost:8086/StreetLeague/auth/reset-password`,
+      { token, newPassword },
+      { responseType: 'text' }
+    );
+  }
 
-forgotPassword(email: string): Observable<string> {
-  return this.http.post(
-    `http://localhost:8086/StreetLeague/auth/forgot-password`,
-    { email },
-    { responseType: 'text' }
-  );
-}
+  getCurrentUserEmail(): string {
+    return localStorage.getItem('EmailUserConnect') || '';
+  }
 
-resetPassword(token: string, newPassword: string): Observable<string> {
-  return this.http.post(
-    `http://localhost:8086/StreetLeague/auth/reset-password`,
-    { token, newPassword },
-    { responseType: 'text' }
-  );
-}
+  getCurrentUserId(): number {
+    const id = localStorage.getItem('UserIdConnect');
+    return id ? parseInt(id) : 0;
+  }
 
-// auth.service.ts - Ajouter cette méthode
-getCurrentUserEmail(): string {
-  return localStorage.getItem('EmailUserConnect') || '';
-}
-
-getCurrentUserId(): number {
-  const id = localStorage.getItem('UserIdConnect');
-  return id ? parseInt(id) : 0;
-}
-
-  // ✅ URL correcte avec port 8086 + context path /StreetLeague
   getUserIdByEmail(): Observable<number> {
     const email = localStorage.getItem('EmailUserConnect');
     return this.http.get<number>(
       `${this.baseUrl}/auth/getUserId?email=${email}`
     );
   }
-
 }
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

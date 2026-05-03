@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import { Component, OnInit } from '@angular/core';
-=======
-// src/app/components/navbar/navbar.component.ts
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
@@ -13,48 +9,16 @@ import {
   notifIcon,
   notifAccent
 } from 'src/app/models/notification.model';
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
-<<<<<<< HEAD
-export class NavbarComponent implements OnInit {
-  userName: string = 'Utilisateur';
-  userRole: string = 'PLAYER';
-  dropdownOpen: boolean = false;
-  menuOpen: boolean = false;
-
-  constructor() {}
-
-  ngOnInit(): void {
-    // Initialisation sans dépendance à AuthService
-    console.log('Navbar component chargé');
-  }
-
-  toggleDropdown(): void {
-    this.dropdownOpen = !this.dropdownOpen;
-  }
-
-  toggleMenu(): void {
-    this.menuOpen = !this.menuOpen;
-  }
-
-  logout(): void {
-    // Redirection simple vers la page de login
-    window.location.href = '/';
-  }
-}
-
-
-=======
 export class NavbarComponent implements OnInit, OnDestroy {
   userName     = '';
   userRole     = '';
   userInitials = '';   // NEW — displayed in avatar circle
-
 
   dropdownOpen = false;
   menuOpen     = false;
@@ -223,7 +187,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   logout(): void {
     localStorage.clear();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
 
   @HostListener('document:click', ['$event'])
@@ -232,6 +196,4 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (!t.closest('.account-menu')) this.dropdownOpen = false;
     if (!t.closest('.notif-menu'))   this.notifOpen   = false;
   }
-
 }
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

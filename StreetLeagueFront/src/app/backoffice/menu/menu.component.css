@@ -1,4 +1,4 @@
-.admin-sidebar {
+﻿.admin-sidebar {
   width: 220px;
   background: #111;
   border-right: 1px solid rgba(255, 255, 255, 0.07);
@@ -101,12 +101,8 @@
   .admin-sidebar.mobile-open {
     left: 0;
   }
-<<<<<<< HEAD
   .sidebar-overlay.visible {
     display: block;
   }
 }
 
-=======
-}
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

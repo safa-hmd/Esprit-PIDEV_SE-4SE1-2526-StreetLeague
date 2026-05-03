@@ -11,6 +11,7 @@ import com.example.streetleague.domain.User;
 import com.example.streetleague.dto.LeaderboardDto;
 import com.example.streetleague.dto.TeamRequest;
 import com.example.streetleague.dto.TeamResponse;
+import com.example.streetleague.Entity.Level;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,29 +45,29 @@ public class TeamServiceImpl implements IteamService {
 
         if (captain.getRole() != Role.COACH && captain.getRole() != Role.PLAYER)
             throw new RuntimeException("Only a COACH or PLAYER can create a team");
-        if (dto.name() == null || dto.name().isBlank())
+        if (dto.getName() == null || dto.getName().isBlank())
             throw new RuntimeException("Team name is required");
-        if (dto.name().length() < 2 || dto.name().length() > 50)
+        if (dto.getName().length() < 2 || dto.getName().length() > 50)
             throw new RuntimeException("Team name must be between 2 and 50 characters");
         boolean nameExists = teamRepository.findAll().stream()
-                .anyMatch(team -> team.getName().equalsIgnoreCase(dto.name()));
+                .anyMatch(team -> team.getName().equalsIgnoreCase(dto.getName()));
         if (nameExists)
             throw new RuntimeException("A team with this name already exists");
-        if (dto.sport() == null || dto.sport().isBlank())
+        if (dto.getSport() == null || dto.getSport().isBlank())
             throw new RuntimeException("Sport is required");
-        if (dto.sport().length() < 2 || dto.sport().length() > 50)
+        if (dto.getSport().length() < 2 || dto.getSport().length() > 50)
             throw new RuntimeException("Sport must be between 2 and 50 characters");
-        if (dto.level() == null)
+        if (dto.getLevel() == null)
             throw new RuntimeException("Level is required (BEGINNER, INTERMEDIATE, ADVANCED)");
-        if (dto.description() != null && dto.description().length() > 255)
+        if (dto.getDescription() != null && dto.getDescription().length() > 255)
             throw new RuntimeException("Description cannot exceed 255 characters");
 
         // Conversion DTO → Entity + injection des valeurs auto
         Team t = new Team();
-        t.setName(dto.name());
-        t.setSport(dto.sport());
-        t.setDescription(dto.description());
-        t.setLevel(dto.level());
+        t.setName(dto.getName());
+        t.setSport(dto.getSport());
+        t.setDescription(dto.getDescription());
+        t.setLevel(Level.valueOf(dto.getLevel().toUpperCase()));
         t.setCaptain(captain);
         t.setCreationDate(LocalDate.now());
 
@@ -82,32 +83,32 @@ public class TeamServiceImpl implements IteamService {
         if (!existing.getCaptain().getIdUser().equals(captainId))
             throw new RuntimeException("Only the team captain can update this team");
 
-        if (dto.name() != null) {
-            if (dto.name().isBlank())
+        if (dto.getName() != null) {
+            if (dto.getName().isBlank())
                 throw new RuntimeException("Team name cannot be empty");
-            if (dto.name().length() < 2 || dto.name().length() > 50)
+            if (dto.getName().length() < 2 || dto.getName().length() > 50)
                 throw new RuntimeException("Team name must be between 2 and 50 characters");
             boolean nameExists = teamRepository.findAll().stream()
-                    .anyMatch(team -> team.getName().equalsIgnoreCase(dto.name())
+                    .anyMatch(team -> team.getName().equalsIgnoreCase(dto.getName())
                             && !team.getIdTeam().equals(teamId));
             if (nameExists)
                 throw new RuntimeException("A team with this name already exists");
-            existing.setName(dto.name());
+            existing.setName(dto.getName());
         }
-        if (dto.sport() != null) {
-            if (dto.sport().isBlank())
+        if (dto.getSport() != null) {
+            if (dto.getSport().isBlank())
                 throw new RuntimeException("Sport cannot be empty");
-            if (dto.sport().length() < 2 || dto.sport().length() > 50)
+            if (dto.getSport().length() < 2 || dto.getSport().length() > 50)
                 throw new RuntimeException("Sport must be between 2 and 50 characters");
-            existing.setSport(dto.sport());
+            existing.setSport(dto.getSport());
         }
-        if (dto.description() != null) {
-            if (dto.description().length() > 255)
+        if (dto.getDescription() != null) {
+            if (dto.getDescription().length() > 255)
                 throw new RuntimeException("Description cannot exceed 255 characters");
-            existing.setDescription(dto.description());
+            existing.setDescription(dto.getDescription());
         }
-        if (dto.level() != null)
-            existing.setLevel(dto.level());
+        if (dto.getLevel() != null)
+            existing.setLevel(Level.valueOf(dto.getLevel().toUpperCase()));
 
         return TeamResponse.fromEntity(teamRepository.save(existing));
     }

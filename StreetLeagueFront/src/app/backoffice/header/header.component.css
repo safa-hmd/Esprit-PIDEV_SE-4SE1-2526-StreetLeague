@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600;700&display=swap');
 
 .admin-header {
   background: #0a0a0a;
@@ -157,81 +157,4 @@
   flex-direction: column;
   line-height: 1.2;
 }
-<<<<<<< HEAD
 
-=======
-.acct-name { font-size: 0.8rem; font-weight: 700; color: white; }
-.acct-role { font-size: 0.68rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; }
-
-.chevron {
-  width: 12px;
-  height: 12px;
-  color: rgba(255, 255, 255, 0.4);
-  transition: transform 0.2s;
-  flex-shrink: 0;
-}
-
-.account-wrap.open .chevron { transform: rotate(180deg); }
-.account-wrap.open .account-trigger { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.05); }
-.account-wrap.open .account-dropdown { display: block; }
-
-/* ── Dropdown Panel ── */
-.account-dropdown {
-  display: none;
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 220px;
-  background: #161616;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
-  z-index: 999;
-  animation: fadeDown 0.15s ease;
-}
-
-@keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.dd-header {
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-}
-.dd-name { font-size: 0.85rem; font-weight: 700; color: white; }
-.dd-email { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-top: 2px; }
-
-.dd-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 14px;
-  font-family: 'Barlow', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.65);
-  cursor: pointer;
-  transition: all 0.15s;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  text-decoration: none;
-}
-.dd-item svg { width: 14px; height: 14px; flex-shrink: 0; color: rgba(255,255,255,0.35); }
-.dd-item:hover { background: rgba(255,255,255,0.05); color: white; }
-.dd-item:hover svg { color: rgba(255,255,255,0.7); }
-.dd-item.danger { color: rgba(230,25,32,0.8); }
-.dd-item.danger svg { color: rgba(230,25,32,0.6); }
-.dd-item.danger:hover { background: rgba(230,25,32,0.08); color: #e61920; }
-.dd-item.danger:hover svg { color: #e61920; }
-
-.dd-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 3px 0; }
-
-@media (max-width: 640px) {
-  .acct-info { display: none; }
-  .chevron { display: none; }
-  .account-trigger { padding: 5px; }
-}
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

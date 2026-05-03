@@ -20,8 +20,8 @@ import java.util.List;
 @RequestMapping("match")
 public class MatchController {
 
-    ImatchService  imatchService;
-    UserRepository userRepository;
+    private final ImatchService imatchService;
+    private final UserRepository userRepository;
 
     // POST /match/add?teamAId=1&teamBId=2&email=captain@mail.com
     @PostMapping("/add")

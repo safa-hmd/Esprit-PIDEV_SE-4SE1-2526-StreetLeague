@@ -41,7 +41,14 @@ public class CommunauteServiceImp implements CommunauteService {
     @Override
     public CommunauteDTO update(Long id, CommunauteDTO dto) {
         Communaute entity = repo.findById(id).orElseThrow(() -> new RuntimeException("Communauté introuvable"));
-        entity.setNom(dto.nom()); entity.setDescription(dto.description()); entity.setType(dto.type()); entity.setDateCreation(dto.dateCreation()); entity.setCreateurId(dto.createurId()); return mapper.toDTO(repo.save(entity));
+        entity.setNom(dto.getNom()); 
+        entity.setDescription(dto.getDescription()); 
+        entity.setType(dto.getType()); 
+        if (dto.getDateCreation() != null) {
+            entity.setDateCreation(java.sql.Timestamp.valueOf(dto.getDateCreation()));
+        }
+        entity.setCreateurId(dto.getCreateurId()); 
+        return mapper.toDTO(repo.save(entity));
     }
 
     @Override

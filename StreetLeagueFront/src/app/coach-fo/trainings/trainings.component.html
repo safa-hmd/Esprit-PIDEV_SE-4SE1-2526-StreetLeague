@@ -1,0 +1,11 @@
+<div class="trainings-container">
+  <h2>Team Trainings</h2>
+  <div *ngIf="trainings.length === 0" class="no-data">No trainings found.</div>
+  <div class="training-list" *ngIf="trainings.length > 0">
+    <div class="training-card" *ngFor="let t of trainings">
+      <h3>{{ t.location }}</h3>
+      <p>{{ t.trainingDate }}</p>
+      <p>{{ t.status }}</p>
+    </div>
+  </div>
+</div>

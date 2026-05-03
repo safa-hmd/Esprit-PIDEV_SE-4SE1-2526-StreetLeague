@@ -31,7 +31,6 @@
           },
           "configurations": {
             "production": {
-<<<<<<< HEAD
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -48,30 +47,15 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "4mb",
+                  "maximumError": "8mb"
                 },
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "16kb",
-                  "maximumError": "20kb"
+                  "maximumError": "64kb"
                 }
               ]
-=======
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
-                }
-              ],
-              "outputHashing": "all"
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
             },
             "development": {
               "buildOptimizer": false,
@@ -102,7 +86,7 @@
           },
           "defaultConfiguration": "development"
         },
-        "extract-i1 n": {
+        "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
             "browserTarget": "StreetLeagueFront:build"

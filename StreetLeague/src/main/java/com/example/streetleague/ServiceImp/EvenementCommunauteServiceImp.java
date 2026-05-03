@@ -35,15 +35,15 @@ public class EvenementCommunauteServiceImp implements EvenementCommunauteService
 
     @Override
     public EvenementCommunauteDTO create(EvenementCommunauteDTO dto) {
-        Communaute communaute = communauteRepository.findById(dto.communauteId())
-                .orElseThrow(() -> new RuntimeException("Communauté introuvable avec l'ID : " + dto.communauteId()));
+        Communaute communaute = communauteRepository.findById(dto.getCommunauteId())
+                .orElseThrow(() -> new RuntimeException("Communauté introuvable avec l'ID : " + dto.getCommunauteId()));
 
         EvenementCommunaute entity = new EvenementCommunaute();
         entity.setCommunaute(communaute);
-        entity.setTitre(dto.titre());
-        entity.setDescription(dto.description());
-        entity.setDate(dto.date());
-        entity.setOrganisateurId(dto.organisateurId());
+        entity.setTitre(dto.getTitre());
+        entity.setDescription(dto.getDescription());
+        entity.setDate(new java.util.Date(dto.getDateEvenement().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()));
+        entity.setOrganisateurId(dto.getOrganisateurId());
 
         return mapper.toDTO(repo.save(entity));
     }
@@ -64,14 +64,14 @@ public class EvenementCommunauteServiceImp implements EvenementCommunauteService
         EvenementCommunaute entity = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Événement introuvable"));
 
-        Communaute communaute = communauteRepository.findById(dto.communauteId())
-                .orElseThrow(() -> new RuntimeException("Communauté introuvable avec l'ID : " + dto.communauteId()));
+        Communaute communaute = communauteRepository.findById(dto.getCommunauteId())
+                .orElseThrow(() -> new RuntimeException("Communauté introuvable avec l'ID : " + dto.getCommunauteId()));
 
         entity.setCommunaute(communaute);
-        entity.setTitre(dto.titre());
-        entity.setDescription(dto.description());
-        entity.setDate(dto.date());
-        entity.setOrganisateurId(dto.organisateurId());
+        entity.setTitre(dto.getTitre());
+        entity.setDescription(dto.getDescription());
+        entity.setDate(new java.util.Date(dto.getDateEvenement().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()));
+        entity.setOrganisateurId(dto.getOrganisateurId());
 
         return mapper.toDTO(repo.save(entity));
     }

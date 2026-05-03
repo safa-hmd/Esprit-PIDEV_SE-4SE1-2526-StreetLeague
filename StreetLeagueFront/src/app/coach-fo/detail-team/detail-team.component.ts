@@ -96,5 +96,13 @@ goBack(): void {
   isLoadingOpponents = false;
   opponentErrorMsg = '';
 
-  
+  formatDate(dateStr: string | undefined): string {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  formatMonthYear(dateStr: string | undefined): string {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+  }
 }

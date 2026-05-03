@@ -1,30 +1,35 @@
 <div class="form-container">
   <h2>Declare Personal Car</h2>
-  
+
   <div class="styled-form">
     <div class="form-group">
       <label>Destination</label>
-      <input type="text" [(ngModel)]="carDto.destination" class="form-control" placeholder="E.g. Paris" />
+      <input type="text" [value]="carDto.destination" (input)="carDto.destination = $any($event.target).value"
+             class="form-control" placeholder="E.g. Paris" />
     </div>
 
     <div class="form-group">
       <label>Available Seats (excluding driver)</label>
-      <input type="number" [(ngModel)]="carDto.availableSeats" class="form-control" />
+      <input type="number" [value]="carDto.availableSeats" (input)="carDto.availableSeats = +$any($event.target).value"
+             class="form-control" />
     </div>
 
     <div class="form-group">
       <label>Price per Seat (if applicable)</label>
-      <input type="number" [(ngModel)]="carDto.pricePerSeat" class="form-control" />
+      <input type="number" [value]="carDto.pricePerSeat" (input)="carDto.pricePerSeat = +$any($event.target).value"
+             class="form-control" />
     </div>
 
     <div class="form-group">
       <label>Departure Time</label>
-      <input type="datetime-local" [(ngModel)]="carDto.departureTime" class="form-control" />
+      <input type="datetime-local" [value]="carDto.departureTime" (input)="carDto.departureTime = $any($event.target).value"
+             class="form-control" />
     </div>
 
     <div class="form-group">
       <label>Return Time</label>
-      <input type="datetime-local" [(ngModel)]="carDto.returnTime" class="form-control" />
+      <input type="datetime-local" [value]="carDto.returnTime" (input)="carDto.returnTime = $any($event.target).value"
+             class="form-control" />
     </div>
 
     <button class="btn btn-red" (click)="submit()">Submit Personal Car</button>

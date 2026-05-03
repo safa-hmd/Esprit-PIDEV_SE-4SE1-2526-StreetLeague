@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -30,7 +30,6 @@ describe('SelectRoleComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-<<<<<<< HEAD
 
   // ── initial state ─────────────────────────────────────────
 
@@ -196,6 +195,3 @@ describe('SelectRoleComponent', () => {
   });
 });
 
-=======
-});
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

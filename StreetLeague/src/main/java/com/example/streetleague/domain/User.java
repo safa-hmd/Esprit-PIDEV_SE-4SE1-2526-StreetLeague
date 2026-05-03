@@ -1,34 +1,25 @@
 package com.example.streetleague.domain;
 
-<<<<<<< HEAD
-=======
 import com.example.streetleague.Entity.*;
 
 import com.example.streetleague.Entity.Comment;
 import com.example.streetleague.Entity.Post;
 import com.example.streetleague.Entity.waterReminder;
-
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-<<<<<<< HEAD
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Table(name = "users")
-=======
 @Getter          // ← @Getter + @Setter au lieu de @Data
 @Setter          // ← @Data cause des conflits avec @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
+@Table(name = "users")
 public class User {
 
     @Id
@@ -53,10 +44,7 @@ public class User {
     private Role role;
 
     @Builder.Default
-<<<<<<< HEAD
     private boolean enabled = true;
-=======
-    boolean enabled = true;
 
     // ── Relations team ────────────────────────────────────────
     @OneToMany(mappedBy = "captain", cascade = CascadeType.ALL)
@@ -74,34 +62,12 @@ public class User {
     @OneToMany(mappedBy = "createdBy")
     @JsonIgnore
     List<Match> createdMatches;
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
 
     @Column(name = "reset_token")
     private String resetToken;
 
     @Column(name = "reset_token_expiry")
-<<<<<<< HEAD
     private LocalDateTime resetTokenExpiry;
-
-    public Long getIdUser() { return idUser; }
-    public void setIdUser(Long idUser) { this.idUser = idUser; }
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-    public Role getRole() { return role; }
-    public void setRole(Role role) { this.role = role; }
-    public boolean isEnabled() { return enabled; }
-    public void setEnabled(boolean enabled) { this.enabled = enabled; }
-    public String getResetToken() { return resetToken; }
-    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
-    public LocalDateTime getResetTokenExpiry() { return resetTokenExpiry; }
-    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) { this.resetTokenExpiry = resetTokenExpiry; }
-}
-=======
-    LocalDateTime resetTokenExpiry;
 
 
     @Column(name = "team_id")
@@ -144,4 +110,3 @@ public class User {
     @JsonIgnore
     private SpinResult spinResult;
 }
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

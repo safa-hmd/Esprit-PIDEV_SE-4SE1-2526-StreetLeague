@@ -32,18 +32,18 @@ public class ContratSponsorServiceImp implements ContratSponsorService {
     @Override
     @Transactional
     public ContratSponsorDTO create(ContratSponsorDTO dto) {
-        Sponsor sponsor = sponsorRepository.findById(dto.sponsorId())
+        Sponsor sponsor = sponsorRepository.findById(dto.getSponsorId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Sponsor introuvable avec l'ID : " + dto.sponsorId()));
+                        "Sponsor introuvable avec l'ID : " + dto.getSponsorId()));
 
         ContratSponsor entity = new ContratSponsor();
         entity.setSponsor(sponsor);
-        entity.setEquipeId(dto.equipeId());
-        entity.setMontant(dto.montant());
-        entity.setDateDebut(dto.dateDebut());
-        entity.setDateFin(dto.dateFin());
-        entity.setStatut(dto.statut());
-        entity.setConditions(normalizeConditions(dto.conditions()));
+        entity.setEquipeId(dto.getEquipeId());
+        entity.setMontant(dto.getMontantTotal() != null ? java.math.BigDecimal.valueOf(dto.getMontantTotal()) : java.math.BigDecimal.ZERO);
+        entity.setDateDebut(dto.getDateDebut() != null ? java.sql.Date.valueOf(dto.getDateDebut()) : null);
+        entity.setDateFin(dto.getDateFin() != null ? java.sql.Date.valueOf(dto.getDateFin()) : null);
+        entity.setStatut(dto.getStatut());
+        entity.setConditions(normalizeConditions(dto.getConditions()));
         if (entity.getDateFin().before(entity.getDateDebut())) {
             throw new IllegalArgumentException(
                     "La date de fin doit être postérieure ou égale à la date de début");
@@ -66,26 +66,27 @@ public class ContratSponsorServiceImp implements ContratSponsorService {
     @Override
     @Transactional
     public ContratSponsorDTO update(Long id, ContratSponsorDTO dto) {
-        ContratSponsor entity = repo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contrat introuvable"));
-
-        Sponsor sponsor = sponsorRepository.findById(dto.sponsorId())
+        ContratSponsor existing = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Sponsor introuvable avec l'ID : " + dto.sponsorId()));
+                        "Contrat introuvable avec l'ID : " + id));
 
-        entity.setSponsor(sponsor);
-        entity.setEquipeId(dto.equipeId());
-        entity.setMontant(dto.montant());
-        entity.setDateDebut(dto.dateDebut());
-        entity.setDateFin(dto.dateFin());
-        entity.setStatut(dto.statut());
-        entity.setConditions(normalizeConditions(dto.conditions()));
-        if (entity.getDateFin().before(entity.getDateDebut())) {
+        Sponsor sponsor = sponsorRepository.findById(dto.getSponsorId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Sponsor introuvable avec l'ID : " + dto.getSponsorId()));
+
+        existing.setSponsor(sponsor);
+        existing.setEquipeId(dto.getEquipeId());
+        existing.setMontant(dto.getMontantTotal() != null ? java.math.BigDecimal.valueOf(dto.getMontantTotal()) : java.math.BigDecimal.ZERO);
+        existing.setDateDebut(dto.getDateDebut() != null ? java.sql.Date.valueOf(dto.getDateDebut()) : null);
+        existing.setDateFin(dto.getDateFin() != null ? java.sql.Date.valueOf(dto.getDateFin()) : null);
+        existing.setStatut(dto.getStatut());
+        existing.setConditions(normalizeConditions(dto.getConditions()));
+        if (existing.getDateFin().before(existing.getDateDebut())) {
             throw new IllegalArgumentException(
                     "La date de fin doit être postérieure ou égale à la date de début");
         }
 
-        return mapper.toDTO(repo.save(entity));
+        return mapper.toDTO(repo.save(existing));
     }
 
     private static String normalizeConditions(String conditions) {

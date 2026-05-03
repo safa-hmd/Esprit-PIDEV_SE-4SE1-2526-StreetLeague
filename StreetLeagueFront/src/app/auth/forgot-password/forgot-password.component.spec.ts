@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -21,7 +21,6 @@ describe('ForgotPasswordComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-<<<<<<< HEAD
 
   // ── form initial state ────────────────────────────────────
 
@@ -140,6 +139,3 @@ describe('ForgotPasswordComponent', () => {
   });
 });
 
-=======
-});
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

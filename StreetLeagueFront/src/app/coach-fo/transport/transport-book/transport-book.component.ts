@@ -106,4 +106,14 @@ export class TransportBookComponent implements OnInit {
   back() {
     this.router.navigate(['/coach/transport']);
   }
+
+  formatPrice(val: number | undefined): string {
+    if (val == null) return '0.00 TND';
+    return val.toFixed(2) + ' TND';
+  }
+
+  formatDate(val: string | undefined): string {
+    if (!val) return '-';
+    return new Date(val).toLocaleString();
+  }
 }

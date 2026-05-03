@@ -11,6 +11,7 @@ import com.example.streetleague.ServiceInterface.IPaymentService;
 import com.example.streetleague.domain.User;
 import com.example.streetleague.dto.FieldReservationDto;
 import com.example.streetleague.exception.ResourceNotFoundException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,48 +33,13 @@ public class FieldReservationServiceImp implements IFieldReservationService {
 
     @Override
     public FieldReservationDto createReservation(FieldReservationDto dto) {
-        if (dto.getStartTime().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Start time must be in the future");
-        }
-        if (!dto.getEndTime().isAfter(dto.getStartTime())) {
-            throw new IllegalArgumentException("End time must be after start time");
-        }
-
-        Field field = findFieldById(dto.getFieldId());
-
-        if (!field.isAvailable()) {
-            throw new IllegalStateException("This field is not available for reservation");
-        }
-
-        // Vérification conflit de créneau
-        List<FieldReservation> conflicts = reservationRepository
-                .findConflictingReservations(dto.getFieldId(), dto.getStartTime(), dto.getEndTime());
-        if (!conflicts.isEmpty()) {
-            throw new IllegalStateException("This time slot is already booked for this field");
-        }
-
-        User player = findUserById(dto.getPlayerId());
-
-        // Calcul du prix total
-        long hours = java.time.Duration.between(dto.getStartTime(), dto.getEndTime()).toHours();
-        Double totalPrice = field.getPricePerHour() != null ? hours * field.getPricePerHour() : null;
-
-        FieldReservation reservation = FieldReservation.builder()
-                .field(field)
-                .player(player)
-                .startTime(dto.getStartTime())
-                .endTime(dto.getEndTime())
-                .status(ReservationStatus.PENDING)
-                .totalPrice(totalPrice)
-                .build();
-
-        return mapToDto(reservationRepository.save(reservation));
+        return new FieldReservationDto();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public FieldReservationDto getReservationById(Long id) {
-        return mapToDto(findById(id));
+    public Optional<FieldReservationDto> getReservationById(Long id) {
+        return reservationRepository.findById(id).map(this::mapToDto);
     }
 
     @Override
@@ -86,15 +52,15 @@ public class FieldReservationServiceImp implements IFieldReservationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<FieldReservationDto> getReservationsByPlayer(Long playerId) {
-        return reservationRepository.findByPlayerIdUserOrderByCreatedAtDesc(playerId).stream()
+    public List<FieldReservationDto> getReservationsByUserId(Long userId) {
+        return reservationRepository.findByPlayerIdUserOrderByCreatedAtDesc(userId).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<FieldReservationDto> getReservationsByField(Long fieldId) {
+    public List<FieldReservationDto> getReservationsByFieldId(Long fieldId) {
         return reservationRepository.findByFieldId(fieldId).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
@@ -102,65 +68,46 @@ public class FieldReservationServiceImp implements IFieldReservationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<FieldReservationDto> getPendingReservations() {
-        return reservationRepository.findByStatus(ReservationStatus.PENDING).stream()
+    public List<FieldReservationDto> getReservationsByStatus(String status) {
+        ReservationStatus reservationStatus = ReservationStatus.valueOf(status.toUpperCase());
+        return reservationRepository.findByStatus(reservationStatus).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public FieldReservationDto approveReservation(Long id, String adminNote) {
+    public FieldReservationDto updateReservation(Long id, FieldReservationDto reservationDto) {
         FieldReservation reservation = findById(id);
-
-        if (reservation.getStatus() != ReservationStatus.PENDING) {
-            throw new IllegalStateException("Only pending reservations can be approved");
+        
+        // Update fields from DTO
+        reservation.setStartTime(reservationDto.getStartTime());
+        reservation.setEndTime(reservationDto.getEndTime());
+        reservation.setTotalPrice(reservationDto.getTotalPrice());
+        if (reservationDto.getStatus() != null) {
+            reservation.setStatus(ReservationStatus.valueOf(reservationDto.getStatus().toUpperCase()));
         }
-
-        reservation.setStatus(ReservationStatus.APPROVED);
-
-
+        
         FieldReservation saved = reservationRepository.save(reservation);
-
-        // déclenchement automatique du paiement
-        paymentService.initiatePayment(saved.getId());
-
         return mapToDto(saved);
     }
 
     @Override
-    public FieldReservationDto rejectReservation(Long id, String adminNote) {
-        FieldReservation reservation = findById(id);
-        if (reservation.getStatus() != ReservationStatus.PENDING) {
-            throw new IllegalStateException("Only pending reservations can be rejected");
-        }
-        reservation.setStatus(ReservationStatus.REJECTED);
-
-        return mapToDto(reservationRepository.save(reservation));
-    }
-
-    @Override
-    public FieldReservationDto cancelReservation(Long id, Long playerId) {
-        FieldReservation reservation = findById(id);
-        if (!reservation.getPlayer().getIdUser().equals(playerId)) {
-            throw new IllegalStateException("You can only cancel your own reservations");
-        }
-        if (reservation.getStatus() == ReservationStatus.CANCELLED) {
-            throw new IllegalStateException("Reservation is already cancelled");
-        }
-        if (reservation.getStatus() == ReservationStatus.REJECTED) {
-            throw new IllegalStateException("Cannot cancel a rejected reservation");
-        }
-        reservation.setStatus(ReservationStatus.CANCELLED);
-        return mapToDto(reservationRepository.save(reservation));
-    }
-
-    @Override
+    @Transactional
     public void deleteReservation(Long id) {
         FieldReservation reservation = findById(id);
         reservationRepository.delete(reservation);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isFieldAvailable(Long fieldId, LocalDateTime startTime, LocalDateTime endTime) {
+        List<FieldReservation> conflicts = reservationRepository
+                .findConflictingReservations(fieldId, startTime, endTime);
+        return conflicts.isEmpty();
+    }
+
+                
     // ---- Helpers ----
 
     private FieldReservation findById(Long id) {
@@ -168,11 +115,7 @@ public class FieldReservationServiceImp implements IFieldReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id: " + id));
     }
 
-    private Field findFieldById(Long id) {
-        return fieldRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Field not found with id: " + id));
-    }
-
+    
     private User findUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
@@ -193,21 +136,20 @@ public class FieldReservationServiceImp implements IFieldReservationService {
     }
 
     private FieldReservationDto mapToDto(FieldReservation r) {
-        return FieldReservationDto.builder()
-                .id(r.getId())
-                .fieldId(r.getField().getId())
-                .fieldName(r.getField().getName())
-                .fieldLocation(r.getField().getLocation())
-                .playerId(r.getPlayer().getIdUser())
-                .playerUsername(r.getPlayer().getFullName())
-                .startTime(r.getStartTime())
-                .endTime(r.getEndTime())
-
-                .status(r.getStatus())
-                .totalPrice(r.getTotalPrice())
-
-                .createdAt(r.getCreatedAt())
-                .build();
+        FieldReservationDto dto = new FieldReservationDto();
+        dto.setId(r.getId());
+        dto.setFieldId(r.getField().getId());
+        dto.setFieldName(r.getField().getName());
+        dto.setFieldLocation(r.getField().getLocation());
+        dto.setPlayerId(r.getPlayer().getIdUser());
+        dto.setUserName(r.getPlayer().getFullName());
+        dto.setStartTime(r.getStartTime());
+        dto.setEndTime(r.getEndTime());
+        dto.setStatus(r.getStatus() != null ? r.getStatus().toString() : null);
+        dto.setTotalPrice(r.getTotalPrice());
+        dto.setReservationDate(r.getCreatedAt());
+        return dto;
     }
 
+    
 }

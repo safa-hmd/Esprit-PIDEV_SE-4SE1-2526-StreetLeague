@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { AdminGuard } from './admin.guard';
 import { AuthService } from '../services/auth.service';
@@ -9,13 +9,8 @@ describe('AdminGuard', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
-<<<<<<< HEAD
     authServiceSpy = jasmine.createSpyObj('AuthService', ['getRole', 'normalizeRole', 'isLoggedIn']);
     routerSpy      = jasmine.createSpyObj('Router', ['navigateByUrl']);
-=======
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['getRole']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
 
     TestBed.configureTestingModule({
       providers: [
@@ -33,7 +28,6 @@ describe('AdminGuard', () => {
 
   it('should allow activation for ROLE_ADMIN', () => {
     authServiceSpy.getRole.and.returnValue('ROLE_ADMIN');
-<<<<<<< HEAD
     authServiceSpy.normalizeRole.and.returnValue('ROLE_ADMIN');
 
     const result = guard.canActivate();
@@ -73,14 +67,3 @@ describe('AdminGuard', () => {
     expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin-login');
   });
 });
-=======
-    expect(guard.canActivate()).toBeTrue();
-  });
-
-  it('should redirect for non-admin users', () => {
-    authServiceSpy.getRole.and.returnValue('ROLE_USER');
-    expect(guard.canActivate()).toBeFalse();
-    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin-login');
-  });
-});
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

@@ -1,28 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-<<<<<<< HEAD
-=======
 import { TeamService } from 'src/app/services/team.service';
 import { Team } from 'src/app/models/team.model';
 import { LeaderboardDto } from 'src/app/models/leaderboard.model';
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-<<<<<<< HEAD
-export class HomeComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit(): void {
-    // Component initialisé sans appel à des services externes
-    console.log('Home component chargé avec succès');
-  }
-=======
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
-
 export class HomeComponent implements OnInit {
 
   topTeams: LeaderboardDto[] = [];   // ← plus Team[]
@@ -41,7 +26,7 @@ export class HomeComponent implements OnInit {
     this.leaderboardError = '';
 
     this.teamService.getLeaderboard(this.selectedSport).subscribe({
-      next: (data) => {
+      next: (data: LeaderboardDto[]) => {
         this.topTeams = data;
         this.isLoadingLeaderboard = false;
       },

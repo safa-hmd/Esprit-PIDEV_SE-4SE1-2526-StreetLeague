@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+﻿import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthComponent } from './auth.component';
 import { LoginComponent } from './login/login.component';
@@ -11,7 +11,6 @@ import { AdminLoginComponent } from './admin-login/admin-login.component';
 import { NoAuthGuard } from '../guards/no-auth.guard';
 
 const routes: Routes = [
-<<<<<<< HEAD
   {
     path: '',
     component: AuthComponent,
@@ -34,11 +33,6 @@ const routes: Routes = [
     canActivate: [NoAuthGuard],
     component: AdminLoginComponent
   },
-=======
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent }
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
 ];
 @NgModule({
   imports: [RouterModule.forChild(routes)],

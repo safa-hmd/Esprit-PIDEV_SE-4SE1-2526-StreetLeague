@@ -3,11 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
-<<<<<<< HEAD
 type Role = 'PLAYER' | 'COACH' | 'SPONSOR' | 'DELIVERY';
-=======
-type Role = 'PLAYER' |  'COACH' | 'SPONSOR' | 'DELIVERY';
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
 
 @Component({
   selector: 'app-login',
@@ -71,10 +67,9 @@ private emailPlaceholders: Record<Role, string> = {
         localStorage.setItem('RoleUserConnect',  response.role);
 
         // ✅ Redirection selon le rôle renvoyé par le BACKEND (pas selectedRole)
-        this.redirectByRole(response.role);
+        this.redirectAfterLogin(response.role);
       },
       error: (error) => {
-<<<<<<< HEAD
         this.isLoading = false;
         const body = error?.error as Record<string, unknown> | undefined;
         const err = body?.['error'];
@@ -83,16 +78,11 @@ private emailPlaceholders: Record<Role, string> = {
           (typeof err === 'string' ? err : null) ||
           (typeof msg === 'string' ? msg : null) ||
           'Email ou password incorrect.';
-=======
-        this.isLoading    = false;
-        this.errorMessage = 'Email ou mot de passe incorrect.';
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
         console.error(error);
       },
     });
   }
 
-<<<<<<< HEAD
   /** Après login réussi : admin → /admin, coach → /coach, sino espace client */
   private redirectAfterLogin(roleFromBackend: string) {
     const role = this.authService.normalizeRole(roleFromBackend);
@@ -106,23 +96,6 @@ private emailPlaceholders: Record<Role, string> = {
       case 'ROLE_COACH':
       case 'ROLE_PLAYER':
       case 'ROLE_DELIVERY':
-=======
-  private redirectByRole(role: string) {
-    switch (role) {
-
-      case 'ROLE_COACH':
-        this.router.navigateByUrl('/coach');   
-        break;
-      case 'SPONSOR':
-        this.router.navigateByUrl('/client');   
-        break;
-
-    case 'ROLE_DELIVERY':
-    case 'DELIVERY':
-      this.router.navigateByUrl('/delivery'); break; // ✅ les deux formats
-
-      case 'PLAYER':
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
       default:
         this.router.navigateByUrl('/client');
         break;

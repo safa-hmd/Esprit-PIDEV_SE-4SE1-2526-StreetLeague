@@ -94,7 +94,7 @@
 
         <div class="sl-nav">
           <button class="sl-nav-btn" (click)="prevMonth()">◀</button>
-          <span class="sl-nav-label">{{ monthLabel | titlecase }}</span>
+          <span class="sl-nav-label">{{ formatTitleCase(monthLabel) }}</span>
           <button class="sl-nav-btn" (click)="nextMonth()">▶</button>
         </div>
 
@@ -109,7 +109,7 @@
                  *ngFor="let ev of dayEvents(day)"
                  [style.background]="ev.color || '#3498db'"
                  (click)="openEvent(ev)">
-              {{ ev.title | slice:0:14 }}<span *ngIf="ev.title.length > 14">…</span>
+              {{ truncateTitle(ev.title) }}<span *ngIf="ev.title.length > 14">…</span>
             </div>
           </div>
         </div>
@@ -214,7 +214,7 @@
             <div class="sl-ai-bar">
               <div class="sl-ai-fill"
                    [style.width.%]="getScorePercent(selectedEvent.aiScore)"
-                   [style.background]="getScoreColor(selectedEvent.recommendation)">
+                   [style.background]="getScoreColor(selectedEvent!.recommendation)">
               </div>
             </div>
           </div>
@@ -224,18 +224,18 @@
             <div class="sl-rec-field-header">
               <span>🏟️ Terrain recommandé par l'IA</span>
               <span class="sl-rec-field-score"
-                    [style.color]="getScoreColor(selectedEvent.recommendedFieldRec)">
-                {{ selectedEvent.recommendedFieldRec }}
+                    [style.color]="getScoreColor(selectedEvent!.recommendedFieldRec)">
+                {{ selectedEvent!.recommendedFieldRec }}
               </span>
             </div>
-            <div class="sl-rec-field-name">{{ selectedEvent.recommendedFieldName }}</div>
+            <div class="sl-rec-field-name">{{ selectedEvent!.recommendedFieldName }}</div>
             <div class="sl-rec-field-meta" *ngIf="selectedEvent.recommendedFieldDist">
-              📏 {{ selectedEvent.recommendedFieldDist | number:'1.1-1' }} km
+              📏 {{ selectedEvent!.recommendedFieldDist?.toFixed(1) }} km
               <span *ngIf="selectedEvent.recommendedFieldScore">
-                · Score: {{ getScorePercent(selectedEvent.recommendedFieldScore) }}%
+                · Score: {{ getScorePercent(selectedEvent!.recommendedFieldScore) }}%
               </span>
             </div>
-            <a [href]="getFieldDirections(selectedEvent)" target="_blank"
+            <a [href]="getFieldDirections(selectedEvent!)" target="_blank"
                class="sl-maps-btn">
               🗺️ Itinéraire vers ce terrain
             </a>
@@ -243,7 +243,7 @@
 
           <!-- Maps button for event location -->
           <a *ngIf="selectedEvent.location && !selectedEvent.recommendedFieldName"
-             [href]="getEventDirections(selectedEvent)"
+             [href]="getEventDirections(selectedEvent!)"
              target="_blank"
              class="sl-maps-btn">
             🗺️ Voir sur Google Maps
@@ -258,7 +258,7 @@
 
   <!-- ══ AI RECOMMENDER TAB ════════════════════════════════════════ -->
   <ng-container *ngIf="activeTab === 'recommend'">
-    <app-field-recommender></app-field-recommender>
+    <div class="sl-recommender-placeholder"><p>Chargement du recommandeur...</p></div>
   </ng-container>
 
 </div>

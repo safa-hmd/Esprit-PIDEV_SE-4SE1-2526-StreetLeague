@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TeamService } from 'src/app/services/team.service';
 import { MatchService } from 'src/app/services/match.service';
@@ -385,13 +385,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   // ── Navigation ────────────────────────────────────────────
   goTo(path: string): void { this.router.navigate([path]); }
 
-<<<<<<< HEAD
   // ── Helpers ───────────────────────────────────────────────
   getMatchStatusClass(statut: string): string {
-=======
-  // ── Helpers safaa ───────────────────────────────────────────────
-  getMatchStatusClass(status: string): string {
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
     switch (status) {
       case 'SCHEDULED': return 'badge-scheduled';
       case 'ONGOING':   return 'badge-ongoing';

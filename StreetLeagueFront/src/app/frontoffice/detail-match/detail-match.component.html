@@ -41,7 +41,7 @@
       <div class="md-hero-top">
         <span class="md-section-label">Match details</span>
         <!-- badge utilise getStatusClass() du TS -->
-        <span class="badge" [ngClass]="getStatusClass(match.status)"
+        <span class="badge" [ngClass]="getStatusClass(match.status || '')"
               style="display:inline-flex;align-items:center;gap:5px;
                      font-size:0.72rem;padding:0.25rem 0.7rem;border-radius:99px;">
           <span class="md-dot"></span>

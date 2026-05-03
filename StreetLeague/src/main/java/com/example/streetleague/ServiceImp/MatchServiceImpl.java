@@ -74,14 +74,14 @@ public class MatchServiceImpl implements ImatchService {
             throw new RuntimeException("A team cannot play against itself");
         if (teamA.getSport() == null || !teamA.getSport().equalsIgnoreCase(teamB.getSport()))
             throw new RuntimeException("Both teams must play the same sport to create a match");
-        if (dto.location() == null || dto.location().isBlank())
+        if (dto.getLocation() == null || dto.getLocation().isBlank())
             throw new RuntimeException("Location is required");
-        if (dto.location().length() < 3 || dto.location().length() > 100)
+        if (dto.getLocation().length() < 3 || dto.getLocation().length() > 100)
             throw new RuntimeException("Location must be between 3 and 100 characters");
 
-        if (dto.matchDate() == null)
+        if (dto.getMatchDate() == null)
             throw new RuntimeException("Match date is required");
-        if (dto.matchDate().isBefore(LocalDateTime.now()))
+        if (dto.getMatchDate().isBefore(LocalDateTime.now()))
             throw new RuntimeException("Match date must be in the future");
 
 
@@ -95,8 +95,8 @@ public class MatchServiceImpl implements ImatchService {
             throw new RuntimeException("A pending/accepted match already exists between these teams");
 
         Match m = new Match();
-        m.setMatchDate(dto.matchDate());
-        m.setLocation(dto.location());
+        m.setMatchDate(dto.getMatchDate());
+        m.setLocation(dto.getLocation());
         m.setTeamA(teamA);
         m.setTeamB(teamB);
         m.setCreatedBy(captain);
@@ -109,8 +109,8 @@ public class MatchServiceImpl implements ImatchService {
                 "New Match Scheduled\n%s vs %s\nDate: %s\nLocation: %s\nStatus: PENDING",
                 teamA.getName(),
                 teamB.getName(),
-                dto.matchDate().format(FMT),
-                dto.location()
+                dto.getMatchDate().format(FMT),
+                dto.getLocation()
         );
         notificationService.createNotificationForUsers(collectTargets(teamA, teamB), notifMsg);
 
@@ -121,36 +121,36 @@ public class MatchServiceImpl implements ImatchService {
     @Override
     @Transactional
     public MatchResponse updateMatch(MatchUpdateRequest dto, Long captainId) {
-        Match existing = matchRepository.findById(dto.idMatch())
-                .orElseThrow(() -> new RuntimeException("Match not found: " + dto.idMatch()));
+        Match existing = matchRepository.findById(dto.getIdMatch())
+                .orElseThrow(() -> new RuntimeException("Match not found: " + dto.getIdMatch()));
 
         if (!existing.getCreatedBy().getIdUser().equals(captainId))
             throw new RuntimeException("Only the captain who created this match can edit it");
         if (existing.getStatus() == MatchStatus.FINISHED || existing.getStatus() == MatchStatus.CANCELLED)
             throw new RuntimeException("Cannot edit a finished or cancelled match");
 
-        if (dto.location() != null) {
-            if (dto.location().isBlank())
+        if (dto.getLocation() != null) {
+            if (dto.getLocation().isBlank())
                 throw new RuntimeException("Location cannot be empty");
-            if (dto.location().length() < 3 || dto.location().length() > 100)
+            if (dto.getLocation().length() < 3 || dto.getLocation().length() > 100)
                 throw new RuntimeException("Location must be between 3 and 100 characters");
-            existing.setLocation(dto.location());
+            existing.setLocation(dto.getLocation());
         }
-        if (dto.matchDate() != null) {
-            if (dto.matchDate().isBefore(LocalDateTime.now()))
+        if (dto.getMatchDate() != null) {
+            if (dto.getMatchDate().isBefore(LocalDateTime.now()))
                 throw new RuntimeException("Match date must be in the future");
-            existing.setMatchDate(dto.matchDate());
+            existing.setMatchDate(dto.getMatchDate());
         }
-        if (dto.status() == MatchStatus.FINISHED) {
-            if (dto.scoreTeamA() == null || dto.scoreTeamB() == null)
+        if (dto.getStatus() == MatchStatus.FINISHED) {
+            if (dto.getScoreTeamA() == null || dto.getScoreTeamB() == null)
                 throw new RuntimeException("Scores are required when setting match as FINISHED");
-            if (dto.scoreTeamA() < 0 || dto.scoreTeamB() < 0)
+            if (dto.getScoreTeamA() < 0 || dto.getScoreTeamB() < 0)
                 throw new RuntimeException("Scores cannot be negative");
-            existing.setScoreTeamA(dto.scoreTeamA());
-            existing.setScoreTeamB(dto.scoreTeamB());
+            existing.setScoreTeamA(dto.getScoreTeamA());
+            existing.setScoreTeamB(dto.getScoreTeamB());
         }
-        if (dto.status() != null)
-            existing.setStatus(dto.status());
+        if (dto.getStatus() != null)
+            existing.setStatus(dto.getStatus());
 
         Match saved = matchRepository.save(existing);
 

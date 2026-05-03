@@ -189,26 +189,24 @@ public class ScheduleController {
 
                 events.add(ev);
             }
-        } catch (Exception e) {
-            // Match loading failed — continue with trainings
-        }
-
-        // ── TRAININGS ────────────────────────────────────────────────
         try {
-            List<Training> allTrainings = trainingRepository.findVisibleTrainingsForUserBetween(user, from, to);
+            List<Training> trainings = trainingRepository.findAll().stream()
+                    .filter(t -> t.getTrainingDate() != null
+                            && !t.getTrainingDate().isBefore(from)
+                            && !t.getTrainingDate().isAfter(to))
+                    .filter(t -> isUserInTraining(t, user))
+                    .collect(Collectors.toList());
 
-            for (Training t : allTrainings) {
-                int duration = t.getDurationInMinutes() != null ? t.getDurationInMinutes() : 90;
-
+            for (Training t : trainings) {
                 Map<String, Object> ev = new HashMap<>();
-                ev.put("id",          t.getIdTraining());
+                ev.put("id",               t.getIdTraining());
                 ev.put("type",        "TRAINING");
                 ev.put("title",       t.getTitle() != null ? t.getTitle() : "Training");
                 ev.put("description", t.getDescription() != null ? t.getDescription() : "");
                 ev.put("startTime",   t.getTrainingDate().format(FMT));
-                ev.put("endTime",     t.getTrainingDate().plusMinutes(duration).format(FMT));
+                ev.put("endTime",     t.getTrainingDate().plusMinutes(60).format(FMT));
                 ev.put("location",    t.getLocation() != null ? t.getLocation() : "");
-                ev.put("status",      t.getStatus() != null ? t.getStatus().name() : "PLANNED");
+                ev.put("status",      t.getStatus() != null ? t.getStatus().toString() : "PLANNED");
                 ev.put("color",       "#3498db");
                 ev.put("hasConflict", false);
                 ev.put("teamName",    t.getTeam() != null ? t.getTeam().getName() : "");
@@ -222,6 +220,9 @@ public class ScheduleController {
             }
         } catch (Exception e) {
             // Training loading failed
+        }
+        } catch (Exception e) {
+            // Match loading failed
         }
 
         // Sort by start time
@@ -273,6 +274,13 @@ public class ScheduleController {
         String a = m.getTeamA() != null ? m.getTeamA().getName() : "?";
         String b = m.getTeamB() != null ? m.getTeamB().getName() : "?";
         return a + " vs " + b;
+    }
+
+    private boolean isUserInTraining(Training t, User user) {
+        if (t.getCoach() != null && t.getCoach().equals(user)) return true;
+        if (t.getTeam() != null && t.getTeam().getPlayers() != null
+                && t.getTeam().getPlayers().contains(user)) return true;
+        return false;
     }
 
     /**

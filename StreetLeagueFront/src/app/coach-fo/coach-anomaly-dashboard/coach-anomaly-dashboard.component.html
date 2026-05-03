@@ -78,15 +78,15 @@
 
       <!-- Liste anomalies -->
       <div class="player-list">
-        <div class="pcard" [ngClass]="player.anomalySeverity" *ngFor="let player of filteredAlerts">
+        <div class="pcard" [class]="player.anomalySeverity" *ngFor="let player of filteredAlerts">
           <div class="pcard-top">
-            <div class="avatar" [ngClass]="player.anomalySeverity">
+            <div class="avatar" [class]="player.anomalySeverity">
               {{ player.playerName.charAt(0) }}
             </div>
             <div>
               <div class="pname">{{ player.playerName }}</div>
-              <div class="sev-badge" [ngClass]="player.anomalySeverity">
-                <div class="sev-dot" [ngClass]="player.anomalySeverity"></div>
+              <div class="sev-badge" [class]="player.anomalySeverity">
+                <div class="sev-dot" [class]="player.anomalySeverity"></div>
                 {{ player.anomalySeverity }}
               </div>
             </div>
@@ -161,7 +161,7 @@
       </div>
 
       <div class="acwr-table">
-        <div class="acwr-row-item" [ngClass]="player.acwrZone" *ngFor="let player of acwrRanking">
+        <div class="acwr-row-item" [class]="player.acwrZone" *ngFor="let player of acwrRanking">
           <div class="player-cell">
             <div class="avatar-sm">{{ player.playerName.charAt(0) }}</div>
             <span class="player-cell-name">{{ player.playerName }}</span>
@@ -177,7 +177,7 @@
             </div>
           </div>
           <span>
-            <div class="zone-pill" [ngClass]="player.acwrZone">{{ player.acwrZone }}</div>
+            <div class="zone-pill" [class]="player.acwrZone">{{ player.acwrZone }}</div>
           </span>
           <span class="muted">{{ player.acuteLoad ?? '–' }}</span>
           <span class="muted">{{ player.chronicLoad ?? '–' }}</span>

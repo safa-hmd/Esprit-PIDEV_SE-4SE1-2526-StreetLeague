@@ -35,7 +35,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   readonly DAY_NAMES = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
   // ── Modal ──────────────────────────────────────────────
-  selectedEvent: ScheduleEvent | null = null;
+  selectedEvent!: ScheduleEvent;
   showModal = false;
   mapUrl: SafeResourceUrl | null = null;
 
@@ -133,8 +133,18 @@ export class ScheduleComponent implements OnInit, OnDestroy {
 
   closeModal(): void {
     this.showModal    = false;
-    this.selectedEvent = null;
+    this.selectedEvent = {} as ScheduleEvent;
     this.mapUrl       = null;
+  }
+
+  formatTitleCase(str: string): string {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
+
+  truncateTitle(str: string): string {
+    if (!str) return '';
+    return str.length > 14 ? str.slice(0, 14) : str;
   }
 
   getEventDirections(ev: ScheduleEvent): string {

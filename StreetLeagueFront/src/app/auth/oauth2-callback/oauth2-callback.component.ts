@@ -24,13 +24,10 @@ export class OAuth2CallbackComponent implements OnInit {
       const id    = params['id'];
 
       if (token) {
-        // Sauvegarder exactement comme le login normal
         localStorage.setItem('TokenUserConnect', token);
         localStorage.setItem('EmailUserConnect', email);
         localStorage.setItem('RoleUserConnect',  role);
         localStorage.setItem('UserIdConnect',    id);
-
-        // Rediriger selon le rôle
         this.redirectByRole(role);
       } else {
         this.router.navigateByUrl('/login');
@@ -42,19 +39,8 @@ export class OAuth2CallbackComponent implements OnInit {
     switch (role) {
       case 'ROLE_ADMIN':    this.router.navigateByUrl('/admin');  break;
       case 'ROLE_COACH':    this.router.navigateByUrl('/coach');  break;
+      case 'ROLE_SPONSOR':  this.router.navigateByUrl('/sponsor'); break;
       default:              this.router.navigateByUrl('/client'); break;
     }
-<<<<<<< HEAD
-    if (r === 'ROLE_COACH') {
-      this.router.navigateByUrl('/coach');
-      return;
-    }
-    if (r === 'ROLE_SPONSOR') {
-      this.router.navigateByUrl('/sponsor');
-      return;
-    }
-    this.router.navigateByUrl('/client');
-=======
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
   }
 }

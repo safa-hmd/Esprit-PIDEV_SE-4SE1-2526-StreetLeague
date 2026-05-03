@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { RegisterComponent } from './register.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -243,11 +243,7 @@ describe('RegisterComponent', () => {
     expect(component.isLoading).toBeFalse();
   });
 
-<<<<<<< HEAD
   it('onSubmitTest — should navigate to /login after 1500ms on success (no-admin)', fakeAsync(() => {
-=======
-  it('onSubmitTest — should navigate to /login after 1500ms on success', fakeAsync(() => {
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
     authServiceSpy.register.and.returnValue(of({} as any));
     const navigateSpy = spyOn(router, 'navigate');
     component.registerForm.setValue({

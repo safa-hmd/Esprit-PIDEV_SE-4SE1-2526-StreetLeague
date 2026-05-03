@@ -80,8 +80,9 @@ export class PlayerProfileComponent implements OnInit {
             this.loadStreakData();
 
             const myMatches   = allMatches.filter(m =>
-              myTeamNames.has(m.teamAName) || myTeamNames.has(m.teamBName) ||
-              m.captainAEmail === email    || m.captainBEmail === email
+              myTeamNames.has(m.teamAName || '') || myTeamNames.has(m.teamBName || '') ||
+              (m.captainAEmail?.toLowerCase() === email) ||
+              (m.captainBEmail?.toLowerCase() === email)
             );
             const myTrainings = allTrainings.filter(t => myTeamNames.has(t.teamName));
 

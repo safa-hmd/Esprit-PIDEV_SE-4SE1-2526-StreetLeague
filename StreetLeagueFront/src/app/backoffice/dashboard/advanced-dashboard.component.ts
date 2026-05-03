@@ -151,7 +151,7 @@ export class AdvancedDashboardComponent implements OnInit, AfterViewInit {
     if (this.sponsorRadarChart) this.sponsorRadarChart.destroy();
 
     const ctx = this.sponsorRadarChartRef.nativeElement.getContext('2d');
-    const topSponsors = this.comparaisonSponsors.slice(0, 5); // Prendre les 5 premiers pour la lisibilité
+    const topSponsors = this.comparaisonSponsors.slice(0, 5);
     
     const labels = topSponsors.map(s => s.sponsorNom);
     const contractsData = topSponsors.map(s => s.totalContrats);
@@ -184,7 +184,13 @@ export class AdvancedDashboardComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  formatDate(dateStr: string | undefined): string {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
 }
+
 
 
 

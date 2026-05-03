@@ -362,9 +362,9 @@
         <!-- Team A -->
         <div class="form-group" style="margin-bottom:0.5rem;">
           <label class="form-label">Team A *</label>
-          <select class="form-control" [(ngModel)]="teamAId"
+          <select class="form-control" [ngModel]="teamAId"
                   [ngModelOptions]="{standalone: true}"
-                  (change)="onTeamAChange()">
+                  (ngModelChange)="teamAId = +$event; onTeamAChange()">
             <option [value]="0" disabled>Select Team A</option>
             <option *ngFor="let team of myTeams" [value]="team.idTeam">{{ team.name }}</option>
           </select>
@@ -378,9 +378,9 @@
         <!-- Team B -->
         <div class="form-group" style="margin-bottom:0.5rem;">
           <label class="form-label">Team B *</label>
-          <select class="form-control" [(ngModel)]="teamBId"
+          <select class="form-control" [ngModel]="teamBId"
                   [ngModelOptions]="{standalone: true}"
-                  (change)="onTeamBChange()">
+                  (ngModelChange)="teamBId = +$event; onTeamBChange()">
             <option [value]="0" disabled>Select Team B</option>
             <option *ngFor="let team of availableTeamsB" [value]="team.idTeam">{{ team.name }}</option>
           </select>

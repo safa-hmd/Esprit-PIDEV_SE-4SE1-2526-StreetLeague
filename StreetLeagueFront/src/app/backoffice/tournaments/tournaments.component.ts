@@ -1,4 +1,4 @@
-// src/app/backoffice/tournaments/tournament.component.ts
+﻿// src/app/backoffice/tournaments/tournament.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -104,13 +104,8 @@ export class TournamentComponent implements OnInit, OnDestroy {
       endDate:              ['',           Validators.required],
       registrationDeadline: ['',           Validators.required],
       maxParticipants:      [8, [Validators.required, Validators.min(2)]],
-<<<<<<< HEAD
       lieu:             ['',           Validators.required],
       prizePool:            [null],
-=======
-      fieldId: [null, Validators.required],
-      prizePool:            [0],
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
     });
   }
 
@@ -311,13 +306,7 @@ export class TournamentComponent implements OnInit, OnDestroy {
     return 'progress-low';
   }
 
-<<<<<<< HEAD
 }
 
 
 
-=======
-  
-
-}
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5

@@ -1,20 +1,20 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AdminGuard } from './guards/admin.guard';
-<<<<<<< HEAD
 import { AuthGuard } from './guards/auth.guard';
-=======
-import { CoachGuard } from './guards/coach.guard';
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
 import { NoAuthGuard } from './guards/no-auth.guard';
 import { SponsorGuard } from './guards/sponsor.guard';
 import { NotFoundComponent } from './shared/not-found/not-found.component';
+import { OAuth2CallbackComponent } from './auth/oauth2-callback/oauth2-callback.component';
+import { SelectRoleComponent } from './auth/select-role/select-role.component';
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
+import { AdminLoginComponent } from './auth/admin-login/admin-login.component';
+import { PlayerGuard } from './guards/player.guard';
 
 const routes: Routes = [
   // ── Front office (joueurs) ──────────────────────────────
   {
-<<<<<<< HEAD
-=======
     path: 'client',
     canActivate: [PlayerGuard],
     loadChildren: () => import('./frontoffice/frontoffice.module')
@@ -23,7 +23,6 @@ const routes: Routes = [
 
   // ── Back office (admin) ─────────────────────────────────
   {
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
     path: 'admin',
     canActivate: [AdminGuard],
     loadChildren: () => import('./backoffice/backoffice.module')
@@ -32,33 +31,22 @@ const routes: Routes = [
 
   // ── Coach ───────────────────────────────────────────────
   {
-<<<<<<< HEAD
+    path: 'coach',
+    //canActivate: [CoachGuard], // Uncomment when CoachGuard exists
+    loadChildren: () => import('./coach-fo/coach-fo.module')
+      .then(m => m.CoachFOModule)
+  },
+
+  // ── Sponsor ─────────────────────────────────────────────
+  {
     path: 'sponsor',
     canActivate: [SponsorGuard],
     loadChildren: () => import('./sponsor-fo/sponsor-fo.module')
       .then(m => m.SponsorFOModule)
-=======
-    path: 'coach',
-    canActivate: [CoachGuard],
-    loadChildren: () => import('./coach-fo/coach-fo.module')
-      .then(m => m.CoachFOModule)
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
   },
 
   // ── Delivery ────────────────────────────────────────────
   {
-<<<<<<< HEAD
-    path: 'client',
-    canActivate: [AuthGuard],
-    loadChildren: () => import('./frontoffice/frontoffice.module')
-      .then(m => m.FrontofficeModule)
-  },
-  {
-    path: '',
-    canActivate: [NoAuthGuard],
-    loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule)
-  },
-=======
     path: 'delivery',
     loadChildren: () => import('./delivery-fo/delivery-fo.module')
       .then(m => m.DeliveryFoModule)
@@ -88,7 +76,6 @@ const routes: Routes = [
   },
 
   // ── 404 ─────────────────────────────────────────────────
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
   { path: '**', component: NotFoundComponent }
 ];
 

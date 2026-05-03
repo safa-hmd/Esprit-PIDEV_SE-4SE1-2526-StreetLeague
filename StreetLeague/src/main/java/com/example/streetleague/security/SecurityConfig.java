@@ -78,15 +78,11 @@ public class SecurityConfig {
                                 "/api/contrat", "/api/contrat/**",
                                 "/api/contrat-sponsor", "/api/contrat-sponsor/**"
                         ).permitAll()
-<<<<<<< HEAD
                         // Ajout des endpoints de test pour sponsoring stats et recherche
                         .requestMatchers("/api/sponsoring/test/**").permitAll()
                         // Aligné sur StreetLeagueApp (demo RBAC + APIs sponsor)
                         .requestMatchers("/student/**").hasRole("STUDENT")
                         .requestMatchers("/teacher/**").hasRole("TEACHER")
-=======
-
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
                         // Front /client (PLAYER, COACH, etc.) : CRUD API métier avec JWT valide
                         .requestMatchers(HttpMethod.PATCH, "/api/sponsor/*/status").hasRole("ADMIN")
                         .requestMatchers("/api/sponsor/**").authenticated()
@@ -185,20 +181,8 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
 
-        config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:4201"));
-<<<<<<< HEAD
+        config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:4201", "http://localhost:59619"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-=======
-
-
-        // Autoriser uniquement le frontend Angular
-        config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:59619"));
-
-        // Méthodes HTTP autorisées (OPTIONS obligatoire pour les requêtes CORS preflight)
-
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE" ,"PATCH","OPTIONS"));
-
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

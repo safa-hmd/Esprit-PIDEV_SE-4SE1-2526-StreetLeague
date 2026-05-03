@@ -137,16 +137,7 @@
             <version>2.5.0</version>
         </dependency>
 
-<<<<<<< HEAD
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-
-        <!-- Tests -->
-=======
-        <!-- ── Tests ─────────────────────────────────────── -->
->>>>>>> d97c24f7ac7e148ae108ca34ae4d7f2e7dd375a5
+<!-- ── Tests ─────────────────────────────────────── -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
