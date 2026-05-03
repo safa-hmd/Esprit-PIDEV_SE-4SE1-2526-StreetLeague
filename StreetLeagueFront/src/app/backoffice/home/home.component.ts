@@ -1,21 +1,16 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TeamService } from 'src/app/services/team.service';
 import { MatchService } from 'src/app/services/match.service';
 import { TrainingService } from 'src/app/services/training.service';
+import { DashboardService } from 'src/app/services/dashboard.service';
 import { Team } from 'src/app/models/team.model';
 import { MatchResponse } from 'src/app/models/match.model';
 import { TrainingResponse } from 'src/app/models/training.model';
 import {
-  FinancialSummary,
-  RevenueByField,
-  RevenueBySport,
-  RevenueByMonth,
-  TopPlayer
+  FinancialSummary, RevenueByField,
+  RevenueBySport, RevenueByMonth, TopPlayer
 } from 'src/app/models/dashboard.model';
-import { DashboardService } from 'src/app/services/dashboard.service';
-
-
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -27,50 +22,47 @@ Chart.register(...registerables);
 })
 export class HomeComponent implements OnInit, AfterViewInit {
 
-  //── ViewChild safa ────────────────────────────────────
+  // ViewChild — Safa
   @ViewChild('matchStatusChart') matchStatusRef!: ElementRef;
   @ViewChild('trainingStatusChart') trainingStatusRef!: ElementRef;
   @ViewChild('sportChart') sportChartRef!: ElementRef;
   @ViewChild('playerChart') playerChartRef!: ElementRef;
 
-    // ── ViewChild Sara ────────────────────────────────────────
+  // ViewChild — Sara
   @ViewChild('revenueByFieldChart') revenueByFieldRef!: ElementRef;
   @ViewChild('revenueBySportChart') revenueBySportRef!: ElementRef;
   @ViewChild('revenueByDayChart') revenueByMonthRef!: ElementRef;
 
-  // ── Stats safa─────────────────────────────────────────────────
+  // Stats — Safa
   totalTeams     = 0;
   totalMatches   = 0;
   totalTrainings = 0;
   totalPlayers   = 0;
 
-    // ── Stats Sara ────────────────────────────────────────────
+  // Stats — Sara
   financialSummary: FinancialSummary = {
-    totalRevenue: 0,
-    totalPayments: 0,
-    totalRefunds: 0,
-    pendingCount: 0
+    totalRevenue: 0, totalPayments: 0,
+    totalRefunds: 0, pendingCount: 0
   };
-  revenueByField:  RevenueByField[]  = [];
-  revenueBySport:  RevenueBySport[]  = [];
-  revenueByMonth:  RevenueByMonth[]  = [];
-  topPlayers:      TopPlayer[]       = [];
+  revenueByField: RevenueByField[] = [];
+  revenueBySport: RevenueBySport[] = [];
+  revenueByMonth: RevenueByMonth[] = [];
+  topPlayers:     TopPlayer[]      = [];
 
-  // ── Recent Data ───────────────────────────────────────────
+  // Recent Data
   recentMatches:   MatchResponse[]    = [];
   recentTrainings: TrainingResponse[] = [];
   topTeams:        Team[]             = [];
 
-  // ── Raw data for charts ───────────────────────────────────
+  // Raw data for charts
   private allMatches:   MatchResponse[]    = [];
   private allTrainings: TrainingResponse[] = [];
   private allTeams:     Team[]             = [];
 
-  // ── Loading ───────────────────────────────────────────────
+  // Loading flags
   isLoadingTeams     = false;
   isLoadingMatches   = false;
   isLoadingTrainings = false;
-  isLoadingDashboard  = false;
 
   dataReady = false;
   adminName = '';
@@ -92,12 +84,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {}
 
-  // ── Load All Data ─────────────────────────────────────────
   loadAllData(): void {
     this.isLoadingTeams = true;
     this.isLoadingMatches = true;
     this.isLoadingTrainings = true;
-    this.isLoadingDashboard = true;
 
     this.teamService.getAllTeams().subscribe({
       next: (data) => {
@@ -132,36 +122,28 @@ export class HomeComponent implements OnInit, AfterViewInit {
       },
       error: () => { this.isLoadingTrainings = false; this.checkReady(); }
     });
-        // ── Dashboard financier ───────────────────────────────
+
+    // Financial data — Sara
     this.dashboardService.getSummary().subscribe({
       next: (data) => { this.financialSummary = data; },
       error: () => {}
     });
-        this.dashboardService.getRevenueByField().subscribe({
+    this.dashboardService.getRevenueByField().subscribe({
       next: (data) => { this.revenueByField = data; },
       error: () => {}
     });
-
     this.dashboardService.getRevenueBySport().subscribe({
       next: (data) => { this.revenueBySport = data; },
       error: () => {}
     });
-
     this.dashboardService.getRevenueByMonth().subscribe({
       next: (data) => { this.revenueByMonth = data; },
       error: () => {}
     });
-
     this.dashboardService.getTopPlayers().subscribe({
-      next: (data) => {
-        this.topPlayers = data;
-        this.isLoadingDashboard = false;
-        this.checkReady();
-      },
-      error: () => { this.isLoadingDashboard = false; this.checkReady(); }
+      next: (data) => { this.topPlayers = data; },
+      error: () => {}
     });
-
-    
   }
 
   private checkReady(): void {
@@ -171,22 +153,18 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // ── Build All Charts ──────────────────────────────────────
   private buildCharts(): void {
     this.charts.forEach(c => c.destroy());
     this.charts = [];
-    //safa
     this.buildMatchStatusChart();
     this.buildTrainingStatusChart();
     this.buildSportChart();
     this.buildPlayerChart();
-        // Sara
     this.buildRevenueByFieldChart();
     this.buildRevenueBySportChart();
     this.buildRevenueByMonthChart();
   }
 
-    // ── Charts safaa ───────────────────────────
   private buildMatchStatusChart(): void {
     const counts = {
       SCHEDULED: this.allMatches.filter(m => m.status === 'SCHEDULED').length,
@@ -200,19 +178,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
       type: 'doughnut',
       data: {
         labels: ['Scheduled', 'Ongoing', 'Finished', 'Cancelled'],
-        datasets: [{
-          data: Object.values(counts),
+        datasets: [{ data: Object.values(counts),
           backgroundColor: ['#4e8a9f', '#e87040', '#4ade80', '#f87171'],
-          borderWidth: 0,
-        }]
+          borderWidth: 0 }]
       },
-      options: {
-        responsive: true,
-        cutout: '70%',
-        plugins: {
-          legend: { position: 'bottom', labels: { color: '#aaa', font: { size: 11 } } }
-        }
-      }
+      options: { responsive: true, cutout: '70%',
+        plugins: { legend: { position: 'bottom', labels: { color: '#aaa', font: { size: 11 } } } } }
     }));
   }
 
@@ -228,22 +199,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
       type: 'bar',
       data: {
         labels: ['Planned', 'Completed', 'Cancelled'],
-        datasets: [{
-          label: 'Sessions',
-          data: Object.values(counts),
+        datasets: [{ label: 'Sessions', data: Object.values(counts),
           backgroundColor: ['#4e8a9f', '#4ade80', '#f87171'],
-          borderRadius: 8,
-          borderSkipped: false,
-        }]
+          borderRadius: 8, borderSkipped: false }]
       },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
+      options: { responsive: true, plugins: { legend: { display: false } },
         scales: {
           x: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' } },
           y: { ticks: { color: '#aaa', stepSize: 1 }, grid: { color: '#2a2a2a' }, beginAtZero: true }
-        }
-      }
+        } }
     }));
   }
 
@@ -260,18 +224,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
       type: 'pie',
       data: {
         labels: Object.keys(sportMap),
-        datasets: [{
-          data: Object.values(sportMap),
-          backgroundColor: colors.slice(0, Object.keys(sportMap).length),
-          borderWidth: 0,
-        }]
+        datasets: [{ data: Object.values(sportMap),
+          backgroundColor: colors.slice(0, Object.keys(sportMap).length), borderWidth: 0 }]
       },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom', labels: { color: '#aaa', font: { size: 11 } } }
-        }
-      }
+      options: { responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { color: '#aaa', font: { size: 11 } } } } }
     }));
   }
 
@@ -285,53 +242,36 @@ export class HomeComponent implements OnInit, AfterViewInit {
       type: 'bar',
       data: {
         labels: top.map(t => t.name),
-        datasets: [{
-          label: 'Players',
-          data: top.map(t => t.playerCount || 0),
-          backgroundColor: '#4e8a9f',
-          borderRadius: 8,
-          borderSkipped: false,
-        }]
+        datasets: [{ label: 'Players', data: top.map(t => t.playerCount || 0),
+          backgroundColor: '#4e8a9f', borderRadius: 8, borderSkipped: false }]
       },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        plugins: { legend: { display: false } },
+      options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } },
         scales: {
           x: { ticks: { color: '#aaa', stepSize: 1 }, grid: { color: '#2a2a2a' }, beginAtZero: true },
           y: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' } }
-        }
-      }
+        } }
     }));
   }
 
-    // ── Charts Sara ───────────────────────────────────────────
   private buildRevenueByFieldChart(): void {
-  const ctx = this.revenueByFieldRef?.nativeElement;
-  if (!ctx) return;
-  const colors = ['#e63946', '#4e8a9f', '#4ade80', '#fbbf24', '#c2748a', '#e87040'];
-  this.charts.push(new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: this.revenueByField.map(r => r.fieldName),
-      datasets: [{
-        label: 'Revenue (TND)',
-        data: this.revenueByField.map(r => r.revenue),
-        backgroundColor: this.revenueByField.map((_, i) => colors[i % colors.length]),
-        borderRadius: 8,
-        borderSkipped: false
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' } },
-        y: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' }, beginAtZero: true }
-      }
-    }
-  }));
-}
+    const ctx = this.revenueByFieldRef?.nativeElement;
+    if (!ctx) return;
+    const colors = ['#e63946','#4e8a9f','#4ade80','#fbbf24','#c2748a','#e87040'];
+    this.charts.push(new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: this.revenueByField.map(r => r.fieldName),
+        datasets: [{ label: 'Revenue (TND)', data: this.revenueByField.map(r => r.revenue),
+          backgroundColor: this.revenueByField.map((_, i) => colors[i % colors.length]),
+          borderRadius: 8, borderSkipped: false }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' } },
+          y: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' }, beginAtZero: true }
+        } }
+    }));
+  }
 
   private buildRevenueBySportChart(): void {
     const ctx = this.revenueBySportRef?.nativeElement;
@@ -341,16 +281,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
       type: 'pie',
       data: {
         labels: this.revenueBySport.map(r => r.sportType),
-        datasets: [{
-          data: this.revenueBySport.map(r => r.revenue),
-          backgroundColor: colors.slice(0, this.revenueBySport.length),
-          borderWidth: 0
-        }]
+        datasets: [{ data: this.revenueBySport.map(r => r.revenue),
+          backgroundColor: colors.slice(0, this.revenueBySport.length), borderWidth: 0 }]
       },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'bottom', labels: { color: '#aaa', font: { size: 11 } } } }
-      }
+      options: { responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { color: '#aaa', font: { size: 11 } } } } }
     }));
   }
 
@@ -360,32 +295,21 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.charts.push(new Chart(ctx, {
       type: 'line',
       data: {
-        labels: this.revenueByMonth.map(r => r.month),  // ← déjà "2026-04-21" après fix backend
-        datasets: [{
-          label: 'Revenue by Day (TND)',  // ✅ changer le label
-          data: this.revenueByMonth.map(r => r.revenue),
-          borderColor: '#e63946',
-          backgroundColor: 'rgba(230,57,70,0.1)',
-          pointBackgroundColor: '#e63946',
-          tension: 0.4,
-          fill: true
-        }]
+        labels: this.revenueByMonth.map(r => r.month),
+        datasets: [{ label: 'Revenue by Day (TND)', data: this.revenueByMonth.map(r => r.revenue),
+          borderColor: '#e63946', backgroundColor: 'rgba(230,57,70,0.1)',
+          pointBackgroundColor: '#e63946', tension: 0.4, fill: true }]
       },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
+      options: { responsive: true, plugins: { legend: { display: false } },
         scales: {
           x: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' } },
           y: { ticks: { color: '#aaa' }, grid: { color: '#2a2a2a' }, beginAtZero: true }
-        }
-      }
+        } }
     }));
   }
 
-  // ── Navigation ────────────────────────────────────────────
   goTo(path: string): void { this.router.navigate([path]); }
 
-  // ── Helpers safaa ───────────────────────────────────────────────
   getMatchStatusClass(status: string): string {
     switch (status) {
       case 'SCHEDULED': return 'badge-scheduled';

@@ -11,6 +11,38 @@ export interface WaterReminderResponse {
   userEmail: string;
 }
 
+export interface UserHealthData {
+  userId: number;
+  fullName: string;
+  email: string;
+  weight: number;
+  height: number;
+  bmi: number;
+  lastUpdated: string;
+}
+
+export interface UserGoal {
+  id: number;
+  goalType: string;
+  targetValue: number;
+  achieved: boolean;
+}
+
+export interface UserBadgeResponse {
+  id: number;
+  userId: number;
+  badgeType: string;
+  description: string;
+  earnedDate: string;
+}
+
+export interface WaterLogResponse {
+  date: string;
+  totalMl: number;
+  goalMl: number;
+  goalReached: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class HealthDashboardService {
   private apiUrl = 'http://localhost:8086/StreetLeague';
@@ -19,5 +51,21 @@ export class HealthDashboardService {
 
   getAllReminders(): Observable<WaterReminderResponse[]> {
     return this.http.get<WaterReminderResponse[]>(`${this.apiUrl}/waterReminder/getAll`);
+  }
+
+  getAllUsersHealth(): Observable<UserHealthData[]> {
+    return this.http.get<UserHealthData[]>(`${this.apiUrl}/health/all`);
+  }
+
+  getUserGoals(userId: number): Observable<UserGoal[]> {
+    return this.http.get<UserGoal[]>(`${this.apiUrl}/health/goal/${userId}`);
+  }
+
+  getUserBadges(userId: number): Observable<UserBadgeResponse[]> {
+    return this.http.get<UserBadgeResponse[]>(`${this.apiUrl}/health/badges/${userId}`);
+  }
+
+  getWaterLogs(userId: number): Observable<WaterLogResponse[]> {
+    return this.http.get<WaterLogResponse[]>(`${this.apiUrl}/health/water-logs/${userId}`);
   }
 }

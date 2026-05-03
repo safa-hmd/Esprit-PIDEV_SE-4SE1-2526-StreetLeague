@@ -1,87 +1,55 @@
-
 <nav class="navbar">
   <div class="navbar-inner">
 
     <!-- Logo -->
-    <a routerLink="/home" class="navbar-logo">
+    <a routerLink="/client/home" class="navbar-logo">
       <div class="navbar-logo-icon">
-        <svg viewBox="0 0 24 24" fill="white">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
           <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
         </svg>
       </div>
       <span class="navbar-logo-text">Street<span>League</span></span>
     </a>
 
-
-    <div class="navbar-divider"></div>
-
-    <!-- Nav Links — grouped by category -->
+    <!-- Nav Links -->
     <div class="navbar-links" [class.open]="menuOpen">
-
-
-      <!-- Group 1: Core -->
-      <div class="link-group">
-        <a routerLink="home"          routerLinkActive="active" class="nav-link">Home</a>
-        <a routerLink="team"          routerLinkActive="active" class="nav-link">Teams</a>
-        <a routerLink="match-history" routerLinkActive="active" class="nav-link">Matches</a>
-        <a routerLink="training"      routerLinkActive="active" class="nav-link">Training</a>
-      </div>
-      <div class="link-group-sep"></div>
-
-      <!-- Group 3: Competition -->
-      <div class="link-group">
-        <a routerLink="schedule"              routerLinkActive="active" class="nav-link">Schedule</a>
-        <a routerLink="tournaments"           routerLinkActive="active" class="nav-link">Tournaments</a>
-        <a routerLink="/client/matchmaking"   routerLinkActive="active" class="nav-link">Find Opponent</a>
-      </div>
-
-      <div class="link-group-sep"></div>
-
-      <!-- Group 4: Places & Community -->
-      <div class="link-group">
-        <a routerLink="field-reservation"    routerLinkActive="active" class="nav-link">Fields</a>
-        <a routerLink="community" routerLinkActive="active" class="nav-link">Community</a>
-        <a routerLink="news"      routerLinkActive="active" class="nav-link">News</a>
-      </div>
-
-      <div class="link-group-sep"></div>
-
-      <!-- Group 5: Extras -->
-      <div class="link-group link-group--extras">
-        <a routerLink="shop"          routerLinkActive="active" class="nav-link">Shop</a>
-        <a routerLink="health"        routerLinkActive="active" class="nav-link">Health</a>
-        <a routerLink="transport"     routerLinkActive="active" class="nav-link">Transport</a>
-        <a routerLink="accommodation" routerLinkActive="active" class="nav-link">Stay</a>
-      </div>
-
-
+      <a routerLink="home"              routerLinkActive="active" class="nav-link">Home</a>
+      <a routerLink="team"              routerLinkActive="active" class="nav-link">Teams</a>
+      <a routerLink="match-history"     routerLinkActive="active" class="nav-link">Matches</a>
+      <a routerLink="training"          routerLinkActive="active" class="nav-link">Training</a>
+      <a routerLink="schedule"          routerLinkActive="active" class="nav-link">Schedule</a>
+      <a routerLink="tournaments"       routerLinkActive="active" class="nav-link">Tournaments</a>
+      <a routerLink="/client/matchmaking" routerLinkActive="active" class="nav-link">Find Opponent</a>
+      <a routerLink="field-reservation" routerLinkActive="active" class="nav-link">Fields</a>
+      <a routerLink="communaute"        routerLinkActive="active" class="nav-link">Community</a>
+      <a routerLink="evenement"         routerLinkActive="active" class="nav-link">Events</a>
+      <a routerLink="news"              routerLinkActive="active" class="nav-link">News</a>
+      <a routerLink="ml-segmentation"   routerLinkActive="active" class="nav-link">ML Profile</a>
+      <a routerLink="shop"              routerLinkActive="active" class="nav-link">Shop</a>
+      <a routerLink="health"            routerLinkActive="active" class="nav-link">Health</a>
     </div>
 
     <!-- Actions -->
     <div class="navbar-actions">
 
-      <!-- NOTIFICATIONS -->
+      <!-- NOTIFICATION BELL -->
       <div class="notif-menu" [class.open]="notifOpen">
-        <div class="notif-trigger" (click)="toggleNotif()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button class="notif-trigger" (click)="toggleNotif()" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
           </svg>
           <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
-        </div>
+        </button>
 
         <div class="notif-dropdown" (click)="$event.stopPropagation()">
           <div class="notif-header">
             <span>Notifications</span>
-            <button *ngIf="unreadCount > 0" class="mark-all-btn" (click)="markAllAsRead()">
-              Mark all as read
-            </button>
+            <button *ngIf="unreadCount > 0" class="mark-all-btn" (click)="markAllAsRead()">Mark all read</button>
           </div>
           <div class="notif-filters">
-            <button class="notif-filter-btn" [class.active]="activeFilter === 'all'"     (click)="setFilter('all')">All</button>
-            <button class="notif-filter-btn" [class.active]="activeFilter === 'unread'"  (click)="setFilter('unread')">
-              Unread <span class="tab-count" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
-            </button>
+            <button class="notif-filter-btn" [class.active]="activeFilter === 'all'"      (click)="setFilter('all')">All</button>
+            <button class="notif-filter-btn" [class.active]="activeFilter === 'unread'"   (click)="setFilter('unread')">Unread <span class="tab-count" *ngIf="unreadCount > 0">{{ unreadCount }}</span></button>
             <button class="notif-filter-btn" [class.active]="activeFilter === 'reminder'" (click)="setFilter('reminder')">Reminders</button>
             <button class="notif-filter-btn" [class.active]="activeFilter === 'closed'"   (click)="setFilter('closed')">Results</button>
           </div>
@@ -93,22 +61,22 @@
               <div class="notif-type-icon"
                    [style.background]="notifAccent(detectNotifType(n.message)) + '18'"
                    [style.color]="notifAccent(detectNotifType(n.message))">
-                <svg *ngIf="notifIcon(detectNotifType(n.message)) === 'calendar'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg *ngIf="notifIcon(detectNotifType(n.message)) === 'calendar'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
                   <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                 </svg>
-                <svg *ngIf="notifIcon(detectNotifType(n.message)) === 'clock'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg *ngIf="notifIcon(detectNotifType(n.message)) === 'clock'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
-                <svg *ngIf="notifIcon(detectNotifType(n.message)) === 'alert'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg *ngIf="notifIcon(detectNotifType(n.message)) === 'alert'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
                   <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
-                <svg *ngIf="notifIcon(detectNotifType(n.message)) === 'flag'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg *ngIf="notifIcon(detectNotifType(n.message)) === 'flag'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
                   <line x1="4" y1="22" x2="4" y2="15"/>
                 </svg>
-                <svg *ngIf="notifIcon(detectNotifType(n.message)) === 'bell'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg *ngIf="notifIcon(detectNotifType(n.message)) === 'bell'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                   <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                 </svg>
@@ -119,7 +87,7 @@
               </div>
               <div class="notif-unread-dot" *ngIf="!n.isRead"></div>
               <button class="notif-delete-btn" (click)="deleteNotification(n, $event)" title="Delete">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"/>
                   <path d="M19 6l-1 14H6L5 6"/>
                   <path d="M10 11v6"/><path d="M14 11v6"/>
@@ -139,7 +107,7 @@
             <span class="account-name">{{ userName }}</span>
             <span class="account-role">{{ userRole }}</span>
           </div>
-          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M6 9l6 6 6-6"/>
           </svg>
         </div>
@@ -147,15 +115,14 @@
         <div class="account-dropdown" (click)="$event.stopPropagation()">
           <hr class="dropdown-divider"/>
           <a routerLink="profile" class="dropdown-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
             </svg>
             My Profile
           </a>
-
           <hr class="dropdown-divider"/>
           <button class="dropdown-item logout" (click)="logout()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
               <polyline points="16 17 21 12 16 7"/>
               <line x1="21" y1="12" x2="9" y2="12"/>
@@ -167,10 +134,11 @@
 
       <!-- Mobile Menu Button -->
       <button class="navbar-mobile-btn" (click)="toggleMenu()">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
 
     </div>
   </div>
+</nav>

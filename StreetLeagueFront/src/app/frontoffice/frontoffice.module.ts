@@ -1,26 +1,25 @@
-
 import { LOCALE_ID, NgModule } from '@angular/core';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
 import localeFr from '@angular/common/locales/fr';
 
 import { FrontofficeRoutingModule } from './frontoffice-routing.module';
 import { FrontofficeComponent } from './frontoffice.component';
+import { NavbarComponent } from './navbar/navbar.component';
+import { FooterComponent } from './footer/footer.component';
+import { HomeComponent } from './home/home.component';
 
 import { ShopListComponent } from './shop/shop-list/shop-list.component';
 import { CartComponent } from './shop/cart/cart.component';
-import { NavbarComponent } from './navbar/navbar.component';
-import { FooterComponent } from './footer/footer.component';
 import { TeamComponent } from './team/team.component';
 import { TrainingComponent } from './training/training.component';
 import { DetailMatchComponent } from './detail-match/detail-match.component';
-import { HomeComponent } from './home/home.component';
 import { DetailTeamComponent } from './detail-team/detail-team.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
 import { TournamentsComponent } from './tournaments/tournaments.component';
 import { FieldReservationComponent } from './field-reservation/field-reservation.component';
-import { HttpClientModule } from '@angular/common/http';
 import { NewsComponent } from './news/news.component';
 import { HealthComponent } from './health/health.component';
 import { BracketComponent } from './bracket/bracket.component';
@@ -32,6 +31,9 @@ import { PerformanceStreakComponent } from './performance-streak/performance-str
 import { InjuryRiskComponent } from './injury-risk/injury-risk.component';
 import { PerformancePredictionComponent } from './performance-prediction/performance-prediction.component';
 
+import { CommunauteModule } from './communaute/communaute.module';
+import { EvenementModule } from './evenement/evenement.module';
+
 registerLocaleData(localeFr);
 
 @NgModule({
@@ -41,10 +43,10 @@ registerLocaleData(localeFr);
     CartComponent,
     NavbarComponent,
     FooterComponent,
+    HomeComponent,
     TeamComponent,
     TrainingComponent,
     DetailMatchComponent,
-    HomeComponent,
     DetailTeamComponent,
     PlayerProfileComponent,
     TournamentsComponent,
@@ -62,10 +64,13 @@ registerLocaleData(localeFr);
   ],
   imports: [
     CommonModule,
-    FrontofficeRoutingModule,
+    FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    FormsModule,
+    FrontofficeRoutingModule,
+    CommunauteModule,
+    EvenementModule,
+    RouterModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'fr' }

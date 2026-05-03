@@ -31,4 +31,9 @@ export class SponsoringEvenementService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  updateStatus(id: number, statut: string): Observable<SponsoringEvenementDTO> {
+    return this.http.patch<SponsoringEvenementDTO>(`${this.apiUrl}/${id}/status`, { status });
+  }
 }
+

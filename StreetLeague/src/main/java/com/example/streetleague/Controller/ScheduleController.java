@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @RestController
@@ -94,47 +95,47 @@ public class ScheduleController {
             Double eventLng = (Double) event.remove("fieldLng");
 
             if (!allFields.isEmpty()) {
-                // Use event coordinates if available, fallback to user GPS, fallback to null (AI scores by capacity/availability)
+                // Use event coordinates if available, fallback to user GPS
                 Double refLat = eventLat != null ? eventLat : userLat;
                 Double refLng = eventLng != null ? eventLng : userLng;
 
-                Map<String, Object> body = new HashMap<>();
-                body.put("fields", allFields);
                 if (refLat != null && refLng != null) {
+                    Map<String, Object> body = new HashMap<>();
                     body.put("eventLat", refLat);
                     body.put("eventLng", refLng);
                     body.put("userLat",  userLat);
                     body.put("userLng",  userLng);
-                }
+                    body.put("fields",   allFields);
 
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<Map<String, Object>> req = new HttpEntity<>(body, headers);
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    HttpEntity<Map<String, Object>> req = new HttpEntity<>(body, headers);
 
-                try {
-                    ResponseEntity<List> resp = restTemplate.postForEntity(
-                            flaskUrl + "/api/recommend/fields", req, List.class);
-                    List<Map> recs = resp.getBody();
+                    try {
+                        ResponseEntity<List> resp = restTemplate.postForEntity(
+                                flaskUrl + "/api/recommend/fields", req, List.class);
+                        List<Map> recs = resp.getBody();
 
-                    if (recs != null && !recs.isEmpty()) {
-                        Map top = recs.get(0);
-                        event.put("recommendedFieldId",       top.get("fieldId"));
-                        event.put("recommendedFieldName",     top.get("fieldName"));
-                        event.put("recommendedFieldLocation", top.get("fieldLocation"));
-                        event.put("recommendedFieldLat",      refLat);
-                        event.put("recommendedFieldLng",      refLng);
-                        event.put("recommendedFieldScore",    top.get("aiScore"));
-                        event.put("recommendedFieldRec",      top.get("recommendation"));
-                        event.put("recommendedFieldDist",     top.get("distanceKm"));
-                        // Enrich event AI score from top recommendation
-                        if (!event.containsKey("aiScore") || event.get("aiScore") == null) {
-                            event.put("aiScore",        top.get("aiScore"));
-                            event.put("recommendation", top.get("recommendation"));
+                        if (recs != null && !recs.isEmpty()) {
+                            Map top = recs.get(0);
+                            event.put("recommendedFieldId",       top.get("fieldId"));
+                            event.put("recommendedFieldName",     top.get("fieldName"));
+                            event.put("recommendedFieldLocation", top.get("fieldLocation"));
+                            event.put("recommendedFieldLat",      refLat);
+                            event.put("recommendedFieldLng",      refLng);
+                            event.put("recommendedFieldScore",    top.get("aiScore"));
+                            event.put("recommendedFieldRec",      top.get("recommendation"));
+                            event.put("recommendedFieldDist",     top.get("distanceKm"));
+                            // Enrich event AI score from top recommendation
+                            if (!event.containsKey("aiScore") || event.get("aiScore") == null) {
+                                event.put("aiScore",        top.get("aiScore"));
+                                event.put("recommendation", top.get("recommendation"));
+                            }
                         }
+                    } catch (Exception e) {
+                        // Flask unavailable — event keeps its own score
+                        event.put("flaskWarning", "IA indisponible");
                     }
-                } catch (Exception e) {
-                    // Flask unavailable — event keeps its own score
-                    event.put("flaskWarning", "IA indisponible");
                 }
             }
             enriched.add(event);

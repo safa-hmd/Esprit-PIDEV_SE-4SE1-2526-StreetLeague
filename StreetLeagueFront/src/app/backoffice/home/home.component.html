@@ -1,21 +1,14 @@
 <div class="admin-main-inner">
 
-  <!-- ── Welcome Banner ── -->
   <div class="welcome-banner">
     <div>
       <h1 class="welcome-title">Welcome back 👋</h1>
       <p class="welcome-sub">{{ adminName }} · StreetLeague Admin Dashboard</p>
     </div>
-   
   </div>
 
-    <!-- ══════════════════════════════════════════════════════
-       SECTION safaaa — Stats Teams/Matches/Trainings
-  ══════════════════════════════════════════════════════ -->
-
-  <!-- ── Stat Cards ── -->
+  <!-- Stat Cards -->
   <div class="stat-grid-home">
-
     <div class="stat-card" (click)="goTo('/admin/list-teams')" style="cursor:pointer;">
       <div class="stat-icon-wrap" style="background:rgba(78,138,159,0.15);">
         <svg fill="none" stroke="#4e8a9f" viewBox="0 0 24 24" stroke-width="2">
@@ -69,58 +62,35 @@
         <div class="stat-label">Total Players</div>
       </div>
     </div>
-
   </div>
 
-  <!-- ── Loading indicator ── -->
   <div *ngIf="!dataReady" style="text-align:center;padding:3rem;color:#888;">
     Loading dashboard data...
   </div>
 
   <div *ngIf="dataReady">
 
-    <!-- ── Charts Row ── -->
+    <!-- Charts Row -->
     <div class="charts-grid">
-
       <div class="a-card chart-card">
-        <div class="a-card-header">
-          <span class="a-card-title">Match Status Distribution</span>
-        </div>
-        <div class="a-card-body chart-body">
-          <canvas #matchStatusChart></canvas>
-        </div>
+        <div class="a-card-header"><span class="a-card-title">Match Status Distribution</span></div>
+        <div class="a-card-body chart-body"><canvas #matchStatusChart></canvas></div>
       </div>
-
       <div class="a-card chart-card">
-        <div class="a-card-header">
-          <span class="a-card-title">Training Sessions by Status</span>
-        </div>
-        <div class="a-card-body chart-body">
-          <canvas #trainingStatusChart></canvas>
-        </div>
+        <div class="a-card-header"><span class="a-card-title">Training Sessions by Status</span></div>
+        <div class="a-card-body chart-body"><canvas #trainingStatusChart></canvas></div>
       </div>
-
       <div class="a-card chart-card">
-        <div class="a-card-header">
-          <span class="a-card-title">Teams by Sport</span>
-        </div>
-        <div class="a-card-body chart-body">
-          <canvas #sportChart></canvas>
-        </div>
+        <div class="a-card-header"><span class="a-card-title">Teams by Sport</span></div>
+        <div class="a-card-body chart-body"><canvas #sportChart></canvas></div>
       </div>
-
       <div class="a-card chart-card">
-        <div class="a-card-header">
-          <span class="a-card-title">Top Teams by Players</span>
-        </div>
-        <div class="a-card-body chart-body">
-          <canvas #playerChart></canvas>
-        </div>
+        <div class="a-card-header"><span class="a-card-title">Top Teams by Players</span></div>
+        <div class="a-card-body chart-body"><canvas #playerChart></canvas></div>
       </div>
-
     </div>
 
-    <!-- ── Bottom Grid ── -->
+    <!-- Bottom Grid -->
     <div class="dashboard-grid">
 
       <!-- Recent Matches -->
@@ -132,11 +102,7 @@
         <div class="a-card-body" style="padding:0;">
           <table class="a-table">
             <thead>
-              <tr>
-                <th>Teams</th>
-                <th>Date</th>
-                <th>Status</th>
-              </tr>
+              <tr><th>Teams</th><th>Date</th><th>Status</th></tr>
             </thead>
             <tbody>
               <tr *ngFor="let m of recentMatches">
@@ -201,13 +167,8 @@
           <table class="a-table">
             <thead>
               <tr>
-                <th>Team</th>
-                <th>Captain</th>
-                <th>Sport</th>
-                <th>Level</th>
-                <th>Players</th>
-                <th>Wins</th>
-                <th>Losses</th>
+                <th>Team</th><th>Captain</th><th>Sport</th>
+                <th>Level</th><th>Players</th><th>Wins</th><th>Losses</th>
               </tr>
             </thead>
             <tbody>
@@ -230,18 +191,12 @@
 
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         SECTION SARA — Dashboard Financier
-    ══════════════════════════════════════════════════════ -->
-
-    <!-- ── Séparateur ── -->
+    <!-- Financial Dashboard — Sara -->
     <div class="section-divider">
       <span class="section-divider-label">💰 Financial Dashboard</span>
     </div>
 
-    <!-- ── KPI Cards financiers ── -->
     <div class="stat-grid-home">
-
       <div class="stat-card financial-card">
         <div class="stat-icon-wrap" style="background:rgba(230,57,70,0.15);">
           <svg fill="none" stroke="#e63946" viewBox="0 0 24 24" stroke-width="2">
@@ -292,42 +247,24 @@
           <div class="stat-label">Pending Payments</div>
         </div>
       </div>
-
     </div>
 
-    <!-- ── Charts financiers ── -->
     <div class="charts-grid">
-
       <div class="a-card chart-card">
-        <div class="a-card-header">
-          <span class="a-card-title">Revenue by Field</span>
-        </div>
-        <div class="a-card-body chart-body">
-          <canvas #revenueByFieldChart></canvas>
-        </div>
+        <div class="a-card-header"><span class="a-card-title">Revenue by Field</span></div>
+        <div class="a-card-body chart-body"><canvas #revenueByFieldChart></canvas></div>
       </div>
-
       <div class="a-card chart-card">
-        <div class="a-card-header">
-          <span class="a-card-title">Revenue by Sport</span>
-        </div>
-        <div class="a-card-body chart-body">
-          <canvas #revenueBySportChart></canvas>
-        </div>
+        <div class="a-card-header"><span class="a-card-title">Revenue by Sport</span></div>
+        <div class="a-card-body chart-body"><canvas #revenueBySportChart></canvas></div>
       </div>
-
       <div class="a-card chart-card" style="grid-column: 1 / -1;">
-        <div class="a-card-header">
-          <span class="a-card-title">Revenue by Day</span>
-        </div>
-        <div class="a-card-body chart-body">
-          <canvas #revenueByDayChart></canvas>
-        </div>
+        <div class="a-card-header"><span class="a-card-title">Revenue by Day</span></div>
+        <div class="a-card-body chart-body"><canvas #revenueByDayChart></canvas></div>
       </div>
-
     </div>
 
-    <!-- ── Top 5 Players ── -->
+    <!-- Top 5 Players -->
     <div class="a-card" style="margin-bottom:1.5rem;">
       <div class="a-card-header">
         <span class="a-card-title">🏆 Top 5 Players by Spending</span>
@@ -335,19 +272,11 @@
       <div class="a-card-body" style="padding:0;">
         <table class="a-table">
           <thead>
-            <tr>
-              <th>#</th>
-              <th>Player</th>
-              <th>Email</th>
-              <th>Payments</th>
-              <th>Total Spent</th>
-            </tr>
+            <tr><th>#</th><th>Player</th><th>Email</th><th>Payments</th><th>Total Spent</th></tr>
           </thead>
           <tbody>
             <tr *ngFor="let p of topPlayers; let i = index">
-              <td>
-                <span class="rank-badge" [ngClass]="'rank-' + (i+1)">{{ i + 1 }}</span>
-              </td>
+              <td><span class="rank-badge" [ngClass]="'rank-' + (i+1)">{{ i + 1 }}</span></td>
               <td><strong>{{ p.playerName }}</strong></td>
               <td style="color:#888;font-size:0.82rem;">{{ p.email }}</td>
               <td style="color:#4e8a9f;font-weight:600;">{{ p.paymentCount }}</td>
@@ -360,7 +289,6 @@
         </table>
       </div>
     </div>
-
 
   </div>
 </div>

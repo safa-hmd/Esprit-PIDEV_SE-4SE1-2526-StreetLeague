@@ -1,9 +1,7 @@
 package com.example.streetleague.dto;
 
-import com.example.streetleague.Entity.ReservationStatus;
-import jakarta.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,38 +10,29 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class FieldReservationDto {
-
     private Long id;
-
-    @NotNull(message = "Field is required")
+    @JsonProperty("fieldId")
     private Long fieldId;
-
+    @JsonProperty("fieldName")
     private String fieldName;
-    private String fieldLocation;
-
-    @NotNull(message = "Player is required")
+    @JsonProperty("userId")
+    private Long userId;
+    @JsonProperty("playerId")
     private Long playerId;
-
-    private String playerUsername;
-
-    @NotNull(message = "Start time is required")
-    @Future(message = "Start time must be in the future")
+    @JsonProperty("userName")
+    private String userName;
+    @JsonProperty("startTime")
     private LocalDateTime startTime;
-
-    @NotNull(message = "End time is required")
-    @Future(message = "End time must be in the future")
+    @JsonProperty("endTime")
     private LocalDateTime endTime;
-
-    @Size(max = 500, message = "Notes cannot exceed 500 characters")
-    private String notes;  // optionnel
-
-    private ReservationStatus status;
+    private String status;
+    @JsonProperty("reservationDate")
+    private LocalDateTime reservationDate;
     private Double totalPrice;
-
-    @Size(max = 500, message = "Admin note cannot exceed 500 characters")
-    private String adminNote;  // optionnel
-
-    private LocalDateTime createdAt;
+    private String notes;
+    @JsonProperty("fieldLocation")
+    private String fieldLocation;
+    @JsonProperty("fieldType")
+    private String fieldType;
 }

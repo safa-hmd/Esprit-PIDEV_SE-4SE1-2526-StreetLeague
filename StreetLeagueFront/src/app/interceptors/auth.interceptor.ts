@@ -7,7 +7,6 @@ import {
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   constructor() {}
@@ -16,19 +15,18 @@ export class AuthInterceptor implements HttpInterceptor {
     request: HttpRequest<unknown>,
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
-    // Récupérer le token depuis localStorage
     const token = localStorage.getItem('TokenUserConnect');
 
-    // Si pas de token → envoyer la requête sans modification (endpoint public)
+    if (request.url.includes('/auth/')) {
+      return next.handle(request);
+    }
+
     if (!token) {
       return next.handle(request);
     }
 
-    // Nettoyer le token (supprimer les guillemets JSON éventuels)
     const cleanToken = token.replace(/"/g, '');
 
-    // For FormData requests, only add Authorization header
-    // The browser will automatically handle Content-Type with boundary
     if (request.body instanceof FormData) {
       const authRequest = request.clone({
         setHeaders: {
@@ -38,7 +36,6 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(authRequest);
     }
 
-    // For regular JSON requests, clone and add Authorization header
     const authRequest = request.clone({
       setHeaders: {
         Authorization: `Bearer ${cleanToken}`,

@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface TournamentMatchRepository extends JpaRepository<TournamentMatch, Long> {
 
@@ -19,13 +18,11 @@ public interface TournamentMatchRepository extends JpaRepository<TournamentMatch
 
     boolean existsByTournamentId(Long tournamentId);
 
-
-
-    // Ajouter cette query pour casser les liens AVANT le delete
     @Modifying
     @Transactional
     @Query("UPDATE TournamentMatch tm SET tm.nextMatch = null WHERE tm.tournament.id = :tournamentId")
     void clearNextMatchLinks(@Param("tournamentId") Long tournamentId);
+
     void deleteByTournamentId(Long tournamentId);
 
     @Query("SELECT tm FROM TournamentMatch tm WHERE tm.nextMatch.id = :nextMatchId")
@@ -33,4 +30,16 @@ public interface TournamentMatchRepository extends JpaRepository<TournamentMatch
 
     @Query("SELECT COUNT(tm) FROM TournamentMatch tm WHERE tm.tournament.id = :tId AND tm.status <> :status")
     long countNotInStatus(@Param("tId") Long tournamentId, @Param("status") TournamentMatchStatus status);
+
+    // ✅ AJOUT : mettre match à null avant suppression du match
+    @Modifying
+    @Transactional
+    @Query("UPDATE TournamentMatch tm SET tm.match = null WHERE tm.match.id = :matchId")
+    void clearMatchLink(@Param("matchId") Long matchId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE TournamentMatch tm SET tm.match = null WHERE tm.match.id IN " +
+            "(SELECT m.idMatch FROM Match m WHERE m.teamA.idTeam = :teamId OR m.teamB.idTeam = :teamId)")
+    void clearMatchLinkByTeamId(@Param("teamId") Long teamId);
 }

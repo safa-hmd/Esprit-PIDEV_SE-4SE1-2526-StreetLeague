@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { AdminGuard } from './admin.guard';
 import { AuthService } from '../services/auth.service';
@@ -9,8 +9,8 @@ describe('AdminGuard', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['getRole']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['getRole', 'normalizeRole', 'isLoggedIn']);
+    routerSpy      = jasmine.createSpyObj('Router', ['navigateByUrl']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -28,12 +28,42 @@ describe('AdminGuard', () => {
 
   it('should allow activation for ROLE_ADMIN', () => {
     authServiceSpy.getRole.and.returnValue('ROLE_ADMIN');
-    expect(guard.canActivate()).toBeTrue();
+    authServiceSpy.normalizeRole.and.returnValue('ROLE_ADMIN');
+
+    const result = guard.canActivate();
+
+    expect(result).toBeTrue();
+    expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
   });
 
-  it('should redirect for non-admin users', () => {
-    authServiceSpy.getRole.and.returnValue('ROLE_USER');
-    expect(guard.canActivate()).toBeFalse();
+  it('canActivateTest - should return false and redirect when role is ROLE_PLAYER', () => {
+    authServiceSpy.getRole.and.returnValue('ROLE_PLAYER');
+    authServiceSpy.normalizeRole.and.returnValue('ROLE_PLAYER');
+
+    const result = guard.canActivate();
+
+    expect(result).toBeFalse();
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin-login');
+  });
+
+  it('canActivateTest - should return false and redirect when role is ROLE_COACH', () => {
+    authServiceSpy.getRole.and.returnValue('ROLE_COACH');
+    authServiceSpy.normalizeRole.and.returnValue('ROLE_COACH');
+
+    const result = guard.canActivate();
+
+    expect(result).toBeFalse();
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin-login');
+  });
+
+  it('canActivateTest - should return false and redirect when role is null', () => {
+    authServiceSpy.getRole.and.returnValue(null);
+    authServiceSpy.normalizeRole.and.returnValue(null);
+    authServiceSpy.isLoggedIn.and.returnValue(false);
+
+    const result = guard.canActivate();
+
+    expect(result).toBeFalse();
     expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin-login');
   });
 });

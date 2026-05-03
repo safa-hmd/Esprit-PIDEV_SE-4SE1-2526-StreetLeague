@@ -1,0 +1,134 @@
+<div class="modern-chat-container">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="header-avatar">
+      <i class="bi bi-shield-fill-check"></i>
+    </div>
+    <div class="header-info">
+      <h3>StreetLeague Support</h3>
+      <span class="online-badge"><span class="dot"></span> Online</span>
+    </div>
+  </div>
+
+  <!-- Zone de messages -->
+  <div class="messages-container" #scrollContainer>
+    <div *ngFor="let message of messages"
+         class="message-wrapper"
+         [ngClass]="message.sender === 'me' ? 'sent' : 'received'">
+
+      <!-- Avatar (receveur seulement) -->
+      <div class="msg-avatar" *ngIf="message.sender === 'other'">
+        <i class="bi bi-person-circle"></i>
+      </div>
+
+      <div class="bubble-group">
+        
+        <!-- Bulle TEXTE -->
+        <div *ngIf="message.type === 'text'"
+             class="message-bubble text-bubble"
+             [ngClass]="message.sender === 'me' ? 'bubble-me' : 'bubble-other'">
+          {{ message.text }}
+          <!-- Badge Réaction -->
+          <div class="reaction-badge" *ngIf="message.reaction">{{ message.reaction }}</div>
+        </div>
+
+        <!-- Bulle AUDIO -->
+        <div *ngIf="message.type === 'audio'"
+             class="message-bubble audio-bubble"
+             [ngClass]="message.sender === 'me' ? 'bubble-me' : 'bubble-other'">
+          <div class="audio-player">
+            <button class="play-btn" (click)="toggleAudio(message)">
+              <i class="bi" [ngClass]="currentlyPlayingId === message.id ? 'bi-pause-fill' : 'bi-play-fill'"></i>
+            </button>
+            <div class="waveform">
+              <div class="wave-bar" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]"
+                   [ngClass]="{'animated': currentlyPlayingId === message.id}"></div>
+            </div>
+            <span class="audio-duration">{{ message.audioDuration === -1 ? '--' : formatTime(message.audioDuration || 0) }}</span>
+          </div>
+          <!-- Badge Réaction (Audio) -->
+          <div class="reaction-badge" *ngIf="message.reaction">{{ message.reaction }}</div>
+        </div>
+
+        <!-- Méta info & Actions -->
+        <div class="msg-meta" [ngClass]="message.sender === 'me' ? 'meta-right' : 'meta-left'">
+          <span *ngIf="message.sender === 'other'"
+                class="sender-name" [ngClass]="getSenderClass(message.senderRole)">
+            {{ message.senderName }}
+          </span>
+          <span class="msg-time">{{ formatMessageTime(message.timestamp) }}</span>
+          
+          <!-- Boutons d'action (Réagir / Delete) -->
+          <div class="msg-actions">
+            <i class="bi bi-emoji-smile action-icon" (click)="message.showReactionPicker = !message.showReactionPicker"></i>
+            <i class="bi bi-trash action-icon trash-icon" *ngIf="message.sender === 'me'" (click)="deleteMessage(message)"></i>
+          </div>
+        </div>
+
+        <!-- Popup Choix Réaction -->
+        <div class="reaction-picker-popup" *ngIf="message.showReactionPicker" [ngClass]="message.sender === 'me' ? 'popup-right' : 'popup-left'">
+          <span class="react-emoji" *ngFor="let r of reactions" (click)="addReaction(message, r)">{{ r }}</span>
+        </div>
+
+        <!-- Popup Confirmation Suppression -->
+        <div class="delete-confirm-popup" *ngIf="message.showDeleteConfirm">
+          <span>Delete this message ?</span>
+          <div class="delete-actions">
+            <button class="btn-cancel" (click)="cancelDelete(message)">Cancel</button>
+            <button class="btn-delete" (click)="confirmDelete(message)">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Indicateur d'enregistrement -->
+  <div class="recording-indicator" *ngIf="isRecording">
+    <button class="cancel-rec-btn" (click)="cancelRecording()">
+      <i class="bi bi-trash-fill"></i>
+    </button>
+    <div class="rec-waveform">
+      <div class="wave-bar animated" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]"></div>
+    </div>
+    <span class="rec-timer">{{ formatTime(recordingDuration) }}</span>
+  </div>
+
+  <!-- Barre d'entrée -->
+  <div class="input-bar">
+    <!-- Micro : maintenir pour save -->
+    <button class="mic-btn"
+            [ngClass]="{'recording': isRecording}"
+            (mousedown)="startRecording($event)"
+            (mouseup)="stopRecording()"
+            (mouseleave)="stopRecording()"
+            (touchstart)="startRecording($event)"
+            (touchend)="stopRecording()"
+            (touchcancel)="cancelRecording()">
+      <i class="bi" [ngClass]="isRecording ? 'bi-mic-fill' : 'bi-mic'"></i>
+    </button>
+
+    <div class="text-input-wrap relative-container">
+      <input type="text"
+             class="text-input"
+             placeholder="Type a message..."
+             [(ngModel)]="messageText"
+             (keyup.enter)="sendTextMessage()">
+             
+      <!-- Sélecteur d'Emoji -->
+      <div class="emoji-container">
+        <i class="bi bi-emoji-smile emoji-btn" (click)="toggleEmojiPicker()"></i>
+        <div class="emoji-popup-main" *ngIf="showEmojiPicker">
+          <span class="emoji-item" *ngFor="let e of emojis" (click)="addEmoji(e)">{{e}}</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="send-btn"
+            (click)="sendTextMessage()"
+            [disabled]="!messageText.trim()">
+      <i class="bi bi-send-fill"></i>
+    </button>
+  </div>
+
+</div>

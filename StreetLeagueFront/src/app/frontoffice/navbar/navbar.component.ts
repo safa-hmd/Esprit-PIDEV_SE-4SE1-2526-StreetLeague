@@ -1,4 +1,3 @@
-// src/app/components/navbar/navbar.component.ts
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
@@ -188,7 +187,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   logout(): void {
     localStorage.clear();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
 
   @HostListener('document:click', ['$event'])

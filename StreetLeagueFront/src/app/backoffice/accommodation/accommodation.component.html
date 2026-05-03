@@ -80,7 +80,7 @@
             <option value="CUSTOM">--- Use Custom Address ---</option>
           </select>
           <div *ngIf="address === 'CUSTOM'" style="margin-top:0.75rem;">
-            <textarea class="form-textarea" name="customAddress" #customAddr (change)="address = customAddr.value" placeholder="Enter full address details..."></textarea>
+            <textarea class="form-textarea" name="customAddress" #customAddr (change)="address = $any($event.target).value" placeholder="Enter full address details..."></textarea>
           </div>
         </div>
 

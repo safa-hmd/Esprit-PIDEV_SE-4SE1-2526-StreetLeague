@@ -25,4 +25,20 @@ public class EmailService {
         );
         mailSender.send(message);
     }
+
+    public void sendHtmlEmail(String to, String subject, String htmlBody) {
+        try {
+            jakarta.mail.internet.MimeMessage message = mailSender.createMimeMessage();
+            org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true); // true = HTML
+
+            mailSender.send(message);
+        } catch (jakarta.mail.MessagingException e) {
+            e.printStackTrace();
+            System.err.println("Échec de l'envoi de l'email HTML à " + to);
+        }
+    }
 }

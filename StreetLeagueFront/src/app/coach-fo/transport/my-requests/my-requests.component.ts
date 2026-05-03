@@ -31,4 +31,9 @@ export class MyRequestsComponent implements OnInit {
     if (status === 'REJECTED') return 'badge-danger';
     return 'badge-warning';
   }
+
+  formatDate(val: string): string {
+    if (!val) return '-';
+    return new Date(val).toLocaleDateString();
+  }
 }

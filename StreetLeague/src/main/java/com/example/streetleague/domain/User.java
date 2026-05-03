@@ -1,6 +1,7 @@
 package com.example.streetleague.domain;
 
 import com.example.streetleague.Entity.*;
+
 import com.example.streetleague.Entity.Comment;
 import com.example.streetleague.Entity.Post;
 import com.example.streetleague.Entity.waterReminder;
@@ -8,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,30 +18,33 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "users")
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    Long idUser;
+    private Long idUser;
 
     @Column(nullable = false)
-    String fullName;
+    private String fullName;
 
     @Column(nullable = false, unique = true)
-    String email;
+    private String email;
 
     @Column(nullable = false)
-    String password;
+    private String password;
+
+    @Column(nullable = false)
+    int age;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    Role role;
+    private Role role;
 
     @Builder.Default
-    boolean enabled = true;
+    private boolean enabled = true;
 
     // ── Relations team ────────────────────────────────────────
     @OneToMany(mappedBy = "captain", cascade = CascadeType.ALL)
@@ -61,10 +64,10 @@ public class User {
     List<Match> createdMatches;
 
     @Column(name = "reset_token")
-    String resetToken;
+    private String resetToken;
 
     @Column(name = "reset_token_expiry")
-    LocalDateTime resetTokenExpiry;
+    private LocalDateTime resetTokenExpiry;
 
 
     @Column(name = "team_id")
@@ -77,10 +80,33 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
-    List<Comment> comments;
+
+    private List<Comment> comments;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
-    List<waterReminder> waterReminders;
+    private List<waterReminder> waterReminders;
 
+    // ── Health fields ──
+    private Double weight;
+    private Double height;
+    private Double bmi;
+
+    // ── New relations ──
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<DailyWaterLog> waterLogs;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<UserGoal> goals;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<UserBadge> badges;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private SpinResult spinResult;
 }

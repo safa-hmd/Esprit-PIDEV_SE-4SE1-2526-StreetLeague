@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { RegisterComponent } from './register.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -243,7 +243,7 @@ describe('RegisterComponent', () => {
     expect(component.isLoading).toBeFalse();
   });
 
-  it('onSubmitTest — should navigate to /login after 1500ms on success', fakeAsync(() => {
+  it('onSubmitTest — should navigate to /login after 1500ms on success (no-admin)', fakeAsync(() => {
     authServiceSpy.register.and.returnValue(of({} as any));
     const navigateSpy = spyOn(router, 'navigate');
     component.registerForm.setValue({
@@ -292,7 +292,7 @@ describe('RegisterComponent', () => {
       confirmPassword: 'Pass123!', terms: true
     });
     component.onSubmit();
-    expect(component.errorMessage).toBe('Une erreur est survenue. Veuillez réessayer.');
+    expect(component.errorMessage).toBe('Une erreur est survenue. Please réessayer.');
   });
 
   it('onSubmitTest — should use selected role when registering', () => {

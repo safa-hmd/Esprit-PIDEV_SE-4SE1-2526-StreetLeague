@@ -1,0 +1,34 @@
+<nav class="navbar">
+  <div class="navbar-inner">
+    <button class="navbar-logo" (click)="navigateToPage('/sponsor')" style="background: none; border: none; cursor: pointer;">
+      <div class="navbar-logo-icon">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+      </div>
+      <span class="navbar-logo-text">Street<span>League</span> Sponsor</span>
+    </button>
+    <div class="navbar-links" id="navLinks">
+      <button class="nav-link" (click)="navigateToPage('/sponsor')" [class.active]="isActive('/sponsor')">Accueil</button>
+      <button class="nav-link" (click)="navigateToPage('/sponsor/sponsor')" [class.active]="isActive('/sponsor/sponsor')">Mon Sponsor</button>
+      <button class="nav-link" (click)="navigateToPage('/sponsor/contract-sponsor')" [class.active]="isActive('/sponsor/contract-sponsor')">Contracts</button>
+      <button class="nav-link" (click)="navigateToPage('/sponsor/sponsoring-evenement')" [class.active]="isActive('/sponsor/sponsoring-evenement')">Sponsorings</button>
+      <button class="nav-link" (click)="navigateToPage('/sponsor/evenement')" [class.active]="isActive('/sponsor/evenement')">Events</button>
+      <button class="nav-link" (click)="navigateToPage('/sponsor/communaute')" [class.active]="isActive('/sponsor/communaute')">Communities</button>
+    </div>
+    <div class="navbar-actions">
+      <span class="navbar-user">{{ userName }}</span>
+      <button class="btn-logout" (click)="logout()">Délogin</button>
+      <button class="navbar-mobile-btn" (click)="toggleMobileMenu()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="navbar-mobile" [class.open]="isMobileMenuOpen">
+    <button class="mobile-nav-link" (click)="navigateToMobile('/sponsor')" [class.active]="isActive('/sponsor')">Accueil</button>
+    <button class="mobile-nav-link" (click)="navigateToMobile('/sponsor/sponsor')" [class.active]="isActive('/sponsor/sponsor')">Mon Sponsor</button>
+    <button class="mobile-nav-link" (click)="navigateToMobile('/sponsor/contract-sponsor')" [class.active]="isActive('/sponsor/contract-sponsor')">Contracts</button>
+    <button class="mobile-nav-link" (click)="navigateToMobile('/sponsor/sponsoring-evenement')" [class.active]="isActive('/sponsor/sponsoring-evenement')">Sponsorings</button>
+    <button class="mobile-nav-link" (click)="navigateToMobile('/sponsor/evenement')" [class.active]="isActive('/sponsor/evenement')">Events</button>
+    <button class="mobile-nav-link" (click)="navigateToMobile('/sponsor/communaute')" [class.active]="isActive('/sponsor/communaute')">Communities</button>
+  </div>
+</nav>
+

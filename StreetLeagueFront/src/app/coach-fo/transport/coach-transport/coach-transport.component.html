@@ -13,7 +13,7 @@
       <div class="col-md-12">
         <div class="section-label">STEP 01 — TARGET COMPETITION</div>
         <label class="form-label font-weight-bold mb-3" style="font-size: 0.9rem; font-weight: 800; color: #1a1a1a;">SELECT TOURNAMENT DATA</label>
-        <select class="form-select custom-select" [(ngModel)]="selectedTournamentId" (change)="onTournamentChange()">
+        <select class="form-select custom-select" [value]="selectedTournamentId" (change)="selectedTournamentId = +$any($event.target).value; onTournamentChange()">
           <option *ngFor="let t of tournaments" [value]="t.id">{{ t.name }} — {{ t.city }}</option>
         </select>
       </div>
@@ -61,7 +61,7 @@
           </div>
           <div class="metric-item">
             <span class="label">Fare (TND)</span>
-            <span class="value">{{ t.pricePerSeat | number:'1.3-3' }}</span>
+            <span class="value">{{ t.pricePerSeat?.toFixed(3) }}</span>
           </div>
         </div>
 
@@ -148,7 +148,7 @@
 
         <div class="total-display">
           <span class="font-weight-bold small text-muted">TOTAL BUDGET (TND)</span>
-          <div class="amount">{{ totalPrice | number:'1.3-3' }}</div>
+          <div class="amount">{{ totalPrice?.toFixed(3) }}</div>
         </div>
 
         <div class="mt-4 pt-4 border-top border-secondary">
@@ -175,32 +175,32 @@
     <form class="form-dark" (ngSubmit)="submitPersonalCarForm()">
       <div class="form-group">
         <label>TARGET DESTINATION</label>
-        <select class="form-select" [(ngModel)]="personalCar.destination" name="dest" required>
+        <select class="form-select" [value]="personalCar.destination" (change)="personalCar.destination = $any($event.target).value" name="dest" required>
             <option *ngFor="let t of tournaments" [value]="t.city">{{ t.name }} ({{ t.city }})</option>
         </select>
       </div>
       <div class="form-group">
         <label>PAYLOAD CAPACITY (MAX 5 INCL. DRIVER)</label>
-        <input type="number" class="form-input" [(ngModel)]="personalCar.availableSeats" name="seats" placeholder="MAX 5" max="5" required>
+        <input type="number" class="form-input" [value]="personalCar.availableSeats" (input)="personalCar.availableSeats = +$any($event.target).value" name="seats" placeholder="MAX 5" max="5" required>
       </div>
       <div class="form-group">
         <label>REIMBURSEMENT RATE (TND) — SET 0 FOR FREE</label>
-        <input type="number" step="0.001" class="form-input" [(ngModel)]="personalCar.pricePerSeat" name="price" placeholder="0.000 (TND)" required>
+        <input type="number" step="0.001" class="form-input" [value]="personalCar.pricePerSeat" (input)="personalCar.pricePerSeat = +$any($event.target).value" name="price" placeholder="0.000 (TND)" required>
       </div>
       <div class="form-group">
         <label>CARRIER DEPLOYMENT TYPE</label>
-        <select class="form-select" [(ngModel)]="personalCar.type" name="type" required>
+        <select class="form-select" [value]="personalCar.type" (change)="personalCar.type = $any($event.target).value" name="type" required>
             <option value="CAR">Personal Car</option>
             <option value="VAN">Private Van</option>
         </select>
       </div>
       <div class="form-group">
         <label>INITIAL DEPARTURE (MIN. 5 DAYS FUTURE)</label>
-        <input type="datetime-local" class="form-input" [(ngModel)]="personalCar.departureTime" name="dep" required>
+        <input type="datetime-local" class="form-input" [value]="personalCar.departureTime" (input)="personalCar.departureTime = $any($event.target).value" name="dep" required>
       </div>
       <div class="form-group">
         <label>STANDBY RETURN (AFTER DEPARTURE)</label>
-        <input type="datetime-local" class="form-input" [(ngModel)]="personalCar.returnTime" name="ret" required>
+        <input type="datetime-local" class="form-input" [value]="personalCar.returnTime" (input)="personalCar.returnTime = $any($event.target).value" name="ret" required>
       </div>
       
       <button type="submit" class="btn btn-personal mt-4">SUBMIT CARRIER FOR COMPLIANCE</button>
@@ -252,14 +252,12 @@
             <td>
               <span class="badge bg-light text-dark border-0 py-2 px-3" style="font-weight: 900; color: #1a1a1a !important; background: #f0f0f0 !important;">{{ req.selectedMemberIds?.length || 0 }} PERS.</span>
             </td>
-            <td class="font-weight-bold" style="color: #cc0000; font-size: 1rem;">{{ req.totalAmount | number:'1.3-3' }} <span style="font-size: 0.7rem;">TND</span></td>
+            <td class="font-weight-bold" style="color: #cc0000; font-size: 1rem;">{{ req.totalAmount?.toFixed(3) }} <span style="font-size: 0.7rem;">TND</span></td>
             <td>
-              <span class="status-badge" 
-                    [ngClass]="{
-                      'status-pending': req.status === 'PENDING',
-                      'status-approved': req.status === 'APPROVED',
-                      'status-rejected': req.status === 'REJECTED'
-                    }">
+              <span class="status-badge"
+                    [class.status-pending]="req.status === 'PENDING'"
+                    [class.status-approved]="req.status === 'APPROVED'"
+                    [class.status-rejected]="req.status === 'REJECTED'">
                 {{ req.status || 'PENDING' }}
               </span>
               <div *ngIf="req.status === 'REJECTED' && req.adminComment" class="mt-2 small text-danger font-weight-bold" style="font-size: 0.65rem;">

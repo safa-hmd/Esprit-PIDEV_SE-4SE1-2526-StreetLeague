@@ -1,4 +1,4 @@
-export type TrainingStatus = 'PLANNED' | 'COMPLETED' | 'CANCELLED';
+export type TrainingStatus = 'PLANNED' | 'COMPLETED' | 'CANCELLED' | 'SCHEDULED';
 
 export interface Training {
   idTraining?: number;
@@ -17,21 +17,21 @@ export interface Training {
 export interface TrainingRequest {
   title: string;
   description?: string;
-  trainingDate: string;
+  startTime: string;       // ← كان trainingDate، الـ backend يتوقع startTime
   durationInMinutes?: number;
   location?: string;
   exercises?: string;
 }
 
 export interface TrainingUpdateRequest {
-  idTraining: number;
+  id: number;              // ← كان idTraining، الـ backend يتوقع id
   title?: string;
   description?: string;
-  trainingDate?: string;
+  startTime?: string;      // ← كان trainingDate
   durationInMinutes?: number;
   location?: string;
   exercises?: string;
-  status?: TrainingStatus;
+  status?: string;
 }
 
 export interface TrainingResponse {

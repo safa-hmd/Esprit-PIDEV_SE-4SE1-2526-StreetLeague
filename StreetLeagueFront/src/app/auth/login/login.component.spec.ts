@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -183,12 +183,12 @@ describe('LoginComponent', () => {
   });
 
   it('onSubmitTest — should set errorMessage on login failure', () => {
-    authServiceSpy.login.and.returnValue(throwError(() => ({ status: 401 })));
+    authServiceSpy.login.and.returnValue(throwError(() => ({ statut: 401 })));
 
     component.loginForm.setValue({ email: 'test@test.com', password: 'wrongpass' });
     component.onSubmit();
 
-    expect(component.errorMessage).toBe('Email ou mot de passe incorrect.');
+    expect(component.errorMessage).toBe('Email ou password incorrect.');
     expect(component.isLoading).toBeFalse();
   });
 
@@ -240,5 +240,17 @@ describe('LoginComponent', () => {
     component.onSubmit();
 
     expect(navigateSpy).toHaveBeenCalledWith('/client');
+  });
+
+  it('redirectByRoleTest — ROLE_ADMIN navigates to /admin', () => {
+    authServiceSpy.login.and.returnValue(of({
+      token: 'abc', email: 'admin@test.com', role: 'ROLE_ADMIN'
+    } as any));
+    const navigateSpy = spyOn(router, 'navigateByUrl');
+
+    component.loginForm.setValue({ email: 'admin@test.com', password: '123456' });
+    component.onSubmit();
+
+    expect(navigateSpy).toHaveBeenCalledWith('/admin');
   });
 });

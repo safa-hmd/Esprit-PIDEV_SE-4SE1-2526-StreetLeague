@@ -132,8 +132,8 @@ loadTeams(): void {
       next: (data) => {
         const userTeams = this.teams.filter(t => this.isMyTeam(t) || this.isPlayerInTeam(t)).map(t => t.name.toLowerCase());
         const userMatches = data.filter(m => 
-          userTeams.includes(m.teamAName.toLowerCase()) || 
-          userTeams.includes(m.teamBName.toLowerCase())
+          (m.teamAName && userTeams.includes(m.teamAName.toLowerCase())) || 
+          (m.teamBName && userTeams.includes(m.teamBName.toLowerCase()))
         );
         this.matches         = userMatches;
         this.filteredMatches = userMatches;
@@ -176,10 +176,10 @@ loadTeams(): void {
     this.searchMatchQuery = query;
     const q = query.toLowerCase();
     this.filteredMatches  = this.matches.filter(m =>
-      m.teamAName.toLowerCase().includes(q) ||
-      m.teamBName.toLowerCase().includes(q) ||
+      (m.teamAName || '').toLowerCase().includes(q) ||
+      (m.teamBName || '').toLowerCase().includes(q) ||
       (m.location || '').toLowerCase().includes(q) ||
-      m.status.toLowerCase().includes(q)
+      (m.status || '').toLowerCase().includes(q)
     );
   }
 
@@ -372,7 +372,7 @@ respondToMatch(matchId: number, accept: boolean): void {
   if (!match) return;
 
   const teamB = this.teams.find(t =>
-    t.name.toLowerCase() === match.teamBName.toLowerCase()
+    t.name.toLowerCase() === match.teamBName?.toLowerCase()
   );
 
   console.log('match:', match);

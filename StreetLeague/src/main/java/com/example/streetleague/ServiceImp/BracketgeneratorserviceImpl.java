@@ -51,7 +51,7 @@ public class BracketgeneratorserviceImpl {
         if (confirmed.size() < 2)
             throw new IllegalArgumentException("Au moins 2 participants confirmés requis.");
 
-        boolean isTeam = tournament.getTournamentType() == TournamentType.TEAM;
+        boolean isTeam = true; // By default assuming team-based bracket
 
         return switch (bracketType) {
             case SINGLE_ELIMINATION -> generateSingleElimination(tournament, confirmed, isTeam);

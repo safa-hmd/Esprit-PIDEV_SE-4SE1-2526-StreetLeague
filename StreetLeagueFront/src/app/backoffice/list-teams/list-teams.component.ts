@@ -92,7 +92,7 @@ export class ListTeamsComponent implements OnInit {
   }
 
   // ── Status badge CSS ──────────────────────────────────────
-  getStatusClass(status: string): string {
+  getStatusClass(statut: string): string {
     switch (status) {
       case 'SCHEDULED': return 'a-badge-blue';
       case 'ONGOING':   return 'a-badge-orange';
@@ -149,3 +149,6 @@ deleteTeam(team: Team): void {
 
   openAddModal(): void {}
 }
+
+
+

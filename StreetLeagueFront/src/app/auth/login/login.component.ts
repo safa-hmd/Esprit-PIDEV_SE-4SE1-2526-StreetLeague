@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
-type Role = 'PLAYER' |  'COACH' | 'SPONSOR' | 'DELIVERY';
+type Role = 'PLAYER' | 'COACH' | 'SPONSOR' | 'DELIVERY';
 
 @Component({
   selector: 'app-login',
@@ -67,30 +67,38 @@ private emailPlaceholders: Record<Role, string> = {
         localStorage.setItem('RoleUserConnect',  response.role);
 
         // ✅ Redirection selon le rôle renvoyé par le BACKEND (pas selectedRole)
-        this.redirectByRole(response.role);
+        this.redirectAfterLogin(response.role);
       },
       error: (error) => {
-        this.isLoading    = false;
-        this.errorMessage = 'Email ou mot de passe incorrect.';
+        this.isLoading = false;
+        const body = error?.error as Record<string, unknown> | undefined;
+        const err = body?.['error'];
+        const msg = body?.['message'];
+        this.errorMessage =
+          (typeof err === 'string' ? err : null) ||
+          (typeof msg === 'string' ? msg : null) ||
+          'Email ou password incorrect.';
         console.error(error);
       },
     });
   }
 
-  private redirectByRole(role: string) {
+  /** Après login réussi : redirige selon le rôle normalisé */
+  private redirectAfterLogin(roleFromBackend: string) {
+    const role = this.authService.normalizeRole(roleFromBackend);
     switch (role) {
-
-      case 'ROLE_COACH':
-        this.router.navigateByUrl('/coach');   
+      case 'ADMIN':
+        this.router.navigateByUrl('/admin');
         break;
       case 'SPONSOR':
-        this.router.navigateByUrl('/client');   
+        this.router.navigateByUrl('/sponsor');
         break;
-
-    case 'ROLE_DELIVERY':
-    case 'DELIVERY':
-      this.router.navigateByUrl('/delivery'); break; // ✅ les deux formats
-
+      case 'COACH':
+        this.router.navigateByUrl('/coach');
+        break;
+      case 'DELIVERY':
+        this.router.navigateByUrl('/delivery');
+        break;
       case 'PLAYER':
       default:
         this.router.navigateByUrl('/client');

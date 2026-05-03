@@ -27,11 +27,11 @@ export class ForgotPasswordComponent {
     this.authService.forgotPassword(this.form.value.email!).subscribe({
       next: () => {
         this.isLoading  = false;
-        this.successMsg = 'Un email de réinitialisation a été envoyé à votre adresse.';
+        this.successMsg = 'Un email de réinitialisation a été envoyé à votre address.';
       },
       error: () => {
         this.isLoading = false;
-        this.errorMsg  = 'Aucun compte trouvé avec cet email.';
+        this.errorMsg  = 'none compte trouvé avec cet email.';
       }
     });
   }

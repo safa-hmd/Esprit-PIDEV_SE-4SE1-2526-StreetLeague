@@ -1,6 +1,7 @@
 package com.example.streetleague.Entity;
 
 import com.example.streetleague.domain.User;
+import com.example.streetleague.Entity.Field;
 import jakarta.persistence.*;
 import lombok.*;
 

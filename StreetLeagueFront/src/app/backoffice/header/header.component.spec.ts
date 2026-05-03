@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
 
 import { HeaderComponent } from './header.component';
@@ -24,6 +25,7 @@ describe('HeaderComponent', () => {
     userServiceSpy.getProfile.and.returnValue(of(mockProfile as any));
 
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       declarations: [HeaderComponent],
       providers: [
         { provide: UserService, useValue: userServiceSpy },
@@ -31,8 +33,7 @@ describe('HeaderComponent', () => {
       ]
     });
 
-    localStorage.clear();                                    // ← clear BEFORE detectChanges
-    fixture   = TestBed.createComponent(HeaderComponent);
+    fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();                                 // triggers ngOnInit
   });
@@ -57,6 +58,22 @@ describe('HeaderComponent', () => {
 
   it('initialStateTest — hasNotifications should be true initially', () => {
     expect(component.hasNotifications).toBeTrue();
+  });
+
+  it('initialStateTest — pageTitle should be Overview initially', () => {
+    expect(component.pageTitle).toBe('Overview');
+  });
+
+  it('initialStateTest — adminName should be Alice Martin initially', () => {
+    expect(component.adminName).toBe('Alice Martin');
+  });
+
+  it('initialStateTest — adminEmail should be alice@test.com initially', () => {
+    expect(component.adminEmail).toBe('alice@test.com');
+  });
+
+  it('initialStateTest — adminInitial should be A initially', () => {
+    expect(component.adminInitial).toBe('A');
   });
 
   it('initialStateTest — pageTitle should be Overview initially', () => {
@@ -91,7 +108,7 @@ describe('HeaderComponent', () => {
     localStorage.clear();                                    // ← reset to clean state
     localStorage.setItem('userName',  'Bob Fallback');
     localStorage.setItem('userEmail', 'bob@test.com');
-    userServiceSpy.getProfile.and.returnValue(throwError(() => ({ status: 401 })));
+    userServiceSpy.getProfile.and.returnValue(throwError(() => ({ statut: 401 })));
 
     fixture   = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
@@ -104,7 +121,7 @@ describe('HeaderComponent', () => {
     localStorage.clear();
     localStorage.setItem('userName',  'Bob Fallback');
     localStorage.setItem('userEmail', 'bob@test.com');
-    userServiceSpy.getProfile.and.returnValue(throwError(() => ({ status: 401 })));
+    userServiceSpy.getProfile.and.returnValue(throwError(() => ({ statut: 401 })));
 
     fixture   = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
@@ -116,7 +133,7 @@ describe('HeaderComponent', () => {
   it('ngOnInitTest — should derive adminInitial from fallback userName', () => {
     localStorage.clear();
     localStorage.setItem('userName', 'Bob Fallback');
-    userServiceSpy.getProfile.and.returnValue(throwError(() => ({ status: 401 })));
+    userServiceSpy.getProfile.and.returnValue(throwError(() => ({ statut: 401 })));
 
     fixture   = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
@@ -127,7 +144,7 @@ describe('HeaderComponent', () => {
 
   it('ngOnInitTest — should default to Administrator when localStorage is empty on error', () => {
     localStorage.clear();                                    // ← garantit localStorage vide
-    userServiceSpy.getProfile.and.returnValue(throwError(() => ({ status: 401 })));
+    userServiceSpy.getProfile.and.returnValue(throwError(() => ({ statut: 401 })));
 
     fixture   = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
@@ -138,7 +155,7 @@ describe('HeaderComponent', () => {
 
   it('ngOnInitTest — adminInitial should be A when defaulting to Administrator', () => {
     localStorage.clear();
-    userServiceSpy.getProfile.and.returnValue(throwError(() => ({ status: 401 })));
+    userServiceSpy.getProfile.and.returnValue(throwError(() => ({ statut: 401 })));
 
     fixture   = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;

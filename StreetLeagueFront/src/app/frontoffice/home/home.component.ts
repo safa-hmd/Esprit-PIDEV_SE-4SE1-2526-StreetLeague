@@ -8,7 +8,6 @@ import { LeaderboardDto } from 'src/app/models/leaderboard.model';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-
 export class HomeComponent implements OnInit {
 
   topTeams: LeaderboardDto[] = [];   // ← plus Team[]
@@ -27,7 +26,7 @@ export class HomeComponent implements OnInit {
     this.leaderboardError = '';
 
     this.teamService.getLeaderboard(this.selectedSport).subscribe({
-      next: (data) => {
+      next: (data: LeaderboardDto[]) => {
         this.topTeams = data;
         this.isLoadingLeaderboard = false;
       },

@@ -242,6 +242,8 @@ export class PerformanceStreakService {
     return colors[severity ?? ''] ?? '#9ca3af';
   }
 
+  // ══ ENDPOINTS TEST / DÉMO ════════════════════════════════════════════
+
   /** Retourne l'icône selon le type d'anomalie. */
   getAnomalyTypeIcon(type: string | null): string {
     const icons: Record<string, string> = {
@@ -251,5 +253,24 @@ export class PerformanceStreakService {
       'PERFORMANCE_SPIKE':         '📈',
     };
     return icons[type ?? ''] ?? '⚪';
+  }
+
+  /**
+   * Injecte 28 jours de données simulées pour un joueur.
+   * pattern = 'drop' | 'spike' | 'overload' | 'regular' | 'custom'
+   */
+  seedTestData(playerId: number, pattern: string, presentDays = 20, skipLast = 5): Observable<any> {
+    return this.http.post<any>(
+      `${this.base}/test/seed/${playerId}?pattern=${pattern}&presentDays=${presentDays}&skipLast=${skipLast}`,
+      {}, { headers: this.getHeaders() }
+    ).pipe(catchError(this.handleError));
+  }
+
+  /** Remet à zéro toutes les présences + streak d'un joueur. */
+  resetPlayerData(playerId: number): Observable<any> {
+    return this.http.post<any>(
+      `${this.base}/test/reset/${playerId}`,
+      {}, { headers: this.getHeaders() }
+    ).pipe(catchError(this.handleError));
   }
 }

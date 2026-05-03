@@ -47,11 +47,20 @@ export class CoachAnomalyDashboardComponent
   filteredAlerts: PlayerStatsDto[] = [];
 
   // ── État UI ────────────────────────────────────────────────────────────
-  activeTab: 'anomalies' | 'acwr' | 'chart' = 'anomalies';
+  activeTab: 'anomalies' | 'acwr' | 'chart' | 'test' = 'anomalies';
   selectedSeverity: 'ALL' | 'CRITICAL' | 'HIGH' | 'MEDIUM' = 'ALL';
 
   loading = false;
   error: string | null = null;
+
+  // ── Panneau Test/Démo ──────────────────────────────────────────────────
+  testPlayerId: number = 0;
+  testPattern: string = 'drop';
+  testPresentDays: number = 20;
+  testSkipLast: number = 5;
+  testLoading = false;
+  testResult: any = null;
+  testError: string | null = null;
 
   // ── Compteurs anomalies ────────────────────────────────────────────────
   criticalCount = 0;
@@ -143,7 +152,7 @@ export class CoachAnomalyDashboardComponent
     this.applyFilter();
   }
 
-  setTab(tab: 'anomalies' | 'acwr' | 'chart'): void {
+  setTab(tab: 'anomalies' | 'acwr' | 'chart' | 'test'): void {
     this.activeTab = tab;
     this.chartsRendered = false;
   }
@@ -268,5 +277,69 @@ export class CoachAnomalyDashboardComponent
       'DANGER':    '#f87171'
     };
     return colors[zone ?? ''] ?? '#444450';
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  //  TEST / DÉMO — Seed & Reset
+  // ══════════════════════════════════════════════════════════════════════
+
+  runSeed(): void {
+    if (!this.testPlayerId || this.testPlayerId <= 0) {
+      this.testError = 'Entrez un Player ID valide.';
+      return;
+    }
+    this.testLoading = true;
+    this.testResult  = null;
+    this.testError   = null;
+
+    this.service.seedTestData(
+      this.testPlayerId,
+      this.testPattern,
+      this.testPresentDays,
+      this.testSkipLast
+    ).subscribe({
+      next: (res) => {
+        this.testResult  = res;
+        this.testLoading = false;
+        this.loadData(); // Rafraîchir le dashboard après injection
+      },
+      error: (err) => {
+        this.testError   = err.message || 'Erreur seed.';
+        this.testLoading = false;
+      }
+    });
+  }
+
+  runReset(): void {
+    if (!this.testPlayerId || this.testPlayerId <= 0) {
+      this.testError = 'Entrez un Player ID valide.';
+      return;
+    }
+    this.testLoading = true;
+    this.testResult  = null;
+    this.testError   = null;
+
+    this.service.resetPlayerData(this.testPlayerId).subscribe({
+      next: (res) => {
+        this.testResult  = res;
+        this.testLoading = false;
+        this.loadData();
+      },
+      error: (err) => {
+        this.testError   = err.message || 'Erreur reset.';
+        this.testLoading = false;
+      }
+    });
+  }
+
+  getPatternDescription(pattern: string): string {
+    const desc: Record<string, string> = {
+      'drop':     '✅ Présent 23j → absent 5j → chute détectée (DROP)',
+      'spike':    '📈 Absent 20j → présent 8j → pic détecté (SPIKE)',
+      'overload': '🚨 Présent 28j avec BOTH → ACWR DANGER + fatigue max',
+      'regular':  '🟢 Présent 28j TRAINING → ACWR OPTIMAL, pas d\'anomalie',
+      'custom':   '⚙️ Paramètres manuels ci-dessous'
+    };
+    return desc[pattern] ?? '';
   }
 }

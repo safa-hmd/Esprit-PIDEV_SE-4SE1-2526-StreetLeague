@@ -1,4 +1,5 @@
-export const environment = {
+﻿export const environment = {
   production: false,
-  baseUrl: 'http://localhost:8086/StreetLeague'
+  baseUrl: API_BASE_URL,
+  mlApiUrl: 'http://localhost:8000'
 };

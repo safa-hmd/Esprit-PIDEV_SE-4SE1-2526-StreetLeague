@@ -3,11 +3,11 @@ import { TrainingService } from 'src/app/services/training.service';
 import { TrainingResponse } from 'src/app/models/training.model';
 
 export interface Coach {
-  name: string;
+  nom: string;
   specialty: string;
   sessions: number;
   rating: number;
-  status: 'Active' | 'Pending';
+  statut: 'Active' | 'Pending';
 }
 
 @Component({
@@ -39,7 +39,7 @@ export class ListTrainingComponent implements OnInit {
     return this.trainings.reduce((sum, t) => sum + (t.participantCount || 0), 0);
   }
   get activeCoaches(): number {
-    return this.coaches.filter(c => c.status === 'Active').length;
+    return this.coaches.filter(c => c.statut === 'Active').length;
   }
 
   ngOnInit(): void {
@@ -77,7 +77,7 @@ export class ListTrainingComponent implements OnInit {
   }
 
   // ── Status badge CSS ──────────────────────────────────────
-  getStatusClass(status: string): string {
+  getStatusClass(statut: string): string {
     switch (status) {
       case 'PLANNED':   return 'a-badge-blue';
       case 'COMPLETED': return 'a-badge-green';
@@ -86,7 +86,7 @@ export class ListTrainingComponent implements OnInit {
     }
   }
 
-  getCoachStatusClass(status: string): string {
+  getCoachStatusClass(statut: string): string {
     return status === 'Active' ? 'a-badge-green' : 'a-badge-orange';
   }
 
@@ -102,3 +102,6 @@ export class ListTrainingComponent implements OnInit {
     return 'var(--teal)';
   }
 }
+
+
+

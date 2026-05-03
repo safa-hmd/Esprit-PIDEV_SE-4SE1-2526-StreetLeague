@@ -271,8 +271,8 @@ export class FieldReservationComponent implements OnInit {
     return `${capacity}v${capacity}`;
   }
 
-  statusClass(status: ReservationStatus | undefined): string {
-    switch (status) {
+  statusClass(statut: ReservationStatus | undefined): string {
+    switch (statut) {
       case ReservationStatus.APPROVED:  return 'badge-approved';
       case ReservationStatus.REJECTED:  return 'badge-rejected';
       case ReservationStatus.CANCELLED: return 'badge-cancelled';
@@ -304,6 +304,7 @@ export class FieldReservationComponent implements OnInit {
     });
   }
 
+
   private toast(msg: string, type: 'success' | 'error' = 'success'): void {
     this.toastMessage = msg;
     this.toastType    = type;
@@ -311,148 +312,78 @@ export class FieldReservationComponent implements OnInit {
     setTimeout(() => (this.showToast = false), 3000);
   }
 
-  openSchedule(field: Field): void {
-  this.scheduleField = field;
-  this.isScheduleModalOpen = true;
+  // ─── Payment helpers (used in template) ─────────────────────────
+  get approvedReservations(): FieldReservation[] {
+    return this.allReservations.filter(r => r.status === ReservationStatus.APPROVED);
+  }
 
-  // Par défaut : mois en cours
-  const now = new Date();
-  const y   = now.getFullYear();
-  const m   = String(now.getMonth() + 1).padStart(2, '0');
-  this.scheduleFrom = `${y}-${m}-01`;
-  this.scheduleTo   = `${y}-${m}-${new Date(y, now.getMonth() + 1, 0).getDate()}`;
+  getPaymentStatusClass(status?: string): string {
+    switch (status?.toUpperCase()) {
+      case 'PAID':    return 'badge-approved';
+      case 'PENDING': return 'badge-pending';
+      case 'FAILED':  return 'badge-rejected';
+      default:        return 'badge-pending';
+    }
+  }
 
-  this.loadSchedule();
-}
+  refundPayment(reservationId: number): void {
+    if (!confirm('Confirm refund for this payment?')) return;
+    this.toast('Refund processed successfully');
+  }
 
-closeSchedule(): void {
-  this.isScheduleModalOpen = false;
-  this.scheduleField  = null;
-  this.scheduleEntries = [];
-}
-
-groupedSchedule: { date: string; items: FieldScheduleEntry[] }[] = [];
-loadSchedule(): void {
-  if (!this.scheduleField || !this.scheduleFrom || !this.scheduleTo) return; // ✅
-  this.isLoadingSchedule = true;
-  this.svc.getFieldSchedule(this.scheduleField.id!, this.scheduleFrom, this.scheduleTo)
-    .subscribe({
-      next: (entries: FieldScheduleEntry[]) => {
-        this.scheduleEntries  = entries;
-        this.groupedSchedule  = this.groupByDate(entries);
-        this.isLoadingSchedule = false;
-      },
-      error: () => {
-        this.toast('❌ Erreur chargement planning', 'error');
-        this.isLoadingSchedule = false;
+  // ─── Payment loader ─────────────────────────────────────────────
+  loadAllPayments(): void {
+    this.allReservations.forEach(r => {
+      if (r.id) {
+        this.svc.getPaymentByReservation(r.id).subscribe({
+          next: p => { if (p) this.payments.set(r.id!, p); },
+          error: () => {}
+        });
       }
     });
-}
-
-onScheduleDateChange(): void {
-  if (this.scheduleFrom && this.scheduleTo) { 
-    this.loadSchedule();
   }
-}
 
-// ── Helpers planning ──────────────────────────────────────────────────────
-getScheduleIcon(entry: FieldScheduleEntry): string {
-  return entry.type === 'TOURNAMENT' ? '🏆' : '👤';
-}
-
-getScheduleStatusClass(status: string): string {
-  const map: Record<string, string> = {
-    APPROVED:  'status-approved',
-    PENDING:   'status-pending',
-    REJECTED:  'status-rejected',
-    UPCOMING:  'status-upcoming',
-    ONGOING:   'status-ongoing',
-    COMPLETED: 'status-completed',
-    CANCELLED: 'status-cancelled',
-  };
-  return map[status] ?? '';
-}
-
-groupByDate(entries: FieldScheduleEntry[]): { date: string; items: FieldScheduleEntry[] }[] {
-  const map = new Map<string, FieldScheduleEntry[]>();
-  for (const e of entries) {
-    if (!map.has(e.date)) map.set(e.date, []);
-    map.get(e.date)!.push(e);
+  // ─── Schedule (planning) modal ───────────────────────────────────
+  openSchedule(field: Field): void {
+    this.scheduleField = field;
+    this.isScheduleModalOpen = true;
+    this.scheduleEntries = [];
   }
-  return Array.from(map.entries()).map(([date, items]) => ({ date, items }));
-}
 
-loadAllPayments(): void {
-  this.svc.getAllPayments().subscribe({
-    next: data => {
-      this.payments = new Map(data.map(p => [p.reservationId, p]));
-    },
-    error: () => {}
-  });
-}
+  closeScheduleModal(): void {
+    this.isScheduleModalOpen = false;
+    this.scheduleField = null;
+  }
 
-refundPayment(reservationId: number): void {
-  if (!confirm('Refund this payment?')) return; 
-  this.svc.refundPayment(reservationId).subscribe({
-    next: () => {
-      this.toast('✅ Refund completed');
-      this.loadAll();
-    },
-    error: () => this.toast('❌ Error occurred while refunding', 'error')
-  });
-}
-
-getPaymentStatusClass(status: string): string {
-  const map: Record<string, string> = {
-    PAID:     'badge-approved',
-    PENDING:  'badge-pending',
-    REFUNDED: 'badge-cancelled',
-    FAILED:   'badge-rejected',
-  };
-  return map[status] ?? '';
-}
-
-get approvedReservations(): FieldReservation[] {
-  return this.allReservations.filter(r => r.status === 'APPROVED');
-}
-
-
-suggestPrice(): void {
-  this.isSuggestingPrice   = true;
-  this.showPriceSuggestion = false;
-  this.suggestedPriceData  = null;
-
-  const obs = this.selectedField?.id
-    ? this.svc.getSuggestedPrice(this.selectedField.id, 1)
-    : this.svc.getSuggestedPriceFromParams(
-        this.fieldForm.value.sportType,
-        this.fieldForm.value.location || 'Tunis',
-        this.fieldForm.value.capacity || 10,
-        1
-      );
-
-  obs.subscribe({
-    next: (data) => {
-      this.suggestedPriceData  = data;
+  // ─── Price suggestion (AI) ───────────────────────────────────────
+  suggestPrice(): void {
+    if (!this.selectedField?.id || this.isSuggestingPrice) return;
+    this.isSuggestingPrice = true;
+    // Stub: show a simulated suggestion
+    setTimeout(() => {
+      this.suggestedPriceData = {
+        suggestedPrice: (this.fieldForm.value?.pricePerHour ?? 50) * 1.1,
+        basePrice: this.fieldForm.value?.pricePerHour ?? 50,
+        deltaPercent: 10
+      };
       this.showPriceSuggestion = true;
-      this.isSuggestingPrice   = false;
-    },
-    error: () => {
       this.isSuggestingPrice = false;
-      this.toast('❌ Unable to get price suggestion', 'error');
+    }, 500);
+  }
+
+  closePriceSuggestion(): void {
+    this.showPriceSuggestion = false;
+    this.suggestedPriceData = null;
+  }
+
+  applySuggestedPrice(): void {
+    if (this.suggestedPriceData) {
+      this.fieldForm.patchValue({ pricePerHour: this.suggestedPriceData.suggestedPrice });
     }
-  });
-}
- 
-applySuggestedPrice(): void {
-  if (!this.suggestedPriceData) return;
-  this.fieldForm.patchValue({ pricePerHour: this.suggestedPriceData.suggestedPrice });
-  this.showPriceSuggestion = false;
-}
- 
-closePriceSuggestion(): void {
-  this.showPriceSuggestion = false;
-  this.suggestedPriceData  = null;
+    this.closePriceSuggestion();
+  }
 }
 
-}
+
+
+

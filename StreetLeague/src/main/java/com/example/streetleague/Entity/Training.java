@@ -47,6 +47,7 @@ public class Training {
 
     // Players who joined this training session
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
             name = "training_participants",
             joinColumns = @JoinColumn(name = "trainings_id_training"),

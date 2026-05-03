@@ -29,8 +29,8 @@ public class RecommendationController {
     @GetMapping("/fields/{userId}")
     public ResponseEntity<List> recommendFields(
             @PathVariable Long userId,
-            @RequestParam(required = false) Double lat,
-            @RequestParam(required = false) Double lng) {
+            @RequestParam double lat,
+            @RequestParam double lng) {
 
         List<Map<String, Object>> fields = getAllFieldsFromDb();
 
@@ -40,11 +40,9 @@ public class RecommendationController {
 
         Map<String, Object> body = new HashMap<>();
         body.put("userId",  userId);
+        body.put("userLat", lat);
+        body.put("userLng", lng);
         body.put("fields",  fields);
-        if (lat != null && lng != null) {
-            body.put("userLat", lat);
-            body.put("userLng", lng);
-        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

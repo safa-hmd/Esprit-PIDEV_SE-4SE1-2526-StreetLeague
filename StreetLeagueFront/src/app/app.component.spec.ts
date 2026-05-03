@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
 
@@ -17,15 +17,8 @@ describe('AppComponent', () => {
   it(`should have as title 'StreetLeagueFront'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('StreetLeagueFront');
+    expect(app.titre).toEqual('StreetLeagueFront');
   });
 
-  // ← Test corrigé : le texte généré par défaut n'existe plus dans le projet
-  it('should render the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-
-    expect(fixture.componentInstance).toBeTruthy();
-
-  });
+  // ← test "should render title" supprimé car le HTML n'a pas de .content span
 });

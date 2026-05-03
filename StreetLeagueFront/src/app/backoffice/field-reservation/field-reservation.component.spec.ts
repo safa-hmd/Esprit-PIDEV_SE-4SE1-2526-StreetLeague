@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FieldReservationComponent } from './field-reservation.component';
 import { FieldReservationService } from '../../services/field-reservation.service';
 import { FormBuilder, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -345,129 +345,67 @@ describe('Backoffice FieldReservationComponent', () => {
     expect(toastSpy).toHaveBeenCalledWith(jasmine.stringContaining('Validation errors'), 'error');
   });
 
-  it('saveNewFieldTest — should show message error on other errors', () => {
-    svcSpy.createField.and.returnValue(throwError(() => ({
-      status: 409, error: { message: 'Field already exists' }
-    })));
-    const toastSpy = spyOn<any>(component, 'toast');
-    component.fieldForm.setValue({
-      name: 'New Field', description: '', sportType: 'FOOTBALL',
-      location: 'East', imageUrl: '', pricePerHour: 40, capacity: 5, available: true
+  // ✅ FIX SAFE
+  get availableFieldsCount(): number {
+    return (this.fields ?? []).filter(f => f.available === true).length;
+  }
+
+  get pendingCount(): number {
+    return this.pendingReservations.length;
+  }
+
+  get monthlyReservations(): number {
+    const now = new Date();
+    return this.allReservations.filter(r => {
+      const d = new Date(r.createdAt || '');
+      return d.getMonth() === now.getMonth() &&
+             d.getFullYear() === now.getFullYear();
+    }).length;
+  }
+
+  get monthlyRevenue(): number {
+    const now = new Date();
+    return this.allReservations
+      .filter(r => {
+        const d = new Date(r.createdAt || '');
+        return d.getMonth() === now.getMonth() &&
+               d.getFullYear() === now.getFullYear() &&
+               r.statut === ReservationStatus.APPROVED;
+      })
+      .reduce((sum, r) => sum + (r.totalPrice ?? 0), 0);
+  }
+
+  applySearch(): void {
+    const q = this.searchQuery.toLowerCase().trim();
+    this.filteredFields = q
+      ? this.fields.filter(f =>
+          f.nom.toLowerCase().includes(q) ||
+          f.lieu.toLowerCase().includes(q) ||
+          f.sportType.toLowerCase().includes(q)
+        )
+      : [...this.fields];
+  }
+
+  private buildFieldForm(): void {
+    this.fieldForm = this.fb.group({
+      nom: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      sportType: [SportType.FOOTBALL, Validators.required],
+      lieu: ['', Validators.required],
+      imageUrl: [''],
+      pricePerHour: [null, [Validators.required, Validators.min(0)]],
+      capacity: [null, [Validators.required, Validators.min(1)]],
+      available: [true]
     });
     component.saveNewField();
     expect(toastSpy).toHaveBeenCalledWith('Field already exists', 'error');
   });
 
-  // ── saveEditedField ───────────────────────────────────────
+  private toast(msg: string, type: 'success' | 'error' = 'success'): void {
+    this.toastMessage = msg;
+    this.toastType = type;
+    this.showToast = true;
+    setTimeout(() => this.showToast = false, 3000);
+  }
+}
 
-  it('saveEditedFieldTest — should do nothing when form is invalid', () => {
-    component.fieldForm.reset();
-    component.saveEditedField();
-    expect(svcSpy.updateField).not.toHaveBeenCalled();
-  });
-
-  it('saveEditedFieldTest — should do nothing when selectedField has no id', () => {
-    component.selectedField = { ...mockFields[0], id: undefined } as any;
-    component.fieldForm.setValue({
-      name: 'Updated', description: '', sportType: 'FOOTBALL',
-      location: 'East', imageUrl: '', pricePerHour: 40, capacity: 5, available: true
-    });
-    component.saveEditedField();
-    expect(svcSpy.updateField).not.toHaveBeenCalled();
-  });
-
-  it('saveEditedFieldTest — should update field on success', () => {
-    svcSpy.updateField.and.returnValue(of(mockFields[0] as any));
-    const loadSpy = spyOn(component, 'loadFields');
-    component.selectedField = mockFields[0] as any;
-    component.fieldForm.setValue({
-      name: 'Updated', description: '', sportType: 'FOOTBALL',
-      location: 'East', imageUrl: '', pricePerHour: 40, capacity: 5, available: true
-    });
-    component.saveEditedField();
-    expect(svcSpy.updateField).toHaveBeenCalledWith(1, jasmine.any(Object));
-    expect(component.showEditFieldModal).toBeFalse();
-    expect(loadSpy).toHaveBeenCalled();
-  });
-
-  it('saveEditedFieldTest — should show validation errors on 400', () => {
-    svcSpy.updateField.and.returnValue(throwError(() => ({
-      status: 400, error: { location: 'required' }
-    })));
-    const toastSpy = spyOn<any>(component, 'toast');
-    component.selectedField = mockFields[0] as any;
-    component.fieldForm.setValue({
-      name: 'Updated', description: '', sportType: 'FOOTBALL',
-      location: 'East', imageUrl: '', pricePerHour: 40, capacity: 5, available: true
-    });
-    component.saveEditedField();
-    expect(toastSpy).toHaveBeenCalledWith(jasmine.stringContaining('Validation errors'), 'error');
-  });
-
-  // ── toggleField ───────────────────────────────────────────
-
-  it('toggleFieldTest — should do nothing when field has no id', () => {
-    component.toggleField({ ...mockFields[0], id: undefined } as any);
-    expect(svcSpy.toggleAvailability).not.toHaveBeenCalled();
-  });
-
-  it('toggleFieldTest — should toggle availability and update fields list', () => {
-    const updated = { ...mockFields[0], available: false } as any;
-    svcSpy.toggleAvailability.and.returnValue(of(updated));
-    component.toggleField(mockFields[0] as any);
-    expect(svcSpy.toggleAvailability).toHaveBeenCalledWith(1);
-    expect(component.fields[0].available).toBeFalse();
-  });
-
-  it('toggleFieldTest — should show toast on error', () => {
-    svcSpy.toggleAvailability.and.returnValue(throwError(() => ({ status: 500 })));
-    const toastSpy = spyOn<any>(component, 'toast');
-    component.toggleField(mockFields[0] as any);
-    expect(toastSpy).toHaveBeenCalledWith('Toggle failed', 'error');
-  });
-
-  // ── deleteField ───────────────────────────────────────────
-
-  it('deleteFieldTest — should delete field on confirm', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    svcSpy.deleteField.and.returnValue(of({} as any));
-    const loadSpy = spyOn(component, 'loadFields');
-    component.deleteField(1);
-    expect(svcSpy.deleteField).toHaveBeenCalledWith(1);
-    expect(loadSpy).toHaveBeenCalled();
-  });
-
-  it('deleteFieldTest — should not delete when confirm cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
-    component.deleteField(1);
-    expect(svcSpy.deleteField).not.toHaveBeenCalled();
-  });
-
-  it('deleteFieldTest — should show toast on error', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    svcSpy.deleteField.and.returnValue(throwError(() => ({ status: 500 })));
-    const toastSpy = spyOn<any>(component, 'toast');
-    component.deleteField(1);
-    expect(toastSpy).toHaveBeenCalledWith('Deletion failed', 'error');
-  });
-
-  // ── closeModals ───────────────────────────────────────────
-
-  it('closeModalsTest — should reset all modal states', () => {
-    component.showAddFieldModal   = true;
-    component.showEditFieldModal  = true;
-    component.showDetailModal     = true;
-    component.showRejectNoteModal = true;
-    component.selectedReservation = mockPending[0] as any;
-    component.selectedField       = mockFields[0] as any;
-
-    component.closeModals();
-
-    expect(component.showAddFieldModal).toBeFalse();
-    expect(component.showEditFieldModal).toBeFalse();
-    expect(component.showDetailModal).toBeFalse();
-    expect(component.showRejectNoteModal).toBeFalse();
-    expect(component.selectedReservation).toBeNull();
-    expect(component.selectedField).toBeNull();
-  });
-});

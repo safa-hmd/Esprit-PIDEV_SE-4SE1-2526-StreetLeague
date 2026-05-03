@@ -90,12 +90,20 @@ export class RegisterComponent {
     this.authService.register({ fullName, email, password, role: this.selectedRole }).subscribe({
       next: () => {
         this.isLoading = false;
-        this.successMessage = 'Compte créé ! Redirection vers la connexion…';
-        setTimeout(() => this.router.navigate(['/login']), 1500);
+        const isAdmin = (this.selectedRole as string) === 'ADMIN';
+        this.successMessage = isAdmin
+          ? 'Compte créé ! Redirection vers la login administrateur…'
+          : 'Compte créé ! Redirection vers la login…';
+        const target = isAdmin ? '/admin-login' : '/login';
+        setTimeout(() => this.router.navigateByUrl(target), 1500);
       },
       error: (error) => {
         this.isLoading    = false;
-        this.errorMessage = error?.error?.message || 'Une erreur est survenue. Veuillez réessayer.';
+        const body = error?.error;
+        this.errorMessage =
+          (typeof body === 'object' && body !== null && 'message' in body && (body as { message?: string }).message) ||
+          (typeof body === 'object' && body !== null && 'error' in body && String((body as { error?: unknown }).error)) ||
+          'Une erreur est survenue. Please réessayer.';
         console.error(error);
       },
     });

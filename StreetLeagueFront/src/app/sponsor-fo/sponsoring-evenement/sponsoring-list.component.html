@@ -1,0 +1,141 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .page-wrapper { min-height: 100vh; padding: 2rem; background: linear-gradient(135deg, #f4f6fb 0%, #e8edf7 100%); font-family: 'Inter', sans-serif; }
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+  .page-title { font-size: 1.75rem; font-weight: 800; color: #1a1f36; }
+  .page-title span { color: #8b5cf6; }
+  .page-subtitle { color: #6b7280; font-size: 0.9rem; margin-top: 0.25rem; }
+  .btn-primary { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border: none; padding: 0.65rem 1.4rem; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; transition: all 0.2s; box-shadow: 0 4px 12px rgba(139,92,246,0.3); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(139,92,246,0.4); }
+  .btn-edit { background: #f0f9ff; color: #0369a1; border: 1.5px solid #bae6fd; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-edit:hover { background: #0369a1; color: white; }
+  .btn-delete { background: #fff1f2; color: #e11d48; border: 1.5px solid #fecdd3; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-delete:hover { background: #e11d48; color: white; }
+  .btn-view { background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ddd6fe; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-view:hover { background: #7c3aed; color: white; }
+  .card { background: white; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); overflow: hidden; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { background: #fafafa; padding: 1rem 1.2rem; text-align: left; font-size: 0.78rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #f3f4f6; }
+  tbody tr { border-bottom: 1px solid #f9fafb; transition: background 0.15s; }
+  tbody tr:hover { background: #f5f3ff; }
+  tbody td { padding: 1rem 1.2rem; font-size: 0.88rem; color: #374151; }
+  .row-actions { display: flex; gap: 0.5rem; }
+  .badge { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+  .badge-finance { background: #dbeafe; color: #1e40af; }
+  .badge-materiel { background: #dcfce7; color: #166534; }
+  .badge-service { background: #fef3c7; color: #92400e; }
+  .badge-autre { background: #f3f4f6; color: #374151; }
+  .btn-approve { background: #dcfce7; color: #166534; border: 1.5px solid #86efac; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-approve:hover { background: #bbf7d0; }
+  .btn-reject { background: #fff1f2; color: #e11d48; border: 1.5px solid #fecdd3; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-reject:hover { background: #f5c6cb; }
+  .badge-approved { background: #dcfce7; color: #166534; }
+  .badge-rejected { background: #fff1f2; color: #e11d48; }
+  .badge-pending { background: #fef3c7; color: #92400e; }
+  .alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; padding: 1rem 1.2rem; border-radius: 10px; margin-bottom: 1rem; }
+  .alert-error { background: #fff1f2; border: 1px solid #fecdd3; color: #be123c; padding: 1rem 1.2rem; border-radius: 10px; margin-bottom: 1rem; }
+  .empty-state { text-align: center; padding: 3rem; color: #9ca3af; }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+  .spinner { text-align: center; padding: 3rem; color: #9ca3af; font-size: 0.9rem; }
+
+  /* Pagination Styles */
+  .pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; padding: 1.5rem; border-top: 1px solid #f3f4f6; }
+  .btn-pagination { background: #f9fafb; color: #6b7280; border: 1px solid #e5e7eb; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .btn-pagination:hover:not(:disabled) { background: #f3f4f6; color: #374151; }
+  .btn-pagination:disabled { opacity: 0.5; cursor: not-allowed; }
+  .pagination-info { color: #6b7280; font-size: 0.875rem; font-weight: 500; }
+  .pagination-pages { display: flex; gap: 0.5rem; }
+  .page-number { background: #f9fafb; color: #6b7280; border: 1px solid #e5e7eb; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.2s; min-width: 2.5rem; text-align: center; }
+  .page-number:hover { background: #f3f4f6; color: #374151; }
+  .page-number.active { background: #8b5cf6; color: white; border-color: #8b5cf6; }
+  .pagination-controls { display: flex; align-items: center; gap: 1rem; }
+  .items-per-page { display: flex; align-items: center; gap: 0.5rem; color: #6b7280; font-size: 0.875rem; }
+  .items-per-page select { background: white; border: 1px solid #e5e7eb; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.875rem; color: #374151; }
+</style>
+
+<app-sponsor-navbar></app-sponsor-navbar>
+
+<div class="page-wrapper" style="margin-top: 70px;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Mes <span>Sponsorings</span></h1>
+      <p class="page-subtitle">Gérez vos sponsorings d'events</p>
+    </div>
+    <button class="btn-primary" (click)="createNew()" id="btn-new-sponsoring" *ngIf="canCreate()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      New Sponsoring
+    </button>
+  </div>
+
+  <div class="alert-success" *ngIf="successMessage"> {{ successMessage }}</div>
+  <div class="alert-error" *ngIf="error"> {{ error }}</div>
+
+  <div class="card">
+    <div class="spinner" *ngIf="loading">Chargement des sponsorings…</div>
+    <div class="empty-state" *ngIf="!loading && sponsorings.length === 0 && !error">
+      <div class="icon">⚡</div>
+      <p>none sponsoring trouvé. Créez votre premier sponsoring !</p>
+    </div>
+    <div class="table-wrap" *ngIf="!loading && sponsorings.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>ID Sponsor</th>
+            <th>ID Event</th>
+            <th>Contribution (€)</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of paginatedSponsorings">
+            <td>{{ s.id }}</td>
+            <td><strong>#{{ s.sponsorId }}</strong></td>
+            <td><strong>#{{ s.evenementId }}</strong></td>
+            <td>{{ s.contribution | number:'1.2-2' }} €</td>
+            <td><span class="badge" [ngClass]="getContribBadgeClass(s.typeContribution)">{{ s.typeContribution }}</span></td>
+            <td>
+              <span class="badge" [ngClass]="getStatusBadgeClass(s.statut)">{{ s.statut || 'PENDING' }}</span>
+            </td>
+            <td>
+              <div class="row-actions">
+                <button class="btn-view" (click)="viewDetail(s.id)" [id]="'btn-view-sp-' + s.id">Details</button>
+                <button class="btn-edit" (click)="edit(s.id)" [id]="'btn-edit-sp-' + s.id" *ngIf="canEdit()">Edit</button>
+                <button class="btn-delete" (click)="delete(s.id)" [id]="'btn-del-sp-' + s.id" *ngIf="canDelete()">Delete</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <div class="pagination-controls">
+          <button class="btn-pagination" (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+          <div class="pagination-pages">
+            <button class="page-number" 
+                    *ngFor="let page of getPages()" 
+                    [class.active]="page === currentPage"
+                    (click)="onPageChange(page)">
+              {{ page }}
+            </button>
+          </div>
+          <button class="btn-pagination" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+        </div>
+        <div class="items-per-page">
+          <label>Éléments par page:</label>
+          <select (change)="onItemsPerPageChange()" [(ngModel)]="itemsPerPage">
+            <option [ngValue]="3">3</option>
+            <option [ngValue]="6">6</option>
+            <option [ngValue]="9">9</option>
+            <option [ngValue]="12">12</option>
+          </select>
+        </div>
+        <span class="pagination-info">{{ totalItems }} éléments</span>
+      </div>
+    </div>
+  </div>
+</div>
+

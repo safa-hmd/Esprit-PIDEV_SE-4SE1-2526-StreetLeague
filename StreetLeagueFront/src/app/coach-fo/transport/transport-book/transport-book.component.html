@@ -45,7 +45,7 @@
                   
                   <div class="summary-item d-flex justify-content-between mb-3">
                     <span style="color: #333333; font-weight: 600;">Price per Seat:</span>
-                    <span style="color: #111111;">{{ transport?.pricePerSeat | currency }}</span>
+                    <span style="color: #111111;">{{ formatPrice(transport?.pricePerSeat) }}</span>
                   </div>
                   
                   <div class="summary-item d-flex justify-content-between mb-3 border-bottom pb-3">
@@ -54,19 +54,19 @@
                   </div>
 
                   <div class="mt-4 p-3 rounded bg-light border-0">
-                    <p class="mb-2 text-dark"><i class="fas fa-calendar-alt text-danger me-2"></i> <strong>Departure:</strong> {{ transport?.departureTime | date:'medium' }}</p>
-                    <p class="mb-0 text-dark"><i class="fas fa-undo text-danger me-2"></i> <strong>Return:</strong> {{ transport?.returnTime | date:'medium' }}</p>
+                    <p class="mb-2 text-dark"><i class="fas fa-calendar-alt text-danger me-2"></i> <strong>Departure:</strong> {{ formatDate(transport?.departureTime) }}</p>
+                    <p class="mb-0 text-dark"><i class="fas fa-undo text-danger me-2"></i> <strong>Return:</strong> {{ formatDate(transport?.returnTime) }}</p>
                   </div>
               </div>
 
               <!-- Price Box -->
               <div class="card border-danger shadow-sm mt-5 p-4 text-center bg-white" style="border: 2px solid #e63946 !important;">
                  <h5 class="text-muted mb-2 uppercase text-xs font-weight-bold">Total Estimated Cost</h5>
-                 <h1 class="text-danger font-weight-bold mb-3" style="font-size: 2.5rem;">{{ totalPrice | currency }}</h1>
+                 <h1 class="text-danger font-weight-bold mb-3" style="font-size: 2.5rem;">{{ formatPrice(totalPrice) }}</h1>
                  
                  <div class="p-3 rounded bg-light border-0 mb-4">
                     <p class="mb-1 text-dark" style="color: #1a1a1a !important;">Selected Members: <strong>{{ selectedMemberIds.size }}</strong></p>
-                    <p class="mb-0 text-dark" style="color: #1a1a1a !important;">Rate: <strong>{{ transport?.pricePerSeat | currency }} / seat</strong></p>
+                    <p class="mb-0 text-dark" style="color: #1a1a1a !important;">Rate: <strong>{{ formatPrice(transport?.pricePerSeat) }} / seat</strong></p>
                  </div>
                  
                  <button class="btn btn-danger btn-lg w-100 py-3 font-weight-bold shadow-sm" (click)="submitRequest()" 

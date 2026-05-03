@@ -66,8 +66,6 @@ export class TrainingsComponent implements OnInit {
   loadTeams(): void {
     this.teamService.getAllTeams().subscribe({
       next: (data) => {
-        // ✅ CORRECTION : ne plus filtrer par captainRole
-        // On prend toutes les équipes — le backend vérifiera que le coach est bien assigné
         this.teams = data;
         this.loadTrainings();
       },
@@ -90,10 +88,8 @@ export class TrainingsComponent implements OnInit {
     });
   }
 
-  // ✅ CORRECTION : formater la date en LocalDateTime attendu par Spring
   private formatDateForBackend(dateStr: string): string {
     if (!dateStr) return dateStr;
-    // datetime-local donne "2025-06-15T10:00" → on ajoute ":00" si pas de secondes
     if (dateStr.length === 16) {
       return dateStr + ':00';
     }
@@ -117,12 +113,12 @@ export class TrainingsComponent implements OnInit {
       return;
     }
 
-    // ✅ CORRECTION : préparer le body avec la date bien formatée
     const formValue = this.createTrainingForm.value;
+    // ✅ FIX: startTime بدل trainingDate
     const dto: TrainingRequest = {
       title:             formValue.title,
       description:       formValue.description,
-      trainingDate:      this.formatDateForBackend(formValue.trainingDate),
+      startTime:         this.formatDateForBackend(formValue.trainingDate),
       durationInMinutes: formValue.durationInMinutes,
       location:          formValue.location,
       exercises:         formValue.exercises
@@ -137,9 +133,8 @@ export class TrainingsComponent implements OnInit {
         setTimeout(() => this.successMsg = '', 3000);
       },
       error: (err) => {
-        // ✅ Affiche le vrai message d'erreur du backend
         console.error('Backend error:', err.error);
-        this.errorMsg = err.error || err.error?.message || `Error ${err.status}`;
+        this.errorMsg = err.error?.error || err.error?.message || err.error || `Error ${err.status}`;
       }
     });
   }
@@ -149,7 +144,7 @@ export class TrainingsComponent implements OnInit {
       idTraining:        training.idTraining,
       title:             training.title,
       description:       training.description,
-      trainingDate:      training.trainingDate,
+      trainingDate:      training.trainingDate ? training.trainingDate.substring(0, 16) : '',
       durationInMinutes: training.durationInMinutes,
       location:          training.location,
       exercises:         training.exercises,
@@ -171,13 +166,15 @@ export class TrainingsComponent implements OnInit {
       return;
     }
 
-    // ✅ CORRECTION : formater la date pour l'update aussi
     const formValue = this.editTrainingForm.value;
+    // ✅ FIX: id بدل idTraining، startTime بدل trainingDate
     const dto: TrainingUpdateRequest = {
-      idTraining:        formValue.idTraining,
+      id:                formValue.idTraining,
       title:             formValue.title,
       description:       formValue.description,
-      trainingDate:      formValue.trainingDate ? this.formatDateForBackend(formValue.trainingDate) : undefined,
+      startTime:         formValue.trainingDate
+                           ? this.formatDateForBackend(formValue.trainingDate)
+                           : undefined,
       durationInMinutes: formValue.durationInMinutes,
       location:          formValue.location,
       exercises:         formValue.exercises,
@@ -193,7 +190,7 @@ export class TrainingsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Backend error:', err.error);
-        this.errorMsg = err.error || err.error?.message || `Error ${err.status}`;
+        this.errorMsg = err.error?.error || err.error?.message || err.error || `Error ${err.status}`;
       }
     });
   }
@@ -208,7 +205,7 @@ export class TrainingsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Backend error:', err.error);
-        this.errorMsg = err.error || err.error?.message || `Error deleting (${err.status})`;
+        this.errorMsg = err.error?.error || err.error?.message || err.error || `Error deleting (${err.status})`;
       }
     });
   }
@@ -222,6 +219,7 @@ export class TrainingsComponent implements OnInit {
       case 'PLANNED':   return 'badge-blue';
       case 'COMPLETED': return 'badge-green';
       case 'CANCELLED': return 'badge-red';
+      case 'SCHEDULED': return 'badge-blue';
       default:          return 'badge-gray';
     }
   }

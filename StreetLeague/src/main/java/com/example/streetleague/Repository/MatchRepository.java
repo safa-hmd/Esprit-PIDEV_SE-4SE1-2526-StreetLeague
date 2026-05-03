@@ -1,43 +1,21 @@
 package com.example.streetleague.Repository;
 
 import com.example.streetleague.Entity.Match;
-
 import com.example.streetleague.Entity.MatchStatus;
 import com.example.streetleague.Entity.Team;
 import com.example.streetleague.domain.User;
 import com.example.streetleague.dto.MatchHistoryDto;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import org.springframework.stereotype.Repository;
-
-
-import java.util.List;
-
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-
 public interface MatchRepository extends JpaRepository<Match, Long> {
-
-
-    // ✅ Une seule méthode, un seul paramètre
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM Match m WHERE m.teamA.idTeam = :teamId OR m.teamB.idTeam = :teamId")
-    void deleteByTeamAIdOrTeamBId(@Param("teamId") Long teamId);
-
-    List<Match> findByTeamA_IdTeamOrTeamB_IdTeam(Long teamAId, Long teamBId);
-
-    List<Match> findByTeamA_IdTeam(Long teamId);
-
-    List<Match> findByTeamB_IdTeam(Long teamId);
 
     @Transactional
     @Modifying
@@ -220,8 +198,4 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
               '1900-01-01')
     """)
     Integer findCurrentUnbeatenStreak(@Param("teamId") Long teamId);
-    
-    @Query("SELECT m FROM Match m WHERE m.teamA IS NOT NULL AND m.teamB IS NOT NULL AND m.createdBy IS NOT NULL")
-    List<Match> findAllComplete();
-
 }

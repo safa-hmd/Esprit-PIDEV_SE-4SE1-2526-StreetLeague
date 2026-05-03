@@ -18,21 +18,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class TeamServiceImpl implements IteamService {
 
-    private final TeamRepository teamRepository;
-    private final UserRepository userRepository;
-    private final MatchRepository matchRepository;
+    TeamRepository teamRepository;
+    UserRepository userRepository;
+    MatchRepository matchRepository;
 
-    public TeamServiceImpl(TeamRepository teamRepository, 
-                           UserRepository userRepository, 
-                           MatchRepository matchRepository) {
-        this.teamRepository = teamRepository;
-        this.userRepository = userRepository;
-        this.matchRepository = matchRepository;
-    }
-
-    @Transactional
     @Override
     public TeamResponse addTeam(TeamRequest dto, Long captainId) {
         User captain = userRepository.findById(captainId)
@@ -70,7 +62,6 @@ public class TeamServiceImpl implements IteamService {
     }
 
     @Override
-    @Transactional
     public TeamResponse updateTeam(Long teamId, TeamRequest dto, Long captainId) {
         Team existing = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + teamId));
@@ -108,10 +99,7 @@ public class TeamServiceImpl implements IteamService {
         return TeamResponse.fromEntity(teamRepository.save(existing));
     }
 
-
     @Override
-    @Transactional
-
     public TeamResponse updateTeamStats(Long teamId, int victories, int defeats, int matches, Long userId) {
         Team existing = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + teamId));
@@ -126,6 +114,7 @@ public class TeamServiceImpl implements IteamService {
         return TeamResponse.fromEntity(teamRepository.save(existing));
     }
 
+    @Transactional
     @Override
     public void deleteTeam(Long idTeam, Long userId) {
         Team team = teamRepository.findById(idTeam)
@@ -140,7 +129,7 @@ public class TeamServiceImpl implements IteamService {
             throw new RuntimeException("Only the team captain or an admin can delete this team");
 
         // ✅ 1. Supprimer les matchs associés (teamA ou teamB)
-        matchRepository.deleteByTeamAIdOrTeamBId(idTeam);
+        matchRepository.deleteByTeamAIdOrTeamBId(idTeam, idTeam);
 
         // ✅ 2. Retirer tous les joueurs de la team (évite la contrainte FK)
         team.getPlayers().clear();
@@ -150,14 +139,12 @@ public class TeamServiceImpl implements IteamService {
         teamRepository.deleteById(idTeam);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<TeamResponse> ShowTeams() {
         return teamRepository.findAll().stream()
                 .map(TeamResponse::fromEntity).toList();
     }
 
-    @Transactional(readOnly = true)
     @Override
     public TeamResponse ShowTeam(Long idTeam) {
         return TeamResponse.fromEntity(
@@ -166,7 +153,6 @@ public class TeamServiceImpl implements IteamService {
     }
 
     @Override
-    @Transactional
     public List<TeamResponse> getTeamsByCaptain(Long captainId) {
         return teamRepository.findAll().stream()
                 .filter(t -> t.getCaptain().getIdUser().equals(captainId))
@@ -175,7 +161,6 @@ public class TeamServiceImpl implements IteamService {
     }
 
     @Override
-    @Transactional
     public TeamResponse joinTeam(Long teamId, Long playerId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + teamId));
@@ -210,7 +195,7 @@ public class TeamServiceImpl implements IteamService {
         } else if (sportStr.contains("padel")) {
             maxPlayers = 2;
         }
-        
+
         // Captain acts as a player but is not in getPlayers()
         if (team.getPlayers().size() + 1 >= maxPlayers) {
             throw new RuntimeException("The team is full for this sport (" + team.getSport() + " allows a maximum of " + maxPlayers + " players)");
@@ -221,7 +206,6 @@ public class TeamServiceImpl implements IteamService {
     }
 
     @Override
-    @Transactional
     public TeamResponse leaveTeam(Long teamId, Long playerId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + teamId));

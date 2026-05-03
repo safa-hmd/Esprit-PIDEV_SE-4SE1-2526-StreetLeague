@@ -49,13 +49,13 @@
       (click)="selectField(f)">
 
       <!-- Rank badge -->
-      <div class="fr-card-rank" [ngClass]="getRecClass(f.recommendation)">
+      <div class="fr-card-rank" [class]="getRecClass(f.recommendation)">
         #{{ i + 1 }}
       </div>
 
       <!-- Status -->
       <div class="fr-card-status">
-        <span class="fr-rec-badge" [ngClass]="getRecClass(f.recommendation)">
+        <span class="fr-rec-badge" [class]="getRecClass(f.recommendation)">
           {{ f.recommendation }}
         </span>
         <span class="fr-avail-dot" [class.avail-yes]="f.fieldAvailable"
@@ -72,13 +72,13 @@
       <div class="fr-score-section">
         <div class="fr-score-labels">
           <span class="fr-score-title">AI Score</span>
-          <span class="fr-score-val" [ngClass]="getRecClass(f.recommendation)">
+          <span class="fr-score-val" [class]="getRecClass(f.recommendation)">
             {{ getScorePercent(f.aiScore) }}%
           </span>
         </div>
         <div class="fr-bar-track">
           <div class="fr-bar-fill"
-               [ngClass]="getRecClass(f.recommendation)"
+               [class]="getRecClass(f.recommendation)"
                [style.width.%]="getScorePercent(f.aiScore)">
           </div>
         </div>
@@ -121,7 +121,7 @@
       <div class="fr-slot-info">
         <span class="fr-slot-icon">⏰</span>
         <div>
-          <div class="fr-slot-title">Meilleurs créneaux — {{ selectedField.fieldName }}</div>
+          <div class="fr-slot-title">Meilleurs créneaux — {{ selectedField!.fieldName }}</div>
           <div class="fr-slot-sub">Top 5 créneaux recommandés par l'IA</div>
         </div>
       </div>
@@ -142,14 +142,14 @@
         <div class="fr-slot-score-row">
           <div class="fr-slot-bar-track">
             <div class="fr-slot-bar-fill"
-                 [ngClass]="getRecClass(s.rec)"
+                 [class]="getRecClass(s.rec)"
                  [style.width.%]="getScorePercent(s.score)"></div>
           </div>
-          <span class="fr-slot-pct" [ngClass]="getRecClass(s.rec)">
+          <span class="fr-slot-pct" [class]="getRecClass(s.rec)">
             {{ getScorePercent(s.score) }}%
           </span>
         </div>
-        <span class="fr-rec-badge" [ngClass]="getRecClass(s.rec)" style="font-size:0.68rem;">
+        <span class="fr-rec-badge" [class]="getRecClass(s.rec)" style="font-size:0.68rem;">
           {{ s.rec }}
         </span>
       </div>

@@ -21,11 +21,8 @@ registerLocaleData(localeFr);  // ← ajoute avant @NgModule
 @NgModule({
   declarations: [
     AppComponent,
-
     NotFoundComponent,
-  
-],
-
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,

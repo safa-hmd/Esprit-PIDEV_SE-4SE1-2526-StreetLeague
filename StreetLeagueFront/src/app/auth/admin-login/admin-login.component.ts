@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
@@ -46,9 +46,15 @@ export class AdminLoginComponent {
 
         this.router.navigateByUrl('/admin');
       },
-      error: () => {
-        this.isLoading    = false;
-        this.errorMessage = 'Email ou mot de passe incorrect.';
+      error: (error) => {
+        this.isLoading = false;
+        const body = error?.error as Record<string, unknown> | undefined;
+        const err = body?.['error'];
+        const msg = body?.['message'];
+        this.errorMessage =
+          (typeof err === 'string' ? err : null) ||
+          (typeof msg === 'string' ? msg : null) ||
+          'Email ou password incorrect.';
       }
     });
   }

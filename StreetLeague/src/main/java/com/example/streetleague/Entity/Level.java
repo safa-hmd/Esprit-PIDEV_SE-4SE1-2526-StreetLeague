@@ -6,4 +6,3 @@ public enum Level {
     ADVANCED,
     PROFESSIONAL
 }
-

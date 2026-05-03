@@ -2,9 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-coach-fo',
-  templateUrl: './coach-fo.component.html',
-  styleUrls: ['./coach-fo.component.css']
+  template: `<app-navbar></app-navbar>
+             <router-outlet></router-outlet>`
 })
-export class CoachFOComponent {
-
-}
+export class CoachFOComponent {}

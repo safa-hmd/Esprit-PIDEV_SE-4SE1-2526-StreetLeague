@@ -202,9 +202,3 @@
   color: #888;
   padding: 2.5rem;
 }
-
-.a-badge-red[style*="padding"] {
-  background: rgba(230, 25, 32, 0.1);
-  color: #f87171;
-  border: 1px solid rgba(230, 25, 32, 0.2);
-}

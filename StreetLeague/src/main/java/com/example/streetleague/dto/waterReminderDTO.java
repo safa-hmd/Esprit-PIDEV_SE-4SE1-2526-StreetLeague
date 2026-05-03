@@ -11,8 +11,8 @@ public class waterReminderDTO {
 
 
 
-    @Min(value = 1, message = "Frequency must be at least 1")
-    @Max(value = 24, message = "Frequency must be at most 24")
+    @Min(value = 1)
+    @Max(value = 120)
     private int frequency;
 
     @Min(value = 100, message = "Quantity must be at least 100ml")

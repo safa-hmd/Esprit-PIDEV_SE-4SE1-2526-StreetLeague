@@ -34,7 +34,6 @@ public class MatchServiceImpl implements ImatchService {
     EloService            eloService;
     InotificationService  notificationService; // ← ajout
 
-
     // ─────────────────────────────────────────────────────────────────────
     // Helper : collecte tous les joueurs + capitaines des 2 équipes
     // ─────────────────────────────────────────────────────────────────────
@@ -55,9 +54,8 @@ public class MatchServiceImpl implements ImatchService {
     // ─────────────────────────────────────────────────────────────────────
     // ADD MATCH
     // ─────────────────────────────────────────────────────────────────────
-
-    @Override
     @Transactional
+    @Override
     public MatchResponse addMatch(MatchRequest dto, Long teamAId, Long teamBId, Long captainId) {
         Team teamA = teamRepository.findById(teamAId)
                 .orElseThrow(() -> new RuntimeException("TeamA not found: " + teamAId));
@@ -78,16 +76,12 @@ public class MatchServiceImpl implements ImatchService {
             throw new RuntimeException("Location is required");
         if (dto.location().length() < 3 || dto.location().length() > 100)
             throw new RuntimeException("Location must be between 3 and 100 characters");
-
         if (dto.matchDate() == null)
             throw new RuntimeException("Match date is required");
         if (dto.matchDate().isBefore(LocalDateTime.now()))
             throw new RuntimeException("Match date must be in the future");
 
-
-        //boolean alreadyExists = matchRepository.findAll().stream().anyMatch(e ->
-        boolean alreadyExists = matchRepository.findAllComplete().stream().anyMatch(e ->
-
+        boolean alreadyExists = matchRepository.findAll().stream().anyMatch(e ->
                 (e.getStatus() == MatchStatus.PENDING || e.getStatus() == MatchStatus.ACCEPTED) &&
                         ((e.getTeamA().getIdTeam().equals(teamAId) && e.getTeamB().getIdTeam().equals(teamBId)) ||
                                 (e.getTeamA().getIdTeam().equals(teamBId) && e.getTeamB().getIdTeam().equals(teamAId))));
@@ -117,9 +111,11 @@ public class MatchServiceImpl implements ImatchService {
         return MatchResponse.fromEntity(saved);
     }
 
-
-    @Override
+    // ─────────────────────────────────────────────────────────────────────
+    // UPDATE MATCH
+    // ─────────────────────────────────────────────────────────────────────
     @Transactional
+    @Override
     public MatchResponse updateMatch(MatchUpdateRequest dto, Long captainId) {
         Match existing = matchRepository.findById(dto.idMatch())
                 .orElseThrow(() -> new RuntimeException("Match not found: " + dto.idMatch()));
@@ -207,9 +203,9 @@ public class MatchServiceImpl implements ImatchService {
         return MatchResponse.fromEntity(saved);
     }
 
-
-
-
+    // ─────────────────────────────────────────────────────────────────────
+    // DELETE MATCH
+    // ─────────────────────────────────────────────────────────────────────
     @Override
     @Transactional
     public void deleteMatch(Long idMatch, Long userId) {
@@ -219,14 +215,11 @@ public class MatchServiceImpl implements ImatchService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
         boolean isAdmin    = user.getRole() == Role.ADMIN;
-
         boolean isCaptainA = match.getTeamA().getCaptain().getIdUser().equals(userId);
         boolean isCaptainB = match.getTeamB().getCaptain().getIdUser().equals(userId);
 
         if (!isAdmin && !isCaptainA && !isCaptainB)
             throw new RuntimeException("Only the captain of TeamA or TeamB can delete this match");
-        if (match.getStatus() == MatchStatus.FINISHED)
-            throw new RuntimeException("Cannot delete a finished match");
 
         Team teamA = match.getTeamA();
         Team teamB = match.getTeamB();
@@ -244,28 +237,25 @@ public class MatchServiceImpl implements ImatchService {
         matchRepository.deleteById(idMatch);
     }
 
-
+    // ─────────────────────────────────────────────────────────────────────
+    // READ
+    // ─────────────────────────────────────────────────────────────────────
+    @Transactional
     @Override
-    @Transactional(readOnly = true)
     public List<MatchResponse> ShowMatchs() {
-        //return matchRepository.findAll().stream()
-          //      .map(MatchResponse::fromEntity).toList();
-
-        return matchRepository.findAllComplete().stream()
+        return matchRepository.findAll().stream()
                 .map(MatchResponse::fromEntity).toList();
     }
 
-
-
-    // ── SHOW ONE ──────────────────────────────────────────────────────────
+    @Transactional
     @Override
-    @Transactional(readOnly = true)
     public MatchResponse ShowMatch(Long idMatch) {
         return MatchResponse.fromEntity(
                 matchRepository.findById(idMatch)
                         .orElseThrow(() -> new RuntimeException("Match not found: " + idMatch)));
     }
 
+    @Transactional
     @Override
     public MatchResponse respondToMatch(Long matchId, Long captainId, boolean accept) {
         Match match = matchRepository.findByIdWithTeams(matchId)

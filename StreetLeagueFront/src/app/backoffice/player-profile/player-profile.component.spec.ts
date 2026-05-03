@@ -161,7 +161,7 @@ describe('PlayerProfileComponent', () => {
   }));
 
   it('onUpdateProfileTest — should set profileError on failure', () => {
-    userServiceSpy.updateProfile.and.returnValue(throwError(() => ({ status: 500 })));
+    userServiceSpy.updateProfile.and.returnValue(throwError(() => ({ statut: 500 })));
     component.profileForm.get('fullName')?.setValue('Jane Doe');
     component.onUpdateProfile();
     expect(component.profileError).toBe('Failed to update profile. Please try again.');
@@ -287,7 +287,7 @@ describe('PlayerProfileComponent', () => {
   });
 
   it('confirmDeleteTest — should set deleteError on failure', () => {
-    userServiceSpy.deleteAccount.and.returnValue(throwError(() => ({ status: 500 })));
+    userServiceSpy.deleteAccount.and.returnValue(throwError(() => ({ statut: 500 })));
     component.confirmDelete();
     expect(component.deleteError).toBe('Failed to delete account. Please try again.');
   });

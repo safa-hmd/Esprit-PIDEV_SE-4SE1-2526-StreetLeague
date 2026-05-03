@@ -28,6 +28,7 @@ describe('SponsoringEvenementService', () => {
       evenementId: 5,
       contribution: 1200,
       typeContribution: 'Cash',
+      statut: 'PENDING'
     };
 
     service.create(dto).subscribe((res) => expect(res).toEqual(dto));
@@ -46,3 +47,4 @@ describe('SponsoringEvenementService', () => {
     req.flush(null);
   });
 });
+

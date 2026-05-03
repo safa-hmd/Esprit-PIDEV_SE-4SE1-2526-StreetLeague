@@ -4,5 +4,8 @@ export interface SponsorDTO {
   type: string;
   contactEmail: string;
   telephone: string;
-  adresse: string;
+  address: string;
+  status?: 'PENDING' | 'APPROUVÉ' | 'REJETÉ';
+  dateCreation?: string;
 }
+

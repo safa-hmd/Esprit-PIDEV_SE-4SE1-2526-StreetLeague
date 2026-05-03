@@ -144,11 +144,11 @@
                 <span *ngIf="match.status !== 'FINISHED'" style="color:var(--muted);">—</span>
               </td>
               <td>
-                <span class="a-badge" [ngClass]="getStatusClass(match.status)">
+                <span class="a-badge" [ngClass]="getStatusClass(match.status || '')">
                   {{ match.status }}
                 </span>
               </td>
-              <td>{{ match.captainName || '—' }}</td>
+              <td>{{ match.captainAName || match.captainBName || '—' }}</td>
               <td style="text-align:right;">
                 <button class="a-btn a-btn-sm"
                         style="color:#ff6b72;border:1.5px solid rgba(230,25,32,0.3);border-radius:8px;"
@@ -167,3 +167,4 @@
   </div>
 
 </div>
+

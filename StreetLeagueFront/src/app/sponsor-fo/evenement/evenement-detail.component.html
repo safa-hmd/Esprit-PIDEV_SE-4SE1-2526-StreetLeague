@@ -1,0 +1,53 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Details de l'event</h2>
+    <button class="btn btn-secondary" (click)="back()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && evenement" class="card">
+    <div class="card-body">
+      <h3 class="card-title">{{ evenement.titre }}</h3>
+      <p class="card-text fs-5">{{ evenement.description }}</p>
+      
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <strong><i class="bi bi-calendar"></i> Date:</strong>
+          <p>{{ formatDate(evenement.date) }}</p>
+        </div>
+        <div class="col-md-6">
+          <strong><i class="bi bi-people"></i> Community ID:</strong>
+          <p>{{ evenement.communauteId }}</p>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <strong><i class="bi bi-person"></i> Organisateur ID:</strong>
+          <p>{{ evenement.organisateurId }}</p>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button class="btn btn-success" (click)="createSponsoring()">
+          <i class="bi bi-hand-thumbs-up"></i> Proposer un sponsoring
+        </button>
+        <button class="btn btn-secondary" (click)="back()">
+          <i class="bi bi-arrow-left"></i> Back to list
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

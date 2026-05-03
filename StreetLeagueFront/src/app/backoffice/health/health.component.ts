@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
-import { HealthDashboardService, WaterReminderResponse } from '../../services/healthdashboard.service';
+import { HealthDashboardService, WaterReminderResponse, UserHealthData, UserGoal, UserBadgeResponse, WaterLogResponse } from '../../services/healthdashboard.service';
 
 Chart.register(...registerables);
 
@@ -11,22 +11,42 @@ Chart.register(...registerables);
 })
 export class HealthComponent implements OnInit, AfterViewInit {
 
+  // Tab Management
+  activeTab = 'hydration';
+  selectedUserId: number | null = null;
+
+  // Hydration Data
   reminders: WaterReminderResponse[] = [];
   filteredReminders: WaterReminderResponse[] = [];
+  
+  // Health Status Data
+  allUsersHealth: UserHealthData[] = [];
+  filteredUsersHealth: UserHealthData[] = [];
+  
+  // Goals Data
+  userGoals: UserGoal[] = [];
+  
+  // Badges Data
+  userBadges: UserBadgeResponse[] = [];
+  
+  // Water Logs Data
+  waterLogs: WaterLogResponse[] = [];
+
   isLoading = true;
 
   private bmiChart?: Chart;
   private hydroChart?: Chart;
+  private bmiDistributionChart?: Chart;
 
   constructor(private healthService: HealthDashboardService) {}
 
   ngOnInit(): void {
-    this.loadReminders();
+    this.loadAllData();
   }
 
   ngAfterViewInit(): void {}
 
-  loadReminders(): void {
+  loadAllData(): void {
     this.isLoading = true;
     this.healthService.getAllReminders().subscribe({
       next: (data) => {
@@ -43,9 +63,22 @@ export class HealthComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
       }
     });
+
+    this.healthService.getAllUsersHealth().subscribe({
+      next: (data) => {
+        this.allUsersHealth = data;
+        this.filteredUsersHealth = [...data];
+      },
+      error: (err) => console.error('Erreur chargement health:', err)
+    });
   }
 
-  onSearch(event: any): void {
+  switchTab(tab: string): void {
+    this.activeTab = tab;
+    this.selectedUserId = null;
+  }
+
+  onSearchReminders(event: any): void {
     const q = event.target.value.toLowerCase();
     this.filteredReminders = this.reminders.filter(r =>
       r.userName?.toLowerCase().includes(q) ||
@@ -53,10 +86,58 @@ export class HealthComponent implements OnInit, AfterViewInit {
     );
   }
 
+  onSearchHealth(event: any): void {
+    const q = event.target.value.toLowerCase();
+    this.filteredUsersHealth = this.allUsersHealth.filter(u =>
+      u.fullName?.toLowerCase().includes(q) ||
+      u.email?.toLowerCase().includes(q)
+    );
+  }
+
+  selectUser(userId: number): void {
+    this.selectedUserId = userId;
+    this.loadUserDetails(userId);
+  }
+
+  loadUserDetails(userId: number): void {
+    this.healthService.getUserGoals(userId).subscribe({
+      next: (data) => this.userGoals = data,
+      error: (err) => console.error('Erreur chargement goals:', err)
+    });
+
+    this.healthService.getUserBadges(userId).subscribe({
+      next: (data) => this.userBadges = data,
+      error: (err) => console.error('Erreur chargement badges:', err)
+    });
+
+    this.healthService.getWaterLogs(userId).subscribe({
+      next: (data) => this.waterLogs = data,
+      error: (err) => console.error('Erreur chargement water logs:', err)
+    });
+  }
+
   freqLabel(f: number): string {
     if (f < 60) return f + ' min';
     if (f === 60) return '1 heure';
     return (f / 60) + ' heures';
+  }
+
+  getBmiStatus(bmi: number): string {
+    if (bmi < 18.5) return 'Underweight';
+    if (bmi < 25) return 'Normal';
+    if (bmi < 30) return 'Overweight';
+    return 'Obese';
+  }
+
+  getBmiStatusColor(bmi: number): string {
+    if (bmi < 18.5) return '#3B82F6';
+    if (bmi < 25) return '#1D9E75';
+    if (bmi < 30) return '#EF9F27';
+    return '#E61920';
+  }
+
+  getSelectedUser(): UserHealthData | undefined {
+    return this.selectedUserId ? this.allUsersHealth.find(u => u.userId === this.selectedUserId) : undefined;
   }
 
   get totalUsers(): number {
@@ -77,6 +158,12 @@ export class HealthComponent implements OnInit, AfterViewInit {
     if (!this.reminders.length) return '-';
     const avg = this.reminders.reduce((s, r) => s + r.frequency, 0) / this.reminders.length;
     return Math.round(avg) + ' min';
+  }
+
+  get avgBmi(): string {
+    if (!this.allUsersHealth.length) return '0';
+    const avg = this.allUsersHealth.reduce((s, u) => s + u.bmi, 0) / this.allUsersHealth.length;
+    return avg.toFixed(1);
   }
 
   private initFreqChart(): void {

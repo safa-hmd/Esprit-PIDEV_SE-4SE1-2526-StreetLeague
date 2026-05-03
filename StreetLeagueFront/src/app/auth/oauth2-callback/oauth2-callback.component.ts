@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
   selector: 'app-oauth2-callback',
   template: `
     <div style="display:flex;justify-content:center;align-items:center;height:100vh">
-      <p>Connexion en cours...</p>
+      <p>Login in progress...</p>
     </div>
   `
 })
@@ -24,13 +24,10 @@ export class OAuth2CallbackComponent implements OnInit {
       const id    = params['id'];
 
       if (token) {
-        // Sauvegarder exactement comme le login normal
         localStorage.setItem('TokenUserConnect', token);
         localStorage.setItem('EmailUserConnect', email);
         localStorage.setItem('RoleUserConnect',  role);
         localStorage.setItem('UserIdConnect',    id);
-
-        // Rediriger selon le rôle
         this.redirectByRole(role);
       } else {
         this.router.navigateByUrl('/login');
@@ -42,6 +39,7 @@ export class OAuth2CallbackComponent implements OnInit {
     switch (role) {
       case 'ROLE_ADMIN':    this.router.navigateByUrl('/admin');  break;
       case 'ROLE_COACH':    this.router.navigateByUrl('/coach');  break;
+      case 'ROLE_SPONSOR':  this.router.navigateByUrl('/sponsor'); break;
       default:              this.router.navigateByUrl('/client'); break;
     }
   }

@@ -1,18 +1,17 @@
 package com.example.streetleague.ServiceInterface;
 
 import com.example.streetleague.dto.FieldReservationDto;
-
 import java.util.List;
+import java.util.Optional;
 
 public interface IFieldReservationService {
-    FieldReservationDto createReservation(FieldReservationDto dto);
-    FieldReservationDto getReservationById(Long id);
     List<FieldReservationDto> getAllReservations();
-    List<FieldReservationDto> getReservationsByPlayer(Long playerId);
-    List<FieldReservationDto> getReservationsByField(Long fieldId);
-    List<FieldReservationDto> getPendingReservations();
-    FieldReservationDto approveReservation(Long id, String adminNote);
-    FieldReservationDto rejectReservation(Long id, String adminNote);
-    FieldReservationDto cancelReservation(Long id, Long playerId);
+    Optional<FieldReservationDto> getReservationById(Long id);
+    FieldReservationDto createReservation(FieldReservationDto reservationDto);
+    FieldReservationDto updateReservation(Long id, FieldReservationDto reservationDto);
     void deleteReservation(Long id);
+    List<FieldReservationDto> getReservationsByUserId(Long userId);
+    List<FieldReservationDto> getReservationsByFieldId(Long fieldId);
+    List<FieldReservationDto> getReservationsByStatus(String status);
+    boolean isFieldAvailable(Long fieldId, java.time.LocalDateTime startTime, java.time.LocalDateTime endTime);
 }

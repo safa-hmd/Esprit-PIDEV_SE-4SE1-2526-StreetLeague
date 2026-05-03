@@ -1,0 +1,477 @@
+<div class="edit-page">
+
+  <!-- Hero Header -->
+  <div class="edit-hero">
+    <div class="edit-hero-content">
+      <button (click)="cancel()" class="btn-back" id="btn-back-edit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Details
+      </button>
+      <div class="hero-title">
+        <div class="hero-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Edit l'event</h1>
+          <p>Mettez à jour les informations de l'event #{{ evenementId }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main container -->
+  <div class="edit-container">
+
+    <!-- Loading state -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Chargement de l'event...</p>
+    </div>
+
+    <!-- Success -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      {{ successMessage }}
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="alert alert-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      {{ error }}
+    </div>
+
+    <div *ngIf="!loading" class="form-card">
+
+      <!-- Section: Informations -->
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon section-icon-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h2>Informations de l'event</h2>
+        </div>
+
+        <!-- Title -->
+        <div class="form-group">
+          <label for="edit-title" class="form-label">
+            Title de l'event <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="edit-title"
+            [(ngModel)]="formData.titre"
+            name="title"
+            class="form-input"
+            placeholder="Ex: Tournoi Basket Street Tunis 2025"
+            [disabled]="saving"
+          />
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="edit-description" class="form-label">
+            Description <span class="required">*</span>
+          </label>
+          <textarea
+            id="edit-description"
+            [(ngModel)]="formData.description"
+            name="description"
+            class="form-textarea"
+            rows="4"
+            placeholder="Décrivez l'event..."
+            [disabled]="saving"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="section-divider"></div>
+
+      <!-- Section: Details -->
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon section-icon-orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <h2>Date & Organisation</h2>
+        </div>
+
+        <div class="form-row">
+          <!-- Date -->
+          <div class="form-group">
+            <label for="edit-date" class="form-label">
+              Date de l'event <span class="required">*</span>
+            </label>
+            <input
+              type="date"
+              id="edit-date"
+              [(ngModel)]="formData.date"
+              name="date"
+              class="form-input"
+              [disabled]="saving"
+            />
+          </div>
+
+          <!-- Community -->
+          <div class="form-group">
+            <label for="edit-communauteId" class="form-label">
+              Community <span class="required">*</span>
+            </label>
+            <div class="select-wrapper">
+              <select
+                id="edit-communauteId"
+                [(ngModel)]="formData.communauteId"
+                name="communauteId"
+                class="form-select"
+                [disabled]="saving"
+              >
+                <option [value]="0" disabled>Select une community</option>
+                <option *ngFor="let c of communautes" [value]="c.id">
+                  {{ c.nom }}
+                </option>
+              </select>
+              <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change notice -->
+        <div class="change-notice">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>Les modifications seront visibles immédiatement après la sauvegarde.</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" (click)="cancel()" class="btn-cancel" [disabled]="saving" id="btn-cancel-edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          Cancel
+        </button>
+        <button type="button" (click)="save()" class="btn-save" [disabled]="saving" id="btn-save-edit">
+          <span *ngIf="!saving">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            Save
+          </span>
+          <span *ngIf="saving" class="btn-loading">
+            <span class="spinner"></span>
+            Sauvegarde...
+          </span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+.edit-page {
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  background: #f4f6fa;
+}
+
+/* Hero */
+.edit-hero {
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+.edit-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: 5%;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(255,140,66,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.edit-hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+  position: relative;
+  z-index: 1;
+}
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.8);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+  margin-bottom: 20px;
+}
+.btn-back:hover { background: rgba(255,255,255,0.15); }
+.btn-back svg { width: 16px; height: 16px; }
+
+.hero-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.hero-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.hero-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.hero-icon svg { width: 24px; height: 24px; stroke: white; }
+.hero-title h1 { margin: 0 0 4px; color: white; font-size: 22px; font-weight: 800; }
+.hero-title p { margin: 0; color: rgba(255,255,255,0.55); font-size: 13px; }
+
+/* Container */
+.edit-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+}
+
+/* Loading */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  gap: 14px;
+  color: #888;
+}
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e8e8e8;
+  border-top-color: #ff8c42;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Alert */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.alert svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+.alert-success { background: #d4edda; border: 1px solid #b8dfc5; color: #1a6b3a; }
+.alert-success svg { stroke: #1a6b3a; }
+.alert-error { background: #fdecea; border: 1px solid #f5c6cb; color: #c0392b; }
+.alert-error svg { stroke: #c0392b; }
+
+/* Form card */
+.form-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  border: 1px solid #edf0f7;
+  overflow: hidden;
+}
+
+/* Sections */
+.form-section { padding: 28px 28px 20px; }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.section-icon-blue { background: linear-gradient(135deg, #4f46e5, #6366f1); }
+.section-icon-orange { background: linear-gradient(135deg, #ff8c42, #e61920); }
+.section-icon svg { width: 18px; height: 18px; stroke: white; }
+.section-header h2 { margin: 0; font-size: 16px; font-weight: 700; color: #1a1a2e; }
+
+.section-divider { height: 1px; background: #f0f2f7; margin: 0 28px; }
+
+/* Form groups */
+.form-group { margin-bottom: 20px; }
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 8px;
+}
+.required { color: #e61920; }
+
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #e8ecf3;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  color: #1a1a2e;
+  background: #fafbfd;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  outline: none;
+  border-color: #ff8c42;
+  box-shadow: 0 0 0 3px rgba(255,140,66,0.12);
+  background: white;
+}
+.form-input:disabled, .form-textarea:disabled, .form-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.form-textarea { resize: vertical; min-height: 100px; }
+
+.select-wrapper { position: relative; }
+.form-select { appearance: none; padding-right: 36px; cursor: pointer; }
+.select-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  stroke: #999;
+  pointer-events: none;
+}
+
+/* Change notice */
+.change-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #f0f4ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #6366f1;
+  font-weight: 500;
+  margin-top: 4px;
+}
+.change-notice svg { width: 14px; height: 14px; stroke: #6366f1; flex-shrink: 0; }
+
+/* Actions */
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 28px 28px;
+  border-top: 1px solid #f0f2f7;
+}
+
+.btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #f4f6fa;
+  color: #666;
+  border: 1.5px solid #e0e4ee;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+}
+.btn-cancel:hover:not(:disabled) { background: #e9ecf5; }
+.btn-cancel:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-cancel svg { width: 16px; height: 16px; }
+
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(245,158,11,0.35);
+}
+.btn-save > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-save > span svg { width: 16px; height: 16px; }
+.btn-save:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,158,11,0.45); }
+.btn-save:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+.btn-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+</style>
+
+

@@ -7,14 +7,14 @@
     <div class="request-card" *ngFor="let r of requests">
        <div class="card-header">
           <h3>Request #{{ r.id }}</h3>
-          <span class="badge" [ngClass]="getStatusClass(r.status)">{{ r.status }}</span>
+          <span class="badge" [class]="getStatusClass(r.status)">{{ r.status }}</span>
        </div>
        
        <div class="card-body">
           <p><strong>Tournament:</strong> {{ r.tournament?.name }} ({{ r.tournament?.city }})</p>
           <p><strong>Transport:</strong> {{ r.transport?.type }} to {{ r.transport?.destination }}</p>
           <p><strong>Total Amount:</strong> ${{ r.totalAmount }}</p>
-          <p><strong>Created On:</strong> {{ r.createdAt | date }}</p>
+          <p><strong>Created On:</strong> {{ formatDate(r.createdAt) }}</p>
 
           <div class="admin-comment" *ngIf="r.adminComment">
             <strong>Admin Comment:</strong> {{ r.adminComment }}

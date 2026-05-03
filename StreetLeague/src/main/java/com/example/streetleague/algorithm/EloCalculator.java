@@ -24,7 +24,8 @@ public final class EloCalculator {
             case BEGINNER      -> 32;
             case INTERMEDIATE  -> 24;
             case ADVANCED      -> 16;
-            case PROFESSIONAL  -> 12;  // ← ton enum réel
+            case PROFESSIONAL  -> 12;
+            default            -> 32;
         };
     }
 

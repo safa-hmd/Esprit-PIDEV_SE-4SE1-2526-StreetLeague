@@ -47,7 +47,7 @@ public class FieldScheduleServiceImp implements FieldScheduleService {
                     .date(r.getStartTime().toLocalDate())
                     .startTime(r.getStartTime().toLocalTime())
                     .endTime(r.getEndTime().toLocalTime())
-                    .sport(r.getField().getSportType().name())
+                    .sport(r.getField().getSportType() != null ? r.getField().getSportType().toString() : null)
                     .label(r.getPlayer().getFullName())
                     .status(r.getStatus().name())
                     .eventId(r.getId())
@@ -65,11 +65,11 @@ public class FieldScheduleServiceImp implements FieldScheduleService {
                     .date(t.getStartDate())
                     .startTime(null)
                     .endTime(null)
-                    .sport(t.getSportType().name())
+                    .sport(t.getSportType().toString())
                     .label(t.getName())
                     .status(t.getStatus().name())
                     .eventId(t.getId())
-                    .tournamentType(t.getTournamentType().name())
+                    .tournamentType(t.getTournamentType().toString())
                     .build());
         }
 

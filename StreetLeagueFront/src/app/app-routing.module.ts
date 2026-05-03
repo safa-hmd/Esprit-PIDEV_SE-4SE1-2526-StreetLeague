@@ -1,15 +1,16 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AdminGuard } from './guards/admin.guard';
+import { AuthGuard } from './guards/auth.guard';
+import { NoAuthGuard } from './guards/no-auth.guard';
+import { SponsorGuard } from './guards/sponsor.guard';
+import { NotFoundComponent } from './shared/not-found/not-found.component';
 import { OAuth2CallbackComponent } from './auth/oauth2-callback/oauth2-callback.component';
 import { SelectRoleComponent } from './auth/select-role/select-role.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
 import { AdminLoginComponent } from './auth/admin-login/admin-login.component';
-import { AdminGuard } from './guards/admin.guard';
-import { CoachGuard } from './guards/coach.guard';
-import { NoAuthGuard } from './guards/no-auth.guard';
 import { PlayerGuard } from './guards/player.guard';
-import { NotFoundComponent } from './shared/not-found/not-found.component';
 
 const routes: Routes = [
   // ── Front office (joueurs) ──────────────────────────────
@@ -31,9 +32,17 @@ const routes: Routes = [
   // ── Coach ───────────────────────────────────────────────
   {
     path: 'coach',
-    canActivate: [CoachGuard],
+    //canActivate: [CoachGuard], // Uncomment when CoachGuard exists
     loadChildren: () => import('./coach-fo/coach-fo.module')
       .then(m => m.CoachFOModule)
+  },
+
+  // ── Sponsor ─────────────────────────────────────────────
+  {
+    path: 'sponsor',
+    canActivate: [SponsorGuard],
+    loadChildren: () => import('./sponsor-fo/sponsor-fo.module')
+      .then(m => m.SponsorFOModule)
   },
 
   // ── Delivery ────────────────────────────────────────────

@@ -4,4 +4,6 @@ export interface SponsoringEvenementDTO {
   evenementId: number;
   contribution: number;
   typeContribution: string;
+  statut: string;
 }
+
