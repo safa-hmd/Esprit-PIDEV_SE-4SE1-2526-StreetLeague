@@ -148,4 +148,34 @@ deleteTeam(team: Team): void {
   }
 
   openAddModal(): void {}
+
+  // ── Teams Pagination ──────────────────────────────────────
+teamPage: number = 1;
+teamPageSize: number = 5;
+
+get pagedTeams(): Team[] {
+  const start = (this.teamPage - 1) * this.teamPageSize;
+  return this.filteredTeams.slice(start, start + this.teamPageSize);
+}
+get teamTotalPages(): number {
+  return Math.ceil(this.filteredTeams.length / this.teamPageSize);
+}
+changeTeamPage(p: number): void {
+  if (p >= 1 && p <= this.teamTotalPages) this.teamPage = p;
+}
+
+// ── Matches Pagination ────────────────────────────────────
+matchPage: number = 1;
+matchPageSize: number = 5;
+
+get pagedMatches(): MatchResponse[] {
+  const start = (this.matchPage - 1) * this.matchPageSize;
+  return this.filteredMatches.slice(start, start + this.matchPageSize);
+}
+get matchTotalPages(): number {
+  return Math.ceil(this.filteredMatches.length / this.matchPageSize);
+}
+changeMatchPage(p: number): void {
+  if (p >= 1 && p <= this.matchTotalPages) this.matchPage = p;
+}
 }

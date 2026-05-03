@@ -28,7 +28,8 @@ import java.util.stream.Collectors;
 public final class AnomalyDetector {
 
     // Seuil Z-Score pour déclencher une alerte (valeur absolue)
-    public static final double Z_SCORE_THRESHOLD     = 2.0;
+    // 1.5 = 87% confiance — plus sensible que 2.0 (95%), adapté aux petits datasets
+    public static final double Z_SCORE_THRESHOLD     = 1.5;
 
     // Seuil EWMA : si EWMA chute de plus de 40% par rapport à la moyenne → alerte
     public static final double EWMA_DROP_THRESHOLD   = 0.40;
@@ -37,7 +38,7 @@ public final class AnomalyDetector {
     public static final double EWMA_ALPHA            = 0.3;
 
     // Nombre minimum de points pour calculer des statistiques fiables
-    public static final int    MIN_DATA_POINTS       = 7;
+    public static final int    MIN_DATA_POINTS       = 3;
 
     private AnomalyDetector() {}
 
@@ -53,8 +54,12 @@ public final class AnomalyDetector {
         // ── Construire la série temporelle journalière (28 derniers jours) ─
         List<Double> dailySeries = buildDailySeries(attendances, today, 28);
 
-        if (dailySeries.size() < MIN_DATA_POINTS) {
-            return AnomalyResult.insufficient(dailySeries.size());
+        // [P1-FIX] Compter les jours réellement actifs (non-zéro) au lieu de la taille fixe.
+        // buildDailySeries retourne toujours 28 points (zéros inclus), donc l'ancien test
+        // dailySeries.size() < MIN_DATA_POINTS était pratiquement toujours faux.
+        long activeDaysCount = dailySeries.stream().filter(v -> v > 0.0).count();
+        if (activeDaysCount < MIN_DATA_POINTS) {
+            return AnomalyResult.insufficient((int) activeDaysCount);
         }
 
         // ── Statistiques de base ─────────────────────────────────────────
@@ -80,6 +85,8 @@ public final class AnomalyDetector {
         // ── Sévérité ─────────────────────────────────────────────────────
         Severity severity = computeSeverity(zScore, ewmaDrop, type);
 
+        double signalConfidence = computeSignalConfidence((int) activeDaysCount, zScoreAlert, ewmaAlert);
+
         return new AnomalyResult(
                 type,
                 severity,
@@ -91,7 +98,9 @@ public final class AnomalyDetector {
                 ewmaDrop,
                 zScoreAlert,
                 ewmaAlert,
-                dailySeries.size(),
+                (int) activeDaysCount,
+                false,
+                signalConfidence,
                 buildMessage(type, severity, zScore, ewmaDrop, currentScore, mean)
         );
     }
@@ -182,6 +191,12 @@ public final class AnomalyDetector {
         return Severity.MEDIUM;
     }
 
+    static double computeSignalConfidence(int activeDays, boolean zAlert, boolean ewmaAlert) {
+        double historyFactor = Math.min(1.0, activeDays / 14.0);
+        double agreementFactor = (zAlert && ewmaAlert) ? 1.0 : (zAlert || ewmaAlert) ? 0.75 : 0.5;
+        return Math.round(historyFactor * agreementFactor * 1000.0) / 1000.0;
+    }
+
     static String buildMessage(AnomalyType type, Severity severity,
                                double zScore, double ewmaDrop,
                                double currentScore, double mean) {
@@ -226,6 +241,8 @@ public final class AnomalyDetector {
             boolean     zScoreAlert,
             boolean     ewmaAlert,
             int         dataPoints,
+            boolean     insufficientHistory,
+            double      signalConfidence,
             String      message
     ) {
         public boolean isAnomaly() {
@@ -243,7 +260,7 @@ public final class AnomalyDetector {
             return new AnomalyResult(
                     AnomalyType.NORMAL, Severity.NONE,
                     0, 0, 0, 0, 0, 0,
-                    false, false, dataPoints,
+                    false, false, dataPoints, true, 0.2,
                     "Données insuffisantes (minimum " + MIN_DATA_POINTS + " jours requis)."
             );
         }

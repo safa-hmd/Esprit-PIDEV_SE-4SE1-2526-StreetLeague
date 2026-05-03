@@ -4,18 +4,18 @@
   <!-- Header -->
   <div class="header">
     <div class="header-left">
-      <h2>Dashboard analyse coach</h2>
-      <p>ACWR &amp; détection d'anomalies — temps réel</p>
+      <h2>Coach Analysis Dashboard</h2>
+      <p>ACWR &amp; Anomaly Detection — real time</p>
     </div>
     <button class="btn-refresh" (click)="loadData()" [disabled]="loading">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
         <path d="M13.65 2.35A8 8 0 1 0 15 8h-2a6 6 0 1 1-1.07-3.46L10 6h5V1l-1.35 1.35z" fill="currentColor"/>
       </svg>
-      {{ loading ? 'Chargement...' : 'Rafraîchir' }}
+      {{ loading ? 'Loading...' : 'Refresh' }}
     </button>
   </div>
 
-  <!-- Erreur -->
+  <!-- Error -->
   <div class="error-banner" *ngIf="error">⚠ {{ error }}</div>
 
   <!-- Skeleton loader -->
@@ -36,26 +36,29 @@
         <span class="tab-badge warn" *ngIf="acwrDangerCount > 0">{{ acwrDangerCount }}</span>
       </button>
       <button class="tab" [class.active]="activeTab === 'chart'" (click)="setTab('chart')">
-        Tendances
+        Trends
+      </button>
+      <button class="tab test-tab" [class.active]="activeTab === 'test'" (click)="setTab('test')">
+        🧪 Test / Démo
       </button>
     </div>
 
-    <!-- ═══ TAB ANOMALIES ═══ -->
+    <!-- ═══ ANOMALIES TAB ═══ -->
     <div *ngIf="activeTab === 'anomalies'">
 
       <!-- KPI -->
       <div class="kpi-row">
         <div class="kpi danger">
           <div class="kpi-val">{{ criticalCount }}</div>
-          <div class="kpi-lbl">Critiques</div>
+          <div class="kpi-lbl">Critical</div>
         </div>
         <div class="kpi warn">
           <div class="kpi-val">{{ highCount }}</div>
-          <div class="kpi-lbl">Élevés</div>
+          <div class="kpi-lbl">High</div>
         </div>
         <div class="kpi medium">
           <div class="kpi-val">{{ mediumCount }}</div>
-          <div class="kpi-lbl">Modérés</div>
+          <div class="kpi-lbl">Moderate</div>
         </div>
         <div class="kpi neutral">
           <div class="kpi-val">{{ anomalyAlerts.length }}</div>
@@ -63,20 +66,20 @@
         </div>
       </div>
 
-      <!-- Filtres -->
+      <!-- Filters -->
       <div class="filters">
-        <button class="flt" [class.active]="selectedSeverity === 'ALL'"     (click)="setFilter('ALL')">Tous</button>
-        <button class="flt" [class.active]="selectedSeverity === 'CRITICAL'" (click)="setFilter('CRITICAL')">Critique</button>
-        <button class="flt" [class.active]="selectedSeverity === 'HIGH'"     (click)="setFilter('HIGH')">Élevé</button>
-        <button class="flt" [class.active]="selectedSeverity === 'MEDIUM'"   (click)="setFilter('MEDIUM')">Modéré</button>
+        <button class="flt" [class.active]="selectedSeverity === 'ALL'"     (click)="setFilter('ALL')">All</button>
+        <button class="flt" [class.active]="selectedSeverity === 'CRITICAL'" (click)="setFilter('CRITICAL')">Critical</button>
+        <button class="flt" [class.active]="selectedSeverity === 'HIGH'"     (click)="setFilter('HIGH')">High</button>
+        <button class="flt" [class.active]="selectedSeverity === 'MEDIUM'"   (click)="setFilter('MEDIUM')">Moderate</button>
       </div>
 
-      <!-- Vide -->
+      <!-- Empty state -->
       <div class="empty-state" *ngIf="filteredAlerts.length === 0">
-        ✓ Aucune anomalie détectée pour ce filtre.
+        ✓ No anomaly detected for this filter.
       </div>
 
-      <!-- Liste anomalies -->
+      <!-- Anomalies list -->
       <div class="player-list">
         <div class="pcard" [ngClass]="player.anomalySeverity" *ngFor="let player of filteredAlerts">
           <div class="pcard-top">
@@ -104,31 +107,31 @@
               </div>
             </div>
             <div class="metric">
-              <div class="metric-lbl">Chute EWMA</div>
+              <div class="metric-lbl">EWMA Drop</div>
               <div class="metric-val">{{ formatEwmaDrop(player.ewmaDrop) }}</div>
             </div>
             <div class="metric">
               <div class="metric-lbl">Streak</div>
-              <div class="metric-val">{{ player.currentStreak }}j</div>
+              <div class="metric-val">{{ player.currentStreak }}d</div>
             </div>
           </div>
 
           <div class="msg-block">{{ player.anomalyMessage }}</div>
 
           <div class="alert-sent" *ngIf="player.coachAlertSent">
-            ✓ Notification coach envoyée
+            ✓ Coach notification sent
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ═══ TAB ACWR ═══ -->
+    <!-- ═══ ACWR TAB ═══ -->
     <div *ngIf="activeTab === 'acwr'">
 
       <div class="acwr-legend">
-        <div class="legend-item"><div class="legend-dot underload"></div>Sous-entraîné (&lt;0.8)</div>
+        <div class="legend-item"><div class="legend-dot underload"></div>Under-trained (&lt;0.8)</div>
         <div class="legend-item"><div class="legend-dot optimal"></div>Optimal (0.8–1.3)</div>
-        <div class="legend-item"><div class="legend-dot warning"></div>Surveillance (1.3–1.5)</div>
+        <div class="legend-item"><div class="legend-dot warning"></div>Monitoring (1.3–1.5)</div>
         <div class="legend-item"><div class="legend-dot danger"></div>Danger (&gt;1.5)</div>
       </div>
 
@@ -139,7 +142,7 @@
         </div>
         <div class="kpi warn">
           <div class="kpi-val">{{ acwrWarningCount }}</div>
-          <div class="kpi-lbl">Surveillance</div>
+          <div class="kpi-lbl">Monitoring</div>
         </div>
         <div class="kpi ok">
           <div class="kpi-val">{{ acwrOptimalCount }}</div>
@@ -147,17 +150,17 @@
         </div>
         <div class="kpi info">
           <div class="kpi-val">{{ acwrUnderload }}</div>
-          <div class="kpi-lbl">Sous-chargé</div>
+          <div class="kpi-lbl">Underloaded</div>
         </div>
       </div>
 
       <div class="acwr-header">
-        <span>Joueur</span>
+        <span>Player</span>
         <span>ACWR</span>
         <span>Zone</span>
-        <span>Charge 7j</span>
-        <span>Charge chr.</span>
-        <span>Recommandation</span>
+        <span>7d Load</span>
+        <span>Chronic Load</span>
+        <span>Recommendation</span>
       </div>
 
       <div class="acwr-table">
@@ -186,19 +189,95 @@
       </div>
     </div>
 
-    <!-- ═══ TAB TENDANCES ═══ -->
+    <!-- ═══ TRENDS TAB ═══ -->
     <div *ngIf="activeTab === 'chart'">
       <div class="chart-section">
-        <div class="chart-title">Distribution des sévérités d'anomalie</div>
+        <div class="chart-title">Anomaly severity distribution</div>
         <div class="chart-wrap">
           <canvas #sevChart></canvas>
         </div>
       </div>
       <div class="chart-section">
-        <div class="chart-title">Zones ACWR de l'équipe</div>
+        <div class="chart-title">Team ACWR zones</div>
         <div class="chart-wrap">
           <canvas #acwrChart></canvas>
         </div>
+      </div>
+    </div>
+
+    <!-- ═══ TEST / DÉMO TAB ═══ -->
+    <div *ngIf="activeTab === 'test'" class="test-panel">
+      <div class="test-header">
+        <div class="test-header-icon">🧪</div>
+        <div>
+          <div class="test-header-title">Panneau Test / Démo</div>
+          <div class="test-header-sub">Injecte des données simulées sur 28 jours en un clic — pour montrer à ton prof sans attendre</div>
+        </div>
+      </div>
+
+      <!-- Player ID -->
+      <div class="test-field">
+        <label class="test-label">Player ID</label>
+        <input class="test-input" type="number" [(ngModel)]="testPlayerId" placeholder="Ex: 3" min="1"/>
+      </div>
+
+      <!-- Pattern -->
+      <div class="test-field">
+        <label class="test-label">Pattern de données</label>
+        <div class="pattern-grid">
+          <div class="pattern-card" *ngFor="let p of ['drop','spike','overload','regular','custom']"
+               [class.selected]="testPattern === p"
+               (click)="testPattern = p">
+            <div class="pattern-name">{{ p }}</div>
+            <div class="pattern-desc">{{ getPatternDescription(p) }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom params -->
+      <div class="test-custom" *ngIf="testPattern === 'custom'">
+        <div class="test-field">
+          <label class="test-label">Jours présents (sur 28)</label>
+          <input class="test-input" type="number" [(ngModel)]="testPresentDays" min="1" max="28"/>
+        </div>
+        <div class="test-field">
+          <label class="test-label">Jours absents à la fin (crée la chute)</label>
+          <input class="test-input" type="number" [(ngModel)]="testSkipLast" min="0" max="20"/>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="test-actions">
+        <button class="btn-seed" (click)="runSeed()" [disabled]="testLoading">
+          {{ testLoading ? '⏳ Injection...' : '▶ Injecter données' }}
+        </button>
+        <button class="btn-reset" (click)="runReset()" [disabled]="testLoading">
+          🗑 Reset joueur
+        </button>
+      </div>
+
+      <!-- Error -->
+      <div class="test-error" *ngIf="testError">⚠ {{ testError }}</div>
+
+      <!-- Result -->
+      <div class="test-result" *ngIf="testResult">
+        <div class="test-result-title">✅ Résultat injection</div>
+        <div class="result-grid">
+          <div class="result-item"><span class="result-key">Joueur</span><span class="result-val">{{ testResult.playerName }}</span></div>
+          <div class="result-item"><span class="result-key">Pattern</span><span class="result-val">{{ testResult.pattern }}</span></div>
+          <div class="result-item"><span class="result-key">Jours injectés</span><span class="result-val">{{ testResult.daysInjected }}</span></div>
+          <div class="result-item"><span class="result-key">Date effective</span><span class="result-val">{{ testResult.effectiveDate }}</span></div>
+          <div class="result-item"><span class="result-key">Streak actuel</span><span class="result-val">{{ testResult.currentStreak }}j</span></div>
+          <div class="result-item"><span class="result-key">Zone ACWR</span>
+            <span class="result-val zone-badge" [ngClass]="testResult.acwrZone">{{ testResult.acwrZone }} ({{ testResult.acwr }})</span>
+          </div>
+          <div class="result-item"><span class="result-key">Anomalie</span>
+            <span class="result-val">{{ testResult.anomalyType }} — {{ testResult.anomalySeverity }}</span>
+          </div>
+          <div class="result-item"><span class="result-key">Z-Score</span><span class="result-val">{{ testResult.zScore }}</span></div>
+          <div class="result-item"><span class="result-key">EWMA Drop</span><span class="result-val">{{ (testResult.ewmaDrop * 100).toFixed(0) }}%</span></div>
+        </div>
+        <div class="result-message">{{ testResult.message }}</div>
       </div>
     </div>
 

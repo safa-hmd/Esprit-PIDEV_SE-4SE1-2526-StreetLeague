@@ -34,6 +34,10 @@ export class PlayerProfileComponent implements OnInit {
 
   currentPlayerStats: PlayerStatsDto | null = null;
   streakLoading = false;
+  checkinType: 'TRAINING' | 'MATCH' | 'BOTH' = 'TRAINING';
+  checkinLoading = false;
+  checkinNotif: { message: string; type: 'success' | 'error' } | null = null;
+  private notifTimeout: any = null;
 
   constructor(
     private fb: FormBuilder,
@@ -128,22 +132,25 @@ export class PlayerProfileComponent implements OnInit {
 
   doCheckin(): void {
     const playerId = parseInt(localStorage.getItem('UserIdConnect') || '0');
-    if (!playerId) { 
-      alert('Please login to continue'); 
-      return; 
+    if (!playerId) {
+      alert('Please login to continue');
+      return;
     }
+    if (this.checkinLoading) return;
+    this.checkinLoading = true;
 
-    const attendanceType = 'TRAINING';
-
-    this.streakService.checkin(playerId, attendanceType)
+    this.streakService.checkin(playerId, this.checkinType)
       .subscribe({
         next: (result) => {
-          alert(`✅ Check-in recorded! Streak: ${result.currentStreak} days${result.badge ? ' - ' + result.badge : ''}`);
+          this.checkinLoading = false;
+          const badge = result.badge ? ` 🏆 ${result.badge}` : '';
+          alert(`✅ Check-in (${this.checkinType}) enregistré ! Streak: ${result.currentStreak} jours${badge}`);
           this.loadStreakData();
         },
         error: (err) => {
+          this.checkinLoading = false;
           console.error('Checkin error:', err);
-          alert('❌ Error: ' + (err.error?.message || err.message || 'Unknown error'));
+          alert('❌ Erreur: ' + (err.error?.message || err.message || 'Erreur inconnue'));
         }
       });
   }

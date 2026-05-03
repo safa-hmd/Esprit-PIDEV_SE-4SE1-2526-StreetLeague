@@ -101,4 +101,20 @@ export class ListTrainingComponent implements OnInit {
     if (pct >= 75)  return 'var(--orange)';
     return 'var(--teal)';
   }
+
+
+  // ── Training Pagination ───────────────────────────────────
+trainingPage: number = 1;
+trainingPageSize: number = 5;
+
+get pagedTrainings(): TrainingResponse[] {
+  const start = (this.trainingPage - 1) * this.trainingPageSize;
+  return this.trainings.slice(start, start + this.trainingPageSize);
+}
+get trainingTotalPages(): number {
+  return Math.ceil(this.trainings.length / this.trainingPageSize);
+}
+changeTrainingPage(p: number): void {
+  if (p >= 1 && p <= this.trainingTotalPages) this.trainingPage = p;
+}
 }

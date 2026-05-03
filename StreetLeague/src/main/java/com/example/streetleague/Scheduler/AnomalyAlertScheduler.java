@@ -1,7 +1,9 @@
 package com.example.streetleague.Scheduler;
 
 import com.example.streetleague.Entity.PlayerAttendance;
+import com.example.streetleague.Entity.Team;
 import com.example.streetleague.Repository.PlayerAttendanceRepository;
+import com.example.streetleague.Repository.TeamRepository;
 import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.InotificationService;
 import com.example.streetleague.algorithm.AnomalyDetector;
@@ -16,212 +18,177 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * AnomalyAlertScheduler — Détection automatique d'anomalies de performance
  *
- * Scan quotidien à 8h:
- * - Analyse tous les joueurs
- * - Détecte anomalies HIGH / CRITICAL
- * - Envoie notification aux coachs
- *
- * Scan horaire:
- * - Détecte uniquement CRITICAL
- * - Notification immédiate
+ * FIXES appliqués :
+ *   [P1-4] Coach ciblé : on notifie uniquement le coach de l'équipe du joueur
+ *   [P1-5] Anti-spam   : mémoire lastAlertedAt + lastSeverity par joueur
+ *                        — pas de re-notification si même anomalie dans les 24h
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AnomalyAlertScheduler {
 
-    private final UserRepository userRepository;
+    private final UserRepository             userRepository;
     private final PlayerAttendanceRepository attendanceRepo;
-    private final InotificationService notificationService;
+    private final TeamRepository             teamRepository;
+    private final InotificationService       notificationService;
 
     private static final int ANALYSIS_WINDOW_DAYS = 28;
 
-    /**
-     * Scan quotidien à 8h00
-     */
+    // ── Anti-spam : mémoire en RAM (suffit pour éviter le spam intra-journalier) ─
+    // clé = playerId, valeur = [lastAlertedAt, lastSeverity]
+    private final Map<Long, AlertRecord> alertMemory = new ConcurrentHashMap<>();
+
+    private record AlertRecord(LocalDateTime sentAt, Severity severity) {}
+
+    // Délai minimum entre deux alertes pour le MÊME joueur (24h pour daily, 6h pour critique)
+    private static final int DAILY_COOLDOWN_HOURS    = 24;
+    private static final int CRITICAL_COOLDOWN_HOURS = 6;
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  Scan quotidien à 8h — HIGH + CRITICAL
+    // ════════════════════════════════════════════════════════════════════════
     @Scheduled(cron = "0 0 8 * * *")
     @Transactional(readOnly = true)
     public void detectAndAlertAnomalies() {
-        log.info("🔍 [AnomalyAlertScheduler] Démarrage du scan quotidien...");
+        log.info("🔍 [AnomalyAlertScheduler] Scan quotidien démarré...");
 
-        LocalDate today = LocalDate.now();
+        LocalDate today  = LocalDate.now();
         LocalDate from28 = today.minusDays(ANALYSIS_WINDOW_DAYS - 1);
+        int alertsSent   = 0;
 
-        // Charger coachs
-        List<User> coaches = userRepository.findAllByRole(Role.COACH);
-        if (coaches.isEmpty()) {
-            log.warn("⚠️ Aucun coach trouvé.");
-            return;
-        }
-
-        // Charger joueurs
         List<User> players = userRepository.findAllByRole(Role.PLAYER);
-        log.info("→ Analyse de {} joueur(s)", players.size());
-
-        int alertsSent = 0;
+        log.info("→ {} joueur(s) à analyser", players.size());
 
         for (User player : players) {
             try {
                 List<PlayerAttendance> attendances =
                         attendanceRepo.findByPlayerIdAndAttendanceDateBetweenOrderByAttendanceDateDesc(
-                                player.getIdUser(),
-                                from28,
-                                today
-                        );
+                                player.getIdUser(), from28, today);
 
                 AnomalyResult result = AnomalyDetector.analyze(attendances, today);
 
-                // HIGH ou CRITICAL
-                if (result.requiresCoachAlert()) {
+                if (!result.requiresCoachAlert()) continue;
 
-                    String message = buildCoachMessage(
-                            player.getFullName(),
-                            result
-                    );
-
-                    notificationService.createNotificationForUsers(
-                            coaches,
-                            message
-                    );
-
-                    log.warn(
-                            "🚨 ANOMALIE {} — {} : Z={:.2f}, chute EWMA={:.0f}% — {} coach(s) alerté(s).",
-                            result.severity().name(),
-                            player.getFullName(),
-                            result.zScore(),
-                            result.ewmaDrop() * 100,
-                            coaches.size()
-                    );
-
-                    alertsSent++;
+                // ── Anti-spam : skip si même sévérité déjà envoyée dans les 24h ─
+                if (isRecentlyAlerted(player.getIdUser(), result.severity(), DAILY_COOLDOWN_HOURS)) {
+                    log.info("⏭ Skip spam {} — déjà alerté récemment", player.getFullName());
+                    continue;
                 }
-                // MEDIUM فقط log
-                else if (result.isAnomaly()) {
-                    log.info(
-                            "ℹ️ Anomalie MEDIUM — {} : Z={:.2f}",
-                            player.getFullName(),
-                            result.zScore()
-                    );
+
+                // ── [P1-4] Cibler uniquement le coach de l'équipe du joueur ────
+                Optional<User> coach = findCoachForPlayer(player.getIdUser());
+                if (coach.isEmpty()) {
+                    log.warn("⚠️ Aucun coach trouvé pour {}", player.getFullName());
+                    continue;
                 }
+
+                String message = buildCoachMessage(player.getFullName(), result);
+                notificationService.createNotificationForUsers(List.of(coach.get()), message);
+
+                // Mémoriser l'alerte envoyée
+                alertMemory.put(player.getIdUser(),
+                        new AlertRecord(LocalDateTime.now(), result.severity()));
+
+                log.warn("🚨 {} [{}] → coach {} alerté",
+                        player.getFullName(), result.severity(), coach.get().getFullName());
+                alertsSent++;
 
             } catch (Exception e) {
-                log.error(
-                        "❌ Erreur analyse joueur {} : {}",
-                        player.getFullName(),
-                        e.getMessage()
-                );
+                log.error("❌ Erreur analyse joueur {} : {}", player.getFullName(), e.getMessage());
             }
         }
-
-        log.info(
-                "✅ Scan terminé. {}/{} joueur(s) alertés.",
-                alertsSent,
-                players.size()
-        );
+        log.info("✅ Scan quotidien terminé. {}/{} alertes envoyées.", alertsSent, players.size());
     }
 
-    /**
-     * Scan toutes les heures
-     * Alerte uniquement CRITICAL
-     */
+    // ════════════════════════════════════════════════════════════════════════
+    //  Scan horaire — CRITICAL uniquement
+    // ════════════════════════════════════════════════════════════════════════
     @Scheduled(cron = "0 0 * * * *")
     @Transactional(readOnly = true)
     public void detectCriticalAnomaliesHourly() {
-
-        LocalDate today = LocalDate.now();
+        LocalDate today  = LocalDate.now();
         LocalDate from28 = today.minusDays(ANALYSIS_WINDOW_DAYS - 1);
-
-        List<User> coaches = userRepository.findAllByRole(Role.COACH);
-        if (coaches.isEmpty()) {
-            return;
-        }
 
         List<User> players = userRepository.findAllByRole(Role.PLAYER);
 
         for (User player : players) {
             try {
-
                 List<PlayerAttendance> attendances =
                         attendanceRepo.findByPlayerIdAndAttendanceDateBetweenOrderByAttendanceDateDesc(
-                                player.getIdUser(),
-                                from28,
-                                today
-                        );
+                                player.getIdUser(), from28, today);
 
-                AnomalyResult result =
-                        AnomalyDetector.analyze(attendances, today);
+                AnomalyResult result = AnomalyDetector.analyze(attendances, today);
 
-                // فقط CRITICAL
-                if (result.requiresCoachAlert()
-                        && result.severity() == Severity.CRITICAL) {
+                if (!result.requiresCoachAlert() || result.severity() != Severity.CRITICAL) continue;
 
-                    String message =
-                            "🔴 [ALERTE CRITIQUE HORAIRE] "
-                                    + buildCoachMessage(
-                                    player.getFullName(),
-                                    result
-                            );
-
-                    notificationService.createNotificationForUsers(
-                            coaches,
-                            message
-                    );
-
-                    log.error(
-                            "🔴 CRITIQUE — {} : Z={}",
-                            player.getFullName(),
-                            result.zScore()
-                    );
+                // Anti-spam : cooldown 6h pour les critiques
+                if (isRecentlyAlerted(player.getIdUser(), Severity.CRITICAL, CRITICAL_COOLDOWN_HOURS)) {
+                    continue;
                 }
 
+                Optional<User> coach = findCoachForPlayer(player.getIdUser());
+                if (coach.isEmpty()) continue;
+
+                String message = "🔴 [ALERTE CRITIQUE HORAIRE] "
+                        + buildCoachMessage(player.getFullName(), result);
+
+                notificationService.createNotificationForUsers(List.of(coach.get()), message);
+                alertMemory.put(player.getIdUser(),
+                        new AlertRecord(LocalDateTime.now(), Severity.CRITICAL));
+
+                log.error("🔴 CRITIQUE horaire — {} → coach {} notifié",
+                        player.getFullName(), coach.get().getFullName());
+
             } catch (Exception e) {
-                log.error(
-                        "❌ Erreur analyse horaire {} : {}",
-                        player.getFullName(),
-                        e.getMessage()
-                );
+                log.error("❌ Erreur horaire {} : {}", player.getFullName(), e.getMessage());
             }
         }
     }
 
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
     /**
-     * Construire message coach
+     * Trouve le coach de l'équipe d'un joueur.
+     * Cherche dans toutes les équipes si le joueur y appartient et si l'équipe a un coach.
      */
-    private String buildCoachMessage(
-            String playerName,
-            AnomalyResult result
-    ) {
+    private Optional<User> findCoachForPlayer(Long playerId) {
+        return teamRepository.findTeamsByPlayerId(playerId).stream()
+                .map(Team::getCoach)
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
 
+    /**
+     * Retourne true si une alerte de même sévérité a déjà été envoyée dans les N heures.
+     */
+    private boolean isRecentlyAlerted(Long playerId, Severity severity, int cooldownHours) {
+        AlertRecord rec = alertMemory.get(playerId);
+        if (rec == null) return false;
+        boolean sameOrWorse = rec.severity().ordinal() >= severity.ordinal();
+        boolean withinWindow = rec.sentAt().isAfter(
+                LocalDateTime.now().minusHours(cooldownHours));
+        return sameOrWorse && withinWindow;
+    }
+
+    private String buildCoachMessage(String playerName, AnomalyResult result) {
         String severity = result.severity().name();
-        String icon =
-                "CRITICAL".equals(severity)
-                        ? "🚨"
-                        : "⚠️";
-
-        String recommendation =
-                "CRITICAL".equals(severity)
-                        ? "Intervention immédiate recommandée. Vérifiez son état physique et mental."
-                        : "Surveillance renforcée conseillée. Envisagez un entretien individuel.";
-
+        String icon = "CRITICAL".equals(severity) ? "🚨" : "⚠️";
+        String reco = "CRITICAL".equals(severity)
+                ? "Intervention immédiate recommandée."
+                : "Surveillance renforcée conseillée.";
         return String.format(
-                "%s [Anomalie %s] %s affiche une chute de performance confirmée " +
-                        "(Z-Score = %.2f, chute EWMA = %.0f%%). " +
-                        "Score actuel : %.1f | Moyenne historique : %.1f. " +
-                        "→ %s",
-                icon,
-                severity,
-                playerName,
-                result.zScore(),
-                result.ewmaDrop() * 100,
-                result.currentScore(),
-                result.mean(),
-                recommendation
-        );
+                "%s [Anomalie %s] %s — chute confirmée (Z=%.2f, EWMA drop=%.0f%%). " +
+                        "Score actuel: %.1f | Moyenne: %.1f. → %s",
+                icon, severity, playerName,
+                result.zScore(), result.ewmaDrop() * 100,
+                result.currentScore(), result.mean(), reco);
     }
 }
-

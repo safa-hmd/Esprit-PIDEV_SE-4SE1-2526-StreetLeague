@@ -131,3 +131,10 @@
   color: var(--muted, #888888);
   padding: 2.5rem;
 }
+
+/* Pagination */
+.a-btn[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}

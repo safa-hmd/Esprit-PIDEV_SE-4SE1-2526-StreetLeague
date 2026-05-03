@@ -26,17 +26,33 @@ public class MatchmakingScorer {
 
     public double compute(Team teamA, String locationA,
                           Team teamB, String locationB) {
-        double eloScore  = scoreElo(teamA.getEloScore(), teamB.getEloScore());
+        double eloScore  = scoreElo(safeElo(teamA), safeElo(teamB));
         double distScore = geoUtils.scoreDistance(locationA, locationB);
         double h2hScore  = scoreH2H(teamA, teamB);
         return W_ELO * eloScore + W_DIST * distScore + W_H2H * h2hScore;
     }
 
 
-    public double scoreElo(int eloA, int eloB) {
-        int delta = Math.abs(eloA - eloB);
+    /**
+     * [P2-FIX] Méthode null-safe : accepte Integer nullable pour éviter NPE si eloScore est null.
+     * safeElo() centralise la valeur par défaut (1000 = ELO standard débutant).
+     */
+    public double scoreElo(Integer eloA, Integer eloB) {
+        int safeA = (eloA != null) ? eloA : 1000;
+        int safeB = (eloB != null) ? eloB : 1000;
+        int delta = Math.abs(safeA - safeB);
         if (delta >= ELO_THRESHOLD) return 0.0;
         return 1.0 - (double) delta / ELO_THRESHOLD;
+    }
+
+    /** Surcharge pour compatibilité avec les appels existants (int primitif). */
+    public double scoreElo(int eloA, int eloB) {
+        return scoreElo(Integer.valueOf(eloA), Integer.valueOf(eloB));
+    }
+
+    /** Utilitaire centralisé pour récupérer l'ELO d'une équipe de façon null-safe. */
+    private int safeElo(Team team) {
+        return (team.getEloScore() != null) ? team.getEloScore() : 1000;
     }
 
 
@@ -46,6 +62,7 @@ public class MatchmakingScorer {
                         teamA.getIdTeam(),
                         teamB.getIdTeam()
                 );
+        // Pas d'historique H2H → score neutre 0.5 (opportunité d'une première rencontre)
         if (h2hMatches.isEmpty()) return 0.5;
 
         long winsA = h2hMatches.stream().filter(m -> {
@@ -54,6 +71,11 @@ public class MatchmakingScorer {
             else          return m.getScoreTeamB() > m.getScoreTeamA();
         }).count();
 
-        return (double) winsA / h2hMatches.size();
+        double winRateA = (double) winsA / h2hMatches.size();
+
+        // [P2-FIX] Un bon matchmaking favorise les rivalités ÉQUILIBRÉES (proche 50/50),
+        // pas les équipes qui dominent déjà l'adversaire.
+        // Score max (1.0) quand winRate = 0.5 exactement ; score min (0.0) quand 0% ou 100%.
+        return 1.0 - Math.abs(winRateA - 0.5) * 2.0;
     }
 }

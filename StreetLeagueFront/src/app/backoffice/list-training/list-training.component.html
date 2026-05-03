@@ -10,11 +10,8 @@
   <div *ngIf="successMsg" class="alert alert-success" style="margin-bottom:1rem;">{{ successMsg }}</div>
   <div *ngIf="errorMsg"   class="alert alert-danger"  style="margin-bottom:1rem;">{{ errorMsg }}</div>
 
-  <!-- ══════════════════════════════════════════════════════ -->
-  <!-- Stat Cards                                             -->
-  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- Stat Cards -->
   <div class="stat-grid cols-4" style="margin-bottom:1.5rem;">
-
     <div class="a-stat">
       <div class="a-stat-icon" style="background:rgba(78,138,159,0.15);color:var(--teal);">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -26,7 +23,6 @@
         <div class="a-stat-label">Active Coaches</div>
       </div>
     </div>
-
     <div class="a-stat">
       <div class="a-stat-icon" style="background:rgba(232,112,64,0.15);color:var(--orange);">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -38,7 +34,6 @@
         <div class="a-stat-label">Planned Sessions</div>
       </div>
     </div>
-
     <div class="a-stat">
       <div class="a-stat-icon" style="background:rgba(107,158,210,0.15);color:var(--pastel-blue);">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -50,7 +45,6 @@
         <div class="a-stat-label">Total Participants</div>
       </div>
     </div>
-
     <div class="a-stat">
       <div class="a-stat-icon" style="background:rgba(194,116,138,0.15);color:var(--old-rose);">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -62,78 +56,175 @@
         <div class="a-stat-label">Completed Sessions</div>
       </div>
     </div>
-
   </div>
 
   <!-- ══════════════════════════════════════════════════════ -->
-  <!-- 2-column layout: Coaches | Upcoming Sessions           -->
+  <!-- 9/12 Sessions Table  |  3/12 Stats Panel              -->
   <!-- ══════════════════════════════════════════════════════ -->
-  <div class="a-grid-2" style="gap:1.25rem;">
+  <div style="display:grid;grid-template-columns:3fr 1fr;gap:1.25rem;align-items:start;">
 
-    <!-- ── LEFT: Coaches Table ── -->
-
-
-    <!-- ── RIGHT: Upcoming Sessions ── -->
+    <!-- ── LEFT 9/12 : Sessions Table ── -->
     <div class="a-card">
-      <div class="a-card-header">
-        <span class="a-card-title">Upcoming Sessions</span>
+      <div class="a-card-header" style="justify-content:space-between;">
+        <span class="a-card-title">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
+               style="width:16px;height:16px;margin-right:0.4rem;vertical-align:middle;">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Upcoming Sessions
+        </span>
+        <span style="font-size:0.8rem;color:var(--muted);">
+          {{ trainings.length }} total
+        </span>
       </div>
-      <div class="a-card-body">
 
-        <!-- Loading -->
-        <div *ngIf="isLoading" style="text-align:center;color:var(--muted);padding:1rem;">
+      <div class="a-card-body" style="padding:0;">
+
+        <div *ngIf="isLoading" style="padding:2rem;text-align:center;color:var(--muted);">
           Loading sessions...
         </div>
 
-        <div *ngIf="!isLoading" style="display:flex;flex-direction:column;gap:0.75rem;">
+        <div *ngIf="!isLoading" class="a-table-wrap">
+          <table class="a-table">
+            <thead>
+              <tr>
+                <th>Session</th>
+                <th>Team</th>
+                <th>Date</th>
+                <th>Participants</th>
+                <th>Progress</th>
+                <th>Status</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let training of pagedTrainings">
+                <td><strong>{{ training.title }}</strong></td>
+                <td style="color:var(--muted);">{{ training.teamName || '—' }}</td>
+                <td style="color:var(--muted);font-size:0.82rem;">
+                  {{ training.trainingDate | date:'MMM d, y' }}
+                </td>
+                <td>
+                  <span [style.color]="training.participantCount >= 20 ? 'var(--red)' : 'var(--text)'">
+                    {{ training.participantCount }}/25
+                  </span>
+                </td>
+                <td style="min-width:80px;">
+                  <div style="height:6px;background:var(--border);border-radius:100px;overflow:hidden;">
+                    <div [style.width]="getProgress(training.participantCount) + '%'"
+                         [style.background]="getProgressColor(training.participantCount)"
+                         style="height:100%;border-radius:100px;transition:width 0.4s;">
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="a-badge" [ngClass]="getStatusClass(training.status)">
+                    {{ training.status }}
+                  </span>
+                </td>
+                <td style="text-align:right;">
+                  <button class="a-btn a-btn-sm"
+                          style="color:#ff6b72;border:1.5px solid rgba(230,25,32,0.3);border-radius:8px;"
+                          (click)="deleteTraining(training.idTraining)">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="trainings.length === 0">
+                <td colspan="7" style="text-align:center;color:var(--muted);padding:2rem;">
+                  No sessions found.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-          <div *ngFor="let training of trainings"
-               style="padding:0.85rem;background:#171717;border-radius:8px;">
-
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
-
-              <!-- Info -->
-              <div style="flex:1;">
-                <div style="font-weight:700;font-size:0.9rem;">{{ training.title }}</div>
-                <div style="font-size:0.8rem;color:var(--muted);margin-top:0.2rem;">
-                  {{ training.teamName || 'No team' }}
-                  · {{ training.trainingDate | date:'MMM d, y' }}
-                  · {{ training.participantCount }}/25
-                </div>
-              </div>
-
-              <!-- Badge + Delete -->
-              <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
-                <span class="a-badge" [ngClass]="getStatusClass(training.status)">
-                  {{ training.status }}
-                </span>
-                <button class="a-btn a-btn-sm"
-                        style="color:#ff6b72;border:1.5px solid rgba(230,25,32,0.3);border-radius:8px;padding:0.2rem 0.6rem;"
-                        (click)="deleteTraining(training.idTraining)">
-                  Delete
-                </button>
-              </div>
-
-            </div>
-
-            <!-- Progress bar -->
-            <div style="height:4px;background:var(--border);border-radius:100px;margin-top:0.6rem;">
-              <div [style.width]="getProgress(training.participantCount) + '%'"
-                   [style.background]="getProgressColor(training.participantCount)"
-                   style="height:100%;border-radius:100px;transition:width 0.4s;">
-              </div>
-            </div>
-
+        <!-- Pagination -->
+        <div *ngIf="trainingTotalPages > 1"
+             style="display:flex;align-items:center;justify-content:space-between;
+                    padding:0.75rem 1.25rem;border-top:1px solid var(--border,#2A2A2A);">
+          <span style="color:var(--muted,#888);font-size:0.82rem;">
+            Page {{ trainingPage }} of {{ trainingTotalPages }} — {{ trainings.length }} sessions
+          </span>
+          <div style="display:flex;gap:0.4rem;">
+            <button class="a-btn a-btn-sm"
+                    (click)="changeTrainingPage(trainingPage - 1)"
+                    [disabled]="trainingPage === 1"
+                    style="border:1.5px solid var(--border,#2A2A2A);border-radius:8px;">‹</button>
+            <button *ngFor="let p of [].constructor(trainingTotalPages); let i = index"
+                    class="a-btn a-btn-sm"
+                    (click)="changeTrainingPage(i + 1)"
+                    [style]="(i+1) === trainingPage
+                      ? 'background:var(--red,#E61920);color:#fff;border-radius:8px;border:none;'
+                      : 'border:1.5px solid var(--border,#2A2A2A);border-radius:8px;'">
+              {{ i + 1 }}
+            </button>
+            <button class="a-btn a-btn-sm"
+                    (click)="changeTrainingPage(trainingPage + 1)"
+                    [disabled]="trainingPage === trainingTotalPages"
+                    style="border:1.5px solid var(--border,#2A2A2A);border-radius:8px;">›</button>
           </div>
+        </div>
 
-          <!-- Empty state -->
-          <div *ngIf="trainings.length === 0"
-               style="text-align:center;color:var(--muted);padding:2rem;">
-            No upcoming sessions.
+      </div>
+    </div>
+
+    <!-- ── RIGHT 3/12 : Summary Panel ── -->
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+
+      <!-- Status Breakdown -->
+      <div class="a-card">
+        <div class="a-card-header">
+          <span class="a-card-title" style="font-size:0.85rem;">Status Breakdown</span>
+        </div>
+        <div class="a-card-body" style="padding:1rem;display:flex;flex-direction:column;gap:0.6rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.82rem;color:var(--muted);">Planned</span>
+            <span class="a-badge a-badge-blue">{{ plannedCount }}</span>
           </div>
-
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.82rem;color:var(--muted);">Completed</span>
+            <span class="a-badge a-badge-green">{{ completedCount }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.82rem;color:var(--muted);">Cancelled</span>
+            <span class="a-badge a-badge-red">
+              {{ trainings.length - plannedCount - completedCount }}
+            </span>
+          </div>
         </div>
       </div>
+
+      <!-- Capacity Overview -->
+      <div class="a-card">
+        <div class="a-card-header">
+          <span class="a-card-title" style="font-size:0.85rem;">Capacity Overview</span>
+        </div>
+        <div class="a-card-body" style="padding:1rem;display:flex;flex-direction:column;gap:0.75rem;">
+          <div *ngFor="let training of trainings.slice(0, 4)">
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">
+              <span style="font-size:0.78rem;color:var(--text);
+                           white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;">
+                {{ training.title }}
+              </span>
+              <span style="font-size:0.78rem;color:var(--muted);">
+                {{ training.participantCount }}/25
+              </span>
+            </div>
+            <div style="height:4px;background:var(--border);border-radius:100px;overflow:hidden;">
+              <div [style.width]="getProgress(training.participantCount) + '%'"
+                   [style.background]="getProgressColor(training.participantCount)"
+                   style="height:100%;border-radius:100px;">
+              </div>
+            </div>
+          </div>
+          <div *ngIf="trainings.length === 0"
+               style="text-align:center;color:var(--muted);font-size:0.82rem;">
+            No sessions yet.
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div>

@@ -53,15 +53,24 @@ public class PerformanceService {
     private static final int CHECKIN_MATCH_PTS    = 2;
     private static final int CHECKIN_BOTH_PTS     = 3;
 
-    private static final long TEST_BASE_EPOCH_SECOND =
-            LocalDate.of(2024, 1, 1).toEpochDay() * 86_400L;
+    // ── Base temporelle test-mode ─────────────────────────────────────────
+    private LocalDate testBaseDate;
+    private long      testBaseEpoch;
+
+    @jakarta.annotation.PostConstruct
+    private void initTestBase() {
+        testBaseDate  = LocalDate.now();
+        testBaseEpoch = Instant.now().getEpochSecond();
+        log.info("[TEST-MODE] Base initialisée : date={} epoch={} windowSeconds={}",
+                testBaseDate, testBaseEpoch, windowSeconds);
+    }
 
     // ── Date effective (test / production) ──────────────────────────────
     private LocalDate getEffectiveDate() {
         if (testMode) {
-            long relativeSeconds = Instant.now().getEpochSecond() - TEST_BASE_EPOCH_SECOND;
-            long windowIndex     = relativeSeconds / windowSeconds;
-            return LocalDate.of(2024, 1, 1).plusDays(windowIndex);
+            long elapsed     = Instant.now().getEpochSecond() - testBaseEpoch;
+            long windowIndex = elapsed / windowSeconds;
+            return testBaseDate.plusDays(windowIndex);
         }
         return LocalDate.now();
     }
@@ -72,6 +81,34 @@ public class PerformanceService {
 
     // ══════════════════════════════════════════════════════════════════════
     //  CHECK-IN
+    //
+    //  CORRECTION BUG #1 (blocage Jour 1 / 30s) :
+    //    Le blocage venait du fait qu'au Jour 1, buildFullDto() appelait
+    //    AnomalyDetector.analyze() qui pouvait recevoir une liste vide et
+    //    tentait des calculs statistiques (mean, stdDev) sur 0 éléments.
+    //    → AnomalyDetector.insufficient() était déjà prévu MAIS le check
+    //      était sur activeDaysCount < MIN_DATA_POINTS après buildDailySeries,
+    //      qui retourne TOUJOURS 28 zéros même au Jour 1. L'ancien code
+    //      vérifiait dailySeries.size() < 3 → toujours faux → plantait.
+    //    → FIX : AnomalyDetector.analyze() vérifie maintenant les jours
+    //      ACTIFS (non-zéro) dans la série, pas la taille totale (voir
+    //      AnomalyDetector.java corrigé). Aucun changement nécessaire ici.
+    //
+    //  CORRECTION BUG #2 (5 check-ins = fatigue gonflée) :
+    //    Cause : attendanceType était mis à jour à chaque check-in, même
+    //    intra-fenêtre. Si le joueur checkait TRAINING puis MATCH puis BOTH
+    //    5 fois, le type sauvegardé était BOTH → poids 3.0 dans ACWR.
+    //    En soi c'est une seule entrée par jour (contrainte UNIQUE), donc
+    //    l'ACWR ne double pas. LE VRAI PROBLÈME était que fatigueRisk
+    //    montait parce que acuteLoad = somme des poids sur 7j, et le type
+    //    BOTH (poids 3.0) multiplié par 7j = 21 = MAX → fatigueRisk = 1.0.
+    //
+    //    FIX : Règle de merge du type de séance — on prend TOUJOURS
+    //    le type le plus fort déjà enregistré (BOTH > MATCH > TRAINING).
+    //    Un joueur qui a déjà checké MATCH ne peut pas "dégrader" vers
+    //    TRAINING. Et un joueur qui checker 5 fois TRAINING reste TRAINING.
+    //    → Résultat : l'ACWR reflète le TYPE réel de la séance, pas le
+    //      nombre de check-ins.
     // ══════════════════════════════════════════════════════════════════════
     @Transactional
     public PlayerStatsDto checkin(Long playerId, String attendanceType) {
@@ -94,9 +131,19 @@ public class PerformanceService {
 
         if (existing.isPresent()) {
             PlayerAttendance a = existing.get();
-            a.setIsPresent(true);
-            a.setAttendanceType(normalizedType);
-            attendanceRepo.saveAndFlush(a);
+            // ── FIX BUG #2 : merge du type — on garde le plus fort ────────
+            // BOTH > MATCH > TRAINING.
+            // Un check-in TRAINING ne peut pas écraser un MATCH ou BOTH existant.
+            String mergedType = mergeAttendanceType(a.getAttendanceType(), normalizedType);
+            if (!mergedType.equals(a.getAttendanceType())) {
+                log.info("[CHECK-IN] type upgrade: {} → {} for player={} date={}",
+                        a.getAttendanceType(), mergedType, playerId, effectiveDate);
+                a.setAttendanceType(mergedType);
+                attendanceRepo.saveAndFlush(a);
+            } else {
+                log.info("[CHECK-IN] type unchanged={} (already at highest/same level) player={} date={}",
+                        mergedType, playerId, effectiveDate);
+            }
         } else {
             attendanceRepo.saveAndFlush(PlayerAttendance.builder()
                     .playerId(playerId)
@@ -109,6 +156,28 @@ public class PerformanceService {
 
         PlayerStreak streak = updateStreak(playerId, normalizedType, isNewWindow);
         return buildFullDto(streak, player.getFullName(), playerId);
+    }
+
+    /**
+     * Retourne le type de séance le plus fort entre l'existant et le nouveau.
+     * Priorité : BOTH (3) > MATCH (2) > TRAINING (1).
+     *
+     * FIX BUG #2 : empêche qu'un check-in répété dégrade ou gonfle artificiellement
+     * le type de séance. Seule une "montée en puissance" est autorisée.
+     */
+    private String mergeAttendanceType(String existing, String incoming) {
+        int existingWeight = typeWeight(existing);
+        int incomingWeight = typeWeight(incoming);
+        return existingWeight >= incomingWeight ? existing : incoming;
+    }
+
+    private int typeWeight(String type) {
+        if (type == null) return 1;
+        return switch (type.toUpperCase()) {
+            case "BOTH"     -> 3;
+            case "MATCH"    -> 2;
+            default         -> 1; // TRAINING
+        };
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -141,6 +210,7 @@ public class PerformanceService {
 
         int total = streak.getTotalPoints() != null ? streak.getTotalPoints() : 0;
 
+        // Points uniquement sur une nouvelle fenêtre (nouveau jour simulé)
         if (isNewWindow) {
             int dailyPts = switch (attendanceType) {
                 case "BOTH"  -> CHECKIN_BOTH_PTS;
@@ -161,14 +231,13 @@ public class PerformanceService {
         streak.setCurrentBadge(computeBadge(currentStreak));
         streak.setMomentumScore(computeMomentum(attendances));
 
-        // ── NOUVEAU : Fatigue via ACWR ────────────────────────────────────
-        // Fenêtre 28 jours pour ACWR (au lieu de 30 précédemment)
+        // ACWR (fenêtre 28 jours)
         LocalDate acwrFrom = getDateBefore(today, 28);
         List<PlayerAttendance> acwrAttendances = attendanceRepo
                 .findByPlayerIdAndAttendanceDateBetweenOrderByAttendanceDateDesc(
                         playerId, acwrFrom, today);
         AcwrResult acwr = AcwrCalculator.compute(acwrAttendances, today);
-        streak.setFatigueRisk(acwr.fatigueRisk()); // remplace l'ancienne formule
+        streak.setFatigueRisk(acwr.fatigueRisk());
 
         streak.setLastAttendanceDate(today);
         streak.setLastUpdated(LocalDateTime.now());
@@ -177,7 +246,7 @@ public class PerformanceService {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  ENDPOINTS PUBLICS EXISTANTS
+    //  ENDPOINTS PUBLICS
     // ══════════════════════════════════════════════════════════════════════
 
     @Transactional(readOnly = true)
@@ -297,12 +366,9 @@ public class PerformanceService {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  NOUVEAUX ENDPOINTS — ACWR
+    //  ENDPOINTS ACWR
     // ══════════════════════════════════════════════════════════════════════
 
-    /**
-     * Stats ACWR d'un joueur spécifique.
-     */
     @Transactional(readOnly = true)
     public Optional<PlayerStatsDto> getAcwrStats(Long playerId) {
         if (!isPlayer(playerId)) return Optional.empty();
@@ -330,9 +396,6 @@ public class PerformanceService {
                 .build());
     }
 
-    /**
-     * Classement global trié par ACWR décroissant (les plus à risque en premier).
-     */
     public List<PlayerStatsDto> getAcwrRanking() {
         Map<Long, String> names   = loadAllPlayerNames();
         LocalDate         today   = getEffectiveDate();
@@ -366,12 +429,9 @@ public class PerformanceService {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  NOUVEAUX ENDPOINTS — ANOMALIES
+    //  ENDPOINTS ANOMALIES
     // ══════════════════════════════════════════════════════════════════════
 
-    /**
-     * Analyse d'anomalie pour un joueur spécifique.
-     */
     @Transactional(readOnly = true)
     public Optional<PlayerStatsDto> getAnomalyStats(Long playerId) {
         if (!isPlayer(playerId)) return Optional.empty();
@@ -398,10 +458,6 @@ public class PerformanceService {
                 .build());
     }
 
-    /**
-     * Liste de tous les joueurs avec anomalies (MEDIUM, HIGH, CRITICAL).
-     * Utilisé par le scheduler et le dashboard coach.
-     */
     public List<PlayerStatsDto> getPlayersWithAnomalies() {
         Map<Long, String> names  = loadAllPlayerNames();
         LocalDate         today  = getEffectiveDate();
@@ -415,9 +471,11 @@ public class PerformanceService {
                             .findByPlayerIdAndAttendanceDateBetweenOrderByAttendanceDateDesc(
                                     id, from28, today);
                     AnomalyResult anomaly = AnomalyDetector.analyze(att, today);
-                    if (!anomaly.isAnomaly()) return null;
+                    // Inclure DROPS + SPIKES + ACWR danger (pas seulement les chutes)
+                    boolean showAnomaly = anomaly.isAnomaly()
+                            || anomaly.type() == AnomalyDetector.AnomalyType.PERFORMANCE_SPIKE;
+                    if (!showAnomaly) return null;
 
-                    // Enrichir avec les stats de streak pour le contexte
                     Optional<PlayerStreak> streakOpt = streakRepo.findByPlayerId(id);
                     PlayerStatsDto.PlayerStatsDtoBuilder builder = PlayerStatsDto.builder()
                             .playerId(id)
@@ -447,10 +505,6 @@ public class PerformanceService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Analyse ACWR + Anomalie complète pour un joueur (combiné).
-     * Endpoint principal utilisé par le dashboard coach.
-     */
     @Transactional(readOnly = true)
     public Optional<PlayerStatsDto> getFullAnalysis(Long playerId) {
         if (!isPlayer(playerId)) return Optional.empty();
@@ -459,9 +513,6 @@ public class PerformanceService {
         LocalDate from30 = getDateBefore(today, 30);
         LocalDate from28 = getDateBefore(today, 28);
 
-        List<PlayerAttendance> att30 = attendanceRepo
-                .findByPlayerIdAndAttendanceDateBetweenOrderByAttendanceDateDesc(
-                        playerId, from30, today);
         List<PlayerAttendance> att28 = attendanceRepo
                 .findByPlayerIdAndAttendanceDateBetweenOrderByAttendanceDateDesc(
                         playerId, from28, today);
@@ -472,24 +523,19 @@ public class PerformanceService {
         PlayerStreak streak = streakOpt.get();
         String name = getPlayerName(playerId);
 
-        // Calculs ACWR + Anomalie
         AcwrResult    acwr    = AcwrCalculator.compute(att28, today);
         AnomalyResult anomaly = AnomalyDetector.analyze(att28, today);
 
-        // DTO complet — enrichit le buildFullDto avec les nouveaux champs
         PlayerStatsDto base = buildFullDto(streak, name, playerId);
         return Optional.of(base.toBuilder()
-                // ACWR
                 .acwr(round2(acwr.acwr()))
                 .acuteLoad(round2(acwr.acuteLoad()))
                 .chronicLoad(round2(acwr.chronicLoad()))
                 .acwrZone(acwr.zone().name())
                 .acwrRecommendation(acwr.recommendation())
-                // Mise à jour fatigueRisk avec la valeur ACWR (plus précise)
                 .fatigueRisk(round3(acwr.fatigueRisk()))
                 .riskLevel(acwr.riskLevel())
                 .workloadFactor(round3(acwr.normalizedAcuteLoad()))
-                // Anomalie
                 .anomalyType(anomaly.type().name())
                 .anomalySeverity(anomaly.severity().name())
                 .zScore(round3(anomaly.zScore()))
@@ -501,7 +547,7 @@ public class PerformanceService {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  MÉTRIQUES AVANCÉES EXISTANTES (inchangées)
+    //  MÉTRIQUES AVANCÉES
     // ══════════════════════════════════════════════════════════════════════
 
     private double computeConsistencyScore(List<PlayerAttendance> attendances, LocalDate today) {
@@ -592,8 +638,6 @@ public class PerformanceService {
                         : "MATCH".equals(a.getAttendanceType()) ? 2 : 1).sum();
     }
 
-    // ── Calculs de base ───────────────────────────────────────────────────
-
     private int computeCurrentStreak(List<PlayerAttendance> attendances, LocalDate today) {
         int streak = 0;
         for (int i = 0; i < 30; i++) {
@@ -627,7 +671,12 @@ public class PerformanceService {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  CONSTRUCTION DU DTO COMPLET (enrichi avec ACWR + Anomalie)
+    //  CONSTRUCTION DU DTO COMPLET
+    //
+    //  FIX BUG #1 : Les deux appels à AcwrCalculator.compute() et
+    //  AnomalyDetector.analyze() sont maintenant protégés contre les listes
+    //  vides (Jour 1 / historique insuffisant). Chacun retourne un résultat
+    //  "insufficient" au lieu de lancer une exception.
     // ══════════════════════════════════════════════════════════════════════
 
     private PlayerStatsDto buildFullDto(PlayerStreak s, String name, Long playerId) {
@@ -647,14 +696,13 @@ public class PerformanceService {
         int    totalPoints   = s.getTotalPoints()    != null ? s.getTotalPoints()   : 0;
         double momentum      = s.getMomentumScore()  != null ? s.getMomentumScore() : 0.0;
 
-        // ── ACWR (remplace l'ancienne formule de fatigue) ─────────────────
+        // ACWR — retourne toujours un résultat valide (insufficientHistory si < 7j)
         AcwrResult acwr = AcwrCalculator.compute(att28, today);
         double fatigueRisk = acwr.fatigueRisk();
 
-        // ── Anomalie ─────────────────────────────────────────────────────
+        // Anomalie — retourne toujours un résultat valide (NORMAL/insufficient si < 3j actifs)
         AnomalyResult anomaly = AnomalyDetector.analyze(att28, today);
 
-        // ── Métriques existantes ──────────────────────────────────────────
         String riskLevel = acwr.riskLevel();
         String status    = currentStreak >= 21 ? "OPTIMAL" : currentStreak >= 10 ? "ACTIF" : "FAIBLE";
 
@@ -669,7 +717,7 @@ public class PerformanceService {
         double consistencyScore = computeConsistencyScore(att30, today);
         double weeklyAverage    = computeWeeklyAverage(att30, today);
         double recoveryScore    = computeRecoveryScore(att30, today);
-        double workloadFactor   = acwr.normalizedAcuteLoad(); // ACWR remplace l'ancienne formule
+        double workloadFactor   = acwr.normalizedAcuteLoad();
         String performanceLevel = computePerformanceLevel(totalPoints, currentStreak, consistencyScore);
         double continuationProb = computeStreakContinuationProbability(currentStreak, consistencyScore, fatigueRisk, momentum);
         int    predictedStreak  = computePredictedStreak(currentStreak, continuationProb);
@@ -681,15 +729,12 @@ public class PerformanceService {
         int    pointsThisMonth = computePointsInPeriod(att30, thirtyAgo, today);
 
         return PlayerStatsDto.builder()
-                // Base
                 .playerId(playerId).playerName(name)
                 .currentStreak(currentStreak).bestStreak(bestStreak)
                 .totalPoints(totalPoints).badge(s.getCurrentBadge())
                 .status(status).momentumScore(momentum)
-                // Fatigue — désormais basée sur ACWR
                 .fatigueRisk(round3(fatigueRisk)).riskLevel(riskLevel)
                 .recommendation(rec).recommendedRestDays(restDays)
-                // Métriques existantes
                 .consistencyScore(consistencyScore).performanceLevel(performanceLevel)
                 .weeklyAverage(weeklyAverage).activeDaysLast30(activeDays30)
                 .attendanceRate(attendanceRate).recoveryScore(recoveryScore)
@@ -699,13 +744,11 @@ public class PerformanceService {
                 .workloadFactor(round3(workloadFactor))
                 .weeklyHistory(weeklyHistory)
                 .pointsThisWeek(pointsThisWeek).pointsThisMonth(pointsThisMonth)
-                // NOUVEAU — ACWR
                 .acwr(round2(acwr.acwr()))
                 .acuteLoad(round2(acwr.acuteLoad()))
                 .chronicLoad(round2(acwr.chronicLoad()))
                 .acwrZone(acwr.zone().name())
                 .acwrRecommendation(acwr.recommendation())
-                // NOUVEAU — Anomalie
                 .anomalyType(anomaly.type().name())
                 .anomalySeverity(anomaly.severity().name())
                 .zScore(round3(anomaly.zScore()))
@@ -728,10 +771,8 @@ public class PerformanceService {
                 .injuryRiskLevel("LOW").workloadFactor(0.0)
                 .weeklyHistory(List.of(0,0,0,0,0,0,0))
                 .pointsThisWeek(0).pointsThisMonth(0)
-                // ACWR par défaut (zone optimale pour un joueur inactif)
                 .acwr(1.0).acuteLoad(0.0).chronicLoad(0.0)
                 .acwrZone("UNDERLOAD").acwrRecommendation("Aucune donnée disponible.")
-                // Anomalie par défaut
                 .anomalyType("NORMAL").anomalySeverity("NONE")
                 .zScore(0.0).ewmaScore(0.0).ewmaDrop(0.0)
                 .anomalyMessage("Données insuffisantes.").coachAlertSent(false)
@@ -761,9 +802,164 @@ public class PerformanceService {
     private double round2(double v) { return Math.round(v * 100.0) / 100.0; }
     private double round3(double v) { return Math.round(v * 1000.0) / 1000.0; }
 
-    // ── Rankings avancés ──────────────────────────────────────────────────
-
     public List<PlayerStatsDto> getInjuryRiskRankingAcwr() {
-        return getAcwrRanking(); // trié par ACWR décroissant = plus à risque en premier
+        return getAcwrRanking();
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  SEED TEST DATA — injecte 28 jours de présences simulées pour un joueur
+    //
+    //  Pattern disponibles :
+    //    "regular"  → présent les 28 jours (TRAINING) — pas d'anomalie, ACWR OPTIMAL
+    //    "drop"     → présent J-28 à J-4, absent les 4 derniers jours → DROP détecté
+    //    "spike"    → absent les 20 premiers jours, présent les 8 derniers → SPIKE
+    //    "overload" → présent tous les jours avec BOTH (poids 3.0) → ACWR DANGER
+    //    "custom"   → utilise les paramètres presentDays et skipLast
+    //
+    //  Utilisé uniquement en mode test / démo pour le prof.
+    // ══════════════════════════════════════════════════════════════════════
+    @Transactional
+    public Map<String, Object> seedTestData(Long playerId, String pattern, int presentDays, int skipLast) {
+        User player = userRepository.findById(playerId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + playerId));
+        if (player.getRole() != Role.PLAYER) {
+            throw new RuntimeException("Only PLAYER can be seeded");
+        }
+
+        LocalDate today = getEffectiveDate();
+
+        // Supprimer les anciennes présences sur 30 jours
+        LocalDate from30 = today.minusDays(30);
+        List<PlayerAttendance> old = attendanceRepo
+                .findByPlayerIdAndAttendanceDateBetweenOrderByAttendanceDateDesc(playerId, from30, today);
+        attendanceRepo.deleteAll(old);
+        attendanceRepo.flush();
+
+        // Construire le pattern de présences
+        List<LocalDate> presentDates = new ArrayList<>();
+        int totalDays = 28;
+
+        switch (pattern.toLowerCase()) {
+            case "drop" -> {
+                // Présent J-28 à J-5, absent les 5 derniers → chute détectable
+                for (int i = totalDays - 1; i >= 5; i--) {
+                    presentDates.add(today.minusDays(i));
+                }
+            }
+            case "spike" -> {
+                // Absent les 20 premiers, présent les 8 derniers → pic
+                for (int i = 7; i >= 0; i--) {
+                    presentDates.add(today.minusDays(i));
+                }
+            }
+            case "overload" -> {
+                // Présent tous les jours avec BOTH → ACWR DANGER
+                for (int i = totalDays - 1; i >= 0; i--) {
+                    presentDates.add(today.minusDays(i));
+                }
+            }
+            case "regular" -> {
+                for (int i = totalDays - 1; i >= 0; i--) {
+                    presentDates.add(today.minusDays(i));
+                }
+            }
+            default -> {
+                // custom : presentDays jours présents, skipLast jours absents à la fin
+                int start = Math.max(0, totalDays - presentDays - skipLast);
+                for (int i = totalDays - 1 - start; i >= skipLast; i--) {
+                    presentDates.add(today.minusDays(i));
+                }
+            }
+        }
+
+        String type = "overload".equals(pattern) ? "BOTH" : "TRAINING";
+
+        // Insérer les présences
+        List<PlayerAttendance> toSave = presentDates.stream()
+                .map(date -> PlayerAttendance.builder()
+                        .playerId(playerId)
+                        .attendanceDate(date)
+                        .isPresent(true)
+                        .attendanceType(type)
+                        .intensity(1)
+                        .build())
+                .collect(Collectors.toList());
+        attendanceRepo.saveAllAndFlush(toSave);
+
+        // Mettre à jour le streak
+        PlayerStreak streak = streakRepo.findByPlayerId(playerId).orElseGet(() -> {
+            PlayerStreak s = new PlayerStreak();
+            s.setPlayerId(playerId);
+            s.setCurrentStreak(0);
+            s.setBestStreak(0);
+            s.setTotalPoints(0);
+            s.setMomentumScore(0.0);
+            s.setFatigueRisk(0.0);
+            return s;
+        });
+
+        List<PlayerAttendance> att28 = attendanceRepo
+                .findByPlayerIdAndAttendanceDateBetweenOrderByAttendanceDateDesc(
+                        playerId, today.minusDays(28), today);
+
+        int currentStreak = computeCurrentStreak(att28, today);
+        int pts = toSave.size() * ("BOTH".equals(type) ? 3 : 1);
+        streak.setCurrentStreak(currentStreak);
+        streak.setBestStreak(Math.max(streak.getBestStreak() != null ? streak.getBestStreak() : 0, currentStreak));
+        streak.setTotalPoints(pts);
+        streak.setCurrentBadge(computeBadge(currentStreak));
+        streak.setMomentumScore(computeMomentum(att28));
+        AcwrResult acwr = AcwrCalculator.compute(att28, today);
+        streak.setFatigueRisk(acwr.fatigueRisk());
+        streak.setLastAttendanceDate(today);
+        streak.setLastUpdated(LocalDateTime.now());
+        streakRepo.saveAndFlush(streak);
+
+        AnomalyResult anomaly = AnomalyDetector.analyze(att28, today);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("playerId", playerId);
+        result.put("playerName", player.getFullName());
+        result.put("pattern", pattern);
+        result.put("daysInjected", toSave.size());
+        result.put("effectiveDate", today.toString());
+        result.put("currentStreak", currentStreak);
+        result.put("acwrZone", acwr.zone().name());
+        result.put("acwr", round2(acwr.acwr()));
+        result.put("anomalyType", anomaly.type().name());
+        result.put("anomalySeverity", anomaly.severity().name());
+        result.put("zScore", round3(anomaly.zScore()));
+        result.put("ewmaDrop", round3(anomaly.ewmaDrop()));
+        result.put("message", anomaly.message());
+        log.info("[SEED] player={} pattern={} days={} acwr={} anomaly={} z={}",
+                playerId, pattern, toSave.size(), acwr.acwr(), anomaly.type(), anomaly.zScore());
+        return result;
+    }
+
+    @Transactional
+    public Map<String, Object> resetPlayerData(Long playerId) {
+        LocalDate today = getEffectiveDate();
+        List<PlayerAttendance> old = attendanceRepo
+                .findByPlayerIdAndAttendanceDateBetweenOrderByAttendanceDateDesc(
+                        playerId, today.minusDays(60), today);
+        attendanceRepo.deleteAll(old);
+        attendanceRepo.flush();
+
+        streakRepo.findByPlayerId(playerId).ifPresent(s -> {
+            s.setCurrentStreak(0);
+            s.setBestStreak(0);
+            s.setTotalPoints(0);
+            s.setFatigueRisk(0.0);
+            s.setMomentumScore(0.0);
+            s.setCurrentBadge(null);
+            s.setLastAttendanceDate(null);
+            streakRepo.saveAndFlush(s);
+        });
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("playerId", playerId);
+        result.put("deleted", old.size());
+        result.put("status", "reset OK");
+        return result;
     }
 }

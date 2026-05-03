@@ -1,4 +1,4 @@
-package com.example.streetleague.Config;
+package com.example.streetleague.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
