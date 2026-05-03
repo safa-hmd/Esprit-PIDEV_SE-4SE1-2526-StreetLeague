@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HealthService, WaterReminderDTO, GoalDTO, RewardDTO, UserBadge, DietRequestDTO, DietResponseDTO } from '../../services/health.service';
+import { HealthService, WaterReminderDTO, GoalDTO, RewardDTO, UserBadge, DietRequestDTO, DietResponseDTO,FitnessReportDTO } from '../../services/health.service';
 import { AuthService } from '../../services/auth.service';
 import { WeeklyHealthReportDTO } from '../../services/health.service';
 import jsPDF from 'jspdf';
 import { HttpClient } from '@angular/common/http';
+
 
 interface DrinkLog {
   time: string;
@@ -75,6 +76,10 @@ longestStreak: number = 0;
   reportLoading: boolean = false;
   showCongrats: boolean = false;
   congratsMessage: string = '';
+
+  fitnessReport: FitnessReportDTO | null = null;
+fitnessLoading: boolean = false;
+fitnessError: boolean = false;
 
   private currentUserId: number | null = null;
 
@@ -383,6 +388,7 @@ loadTodayWaterFromDB(userId: number) {
       if (bmi <= this.bmiGoal) {
         this.checkSpinStatus(userId);
         this.loadBadges(userId);
+        this.loadFitnessReport(userId);
       }
     },
     error: (err) => console.error('Failed to save health data', err)
@@ -877,5 +883,51 @@ openReportModal(): void {
 
 closeReportModal(): void {
   this.showReportModal = false;
+}
+
+loadFitnessReport(userId: number) {
+  this.fitnessLoading = true;
+  this.fitnessError = false;
+  this.healthService.getFitnessReport(userId).subscribe({
+    next: (report) => {
+      this.fitnessReport = report;
+      this.fitnessLoading = false;
+    },
+    error: (err) => {
+      console.error('Failed to load fitness report', err);
+      this.fitnessLoading = false;
+      this.fitnessError = true;
+    }
+  });
+}
+
+refreshFitnessReport() {
+  this.authService.getUserIdByEmail().subscribe({
+    next: (userId) => this.loadFitnessReport(userId),
+    error: (err) => console.error('Cannot get userId', err)
+  });
+}
+
+getStatusLabel(): string {
+  if (!this.fitnessReport) return '';
+  const map: Record<string, string> = {
+    'ELITE':   '🟢 ELITE — Excellent',
+    'FIT':     '🟡 FIT — Apte',
+    'CAUTION': '🟠 CAUTION — Avec réserve',
+    'UNFIT':   '🔴 UNFIT — Non apte',
+    'NO_DATA': '⚪ Pas de données'
+  };
+  return map[this.fitnessReport.status] || this.fitnessReport.status;
+}
+
+getScoreBarWidth(score: number): string {
+  return Math.min(score, 100) + '%';
+}
+
+getScoreBarColor(score: number): string {
+  if (score >= 80) return '#22c55e';
+  if (score >= 60) return '#eab308';
+  if (score >= 40) return '#f97316';
+  return '#ef4444';
 }
 }

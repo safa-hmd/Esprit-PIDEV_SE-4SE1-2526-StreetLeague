@@ -1,12 +1,10 @@
 package com.example.streetleague.Controller;
+import com.example.streetleague.ServiceImp.PlayerFitnessService;
 import com.example.streetleague.ServiceImp.WeeklyHealthReportServiceIMPL;
-import com.example.streetleague.dto.WeeklyHealthReportDTO;
+import com.example.streetleague.dto.*;
 import com.example.streetleague.Entity.*;
 import com.example.streetleague.Repository.*;
 import com.example.streetleague.domain.User;
-import com.example.streetleague.dto.GoalDTO;
-import com.example.streetleague.dto.RewardDTO;
-import com.example.streetleague.dto.WaterLogDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +30,8 @@ public class HealthController {
     private final SpinResultRepository spinRepository;
     private final WeeklyHealthReportServiceIMPL weeklyReportService;
     private final WaterStreakRepository streakRepository;
+    private final PlayerFitnessService playerFitnessService;
+
 
 
     @PutMapping("/update/{userId}")
@@ -390,5 +390,14 @@ public class HealthController {
                 "longestStreak", streak.getLongestStreak(),
                 "lastGoalDate", streak.getLastGoalDate() != null ? streak.getLastGoalDate().toString() : ""
         ));
+    }
+
+    // ─── Fitness Report Endpoint ──────────────────────────────────────────────
+    @GetMapping("/fitness-report/{userId}")
+    public ResponseEntity<FitnessReportDTO> getFitnessReport(@PathVariable Long userId) {
+        User player = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        FitnessReportDTO report = playerFitnessService.generateFitnessReport(player);
+        return ResponseEntity.ok(report);
     }
 }

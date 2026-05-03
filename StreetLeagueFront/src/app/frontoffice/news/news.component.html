@@ -116,31 +116,28 @@
         <!-- Post Actions -->
         <div class="post-actions">
 
-          <!-- Like Button -->
-          <button class="action-btn"
-                  [style.color]="post.liked ? '#E61920' : ''"
-                  (click)="toggleLike(post)"
-                  [disabled]="likeInProgress[post.id]"
-                  [style.opacity]="likeInProgress[post.id] ? '0.6' : '1'"
-                  [style.cursor]="likeInProgress[post.id] ? 'not-allowed' : 'pointer'"
-                  style="position:relative;transition:all 0.2s ease;">
-            <svg [attr.fill]="post.liked ? '#E61920' : 'none'"
-                 [attr.stroke]="post.liked ? '#E61920' : 'currentColor'"
-                 viewBox="0 0 24 24" stroke-width="2"
-                 [style.transition]="'all 0.3s ease'"
-                 [style.transform]="likeInProgress[post.id] ? 'scale(1.1)' : 'scale(1)'">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-            <span>{{ post.likes || 0 }}</span>
-            <small *ngIf="post.liked && !likeInProgress[post.id]"
-                   style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#E61920;color:white;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;">
-              ❤️ Liked
-            </small>
-            <small *ngIf="likeInProgress[post.id]"
-                   style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#606078;color:white;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;">
-              ⏳ Processing...
-            </small>
-          </button>
+                 <!-- Like Button -->
+<button class="action-btn like-btn"
+        [class.liked]="post.liked"
+        [class.loading]="likeInProgress[post.id]"
+        (click)="toggleLike(post)"
+        [disabled]="likeInProgress[post.id]">
+
+  <svg viewBox="0 0 24 24" stroke-width="2"   stroke="currentColor">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+
+  <span>{{ post.likes || 0 }}</span>
+
+  <small *ngIf="post.liked && !likeInProgress[post.id]" class="badge liked-badge">
+    ❤️ Liked
+  </small>
+
+  <small *ngIf="likeInProgress[post.id]" class="badge loading-badge">
+    ⏳ Processing...
+  </small>
+
+</button>
 
           <!-- Comment Toggle -->
           <button class="action-btn" (click)="toggleComments(post)">

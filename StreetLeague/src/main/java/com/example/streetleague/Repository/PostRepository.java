@@ -57,4 +57,14 @@ SELECT new com.example.streetleague.dto.postDTO(
             @Param("category") String category,
             Pageable pageable
     );
+
+
+    @Query("""
+SELECT (COUNT(u) > 0)
+FROM Post p
+JOIN p.likedByUsers u
+WHERE p.id = :postId AND u = :userId
+""")
+    boolean isLiked(@Param("postId") Long postId,
+                    @Param("userId") Long userId);
 }

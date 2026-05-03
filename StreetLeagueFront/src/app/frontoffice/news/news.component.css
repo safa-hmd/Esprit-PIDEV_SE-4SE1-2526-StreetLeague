@@ -151,3 +151,75 @@
     transform: translateX(-50%) translateY(0);
   }
 }
+
+/******/
+/* BUTTON DEFAULT */
+.action-btn.like-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  color: #999; /* 🔘 gris par défaut */
+  transition: all 0.2s ease;
+}
+
+/* ===== SVG (DEFAULT) ===== */
+.action-btn.like-btn svg {
+  width: 20px;
+  height: 20px;
+
+  fill: none;              /* ❌ pas rempli */
+  stroke: currentColor;    /* suit la couleur du bouton */
+
+  transition: all 0.2s ease;
+}
+
+.action-btn.like-btn svg {
+  fill: none;
+  stroke: currentColor;
+}
+
+.action-btn.like-btn.liked svg {
+  fill: #E61920;
+  stroke: #E61920;
+}
+
+/* ===== HOVER ===== */
+.action-btn.like-btn:hover:not(.loading) {
+  transform: scale(1.05);
+}
+
+/* ===== LOADING ===== */
+.action-btn.like-btn.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ===== BADGES ===== */
+.badge {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  color: white;
+  z-index: 10;
+}
+
+.liked-badge {
+  background: #E61920;
+}
+
+.loading-badge {
+  background: #606078;
+}

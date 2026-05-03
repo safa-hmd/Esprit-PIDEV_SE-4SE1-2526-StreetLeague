@@ -95,6 +95,8 @@ export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
           likes: p.likes || 0,
           commentCount: p.commentCount ?? 0
         }));
+        console.log("mapped posts:", mapped);
+        
         if (this.page === 0) {
           this.posts = mapped;
         } else {

@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -62,6 +64,8 @@ public class PostController {
             @RequestParam(defaultValue = "5") int size,
             @RequestHeader(value = "X-User-Id", required = false) Long userId
     ) {
+
+
         return postService.getPosts(page, size)
                 .map(post -> {
                     postDTO dto = new postDTO(
@@ -75,7 +79,18 @@ public class PostController {
                             (long)(post.getComments() != null ? post.getComments().size() : 0),
                             (long) post.getLikes()
                     );
-                    dto.setLiked(userId != null && post.getLikedByUsers().contains(userId));
+
+                    boolean liked = false;
+
+                    if (userId != null) {
+                        liked = postRepository.isLiked(post.getId(), userId);
+                    }
+
+                    dto.setLiked(liked);
+//                    System.out.println("POST ID: " + post.getId());
+//                    System.out.println("USER ID: " + userId);
+//                    System.out.println("LIKED BY USERS: " + liked);
+
                     dto.setCreatedAt(post.getCreatedAt() != null ? post.getCreatedAt().toString() : null);
                     dto.setUpdatedAt(post.getUpdatedAt() != null ? post.getUpdatedAt().toString() : null);
                     return dto;
@@ -124,41 +139,50 @@ public class PostController {
     }
 
     @PostMapping("/like/{id}")
-   // @PreAuthorize("hasRole('PLAYER')")
     public ResponseEntity<Map<String, Object>> likePost(
             @PathVariable Long id
-            , @RequestHeader(value = "X-User-Id", required = false) Long userId
     ) {
-   System.out.println("likePost :"  +id);
+        // الـ user يجي من JWT مباشرة في الـ service
         Post post = postService.likePost(id);
+
+        // نجيب الـ userId من SecurityContext هنا أيضاً
+        String email = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication().getName();
+        Long userId = userRepository.findByEmail(email)
+                .map(u -> u.getIdUser())
+                .orElse(null);
+
         boolean liked = userId != null && post.getLikedByUsers().contains(userId);
 
-        // Send WebSocket update with BOTH likes and liked status
         messagingTemplate.convertAndSend("/topic/posts", Map.of(
                 "type", "LIKE_UPDATE",
                 "postId", id,
                 "likes", post.getLikes(),
-                "liked", liked  // ✅ ADDED
+                "liked", liked
         ));
 
         return ResponseEntity.ok(Map.of("likes", post.getLikes(), "liked", liked));
     }
 
     @PostMapping("/dislike/{id}")
-    @PreAuthorize("hasRole('PLAYER')")
     public ResponseEntity<Map<String, Object>> dislikePost(
-            @PathVariable Long id,
-            @RequestHeader(value = "X-User-Id", required = false) Long userId
+            @PathVariable Long id
     ) {
         Post post = postService.dislikePost(id);
+
+        String email = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication().getName();
+        Long userId = userRepository.findByEmail(email)
+                .map(u -> u.getIdUser())
+                .orElse(null);
+
         boolean liked = userId != null && post.getLikedByUsers().contains(userId);
 
-        // Send WebSocket update with BOTH likes and liked status
         messagingTemplate.convertAndSend("/topic/posts", Map.of(
                 "type", "LIKE_UPDATE",
                 "postId", id,
                 "likes", post.getLikes(),
-                "liked", liked  // ✅ ADDED
+                "liked", liked
         ));
 
         return ResponseEntity.ok(Map.of("likes", post.getLikes(), "liked", liked));

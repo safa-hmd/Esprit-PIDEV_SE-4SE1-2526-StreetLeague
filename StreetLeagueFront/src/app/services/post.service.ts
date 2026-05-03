@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpHeaders } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class PostService {
@@ -10,9 +11,24 @@ export class PostService {
 
   // ✅ No more X-User-Id header - backend gets user from JWT token automatically
 
-  getAllPosts(page = 0, size = 10): Observable<any> {
+  /*getAllPosts(page = 0, size = 10): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/posts/getAll?page=${page}&size=${size}`);
+  }*/
+ getAllPosts(page = 0, size = 10): Observable<any> {
+
+  const userId = localStorage.getItem('UserIdConnect'); // ou ton storage
+
+  let headers = new HttpHeaders();
+
+  if (userId) {
+    headers = headers.set('X-User-Id', userId);
   }
+
+  return this.http.get<any>(
+    `${this.apiUrl}/posts/getAll?page=${page}&size=${size}`,
+    { headers }
+  );
+}
 
   likePost(postId: number): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/posts/like/${postId}`, {});

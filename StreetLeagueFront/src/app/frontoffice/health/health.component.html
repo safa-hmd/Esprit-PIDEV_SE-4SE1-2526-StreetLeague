@@ -347,6 +347,129 @@
     </div>
   </div>
 </div>
+<!-- PLAYER FITNESS REPORT -->
+<div class="card fitness-report-card" *ngIf="bmiResult">
+
+  <div class="fitness-header">
+    <div class="fitness-title">
+      <span class="fitness-icon">🏋️</span>
+      <h3>Player Fitness Report</h3>
+      <span class="fitness-subtitle">Multi-dimensional performance analysis</span>
+    </div>
+    <button class="btn-refresh-fitness" (click)="refreshFitnessReport()" [disabled]="fitnessLoading">
+      <span *ngIf="!fitnessLoading">🔄 Refresh</span>
+      <span *ngIf="fitnessLoading">⏳ Loading...</span>
+    </button>
+  </div>
+
+  <div class="fitness-loading" *ngIf="fitnessLoading">
+    <div class="loading-spinner"></div>
+    <p>Calculating your fitness score...</p>
+  </div>
+
+  <div class="fitness-error" *ngIf="fitnessError && !fitnessLoading">
+    <p>⚠️ Could not load fitness report.</p>
+    <button (click)="refreshFitnessReport()">Retry</button>
+  </div>
+
+  <div class="fitness-content" *ngIf="fitnessReport && !fitnessLoading && !fitnessError">
+
+    <div class="fitness-score-section">
+      <div class="score-circle" [style.border-color]="fitnessReport.statusColor">
+        <div class="score-number" [style.color]="fitnessReport.statusColor">{{ fitnessReport.finalScore }}</div>
+        <div class="score-label">/ 100</div>
+      </div>
+      <div class="score-details">
+        <div class="status-badge" [style.background-color]="fitnessReport.statusColor">
+          {{ getStatusLabel() }}
+        </div>
+        <p class="score-player">{{ fitnessReport.playerName }}</p>
+        <p class="score-bmi-info">
+          Current BMI: <strong>{{ fitnessReport.currentBmi }}</strong>
+          <span class="bmi-cat-tag">{{ fitnessReport.bmiCategory }}</span>
+        </p>
+        <p class="score-logs">📊 Health logs (30 days): <strong>{{ fitnessReport.healthLogsLast30Days }}</strong></p>
+      </div>
+    </div>
+
+    <div class="fitness-divider"></div>
+
+    <div class="fitness-dimensions">
+      <h4 class="dimensions-title">Score Breakdown</h4>
+
+      <div class="dimension-row">
+        <div class="dim-info">
+          <span class="dim-icon">⚖️</span>
+          <span class="dim-name">BMI Score</span>
+          <span class="dim-weight">35%</span>
+        </div>
+        <div class="dim-bar-track">
+          <div class="dim-bar-fill"
+               [style.width]="getScoreBarWidth(fitnessReport.bmiScore)"
+               [style.background-color]="getScoreBarColor(fitnessReport.bmiScore)">
+          </div>
+        </div>
+        <span class="dim-value">{{ fitnessReport.bmiScore }}/100</span>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dim-info">
+          <span class="dim-icon">💧</span>
+          <span class="dim-name">Hydration</span>
+          <span class="dim-weight">25%</span>
+        </div>
+        <div class="dim-bar-track">
+          <div class="dim-bar-fill"
+               [style.width]="getScoreBarWidth(fitnessReport.hydrationScore)"
+               [style.background-color]="getScoreBarColor(fitnessReport.hydrationScore)">
+          </div>
+        </div>
+        <span class="dim-value">{{ fitnessReport.hydrationScore }}/100</span>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dim-info">
+          <span class="dim-icon">📅</span>
+          <span class="dim-name">Consistency</span>
+          <span class="dim-weight">25%</span>
+        </div>
+        <div class="dim-bar-track">
+          <div class="dim-bar-fill"
+               [style.width]="getScoreBarWidth(fitnessReport.consistencyScore)"
+               [style.background-color]="getScoreBarColor(fitnessReport.consistencyScore)">
+          </div>
+        </div>
+        <span class="dim-value">{{ fitnessReport.consistencyScore }}/100</span>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dim-info">
+          <span class="dim-icon">📈</span>
+          <span class="dim-name">Health Trend</span>
+          <span class="dim-weight">15%</span>
+        </div>
+        <div class="dim-bar-track">
+          <div class="dim-bar-fill"
+               [style.width]="getScoreBarWidth(fitnessReport.trendScore)"
+               [style.background-color]="getScoreBarColor(fitnessReport.trendScore)">
+          </div>
+        </div>
+        <span class="dim-value">{{ fitnessReport.trendScore }}/100</span>
+      </div>
+    </div>
+
+    <div class="fitness-divider"></div>
+
+    <div class="fitness-recommendations">
+      <h4 class="rec-title">💡 Recommendations</h4>
+      <ul class="rec-list">
+        <li *ngFor="let tip of fitnessReport.recommendations" class="rec-item">{{ tip }}</li>
+      </ul>
+    </div>
+
+    <p class="fitness-generated-at">Generated: {{ fitnessReport.generatedAt | date:'dd/MM/yyyy HH:mm' }}</p>
+  </div>
+</div>
   <!-- ══════════════════════════════════════════ -->
 <!-- WEEKLY HEALTH REPORT — TRIGGER BUTTON      -->
 <!-- ══════════════════════════════════════════ -->

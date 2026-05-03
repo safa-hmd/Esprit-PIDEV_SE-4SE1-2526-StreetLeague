@@ -28,6 +28,24 @@ export interface GoalDTO {
   targetValue: number;
 }
 
+export interface FitnessReportDTO {
+  userId: number;
+  playerName: string;
+  bmiScore: number;
+  hydrationScore: number;
+  consistencyScore: number;
+  trendScore: number;
+  finalScore: number;
+  status: string;
+  statusColor: string;
+  currentBmi: number;
+  bmiCategory: string;
+  healthLogsLast30Days: number;
+  waterLogsLast30Days: number;
+  recommendations: string[];
+  generatedAt: string;
+}
+
 export interface RewardDTO {
   result: string;
   message: string;
@@ -172,5 +190,9 @@ getLastDiet(userId: number): Observable<DietResponseDTO> {
 }
 getStreak(userId: number): Observable<{currentStreak: number, longestStreak: number, lastGoalDate: string}> {
   return this.http.get<any>(`${this.healthApiUrl}/streak/${userId}`);
+}
+
+getFitnessReport(userId: number): Observable<FitnessReportDTO> {
+  return this.http.get<FitnessReportDTO>(`${this.healthApiUrl}/fitness-report/${userId}`);
 }
 }

@@ -12,6 +12,10 @@ public interface HealthHistoryRepository extends JpaRepository<HealthHistory, Lo
     @Query("SELECT h FROM HealthHistory h WHERE h.user.idUser = :userId ORDER BY h.date DESC")
     List<HealthHistory> findByUserId(@Param("userId") Long userId);
 
+
+    @Query("SELECT h FROM HealthHistory h WHERE h.user.idUser = :userId ORDER BY h.date DESC")
+    List<HealthHistory> findByUserIdOrderByDateDesc(@Param("userId") Long userId);
+
     @Query("SELECT h FROM HealthHistory h WHERE h.user.idUser = :userId AND h.date BETWEEN :start AND :end ORDER BY h.date DESC")
     List<HealthHistory> findByUserIdAndDateBetween(
             @Param("userId") Long userId,

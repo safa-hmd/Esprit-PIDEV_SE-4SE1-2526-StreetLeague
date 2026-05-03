@@ -54,12 +54,12 @@ public class AuthController {
         authService.resetPassword(req);
         return ResponseEntity.ok("Mot de passe réinitialisé avec succès");
     }
-//        @GetMapping("/getUserId")
-//    public Long getUserId(@RequestParam String email) {
-//        return userRepository.findByEmail(email)
-//                .orElseThrow(() -> new RuntimeException("User not found"))
-//                .getId();
-//    }
+        @GetMapping("/getUserId")
+    public Long getUserId(@RequestParam String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getIdUser();
+    }
 
 }
 
