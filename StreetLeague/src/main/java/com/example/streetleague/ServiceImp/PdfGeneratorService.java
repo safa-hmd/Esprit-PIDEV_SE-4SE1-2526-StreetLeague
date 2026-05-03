@@ -45,27 +45,27 @@ public class PdfGeneratorService {
 
         // Logo/Title Text
         content.setNonStrokingColor(Color.WHITE);
-        content.setFont(PDType1Font.HELVETICA_BOLD, 22);
+       // content.setFont(PDType1Font.HELVETICA_BOLD, 22);
         content.beginText();
         content.newLineAtOffset(MARGIN, 800);
         content.showText("STREETLEAGUE");
         content.endText();
 
-        content.setFont(PDType1Font.HELVETICA, 12);
+       // content.setFont(PDType1Font.HELVETICA, 12);
         content.beginText();
         content.newLineAtOffset(MARGIN, 780);
         content.showText("ATHLETIC EDITORIAL - LOGISTICS HQ");
         content.endText();
 
         // Right side: Document Type
-        content.setFont(PDType1Font.HELVETICA_BOLD, 14);
+       // content.setFont(PDType1Font.HELVETICA_BOLD, 14);
         content.beginText();
         content.newLineAtOffset(400, 800);
         content.showText(title);
         content.endText();
 
         if (subtitle != null) {
-            content.setFont(PDType1Font.HELVETICA_OBLIQUE, 10);
+           // content.setFont(PDType1Font.HELVETICA_OBLIQUE, 10);
             content.beginText();
             content.newLineAtOffset(400, 780);
             content.showText(subtitle);
@@ -88,7 +88,7 @@ public class PdfGeneratorService {
         content.stroke();
 
         content.setNonStrokingColor(new Color(158, 158, 158));
-        content.setFont(PDType1Font.HELVETICA_OBLIQUE, 8);
+        //content.setFont(PDType1Font.HELVETICA_OBLIQUE, 8);
         content.beginText();
         content.newLineAtOffset(MARGIN, 40);
         content.showText("This document is generated dynamically by the StreetLeague Management System. Proprietary & Confidential.");
@@ -124,7 +124,7 @@ public class PdfGeneratorService {
 
                 // Decision Marker
                 content.setNonStrokingColor(isApproved ? new Color(46, 125, 50) : new Color(198, 40, 40));
-                content.setFont(PDType1Font.HELVETICA_BOLD, 14);
+                //content.setFont(PDType1Font.HELVETICA_BOLD, 14);
                 content.beginText();
                 content.newLineAtOffset(MARGIN, y);
                 content.showText("CURRENT STATUS: " + transport.getStatus().toUpperCase());
@@ -133,7 +133,7 @@ public class PdfGeneratorService {
 
                 // Owner
                 content.setNonStrokingColor(TEXT_COLOR);
-                content.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                //content.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 content.beginText();
                 content.newLineAtOffset(MARGIN, y);
                 content.showText("REGISTERED CARRIER: " + ownerName);
@@ -141,14 +141,14 @@ public class PdfGeneratorService {
                 y -= lineHeight * 1.5f;
 
                 // Table Section
-                content.setFont(PDType1Font.HELVETICA_BOLD, 11);
+               // content.setFont(PDType1Font.HELVETICA_BOLD, 11);
                 content.beginText();
                 content.newLineAtOffset(MARGIN, y);
                 content.showText("LOGISTICS CHARACTERISTICS");
                 content.endText();
                 y -= lineHeight;
 
-                content.setFont(PDType1Font.HELVETICA, 11);
+                //content.setFont(PDType1Font.HELVETICA, 11);
                 String[][] details = {
                     {"Destination Hub:", transport.getDestination() != null ? transport.getDestination() : "Regional Center"},
                     {"Internal Rate:", (transport.getPricePerSeat() != null ? transport.getPricePerSeat() : 0.0) + " TND per occupant"},
@@ -163,12 +163,12 @@ public class PdfGeneratorService {
                     content.showText(row[0]);
                     content.endText();
 
-                    content.setFont(PDType1Font.HELVETICA_BOLD, 11);
+                   // content.setFont(PDType1Font.HELVETICA_BOLD, 11);
                     content.beginText();
                     content.newLineAtOffset(MARGIN + 180, y);
                     content.showText(row[1]);
                     content.endText();
-                    content.setFont(PDType1Font.HELVETICA, 11);
+                   // content.setFont(PDType1Font.HELVETICA, 11);
 
                     y -= lineHeight;
                 }
@@ -213,7 +213,7 @@ public class PdfGeneratorService {
                 content.setNonStrokingColor(req.getStatus() == null || "PENDING".equals(req.getStatus().toString()) ? new Color(255, 152, 0) : 
                     ("APPROVED".equals(req.getStatus().toString()) ? new Color(46, 125, 50) : new Color(198, 40, 40)));
                 
-                content.setFont(PDType1Font.HELVETICA_BOLD, 14);
+               // content.setFont(PDType1Font.HELVETICA_BOLD, 14);
                 content.beginText();
                 content.newLineAtOffset(MARGIN, y);
                 content.showText("VALIDATION STATUS: " + (req.getStatus() != null ? req.getStatus().toString() : "PENDING"));
@@ -221,14 +221,14 @@ public class PdfGeneratorService {
                 y -= lineHeight * 2;
 
                 content.setNonStrokingColor(TEXT_COLOR);
-                content.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                //content.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 content.beginText();
                 content.newLineAtOffset(MARGIN, y);
                 content.showText("DELEGATION METRICS");
                 content.endText();
                 y -= lineHeight;
 
-                content.setFont(PDType1Font.HELVETICA, 10);
+                //content.setFont(PDType1Font.HELVETICA, 10);
                 String[][] details = {
                     {"Delegation Lead:", coachName},
                     {"Host Tournament:", req.getTournament() != null ? req.getTournament().getName() + " (" + req.getTournament().getCity() + ")" : "Official Tournament"},
@@ -244,26 +244,26 @@ public class PdfGeneratorService {
                     content.showText(row[0]);
                     content.endText();
 
-                    content.setFont(PDType1Font.HELVETICA_BOLD, 10);
+                   // content.setFont(PDType1Font.HELVETICA_BOLD, 10);
                     content.beginText();
                     content.newLineAtOffset(MARGIN + 150, y);
                     content.showText(row[1]);
                     content.endText();
-                    content.setFont(PDType1Font.HELVETICA, 10);
+                  //  content.setFont(PDType1Font.HELVETICA, 10);
 
                     y -= lineHeight;
                 }
 
                 // Member List
                 y -= 10;
-                content.setFont(PDType1Font.HELVETICA_BOLD, 12);
+               // content.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 content.beginText();
                 content.newLineAtOffset(MARGIN, y);
                 content.showText("PASSENGER MANIFEST (" + memberNames.size() + " Total)");
                 content.endText();
                 y -= lineHeight;
 
-                content.setFont(PDType1Font.HELVETICA, 9);
+               // content.setFont(PDType1Font.HELVETICA, 9);
                 for (String name : memberNames) {
                     if (y < 80) {
                         content.beginText();
@@ -314,7 +314,7 @@ public class PdfGeneratorService {
 
                 // Decision Block
                 content.setNonStrokingColor(isApproved ? new Color(46, 125, 50) : ("REJECTED".equals(req.getStatus()) ? new Color(198, 40, 40) : new Color(255, 152, 0)));
-                content.setFont(PDType1Font.HELVETICA_BOLD, 14);
+               // content.setFont(PDType1Font.HELVETICA_BOLD, 14);
                 content.beginText();
                 content.newLineAtOffset(MARGIN, y);
                 content.showText("RESERVATION STATUS: " + (req.getStatus() != null ? req.getStatus().toUpperCase() : "PENDING"));
@@ -322,7 +322,7 @@ public class PdfGeneratorService {
                 y -= lineHeight * 2;
 
                 content.setNonStrokingColor(TEXT_COLOR);
-                content.setFont(PDType1Font.HELVETICA, 10);
+                //content.setFont(PDType1Font.HELVETICA, 10);
                 String[][] details = {
                     {"Delegation Manager:", (req.getCoachName() != null ? req.getCoachName() : "Official Coach") + " (COACH)"},
                     {"Tournament Context:", "Ref #" + req.getTournamentId()},
@@ -336,25 +336,25 @@ public class PdfGeneratorService {
                     content.showText(row[0]);
                     content.endText();
 
-                    content.setFont(PDType1Font.HELVETICA_BOLD, 10);
+                  //  content.setFont(PDType1Font.HELVETICA_BOLD, 10);
                     content.beginText();
                     content.newLineAtOffset(MARGIN + 150, y);
                     content.showText(row[1]);
                     content.endText();
-                    content.setFont(PDType1Font.HELVETICA, 10);
+                    //content.setFont(PDType1Font.HELVETICA, 10);
                     y -= lineHeight;
                 }
 
                 if (req.getAccommodation() != null) {
                     y -= 10;
-                    content.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                  //  content.setFont(PDType1Font.HELVETICA_BOLD, 12);
                     content.beginText();
                     content.newLineAtOffset(MARGIN, y);
                     content.showText("FACILITY SPECIFICATIONS");
                     content.endText();
                     y -= lineHeight;
 
-                    content.setFont(PDType1Font.HELVETICA, 10);
+                    //content.setFont(PDType1Font.HELVETICA, 10);
                     String[][] accDetails = {
                         {"Facility Category:", req.getAccommodation().getType() != null ? req.getAccommodation().getType().toString() : "N/A"},
                         {"Geographical Site:", req.getAccommodation().getAddress() != null ? req.getAccommodation().getAddress() : "N/A"},
@@ -368,25 +368,25 @@ public class PdfGeneratorService {
                         content.showText(row[0]);
                         content.endText();
 
-                        content.setFont(PDType1Font.HELVETICA_BOLD, 10);
+                       /// content.setFont(PDType1Font.HELVETICA_BOLD, 10);
                         content.beginText();
                         content.newLineAtOffset(MARGIN + 150, y);
                         content.showText(row[1]);
                         content.endText();
-                        content.setFont(PDType1Font.HELVETICA, 10);
+                       // content.setFont(PDType1Font.HELVETICA, 10);
                         y -= lineHeight;
                     }
                 }
 
                 y -= 10;
-                content.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                //content.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 content.beginText();
                 content.newLineAtOffset(MARGIN, y);
                 content.showText("LODGING DELEGATION (" + memberNames.size() + " Total)");
                 content.endText();
                 y -= lineHeight;
 
-                content.setFont(PDType1Font.HELVETICA, 9);
+              //  content.setFont(PDType1Font.HELVETICA, 9);
                 for (String name : memberNames) {
                     if (y < 80) break;
                     content.beginText();

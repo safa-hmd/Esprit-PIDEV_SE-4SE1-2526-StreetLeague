@@ -94,17 +94,17 @@ public class ScheduleController {
             Double eventLng = (Double) event.remove("fieldLng");
 
             if (!allFields.isEmpty()) {
-                // Use event coordinates if available, fallback to user GPS, fallback to null (AI scores by capacity/availability)
-                Double refLat = eventLat != null ? eventLat : userLat;
-                Double refLng = eventLng != null ? eventLng : userLng;
+                // Use event coordinates if available, fallback to user GPS, fallback to null
+                Double refLat = (eventLat != null) ? eventLat : userLat;
+                Double refLng = (eventLng != null) ? eventLng : userLng;
 
                 Map<String, Object> body = new HashMap<>();
                 body.put("fields", allFields);
                 if (refLat != null && refLng != null) {
                     body.put("eventLat", refLat);
                     body.put("eventLng", refLng);
-                    body.put("userLat",  userLat);
-                    body.put("userLng",  userLng);
+                    body.put("userLat", userLat);
+                    body.put("userLng", userLng);
                 }
 
                 HttpHeaders headers = new HttpHeaders();
@@ -112,28 +112,33 @@ public class ScheduleController {
                 HttpEntity<Map<String, Object>> req = new HttpEntity<>(body, headers);
 
                 try {
+                    // Cast response body safely
                     ResponseEntity<List> resp = restTemplate.postForEntity(
                             flaskUrl + "/api/recommend/fields", req, List.class);
-                    List<Map> recs = resp.getBody();
+
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> recs = (List<Map<String, Object>>) resp.getBody();
 
                     if (recs != null && !recs.isEmpty()) {
-                        Map top = recs.get(0);
-                        event.put("recommendedFieldId",       top.get("fieldId"));
-                        event.put("recommendedFieldName",     top.get("fieldName"));
+                        Map<String, Object> top = recs.get(0);
+                        // Ajoute les recommandations à l'événement
+                        event.put("recommendedFieldId", top.get("fieldId"));
+                        event.put("recommendedFieldName", top.get("fieldName"));
                         event.put("recommendedFieldLocation", top.get("fieldLocation"));
-                        event.put("recommendedFieldLat",      refLat);
-                        event.put("recommendedFieldLng",      refLng);
-                        event.put("recommendedFieldScore",    top.get("aiScore"));
-                        event.put("recommendedFieldRec",      top.get("recommendation"));
-                        event.put("recommendedFieldDist",     top.get("distanceKm"));
-                        // Enrich event AI score from top recommendation
-                        if (!event.containsKey("aiScore") || event.get("aiScore") == null) {
-                            event.put("aiScore",        top.get("aiScore"));
+                        event.put("recommendedFieldLat", refLat);
+                        event.put("recommendedFieldLng", refLng);
+                        event.put("recommendedFieldScore", top.get("aiScore"));
+                        event.put("recommendedFieldRec", top.get("recommendation"));
+                        event.put("recommendedFieldDist", top.get("distanceKm"));
+
+                        // Met à jour le score AI si pas déjà défini
+                        if (event.get("aiScore") == null) {
+                            event.put("aiScore", top.get("aiScore"));
                             event.put("recommendation", top.get("recommendation"));
                         }
                     }
                 } catch (Exception e) {
-                    // Flask unavailable — event keeps its own score
+                    // Si Flask est indisponible, on garde le score existant
                     event.put("flaskWarning", "IA indisponible");
                 }
             }
@@ -141,7 +146,7 @@ public class ScheduleController {
         }
 
         Map<String, Object> result = new HashMap<>();
-        result.put("events",    enriched);
+        result.put("events", enriched);
         result.put("topFields", allFields.subList(0, Math.min(3, allFields.size())));
         return ResponseEntity.ok(result);
     }
