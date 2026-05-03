@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from 'src/environments/api-url';
 import { CommunauteDTO } from '../models/communaute-dto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CommunauteService {
-  private apiUrl = 'http://localhost:8086/StreetLeague/api/communautes';
+  private readonly apiUrl = `${API_BASE_URL}/api/communaute`;
 
   constructor(private http: HttpClient) {}
 
@@ -19,12 +20,12 @@ export class CommunauteService {
     return this.http.get<CommunauteDTO>(`${this.apiUrl}/${id}`);
   }
 
-  create(dto: CommunauteDTO): Observable<CommunauteDTO> {
-    return this.http.post<CommunauteDTO>(this.apiUrl, dto);
+  create(communaute: CommunauteDTO): Observable<CommunauteDTO> {
+    return this.http.post<CommunauteDTO>(this.apiUrl, communaute);
   }
 
-  update(id: number, dto: CommunauteDTO): Observable<CommunauteDTO> {
-    return this.http.put<CommunauteDTO>(`${this.apiUrl}/${id}`, dto);
+  update(id: number, communaute: CommunauteDTO): Observable<CommunauteDTO> {
+    return this.http.put<CommunauteDTO>(`${this.apiUrl}/${id}`, communaute);
   }
 
   delete(id: number): Observable<void> {

@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from 'src/environments/api-url';
 import { EvenementCommunauteDTO } from '../models/evenement-communaute-dto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EvenementCommunauteService {
-  private apiUrl = 'http://localhost:8086/StreetLeague/api/evenement-communaute';
+  private readonly apiUrl = `${API_BASE_URL}/api/evenement`;
 
   constructor(private http: HttpClient) {}
 
@@ -19,12 +20,12 @@ export class EvenementCommunauteService {
     return this.http.get<EvenementCommunauteDTO>(`${this.apiUrl}/${id}`);
   }
 
-  create(dto: EvenementCommunauteDTO): Observable<EvenementCommunauteDTO> {
-    return this.http.post<EvenementCommunauteDTO>(this.apiUrl, dto);
+  create(evenement: EvenementCommunauteDTO): Observable<EvenementCommunauteDTO> {
+    return this.http.post<EvenementCommunauteDTO>(this.apiUrl, evenement);
   }
 
-  update(id: number, dto: EvenementCommunauteDTO): Observable<EvenementCommunauteDTO> {
-    return this.http.put<EvenementCommunauteDTO>(`${this.apiUrl}/${id}`, dto);
+  update(id: number, evenement: EvenementCommunauteDTO): Observable<EvenementCommunauteDTO> {
+    return this.http.put<EvenementCommunauteDTO>(`${this.apiUrl}/${id}`, evenement);
   }
 
   delete(id: number): Observable<void> {

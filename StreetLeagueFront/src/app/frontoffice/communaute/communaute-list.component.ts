@@ -177,20 +177,20 @@ export class CommunauteListComponent implements OnInit {
     this.router.navigate(['/client/communaute', id, 'edit']);
   }
 
-  // Méthodes pour vérifier les permissions - Réservé aux clients (ROLE_PLAYER)
+  // Méthodes pour vérifier les permissions - Réservé aux clients (PLAYER)
   canCreate(): boolean {
-    return this.currentUserRole === 'ROLE_PLAYER';
+    return this.currentUserRole === 'PLAYER';
   }
 
   canEdit(): boolean {
-    return this.currentUserRole === 'ROLE_PLAYER';
+    return this.currentUserRole === 'PLAYER';
   }
 
   canDelete(): boolean {
-    return this.currentUserRole === 'ROLE_PLAYER';
+    return this.currentUserRole === 'PLAYER';
   }
 
   canJoin(): boolean {
-    return this.currentUserRole === 'ROLE_PLAYER';
+    return this.currentUserRole === 'PLAYER';
   }
 }
