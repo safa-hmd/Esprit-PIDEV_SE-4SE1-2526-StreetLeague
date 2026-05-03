@@ -169,7 +169,7 @@
               <tr *ngFor="let r of filteredReminders">
                 <td>
                   <div class="health-user-cell">
-                    <div class="health-avatar">{{ r.userName?.charAt(0) || '?' }}</div>
+                    <div class="health-avatar">{{ r.userName.charAt(0) || '?' }}</div>
                     <strong>{{ r.userName || 'Unknown' }}</strong>
                   </div>
                 </td>
@@ -258,7 +258,7 @@
               <tr *ngFor="let user of filteredUsersHealth" [class.selected-row]="selectedUserId === user.userId">
                 <td>
                   <div class="health-user-cell">
-                    <div class="health-avatar">{{ user.fullName?.charAt(0) || '?' }}</div>
+                    <div class="health-avatar">{{ user.fullName.charAt(0) || '?' }}</div>
                     <strong>{{ user.fullName }}</strong>
                   </div>
                 </td>
@@ -347,7 +347,7 @@
                   (click)="selectUser(user.userId)"
                   [class.active]="selectedUserId === user.userId"
                   class="user-card-btn">
-            <div class="user-card-avatar">{{ user.fullName?.charAt(0) || '?' }}</div>
+            <div class="user-card-avatar">{{ user.fullName.charAt(0) || '?' }}</div>
             <div class="user-card-name">{{ user.fullName }}</div>
             <div class="user-card-email">{{ user.email }}</div>
           </button>
@@ -410,7 +410,7 @@
                   (click)="selectUser(user.userId)"
                   [class.active]="selectedUserId === user.userId"
                   class="user-card-btn">
-            <div class="user-card-avatar">{{ user.fullName?.charAt(0) || '?' }}</div>
+            <div class="user-card-avatar">{{ user.fullName.charAt(0) || '?' }}</div>
             <div class="user-card-name">{{ user.fullName }}</div>
             <div class="user-card-email">{{ user.email }}</div>
           </button>

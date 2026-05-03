@@ -9,7 +9,7 @@
       <label style="display:block;margin-bottom:0.4rem;font-weight:600;color:#333;">Comment</label>
       <textarea [(ngModel)]="newComment[selectedPostId]" placeholder="Write your comment..." rows="4"
         style="width:100%;padding:0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;resize:vertical;box-sizing:border-box;color:#333;"></textarea>
-      <small style="display:block;margin-top:0.25rem;color:#999;">{{ newComment[selectedPostId]?.length || 0 }}/500 characters</small>
+      <small style="display:block;margin-top:0.25rem;color:#999;">{{ newComment[selectedPostId].length || 0 }}/500 characters</small>
       <small *ngIf="showCommentError[selectedPostId]" style="display:block;margin-top:0.25rem;color:#E61920;font-weight:600;">Error: {{ commentErrorMessage[selectedPostId] }}</small>
     </div>
     <div style="display:flex;gap:1rem;justify-content:flex-end;">
@@ -182,7 +182,7 @@
               <button (click)="addComment(post)" style="padding:0.6rem 1.2rem;background:#E61920;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.87rem;">Send</button>
             </div>
             <small *ngIf="showCommentError[post.id]" style="color:#E61920;font-weight:600;font-size:0.8rem;">⚠️ {{ commentErrorMessage[post.id] }}</small>
-<small style="color:#999;font-size:0.8rem;">{{ (newComment[post.id]?.length) || 0 }}/500 characters</small>          </div>
+<small style="color:#999;font-size:0.8rem;">{{ (newComment[post.id] || '').length }}/500 caractères</small>          </div>
         </div>
 
       </div>
@@ -223,9 +223,9 @@
       </div>
       <div class="sidebar-card">
         <h4>⚡ Quick Links</h4>
-        <a href="tournaments.html" class="btn btn-gray btn-full btn-sm" style="margin-bottom:0.5rem;">View Tournaments</a>
-        <a href="teams.html" class="btn btn-outline btn-full btn-sm" style="margin-bottom:0.5rem;">My Teams</a>
-        <a href="fields.html" class="btn btn-gray btn-full btn-sm">Book a Field</a>
+                <a href="client/health" class="btn btn-gray btn-full btn-sm">Track your health</a>
+        <a href="client/team" class="btn btn-outline btn-full btn-sm" style="margin-bottom:0.5rem;">My Teams</a>
+        <a href="client/tournaments" class="btn btn-gray btn-full btn-sm" style="margin-bottom:0.5rem;">View Tournaments</a>
       </div>
     </div>
   </div>

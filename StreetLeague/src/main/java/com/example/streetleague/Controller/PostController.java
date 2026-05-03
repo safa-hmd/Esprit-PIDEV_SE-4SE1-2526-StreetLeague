@@ -124,11 +124,12 @@ public class PostController {
     }
 
     @PostMapping("/like/{id}")
-    @PreAuthorize("hasRole('PLAYER')")
+   // @PreAuthorize("hasRole('PLAYER')")
     public ResponseEntity<Map<String, Object>> likePost(
-            @PathVariable Long id,
-            @RequestHeader(value = "X-User-Id", required = false) Long userId
+            @PathVariable Long id
+            , @RequestHeader(value = "X-User-Id", required = false) Long userId
     ) {
+   System.out.println("likePost :"  +id);
         Post post = postService.likePost(id);
         boolean liked = userId != null && post.getLikedByUsers().contains(userId);
 

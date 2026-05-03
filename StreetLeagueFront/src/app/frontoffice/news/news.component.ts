@@ -3,6 +3,7 @@ import { PostService } from '../../services/post.service';
 import { CommentService } from '../../services/comment.service';
 import { WebSocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-news',
@@ -45,6 +46,8 @@ export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private postService: PostService,
+   private cdr: ChangeDetectorRef,
+
     private commentService: CommentService,
     private webSocketService: WebSocketService
   ) {}
@@ -181,6 +184,7 @@ export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleLike(post: any) {
+    
     // ✅ FIX 1: prevent double-click
     if (this.likeInProgress[post.id]) return;
 
@@ -296,6 +300,8 @@ export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
         
         // Force change detection
         this.posts = [...this.posts];
+        this.cdr.detectChanges();
+      
       },
       error: (err) => {
         this.showCommentError[post.id] = true;
@@ -303,6 +309,7 @@ export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
         console.error('Error adding comment:', err);
       }
     });
+    
   }
 
   openEditComment(comment: any, post: any) {

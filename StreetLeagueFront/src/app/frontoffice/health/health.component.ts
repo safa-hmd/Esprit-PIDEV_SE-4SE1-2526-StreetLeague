@@ -868,4 +868,14 @@ private buildPDF(doc: jsPDF, r: any, y: number) {
         }
       });
   }
+  showReportModal = false;
+
+openReportModal(): void {
+  this.showReportModal = true;
+  this.loadWeeklyReport();
+}
+
+closeReportModal(): void {
+  this.showReportModal = false;
+}
 }

@@ -97,6 +97,9 @@ public class SecurityConfig {
 
                         .requestMatchers("/team/add", "/team/update/**").hasAnyRole("PLAYER", "COACH")
                         .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
+
+
+                        .requestMatchers("/team/**","/posts/**").permitAll()
                         .requestMatchers("/team/showTeams", "/team/showTeamById/**", "/team/myTeams").permitAll()
                         .requestMatchers("/team/*/join", "/team/*/leave").hasRole("PLAYER")
                         .requestMatchers("/match/add", "/match/update").hasAnyRole("PLAYER", "COACH")

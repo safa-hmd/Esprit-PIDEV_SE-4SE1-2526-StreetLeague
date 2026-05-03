@@ -132,7 +132,6 @@
         </div>
 
         <div class="button-group">
-          <button class="btn-save" (click)="saveSettings()">💾 Save</button>
           <button class="btn-drink" (click)="drinkNow()">💧 Drink Now</button>
         </div>
       </div>
@@ -349,14 +348,15 @@
   </div>
 </div>
   <!-- ══════════════════════════════════════════ -->
-<!-- WEEKLY HEALTH REPORT                       -->
+<!-- WEEKLY HEALTH REPORT — TRIGGER BUTTON      -->
 <!-- ══════════════════════════════════════════ -->
-<div class="report-header">
+<div class="card">
+  <div class="report-header">
     <span class="report-icon">📊</span>
     <h3>Weekly Health Report</h3>
     <div class="report-actions">
-      <button class="btn-load-report" (click)="loadWeeklyReport()">
-        {{ showWeeklyReport ? '🔄 Refresh' : '📋 View My Report' }}
+      <button class="btn-load-report" (click)="openReportModal()">
+        📋 View My Report
       </button>
       <button class="btn-download-pdf"
               *ngIf="weeklyReport && !reportLoading"
@@ -365,107 +365,142 @@
       </button>
     </div>
   </div>
+</div>
 
-  <!-- Loading -->
-  <div *ngIf="reportLoading" class="report-loading">
-    <p>⏳ Loading your report...</p>
-  </div>
+<!-- ══════════════════════════════════════════ -->
+<!-- MODAL OVERLAY                              -->
+<!-- ══════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
 
-  <!-- Report Content -->
-  <div *ngIf="showWeeklyReport && weeklyReport && !reportLoading" class="report-content">
+    <!-- MODAL HEADER -->
+    <div class="modal-top">
+      <span class="report-icon">📊</span>
+      <h3>Weekly Health Report</h3>
+      <div class="modal-top-actions">
+        <button class="btn-refresh" (click)="loadWeeklyReport()" [disabled]="reportLoading">
+          {{ reportLoading ? '⏳ Loading...' : '🔄 Refresh' }}
+        </button>
+        <button class="btn-pdf"
+                *ngIf="weeklyReport && !reportLoading"
+                (click)="downloadReportPDF()">
+          ⬇️ Download PDF
+        </button>
+        <button class="btn-close-modal" (click)="closeReportModal()">✕</button>
+      </div>
+    </div>
 
-    <p class="report-period">
-      📅 {{ weeklyReport.weekStart }} → {{ weeklyReport.weekEnd }}
-    </p>
+    <!-- MODAL BODY -->
+    <div class="modal-body">
 
-    <!-- Body Metrics -->
-    <div class="report-section">
-      <h4>⚖️ Body Metrics</h4>
-      <div class="report-grid">
-        <div class="report-item">
-          <p class="report-label">Weight</p>
-          <p class="report-value">{{ weeklyReport.currentWeight }} kg</p>
+      <!-- LOADING -->
+      <div *ngIf="reportLoading" class="report-loading">
+        <p>⏳ Loading your report...</p>
+      </div>
+
+      <!-- CONTENT -->
+      <div *ngIf="weeklyReport && !reportLoading">
+
+        <p class="report-period">
+          📅 {{ weeklyReport.weekStart }} → {{ weeklyReport.weekEnd }}
+        </p>
+
+        <!-- Body Metrics -->
+        <div class="report-section">
+          <h4>⚖️ Body metrics</h4>
+          <div class="report-grid">
+            <div class="report-item">
+              <p class="report-label">Weight</p>
+              <p class="report-value">{{ weeklyReport.currentWeight }} kg</p>
+            </div>
+            <div class="report-item">
+              <p class="report-label">Height</p>
+              <p class="report-value">{{ weeklyReport.currentHeight }} cm</p>
+            </div>
+            <div class="report-item">
+              <p class="report-label">BMI</p>
+              <p class="report-value">{{ weeklyReport.currentBmi }}</p>
+            </div>
+            <div class="report-item">
+              <p class="report-label">Weight change</p>
+              <p class="report-value"
+                 [ngClass]="{
+                   'positive': isWeightChangePositive(),
+                   'negative': isWeightChangeNegative()
+                 }">
+                {{ getWeightChangeDisplay() }} kg
+              </p>
+            </div>
+          </div>
         </div>
-        <div class="report-item">
-          <p class="report-label">Height</p>
-          <p class="report-value">{{ weeklyReport.currentHeight }} cm</p>
+
+        <!-- Hydration -->
+        <div class="report-section">
+          <h4>💧 Hydration this week</h4>
+          <div class="report-grid">
+            <div class="report-item">
+              <p class="report-label">Total consumed</p>
+              <p class="report-value">{{ weeklyReport.totalWaterConsumedMl }} ml</p>
+            </div>
+            <div class="report-item">
+              <p class="report-label">Days goal reached</p>
+              <p class="report-value">{{ weeklyReport.daysGoalReached }} / 7</p>
+            </div>
+            <div class="report-item">
+              <p class="report-label">Daily average</p>
+              <p class="report-value">{{ weeklyReport.avgDailyWaterMl | number:'1.0-0' }} ml</p>
+            </div>
+          </div>
         </div>
-        <div class="report-item">
-          <p class="report-label">BMI</p>
-          <p class="report-value">{{ weeklyReport.currentBmi }}</p>
+
+        <!-- Streak -->
+        <div class="report-section">
+          <h4>🔥 Water streak</h4>
+          <div class="streak-badges">
+            <div class="streak-badge">
+              <span class="streak-badge-icon">🔥</span>
+              <div>
+                <p class="streak-badge-val">{{ weeklyReport.currentWaterStreak }}</p>
+                <p class="streak-badge-lbl">Current streak (days)</p>
+              </div>
+            </div>
+            <div class="streak-badge">
+              <span class="streak-badge-icon">🏆</span>
+              <div>
+                <p class="streak-badge-val">{{ weeklyReport.longestWaterStreak }}</p>
+                <p class="streak-badge-lbl">Best streak (days)</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="report-item">
-          <p class="report-label">Weight Change</p>
-          <p class="report-value"
-             [ngClass]="{
-               'positive': isWeightChangePositive(),
-               'negative': isWeightChangeNegative()
-             }">
-            {{ getWeightChangeDisplay() }} kg
+
+        <!-- Goals -->
+        <div class="report-section">
+          <h4>🎯 Goals status</h4>
+          <div *ngFor="let goal of weeklyReport.goals" class="report-goal-item">
+            <span>{{ goal.goalType }} — Target: {{ goal.targetValue }}</span>
+            <span>{{ goal.achieved ? '✅ Achieved' : '⏳ In Progress' }}</span>
+          </div>
+          <p *ngIf="weeklyReport.goals.length === 0" class="no-data">No goals set yet.</p>
+        </div>
+
+        <!-- BMI History -->
+        <div class="report-section">
+          <h4>📈 BMI history this week</h4>
+          <div *ngFor="let entry of weeklyReport.bmiHistory" class="report-bmi-row">
+            <span class="bmi-date">{{ entry.date }}</span>
+            <span>BMI: <b>{{ entry.bmi }}</b></span>
+            <span>Weight: {{ entry.weight }} kg</span>
+          </div>
+          <p *ngIf="weeklyReport.bmiHistory.length === 0" class="no-data">
+            No BMI history this week.
           </p>
         </div>
-      </div>
-    </div>
 
-    <!-- Hydration -->
-    <div class="report-section">
-      <h4>💧 Hydration This Week</h4>
-      <div class="report-grid">
-        <div class="report-item">
-          <p class="report-label">Total Consumed</p>
-          <p class="report-value">{{ weeklyReport.totalWaterConsumedMl }} ml</p>
-        </div>
-        <div class="report-item">
-          <p class="report-label">Days Goal Reached</p>
-          <p class="report-value">{{ weeklyReport.daysGoalReached }} / 7</p>
-        </div>
-        <div class="report-item">
-          <p class="report-label">Daily Average</p>
-          <p class="report-value">{{ weeklyReport.avgDailyWaterMl | number:'1.0-0' }} ml</p>
-        </div>
       </div>
-    </div>
-<div class="report-section" *ngIf="weeklyReport">
-  <h4>🔥 Water Streak</h4>
-  <div class="report-grid">
-    <div class="report-item">
-      <p class="report-label">Current Streak</p>
-      <p class="report-value">{{ weeklyReport.currentWaterStreak }} days 🔥</p>
-    </div>
-    <div class="report-item">
-      <p class="report-label">Best Streak</p>
-      <p class="report-value">{{ weeklyReport.longestWaterStreak }} days 🏆</p>
     </div>
   </div>
 </div>
-    <!-- Goals -->
-    <div class="report-section">
-      <h4>🎯 Goals Status</h4>
-      <div *ngFor="let goal of weeklyReport.goals" class="report-goal-item">
-        <span>{{ goal.goalType }} — Target: {{ goal.targetValue }}</span>
-        <span>{{ goal.achieved ? '✅ Achieved' : '⏳ In Progress' }}</span>
-      </div>
-      <p *ngIf="weeklyReport.goals.length === 0" class="no-data">
-        No goals set yet.
-      </p>
-    </div>
-
-    <!-- BMI History -->
-    <div class="report-section">
-      <h4>📈 BMI History This Week</h4>
-      <div *ngFor="let entry of weeklyReport.bmiHistory" class="report-bmi-row">
-        <span class="bmi-date">{{ entry.date }}</span>
-        <span>BMI: <b>{{ entry.bmi }}</b></span>
-        <span>Weight: {{ entry.weight }} kg</span>
-      </div>
-      <p *ngIf="weeklyReport.bmiHistory.length === 0" class="no-data">
-        No BMI history this week. Calculate your BMI above!
-      </p>
-    </div>
-
-  </div>
-</div>
-
 
   <!-- ══════════════════════════════════════════ -->
   <!-- BADGES SECTION                             -->
