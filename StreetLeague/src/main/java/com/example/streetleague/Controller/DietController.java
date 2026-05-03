@@ -10,7 +10,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/diet")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {
+        "http://localhost:4200",
+        "https://streetleaguefrontend.azurewebsites.net"
+})
 public class DietController {
 
     private final RestTemplate restTemplate;

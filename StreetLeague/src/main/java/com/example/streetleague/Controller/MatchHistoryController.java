@@ -14,7 +14,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("matches-history")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {
+        "http://localhost:4200",
+        "https://streetleaguefrontend.azurewebsites.net"
+})
 @RequiredArgsConstructor
 public class MatchHistoryController {
 

@@ -17,7 +17,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/brackets")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {
+        "http://localhost:4200",
+        "https://streetleaguefrontend.azurewebsites.net"
+})
 public class BracketController {
 
     private final BracketgeneratorserviceImpl bracketService;

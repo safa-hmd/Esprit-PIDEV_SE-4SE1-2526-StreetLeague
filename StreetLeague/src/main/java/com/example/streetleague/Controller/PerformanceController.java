@@ -11,7 +11,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/performance")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {
+        "http://localhost:4200",
+        "https://streetleaguefrontend.azurewebsites.net"
+})
 public class PerformanceController {
 
     private final PerformanceService performanceService;

@@ -9,7 +9,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/pricing")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+@CrossOrigin(origins = {
+        "http://localhost:4200",
+        "https://streetleaguefrontend.azurewebsites.net"
+}, allowCredentials = "true")
+//@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class PricingController {
 
     private final PricingService pricingService;

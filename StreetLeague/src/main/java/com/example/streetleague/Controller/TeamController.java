@@ -16,7 +16,10 @@ import java.util.Map;
 
 @RestController
 @AllArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {
+        "http://localhost:4200",
+        "https://streetleaguefrontend.azurewebsites.net"
+})
 @RequestMapping("/team")
 public class TeamController {
 
