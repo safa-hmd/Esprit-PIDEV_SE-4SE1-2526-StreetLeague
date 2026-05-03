@@ -1,0 +1,68 @@
+name: CI-CD Pipeline
+
+on:
+  push:
+    branches: [ "deployement" ]
+
+jobs:
+
+# =========================
+# 1. BUILD BACKEND
+# =========================
+  backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+
+      - name: Build Spring Boot
+        run: |
+          cd StreetLeague
+          mvn clean package -DskipTests -Dspring-boot.run.profiles=prod
+
+# =========================
+# 2. BUILD FRONTEND
+# =========================
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Angular
+        run: |
+          cd StreetLeagueFront
+          npm install
+          npm run build --prod
+
+# =========================
+# 3. DEPLOY TO AZURE
+# =========================
+  deploy:
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Backend to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "your-backend-app"
+          publish-profile: ${{ secrets.AZURE_BACKEND_PUBLISH_PROFILE }}
+          package: backend/target/*.jar
+
+      - name: Deploy Frontend to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "your-frontend-app"
+          publish-profile: ${{ secrets.AZURE_FRONTEND_PUBLISH_PROFILE }}
+          package: frontend/dist/
