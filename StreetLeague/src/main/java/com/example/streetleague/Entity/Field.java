@@ -1,20 +1,14 @@
 package com.example.streetleague.Entity;
 
-import com.example.streetleague.Entity.FieldReservation;
-import com.example.streetleague.Entity.SportType;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "fields")
-//@Getter
-//@Setter
-//@NoArgsConstructor
-//@AllArgsConstructor
-@Builder
 public class Field {
 
     @Id
@@ -167,6 +161,71 @@ public class Field {
     }
 
     public Field() {
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Field field = (Field) o;
+        return capacity == field.capacity && available == field.available && Objects.equals(id, field.id) && Objects.equals(name, field.name) && Objects.equals(description, field.description) && sportType == field.sportType && Objects.equals(location, field.location) && Objects.equals(imageUrl, field.imageUrl) && Objects.equals(pricePerHour, field.pricePerHour) && Objects.equals(latitude, field.latitude) && Objects.equals(longitude, field.longitude);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, sportType, location, imageUrl, pricePerHour, capacity, available, latitude, longitude);
+    }
+
+    @Override
+    public String toString() {
+        return "Field{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", sportType=" + sportType +
+                ", location='" + location + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", pricePerHour=" + pricePerHour +
+                ", capacity=" + capacity +
+                ", available=" + available +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                '}';
+    }
+
+    public static FieldBuilder builder() {
+        return new FieldBuilder();
+    }
+
+    public static class FieldBuilder {
+        private Long id;
+        private String name;
+        private String description;
+        private SportType sportType;
+        private String location;
+        private String imageUrl;
+        private Double pricePerHour;
+        private int capacity;
+        private boolean available;
+        private List<FieldReservation> reservations = new ArrayList<>();
+        private Double latitude;
+        private Double longitude;
+
+        public FieldBuilder id(Long id) { this.id = id; return this; }
+        public FieldBuilder name(String name) { this.name = name; return this; }
+        public FieldBuilder description(String description) { this.description = description; return this; }
+        public FieldBuilder sportType(SportType sportType) { this.sportType = sportType; return this; }
+        public FieldBuilder location(String location) { this.location = location; return this; }
+        public FieldBuilder imageUrl(String imageUrl) { this.imageUrl = imageUrl; return this; }
+        public FieldBuilder pricePerHour(Double pricePerHour) { this.pricePerHour = pricePerHour; return this; }
+        public FieldBuilder capacity(int capacity) { this.capacity = capacity; return this; }
+        public FieldBuilder available(boolean available) { this.available = available; return this; }
+        public FieldBuilder reservations(List<FieldReservation> reservations) { this.reservations = reservations; return this; }
+        public FieldBuilder latitude(Double latitude) { this.latitude = latitude; return this; }
+        public FieldBuilder longitude(Double longitude) { this.longitude = longitude; return this; }
+
+        public Field build() {
+            return new Field(id, name, description, sportType, location, imageUrl, pricePerHour, capacity, available, reservations, latitude, longitude);
+        }
     }
 }

@@ -3,17 +3,11 @@ package com.example.streetleague.Entity;
 
 import com.example.streetleague.domain.User;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "tournament_registrations")
-//@Getter
-//@Setter
-//@NoArgsConstructor
-//@AllArgsConstructor
-@Builder
 public class TournamentRegistration {
 
     @Id
@@ -108,4 +102,54 @@ public class TournamentRegistration {
     public void setRegisteredAt(LocalDateTime registeredAt) {
         this.registeredAt = registeredAt;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TournamentRegistration that = (TournamentRegistration) o;
+        return Objects.equals(id, that.id) && Objects.equals(tournament, that.tournament) && Objects.equals(player, that.player) && Objects.equals(team, that.team) && status == that.status && Objects.equals(registeredAt, that.registeredAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, tournament, player, team, status, registeredAt);
+    }
+
+    @Override
+    public String toString() {
+        return "TournamentRegistration{" +
+                "id=" + id +
+                ", tournament=" + tournament +
+                ", player=" + player +
+                ", team=" + team +
+                ", status=" + status +
+                ", registeredAt=" + registeredAt +
+                '}';
+    }
+
+    public static TournamentRegistrationBuilder builder() {
+        return new TournamentRegistrationBuilder();
+    }
+
+    public static class TournamentRegistrationBuilder {
+        private Long id;
+        private Tournament tournament;
+        private User player;
+        private Team team;
+        private RegistrationStatus status;
+        private LocalDateTime registeredAt;
+
+        public TournamentRegistrationBuilder id(Long id) { this.id = id; return this; }
+        public TournamentRegistrationBuilder tournament(Tournament tournament) { this.tournament = tournament; return this; }
+        public TournamentRegistrationBuilder player(User player) { this.player = player; return this; }
+        public TournamentRegistrationBuilder team(Team team) { this.team = team; return this; }
+        public TournamentRegistrationBuilder status(RegistrationStatus status) { this.status = status; return this; }
+        public TournamentRegistrationBuilder registeredAt(LocalDateTime registeredAt) { this.registeredAt = registeredAt; return this; }
+
+        public TournamentRegistration build() {
+            return new TournamentRegistration(id, tournament, player, team, status, registeredAt);
+        }
+    }
 }
+

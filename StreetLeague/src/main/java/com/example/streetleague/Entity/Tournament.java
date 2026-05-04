@@ -1,24 +1,13 @@
 package com.example.streetleague.Entity;
 
-import com.example.streetleague.Entity.SportType;
-import com.example.streetleague.Entity.TournamentRegistration;
-import com.example.streetleague.Entity.TournamentStatus;
-import com.example.streetleague.Entity.TournamentType;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Table(name = "tournaments") // from main
-//@Getter
-//@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "tournaments")
 public class Tournament {
 
     @Id
@@ -57,7 +46,6 @@ public class Tournament {
 
     private String location;
     
-    // city kept for Logistique branch
     private String city;
 
     private Double prizePool;
@@ -65,12 +53,107 @@ public class Tournament {
     // ---- Relations ----
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private List<TournamentRegistration> registrations = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "field_id", nullable = true)
     private Field field;
+
+    public Tournament() {
+    }
+
+    public Tournament(Long id, String name, String description, SportType sportType, TournamentType tournamentType, TournamentStatus status, LocalDate startDate, LocalDate endDate, LocalDate registrationDeadline, int maxParticipants, String location, String city, Double prizePool, List<TournamentRegistration> registrations, Field field) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.sportType = sportType;
+        this.tournamentType = tournamentType;
+        this.status = status;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.registrationDeadline = registrationDeadline;
+        this.maxParticipants = maxParticipants;
+        this.location = location;
+        this.city = city;
+        this.prizePool = prizePool;
+        this.registrations = registrations != null ? registrations : new ArrayList<>();
+        this.field = field;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tournament that = (Tournament) o;
+        return maxParticipants == that.maxParticipants && Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && sportType == that.sportType && tournamentType == that.tournamentType && status == that.status && Objects.equals(startDate, that.startDate) && Objects.equals(endDate, that.endDate) && Objects.equals(registrationDeadline, that.registrationDeadline) && Objects.equals(location, that.location) && Objects.equals(city, that.city) && Objects.equals(prizePool, that.prizePool) && Objects.equals(field, that.field);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, sportType, tournamentType, status, startDate, endDate, registrationDeadline, maxParticipants, location, city, prizePool, field);
+    }
+
+    @Override
+    public String toString() {
+        return "Tournament{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", sportType=" + sportType +
+                ", tournamentType=" + tournamentType +
+                ", status=" + status +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", registrationDeadline=" + registrationDeadline +
+                ", maxParticipants=" + maxParticipants +
+                ", location='" + location + '\'' +
+                ", city='" + city + '\'' +
+                ", prizePool=" + prizePool +
+                ", field=" + field +
+                '}';
+    }
+
+    public static TournamentBuilder builder() {
+        return new TournamentBuilder();
+    }
+
+    public static class TournamentBuilder {
+        private Long id;
+        private String name;
+        private String description;
+        private SportType sportType;
+        private TournamentType tournamentType;
+        private TournamentStatus status;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private LocalDate registrationDeadline;
+        private int maxParticipants;
+        private String location;
+        private String city;
+        private Double prizePool;
+        private List<TournamentRegistration> registrations = new ArrayList<>();
+        private Field field;
+
+        public TournamentBuilder id(Long id) { this.id = id; return this; }
+        public TournamentBuilder name(String name) { this.name = name; return this; }
+        public TournamentBuilder description(String description) { this.description = description; return this; }
+        public TournamentBuilder sportType(SportType sportType) { this.sportType = sportType; return this; }
+        public TournamentBuilder tournamentType(TournamentType tournamentType) { this.tournamentType = tournamentType; return this; }
+        public TournamentBuilder status(TournamentStatus status) { this.status = status; return this; }
+        public TournamentBuilder startDate(LocalDate startDate) { this.startDate = startDate; return this; }
+        public TournamentBuilder endDate(LocalDate endDate) { this.endDate = endDate; return this; }
+        public TournamentBuilder registrationDeadline(LocalDate registrationDeadline) { this.registrationDeadline = registrationDeadline; return this; }
+        public TournamentBuilder maxParticipants(int maxParticipants) { this.maxParticipants = maxParticipants; return this; }
+        public TournamentBuilder location(String location) { this.location = location; return this; }
+        public TournamentBuilder city(String city) { this.city = city; return this; }
+        public TournamentBuilder prizePool(Double prizePool) { this.prizePool = prizePool; return this; }
+        public TournamentBuilder registrations(List<TournamentRegistration> registrations) { this.registrations = registrations; return this; }
+        public TournamentBuilder field(Field field) { this.field = field; return this; }
+
+        public Tournament build() {
+            return new Tournament(id, name, description, sportType, tournamentType, status, startDate, endDate, registrationDeadline, maxParticipants, location, city, prizePool, registrations, field);
+        }
+    }
 
 // Ajouter ces getters explicites dans Tournament.java
 

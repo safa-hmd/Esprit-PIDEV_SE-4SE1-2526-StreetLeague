@@ -8,19 +8,10 @@ import com.example.streetleague.Entity.waterReminder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-//@Getter          // ← @Getter + @Setter au lieu de @Data
-//@Setter          // ← @Data cause des conflits avec @Builder
-//@NoArgsConstructor
-//@AllArgsConstructor
-@Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
 
     @Id
@@ -46,8 +37,7 @@ public class User {
     @Column(nullable = false, length = 50)
     Role role;
 
-    @Builder.Default
-    boolean enabled = true;
+    private boolean enabled = true;
 
     // ── Relations team ────────────────────────────────────────
     @OneToMany(mappedBy = "captain", cascade = CascadeType.ALL)
@@ -335,4 +325,160 @@ public class User {
 
     public User() {
     }
+
+    public static UserBuilder builder() {
+        return new UserBuilder();
+    }
+
+    public static class UserBuilder {
+        private Long idUser;
+        private String fullName;
+        private String email;
+        private String password;
+        private int age;
+        private Role role;
+        private boolean enabled = true;
+        private List<Team> captainedTeams;
+        private List<Team> teams;
+        private List<Training> trainings;
+        private List<Match> createdMatches;
+        private String resetToken;
+        private LocalDateTime resetTokenExpiry;
+        private Long teamId;
+        private List<Post> posts;
+        private List<Comment> comments;
+        private List<waterReminder> waterReminders;
+        private Double weight;
+        private Double height;
+        private Double bmi;
+        private List<DailyWaterLog> waterLogs;
+        private List<UserGoal> goals;
+        private List<UserBadge> badges;
+        private SpinResult spinResult;
+
+        public UserBuilder idUser(Long idUser) {
+            this.idUser = idUser;
+            return this;
+        }
+
+        public UserBuilder fullName(String fullName) {
+            this.fullName = fullName;
+            return this;
+        }
+
+        public UserBuilder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public UserBuilder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public UserBuilder age(int age) {
+            this.age = age;
+            return this;
+        }
+
+        public UserBuilder role(Role role) {
+            this.role = role;
+            return this;
+        }
+
+        public UserBuilder enabled(boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
+        public UserBuilder captainedTeams(List<Team> captainedTeams) {
+            this.captainedTeams = captainedTeams;
+            return this;
+        }
+
+        public UserBuilder teams(List<Team> teams) {
+            this.teams = teams;
+            return this;
+        }
+
+        public UserBuilder trainings(List<Training> trainings) {
+            this.trainings = trainings;
+            return this;
+        }
+
+        public UserBuilder createdMatches(List<Match> createdMatches) {
+            this.createdMatches = createdMatches;
+            return this;
+        }
+
+        public UserBuilder resetToken(String resetToken) {
+            this.resetToken = resetToken;
+            return this;
+        }
+
+        public UserBuilder resetTokenExpiry(LocalDateTime resetTokenExpiry) {
+            this.resetTokenExpiry = resetTokenExpiry;
+            return this;
+        }
+
+        public UserBuilder teamId(Long teamId) {
+            this.teamId = teamId;
+            return this;
+        }
+
+        public UserBuilder posts(List<Post> posts) {
+            this.posts = posts;
+            return this;
+        }
+
+        public UserBuilder comments(List<Comment> comments) {
+            this.comments = comments;
+            return this;
+        }
+
+        public UserBuilder waterReminders(List<waterReminder> waterReminders) {
+            this.waterReminders = waterReminders;
+            return this;
+        }
+
+        public UserBuilder weight(Double weight) {
+            this.weight = weight;
+            return this;
+        }
+
+        public UserBuilder height(Double height) {
+            this.height = height;
+            return this;
+        }
+
+        public UserBuilder bmi(Double bmi) {
+            this.bmi = bmi;
+            return this;
+        }
+
+        public UserBuilder waterLogs(List<DailyWaterLog> waterLogs) {
+            this.waterLogs = waterLogs;
+            return this;
+        }
+
+        public UserBuilder goals(List<UserGoal> goals) {
+            this.goals = goals;
+            return this;
+        }
+
+        public UserBuilder badges(List<UserBadge> badges) {
+            this.badges = badges;
+            return this;
+        }
+
+        public UserBuilder spinResult(SpinResult spinResult) {
+            this.spinResult = spinResult;
+            return this;
+        }
+
+        public User build() {
+            return new User(idUser, fullName, email, password, age, role, enabled, captainedTeams, teams, trainings, createdMatches, resetToken, resetTokenExpiry, teamId, posts, comments, waterReminders, weight, height, bmi, waterLogs, goals, badges, spinResult);
+        }
+    }
 }
+

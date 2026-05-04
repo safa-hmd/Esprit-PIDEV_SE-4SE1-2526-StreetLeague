@@ -3,36 +3,26 @@ package com.example.streetleague.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
 import java.util.List;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-
-
-//@Getter
-//@Setter
-//@NoArgsConstructor
-//@AllArgsConstructor
-@Builder
 @Table(name = "paniers")
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Panier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
             @JsonIgnore
-    User user;
+    private User user;
 
     @OneToMany(mappedBy = "panier", cascade = CascadeType.ALL)
             @JsonIgnore
-    List<LignePanier> lignes;
+    private List<LignePanier> lignes;
 
     public Long getId() {
         return id;
@@ -66,4 +56,33 @@ public class Panier {
 
     public Panier() {
     }
-}
+
+    public static PanierBuilder builder() {
+        return new PanierBuilder();
+    }
+
+    public static class PanierBuilder {
+        private Long id;
+        private User user;
+        private List<LignePanier> lignes;
+
+        public PanierBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public PanierBuilder user(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public PanierBuilder lignes(List<LignePanier> lignes) {
+            this.lignes = lignes;
+            return this;
+        }
+
+        public Panier build() {
+            return new Panier(id, user, lignes);
+        }
+    }
+}

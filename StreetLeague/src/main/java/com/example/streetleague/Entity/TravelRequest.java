@@ -1,56 +1,100 @@
 package com.example.streetleague.Entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class TravelRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id", nullable = false)
-    Team team;
+    private Team team;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tournament_id", nullable = false)
-    Tournament tournament;
+    private Tournament tournament;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transport_id")
-    Transport transport;
+    private Transport transport;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "accommodation_id")
-    Accommodation accommodation;
+    private Accommodation accommodation;
 
     @Enumerated(EnumType.STRING)
-    TravelRequestStatus status;
+    private TravelRequestStatus status;
 
-    Boolean sameCity;
-    Boolean accommodationRequired;
+    private Boolean sameCity;
+    private Boolean accommodationRequired;
 
     @Column(length = 500)
-    String adminComment;
+    private String adminComment;
 
-    Double totalAmount;
+    private Double totalAmount;
 
     @Column(name = "selected_member_ids_str", length = 1000)
-    String selectedMemberIdsStr;
+    private String selectedMemberIdsStr;
 
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    public TravelRequest() {
+    }
+
+    public TravelRequest(Long id, Team team, Tournament tournament, Transport transport, Accommodation accommodation, TravelRequestStatus status, Boolean sameCity, Boolean accommodationRequired, String adminComment, Double totalAmount, String selectedMemberIdsStr, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.team = team;
+        this.tournament = tournament;
+        this.transport = transport;
+        this.accommodation = accommodation;
+        this.status = status;
+        this.sameCity = sameCity;
+        this.accommodationRequired = accommodationRequired;
+        this.adminComment = adminComment;
+        this.totalAmount = totalAmount;
+        this.selectedMemberIdsStr = selectedMemberIdsStr;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TravelRequest that = (TravelRequest) o;
+        return Objects.equals(id, that.id) && Objects.equals(team, that.team) && Objects.equals(tournament, that.tournament) && Objects.equals(transport, that.transport) && Objects.equals(accommodation, that.accommodation) && status == that.status && Objects.equals(sameCity, that.sameCity) && Objects.equals(accommodationRequired, that.accommodationRequired) && Objects.equals(adminComment, that.adminComment) && Objects.equals(totalAmount, that.totalAmount) && Objects.equals(selectedMemberIdsStr, that.selectedMemberIdsStr) && Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt, that.updatedAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, team, tournament, transport, accommodation, status, sameCity, accommodationRequired, adminComment, totalAmount, selectedMemberIdsStr, createdAt, updatedAt);
+    }
+
+    @Override
+    public String toString() {
+        return "TravelRequest{" +
+                "id=" + id +
+                ", team=" + team +
+                ", tournament=" + tournament +
+                ", transport=" + transport +
+                ", accommodation=" + accommodation +
+                ", status=" + status +
+                ", sameCity=" + sameCity +
+                ", accommodationRequired=" + accommodationRequired +
+                ", adminComment='" + adminComment + '\'' +
+                ", totalAmount=" + totalAmount +
+                ", selectedMemberIdsStr='" + selectedMemberIdsStr + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 
     @PrePersist
     protected void onCreate() {

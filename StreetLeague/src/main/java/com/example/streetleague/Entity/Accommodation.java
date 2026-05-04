@@ -1,29 +1,22 @@
 package com.example.streetleague.Entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Accommodation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Enumerated(EnumType.STRING)
-    AccommodationType type;
+    private AccommodationType type;
 
-    Integer numberOfNights;
-    Double pricePerNight;
+    private Integer numberOfNights;
+    private Double pricePerNight;
 
-    @Builder.Default
     @Column(name = "capacity", columnDefinition = "INT DEFAULT 0")
     private Integer capacity = 0;
 
@@ -31,11 +24,9 @@ public class Accommodation {
     private String address;
 
     @Enumerated(EnumType.STRING)
-    AccommodationFormula formula;
+    private AccommodationFormula formula;
 
-    @Builder.Default
-    @Column(name = "status",
-            columnDefinition = "VARCHAR(20) DEFAULT 'PENDING'")
+    @Column(name = "status", columnDefinition = "VARCHAR(20) DEFAULT 'PENDING'")
     private String status = "PENDING";
 
     // OLD FIELDS — keep to avoid DB conflicts
@@ -50,6 +41,55 @@ public class Accommodation {
 
     @Column(name = "logistics_id", nullable = true)
     private Long logisticsId;
+
+    public Accommodation() {
+    }
+
+    public Accommodation(Long id, AccommodationType type, Integer numberOfNights, Double pricePerNight, Integer capacity, String address, AccommodationFormula formula, String status, LocalDate arrivalDate, LocalDate departureDate, String typeAccommodation, Long logisticsId) {
+        this.id = id;
+        this.type = type;
+        this.numberOfNights = numberOfNights;
+        this.pricePerNight = pricePerNight;
+        this.capacity = capacity;
+        this.address = address;
+        this.formula = formula;
+        this.status = status;
+        this.arrivalDate = arrivalDate;
+        this.departureDate = departureDate;
+        this.typeAccommodation = typeAccommodation;
+        this.logisticsId = logisticsId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Accommodation that = (Accommodation) o;
+        return Objects.equals(id, that.id) && type == that.type && Objects.equals(numberOfNights, that.numberOfNights) && Objects.equals(pricePerNight, that.pricePerNight) && Objects.equals(capacity, that.capacity) && Objects.equals(address, that.address) && formula == that.formula && Objects.equals(status, that.status) && Objects.equals(arrivalDate, that.arrivalDate) && Objects.equals(departureDate, that.departureDate) && Objects.equals(typeAccommodation, that.typeAccommodation) && Objects.equals(logisticsId, that.logisticsId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, type, numberOfNights, pricePerNight, capacity, address, formula, status, arrivalDate, departureDate, typeAccommodation, logisticsId);
+    }
+
+    @Override
+    public String toString() {
+        return "Accommodation{" +
+                "id=" + id +
+                ", type=" + type +
+                ", numberOfNights=" + numberOfNights +
+                ", pricePerNight=" + pricePerNight +
+                ", capacity=" + capacity +
+                ", address='" + address + '\'' +
+                ", formula=" + formula +
+                ", status='" + status + '\'' +
+                ", arrivalDate=" + arrivalDate +
+                ", departureDate=" + departureDate +
+                ", typeAccommodation='" + typeAccommodation + '\'' +
+                ", logisticsId=" + logisticsId +
+                '}';
+    }
 
     // ===== EXPLICIT GETTERS/SETTERS (Lombok not processing) =====
 
@@ -122,20 +162,8 @@ public class Accommodation {
         public AccommodationBuilder logisticsId(Long logisticsId) { this.logisticsId = logisticsId; return this; }
 
         public Accommodation build() {
-            Accommodation acc = new Accommodation();
-            acc.setId(id);
-            acc.setType(type);
-            acc.setNumberOfNights(numberOfNights);
-            acc.setPricePerNight(pricePerNight);
-            acc.setCapacity(capacity);
-            acc.setAddress(address);
-            acc.setFormula(formula);
-            acc.setStatus(status);
-            acc.setArrivalDate(arrivalDate);
-            acc.setDepartureDate(departureDate);
-            acc.setTypeAccommodation(typeAccommodation);
-            acc.setLogisticsId(logisticsId);
-            return acc;
+            return new Accommodation(id, type, numberOfNights, pricePerNight, capacity, address, formula, status, arrivalDate, departureDate, typeAccommodation, logisticsId);
         }
     }
 }
+

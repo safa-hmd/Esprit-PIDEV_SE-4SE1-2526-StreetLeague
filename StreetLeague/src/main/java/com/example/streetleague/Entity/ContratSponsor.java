@@ -2,15 +2,11 @@ package com.example.streetleague.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "contrat_sponsor")
 public class ContratSponsor {
 
@@ -111,4 +107,35 @@ public class ContratSponsor {
     public void setConditions(String conditions) {
         this.conditions = conditions;
     }
+
+    public ContratSponsor() {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ContratSponsor that = (ContratSponsor) o;
+        return Objects.equals(id, that.id) && Objects.equals(sponsor, that.sponsor) && Objects.equals(equipeId, that.equipeId) && Objects.equals(montant, that.montant) && Objects.equals(dateDebut, that.dateDebut) && Objects.equals(dateFin, that.dateFin) && Objects.equals(statut, that.statut) && Objects.equals(conditions, that.conditions);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, sponsor, equipeId, montant, dateDebut, dateFin, statut, conditions);
+    }
+
+    @Override
+    public String toString() {
+        return "ContratSponsor{" +
+                "id=" + id +
+                ", sponsor=" + sponsor +
+                ", equipeId=" + equipeId +
+                ", montant=" + montant +
+                ", dateDebut=" + dateDebut +
+                ", dateFin=" + dateFin +
+                ", statut='" + statut + '\'' +
+                ", conditions='" + conditions + '\'' +
+                '}';
+    }
 }
+

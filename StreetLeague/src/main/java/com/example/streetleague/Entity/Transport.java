@@ -1,38 +1,62 @@
 package com.example.streetleague.Entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Transport {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Enumerated(EnumType.STRING)
-    TransportType type;
+    private TransportType type;
 
-    Double pricePerSeat;
+    private Double pricePerSeat;
     @Column(nullable = true)
     private Integer availableSeats = 0;
-    LocalDateTime departureTime;
-    LocalDateTime returnTime;
-    String destination;
+    private LocalDateTime departureTime;
+    private LocalDateTime returnTime;
+    private String destination;
 
     @Column(nullable = false, length = 20)
-    String status = "APPROVED"; 
+    private String status = "APPROVED"; 
 
     @Column(name = "coach_id")
     private Long coachId;
+
+    public Transport() {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Transport transport = (Transport) o;
+        return Objects.equals(id, transport.id) && type == transport.type && Objects.equals(pricePerSeat, transport.pricePerSeat) && Objects.equals(availableSeats, transport.availableSeats) && Objects.equals(departureTime, transport.departureTime) && Objects.equals(returnTime, transport.returnTime) && Objects.equals(destination, transport.destination) && Objects.equals(status, transport.status) && Objects.equals(coachId, transport.coachId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, type, pricePerSeat, availableSeats, departureTime, returnTime, destination, status, coachId);
+    }
+
+    @Override
+    public String toString() {
+        return "Transport{" +
+                "id=" + id +
+                ", type=" + type +
+                ", pricePerSeat=" + pricePerSeat +
+                ", availableSeats=" + availableSeats +
+                ", departureTime=" + departureTime +
+                ", returnTime=" + returnTime +
+                ", destination='" + destination + '\'' +
+                ", status='" + status + '\'' +
+                ", coachId=" + coachId +
+                '}';
+    }
 
     // ===== EXPLICIT GETTERS/SETTERS (Lombok not processing) =====
 

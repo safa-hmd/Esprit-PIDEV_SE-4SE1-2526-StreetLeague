@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 @Component
 @RequiredArgsConstructor
@@ -81,7 +82,7 @@ public class DataInitializer implements CommandLineRunner {
                     .level(Level.INTERMEDIATE)
                     .creationDate(LocalDate.now())
                     .captain(coach)
-                    .players(new ArrayList<>())
+                    .players(new HashSet<>())
                     .build();
 
             // Link players

@@ -1,51 +1,87 @@
 package com.example.streetleague.Entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AccommodationRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "accommodation_id", nullable = false)
-    Accommodation accommodation;
+    private Accommodation accommodation;
 
-    Long tournamentId;
-    Long coachId;
+    private Long tournamentId;
+    private Long coachId;
     
     @Column(name = "coach_name")
-    String coachName;
+    private String coachName;
 
     @ElementCollection
     @CollectionTable(name = "accommodation_request_members", joinColumns = @JoinColumn(name = "request_id"))
     @Column(name = "member_id")
-    List<Long> memberIds;
+    private List<Long> memberIds;
 
-    @Builder.Default
     @Column(name = "status", columnDefinition = "VARCHAR(20) DEFAULT 'PENDING'")
     private String status = "PENDING";
 
     @Column(name = "admin_comment")
     private String adminComment;
 
-    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "total_amount")
     private Double totalAmount;
+
+    public AccommodationRequest() {
+    }
+
+    public AccommodationRequest(Long id, Accommodation accommodation, Long tournamentId, Long coachId, String coachName, List<Long> memberIds, String status, String adminComment, LocalDateTime createdAt, Double totalAmount) {
+        this.id = id;
+        this.accommodation = accommodation;
+        this.tournamentId = tournamentId;
+        this.coachId = coachId;
+        this.coachName = coachName;
+        this.memberIds = memberIds;
+        this.status = status;
+        this.adminComment = adminComment;
+        this.createdAt = createdAt;
+        this.totalAmount = totalAmount;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AccommodationRequest that = (AccommodationRequest) o;
+        return Objects.equals(id, that.id) && Objects.equals(accommodation, that.accommodation) && Objects.equals(tournamentId, that.tournamentId) && Objects.equals(coachId, that.coachId) && Objects.equals(coachName, that.coachName) && Objects.equals(memberIds, that.memberIds) && Objects.equals(status, that.status) && Objects.equals(adminComment, that.adminComment) && Objects.equals(createdAt, that.createdAt) && Objects.equals(totalAmount, that.totalAmount);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, accommodation, tournamentId, coachId, coachName, memberIds, status, adminComment, createdAt, totalAmount);
+    }
+
+    @Override
+    public String toString() {
+        return "AccommodationRequest{" +
+                "id=" + id +
+                ", accommodation=" + accommodation +
+                ", tournamentId=" + tournamentId +
+                ", coachId=" + coachId +
+                ", coachName='" + coachName + '\'' +
+                ", memberIds=" + memberIds +
+                ", status='" + status + '\'' +
+                ", adminComment='" + adminComment + '\'' +
+                ", createdAt=" + createdAt +
+                ", totalAmount=" + totalAmount +
+                '}';
+    }
 
     // ===== EXPLICIT GETTERS/SETTERS (Lombok not processing) =====
 
@@ -108,18 +144,8 @@ public class AccommodationRequest {
         public AccommodationRequestBuilder totalAmount(Double totalAmount) { this.totalAmount = totalAmount; return this; }
 
         public AccommodationRequest build() {
-            AccommodationRequest req = new AccommodationRequest();
-            req.setId(id);
-            req.setAccommodation(accommodation);
-            req.setTournamentId(tournamentId);
-            req.setCoachId(coachId);
-            req.setCoachName(coachName);
-            req.setMemberIds(memberIds);
-            req.setStatus(status);
-            req.setAdminComment(adminComment);
-            req.setCreatedAt(createdAt);
-            req.setTotalAmount(totalAmount);
-            return req;
+            return new AccommodationRequest(id, accommodation, tournamentId, coachId, coachName, memberIds, status, adminComment, createdAt != null ? createdAt : LocalDateTime.now(), totalAmount);
         }
     }
 }
+

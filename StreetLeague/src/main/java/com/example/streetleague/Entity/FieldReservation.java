@@ -2,20 +2,12 @@ package com.example.streetleague.Entity;
 
 import com.example.streetleague.domain.User;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
-
+import java.util.Objects;
 
 @Entity
 @Table(name = "field_reservations")
-//@Getter
-//@Setter
-//@NoArgsConstructor
-//@AllArgsConstructor
-@Builder
-//@AllArgsConstructor
 public class FieldReservation {
 
     @Id
@@ -170,4 +162,65 @@ public class FieldReservation {
         this.player = player;
         this.payment = payment;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FieldReservation that = (FieldReservation) o;
+        return Objects.equals(id, that.id) && Objects.equals(startTime, that.startTime) && Objects.equals(endTime, that.endTime) && status == that.status && Objects.equals(totalPrice, that.totalPrice) && Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt, that.updatedAt) && Objects.equals(field, that.field) && Objects.equals(player, that.player);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, startTime, endTime, status, totalPrice, createdAt, updatedAt, field, player);
+    }
+
+    @Override
+    public String toString() {
+        return "FieldReservation{" +
+                "id=" + id +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", status=" + status +
+                ", totalPrice=" + totalPrice +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", field=" + field +
+                ", player=" + player +
+                '}';
+    }
+
+    public static FieldReservationBuilder builder() {
+        return new FieldReservationBuilder();
+    }
+
+    public static class FieldReservationBuilder {
+        private Long id;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
+        private ReservationStatus status;
+        private Double totalPrice;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+        private Field field;
+        private User player;
+        private Payment payment;
+
+        public FieldReservationBuilder id(Long id) { this.id = id; return this; }
+        public FieldReservationBuilder startTime(LocalDateTime startTime) { this.startTime = startTime; return this; }
+        public FieldReservationBuilder endTime(LocalDateTime endTime) { this.endTime = endTime; return this; }
+        public FieldReservationBuilder status(ReservationStatus status) { this.status = status; return this; }
+        public FieldReservationBuilder totalPrice(Double totalPrice) { this.totalPrice = totalPrice; return this; }
+        public FieldReservationBuilder createdAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
+        public FieldReservationBuilder updatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; return this; }
+        public FieldReservationBuilder field(Field field) { this.field = field; return this; }
+        public FieldReservationBuilder player(User player) { this.player = player; return this; }
+        public FieldReservationBuilder payment(Payment payment) { this.payment = payment; return this; }
+
+        public FieldReservation build() {
+            return new FieldReservation(id, startTime, endTime, status, totalPrice, createdAt, updatedAt, field, player, payment);
+        }
+    }
 }
+

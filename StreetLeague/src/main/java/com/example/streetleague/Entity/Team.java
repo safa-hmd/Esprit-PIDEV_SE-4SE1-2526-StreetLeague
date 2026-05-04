@@ -3,48 +3,40 @@ package com.example.streetleague.Entity;
 import com.example.streetleague.domain.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Objects;
 
 @Entity
-//@Data
-//@NoArgsConstructor
-//@AllArgsConstructor
-@Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "teams")
 public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long idTeam;
+    private Long idTeam;
 
-    String name;
-    String sport;
-    String description;
-    LocalDate creationDate;
-    String city;
+    private String name;
+    private String sport;
+    private String description;
+    private LocalDate creationDate;
+    private String city;
 
-    int victories = 0;
-    int defeats = 0;
-    int matches = 0;
+    private int victories = 0;
+    private int defeats = 0;
+    private int matches = 0;
 
-    @Builder.Default
-    Integer eloScore = 1000;
+    private Integer eloScore = 1000;
 
     @Enumerated(EnumType.STRING)
-    Level level;
+    private Level level;
 
     // The PLAYER who created the team becomes its captain
     @ManyToOne
     @JoinColumn(name = "captain_id", nullable = false)
-    User captain;
+    private User captain;
 
 
     // Players belonging to this team
@@ -55,30 +47,61 @@ public class Team {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @JsonIgnore
-    Set<User> players = new HashSet<>();
+    private Set<User> players = new HashSet<>();
 
     // Training sessions for this team
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     @JsonIgnore
-    List<Training> trainings;
+    private List<Training> trainings;
 
     // Matches where this team is Team A
     @OneToMany(mappedBy = "teamA")
     @JsonIgnore
-    List<Match> matchesAsTeamA;
+    private List<Match> matchesAsTeamA;
 
     // Matches where this team is Team B
     @OneToMany(mappedBy = "teamB")
     @JsonIgnore
-    List<Match> matchesAsTeamB;
+    private List<Match> matchesAsTeamB;
 
 
     @ManyToOne
     @JoinColumn(name = "coach_id")
-    User coach;
+    private User coach;
 
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Team team = (Team) o;
+        return victories == team.victories && defeats == team.defeats && matches == team.matches && Objects.equals(idTeam, team.idTeam) && Objects.equals(name, team.name) && Objects.equals(sport, team.sport) && Objects.equals(description, team.description) && Objects.equals(creationDate, team.creationDate) && Objects.equals(city, team.city) && Objects.equals(eloScore, team.eloScore) && level == team.level && Objects.equals(captain, team.captain) && Objects.equals(players, team.players) && Objects.equals(trainings, team.trainings) && Objects.equals(matchesAsTeamA, team.matchesAsTeamA) && Objects.equals(matchesAsTeamB, team.matchesAsTeamB) && Objects.equals(coach, team.coach);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idTeam, name, sport, description, creationDate, city, victories, defeats, matches, eloScore, level, captain, players, trainings, matchesAsTeamA, matchesAsTeamB, coach);
+    }
+
+    @Override
+    public String toString() {
+        return "Team{" +
+                "idTeam=" + idTeam +
+                ", name='" + name + '\'' +
+                ", sport='" + sport + '\'' +
+                ", description='" + description + '\'' +
+                ", creationDate=" + creationDate +
+                ", city='" + city + '\'' +
+                ", victories=" + victories +
+                ", defeats=" + defeats +
+                ", matches=" + matches +
+                ", eloScore=" + eloScore +
+                ", level=" + level +
+                ", captain=" + captain +
+                ", coach=" + coach +
+                '}';
+    }
 
     // ===== STATIC BUILDER METHOD ====
     public static TeamBuilder builder() {
@@ -86,44 +109,44 @@ public class Team {
     }
 
     public static class TeamBuilder {
+        private Long idTeam;
         private String name;
         private String sport;
         private String description;
         private LocalDate creationDate;
         private String city;
+        private int victories;
+        private int defeats;
+        private int matches;
+        private Integer eloScore = 1000;
         private Level level;
         private User captain;
-        private List<User> players;
+        private Set<User> players = new HashSet<>();
         private List<Training> trainings;
         private List<Match> matchesAsTeamA;
         private List<Match> matchesAsTeamB;
+        private User coach;
 
+        public TeamBuilder idTeam(Long idTeam) { this.idTeam = idTeam; return this; }
         public TeamBuilder name(String name) { this.name = name; return this; }
         public TeamBuilder sport(String sport) { this.sport = sport; return this; }
         public TeamBuilder description(String description) { this.description = description; return this; }
         public TeamBuilder creationDate(LocalDate creationDate) { this.creationDate = creationDate; return this; }
         public TeamBuilder city(String city) { this.city = city; return this; }
+        public TeamBuilder victories(int victories) { this.victories = victories; return this; }
+        public TeamBuilder defeats(int defeats) { this.defeats = defeats; return this; }
+        public TeamBuilder matches(int matches) { this.matches = matches; return this; }
+        public TeamBuilder eloScore(Integer eloScore) { this.eloScore = eloScore; return this; }
         public TeamBuilder level(Level level) { this.level = level; return this; }
         public TeamBuilder captain(User captain) { this.captain = captain; return this; }
-        public TeamBuilder players(List<User> players) { this.players = players; return this; }
+        public TeamBuilder players(Set<User> players) { this.players = players; return this; }
         public TeamBuilder trainings(List<Training> trainings) { this.trainings = trainings; return this; }
         public TeamBuilder matchesAsTeamA(List<Match> matchesAsTeamA) { this.matchesAsTeamA = matchesAsTeamA; return this; }
         public TeamBuilder matchesAsTeamB(List<Match> matchesAsTeamB) { this.matchesAsTeamB = matchesAsTeamB; return this; }
+        public TeamBuilder coach(User coach) { this.coach = coach; return this; }
 
         public Team build() {
-            Team team = new Team();
-            team.name = this.name;
-            team.sport = this.sport;
-            team.description = this.description;
-            team.creationDate = this.creationDate;
-            team.city = this.city;
-            team.level = this.level;
-            team.captain = this.captain;
-
-            team.trainings = this.trainings;
-            team.matchesAsTeamA = this.matchesAsTeamA;
-            team.matchesAsTeamB = this.matchesAsTeamB;
-            return team;
+            return new Team(idTeam, name, sport, description, creationDate, city, victories, defeats, matches, eloScore, level, captain, players, trainings, matchesAsTeamA, matchesAsTeamB, coach);
         }
     }
 
