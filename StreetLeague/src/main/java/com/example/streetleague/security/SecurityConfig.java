@@ -116,6 +116,7 @@ public class SecurityConfig {
                                 .requestMatchers("/training/**").permitAll()
                         .requestMatchers("/api/pricing/**").permitAll()
                                 .requestMatchers("/api/registrations/**").permitAll()
+                                .requestMatchers(" /api/reservations/**").permitAll()
                                 .requestMatchers("/api/brackets/**").permitAll()
 
 
