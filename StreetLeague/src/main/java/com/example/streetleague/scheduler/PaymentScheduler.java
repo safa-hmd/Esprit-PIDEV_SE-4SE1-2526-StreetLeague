@@ -40,17 +40,17 @@ public class PaymentScheduler {
         );
 
         if (expired.isEmpty()) {
-//            log.info("[PaymentScheduler] No expired payments found.");
+          //  log.info("[PaymentScheduler] No expired payments found.");
             return;
         }
 
         for (Payment p : expired) {
             p.setStatus(PaymentStatus.FAILED);
-//            log.info("[PaymentScheduler] Payment #{} expired — reservation #{}",
-//                    p.getId(), p.getReservation().getId());
+            /*log.info("[PaymentScheduler] Payment #{} expired — reservation #{}",
+                    p.getId(), p.getReservation().getId());*/
         }
 
         paymentRepository.saveAll(expired);
-//        log.info("[PaymentScheduler] {} payment(s) marked as FAILED.", expired.size());
+      //  log.info("[PaymentScheduler] {} payment(s) marked as FAILED.", expired.size());
     }
 }
