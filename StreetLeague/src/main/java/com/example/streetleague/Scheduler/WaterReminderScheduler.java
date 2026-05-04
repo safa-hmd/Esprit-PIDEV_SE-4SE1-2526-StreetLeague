@@ -37,7 +37,7 @@ public class WaterReminderScheduler {
      */
     @Scheduled(fixedRate = 3600000) // toutes les 1h
     public void processWaterReminders() {
-        log.info("⏰ WaterReminderScheduler démarré à {}", LocalDateTime.now());
+//        log.info("⏰ WaterReminderScheduler démarré à {}", LocalDateTime.now());
 
         // Récupère tous les reminders actifs
         List<waterReminder> activeReminders = waterReminderRepo.findByActiveTrue();
@@ -54,11 +54,11 @@ public class WaterReminderScheduler {
             boolean isReminderTime = (currentHour - reminderHour) % reminder.getFrequency() == 0;
 
             if (!isReminderTime) {
-                log.info("⏭️ Pas encore l'heure pour user {}", userId);
+//                log.info("⏭️ Pas encore l'heure pour user {}", userId);
                 continue;
             }
 
-            log.info("💧 Traitement du reminder pour user {}", userId);
+//            log.info("💧 Traitement du reminder pour user {}", userId);
 
             // ── Business Logic 2 : mise à jour du DailyWaterLog ────────────
             // On cherche le log du jour, sinon on en crée un nouveau
@@ -92,7 +92,7 @@ public class WaterReminderScheduler {
                 if (log_today.getTotalMl() >= target) {
                     // Objectif atteint aujourd'hui
                     log_today.setGoalReached(true);
-                    log.info("🎯 Objectif eau atteint pour user {} : {}ml", userId, log_today.getTotalMl());
+//                    log.info("🎯 Objectif eau atteint pour user {} : {}ml", userId, log_today.getTotalMl());
 
                     // ── Business Logic 4 : attribution du badge ─────────────
                     // On vérifie si l'user a atteint l'objectif 7 jours consécutifs
@@ -117,7 +117,7 @@ public class WaterReminderScheduler {
                             badge.setDescription("7 jours consécutifs d'hydratation atteinte !");
                             badge.setEarnedDate(today);
                             userBadgeRepo.save(badge);
-                            log.info("🏅 Badge WATER_WEEK attribué à user {}", userId);
+//                            log.info("🏅 Badge WATER_WEEK attribué à user {}", userId);
                         }
                     }
 
@@ -129,9 +129,9 @@ public class WaterReminderScheduler {
 
             // Sauvegarder le log mis à jour en DB
             dailyWaterLogRepo.save(log_today);
-            log.info("✅ DailyWaterLog sauvegardé pour user {} : {}ml", userId, log_today.getTotalMl());
+//            log.info("✅ DailyWaterLog sauvegardé pour user {} : {}ml", userId, log_today.getTotalMl());
         }
 
-        log.info("✔️ WaterReminderScheduler terminé à {}", LocalDateTime.now());
+//        log.info("✔️ WaterReminderScheduler terminé à {}", LocalDateTime.now());
     }
 }

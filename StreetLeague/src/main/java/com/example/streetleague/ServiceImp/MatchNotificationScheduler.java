@@ -49,7 +49,7 @@ public class MatchNotificationScheduler {
             return;
         }
 
-        log.info("🔔 MatchNotificationScheduler : {} match(s) à notifier", matches.size());
+//        log.info("🔔 MatchNotificationScheduler : {} match(s) à notifier", matches.size());
 
         for (Match match : matches) {
             String dateStr    = match.getMatchDate().format(FMT);
@@ -78,7 +78,7 @@ public class MatchNotificationScheduler {
             }
 
             notificationService.createNotificationForUsers(allPlayers, message);
-            log.info("   ✅ Notifications envoyées pour le match {} ({} joueurs)", match.getIdMatch(), allPlayers.size());
+//            log.info("   ✅ Notifications envoyées pour le match {} ({} joueurs)", match.getIdMatch(), allPlayers.size());
         }
     }
 }

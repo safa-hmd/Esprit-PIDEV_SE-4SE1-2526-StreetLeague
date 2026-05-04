@@ -89,8 +89,8 @@ public class PricingService {
                 .cancellationRate(Math.round(cancellationRate * 1000.0) / 1000.0)
                 .build();
 
-        log.info("Appel Flask /predict pour field={} | occupation={} | cancellation={}",
-                fieldId, flaskRequest.getOccupationRate(), flaskRequest.getCancellationRate());
+//        log.info("Appel Flask /predict pour field={} | occupation={} | cancellation={}",
+//                fieldId, flaskRequest.getOccupationRate(), flaskRequest.getCancellationRate());
 
         // ── 6. Appel Flask ─────────────────────────────────────────
         PricingResponse flaskResponse;

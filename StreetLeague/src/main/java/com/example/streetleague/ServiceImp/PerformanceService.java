@@ -85,8 +85,8 @@ public class PerformanceService {
         String    normalizedType = normalizeAttendanceType(attendanceType);
         LocalDate effectiveDate  = getEffectiveDate();
 
-        log.info("[CHECK-IN] player={} type={} effectiveDate={} testMode={}",
-                playerId, normalizedType, effectiveDate, testMode);
+//        log.info("[CHECK-IN] player={} type={} effectiveDate={} testMode={}",
+//                playerId, normalizedType, effectiveDate, testMode);
 
         Optional<PlayerAttendance> existing =
                 attendanceRepo.findByPlayerIdAndAttendanceDate(playerId, effectiveDate);

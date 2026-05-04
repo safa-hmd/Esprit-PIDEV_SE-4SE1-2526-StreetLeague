@@ -107,11 +107,11 @@ public class PostServiceIMPL implements PostService {
         String key = page + "-" + size;
 
         if (cache.containsKey(key)) {
-            log.info("FROM CACHE: " + key);
+//            log.info("FROM CACHE: " + key);
             return cache.get(key);
         }
 
-        log.info("🔍 FROM DB: " + key);
+//        log.info("🔍 FROM DB: " + key);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Post> result = postRepository.findAll(pageable);
@@ -189,14 +189,14 @@ public class PostServiceIMPL implements PostService {
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new RuntimeException("Post not found"));
 
-            log.info("📊 Post {} - Current likes: {}", postId, post.getLikes());
+//            log.info("📊 Post {} - Current likes: {}", postId, post.getLikes());
 
             if (post.getLikedByUsers().contains(user.getIdUser())) {
                 post.getLikedByUsers().remove(user.getIdUser());
                 post.setLikes(post.getLikedByUsers().size());
                 cache.clear();
                 Post saved = postRepository.save(post);
-                log.info("✅ Post {} disliked successfully - New likes: {}", postId, saved.getLikes());
+//                log.info("✅ Post {} disliked successfully - New likes: {}", postId, saved.getLikes());
                 return saved;
             }
 

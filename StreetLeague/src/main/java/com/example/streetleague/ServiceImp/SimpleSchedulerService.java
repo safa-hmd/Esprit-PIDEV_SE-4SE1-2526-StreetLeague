@@ -16,6 +16,6 @@ public class SimpleSchedulerService {
     @Scheduled(cron = "0 0 7 * * *")
     public void simpleTask() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        log.info("⏰ Scheduler exécuté à: {}", LocalDateTime.now().format(formatter));
+//        log.info("⏰ Scheduler exécuté à: {}", LocalDateTime.now().format(formatter));
     }
 }

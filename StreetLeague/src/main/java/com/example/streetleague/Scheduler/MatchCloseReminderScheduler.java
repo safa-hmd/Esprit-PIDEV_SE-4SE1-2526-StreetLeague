@@ -92,8 +92,8 @@ public class MatchCloseReminderScheduler {
             return;
         }
 
-        log.info("🔔 ReminderScheduler : {} match(s) à rappeler [{} → {}]",
-                matches.size(), from, to);
+//        log.info("🔔 ReminderScheduler : {} match(s) à rappeler [{} → {}]",
+//                matches.size(), from, to);
 
         for (Match match : matches) {
 
@@ -118,9 +118,9 @@ public class MatchCloseReminderScheduler {
             );
             notificationService.createNotificationForUsers(membersB, msgForB);
 
-            log.info("   ✅ Match {} → {} membres notifiés (A:{} | B:{})",
-                    match.getIdMatch(), membersA.size() + membersB.size(),
-                    membersA.size(), membersB.size());
+//            log.info("   ✅ Match {} → {} membres notifiés (A:{} | B:{})",
+//                    match.getIdMatch(), membersA.size() + membersB.size(),
+//                    membersA.size(), membersB.size());
         }
     }
 

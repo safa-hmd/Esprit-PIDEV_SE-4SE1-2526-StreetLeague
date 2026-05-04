@@ -47,7 +47,7 @@ public class AnomalyAlertScheduler {
     @Scheduled(cron = "0 0 8 * * *")
     @Transactional(readOnly = true)
     public void detectAndAlertAnomalies() {
-        log.info("🔍 [AnomalyAlertScheduler] Démarrage du scan quotidien...");
+//        log.info("🔍 [AnomalyAlertScheduler] Démarrage du scan quotidien...");
 
         LocalDate today = LocalDate.now();
         LocalDate from28 = today.minusDays(ANALYSIS_WINDOW_DAYS - 1);
@@ -61,7 +61,7 @@ public class AnomalyAlertScheduler {
 
         // Charger joueurs
         List<User> players = userRepository.findAllByRole(Role.PLAYER);
-        log.info("→ Analyse de {} joueur(s)", players.size());
+//        log.info("→ Analyse de {} joueur(s)", players.size());
 
         int alertsSent = 0;
 
@@ -102,11 +102,11 @@ public class AnomalyAlertScheduler {
                 }
                 // MEDIUM فقط log
                 else if (result.isAnomaly()) {
-                    log.info(
-                            "ℹ️ Anomalie MEDIUM — {} : Z={:.2f}",
-                            player.getFullName(),
-                            result.zScore()
-                    );
+//                    log.info(
+//                            "ℹ️ Anomalie MEDIUM — {} : Z={:.2f}",
+//                            player.getFullName(),
+//                            result.zScore()
+//                    );
                 }
 
             } catch (Exception e) {
@@ -118,11 +118,11 @@ public class AnomalyAlertScheduler {
             }
         }
 
-        log.info(
-                "✅ Scan terminé. {}/{} joueur(s) alertés.",
-                alertsSent,
-                players.size()
-        );
+//        log.info(
+//                "✅ Scan terminé. {}/{} joueur(s) alertés.",
+//                alertsSent,
+//                players.size()
+//        );
     }
 
     /**

@@ -17,13 +17,13 @@ public class AIImageService {
     }
 
     public String generateAndUpload(String prompt) throws Exception {
-        log.info("Generating image for prompt: {}", prompt);
+//        log.info("Generating image for prompt: {}", prompt);
 
         // Pollinations AI — مجاني بدون API key
         String encodedPrompt = prompt.replace(" ", "%20");
         String imageUrl = "https://image.pollinations.ai/prompt/" + encodedPrompt + "?width=512&height=512&nologo=true";
 
-        log.info("Downloading image from: {}", imageUrl);
+//        log.info("Downloading image from: {}", imageUrl);
 
         byte[] imageBytes = restTemplate.getForObject(imageUrl, byte[].class);
 
@@ -31,10 +31,10 @@ public class AIImageService {
             throw new RuntimeException("Failed to download image from Pollinations");
         }
 
-        log.info("Image downloaded, size: {} bytes", imageBytes.length);
+//        log.info("Image downloaded, size: {} bytes", imageBytes.length);
 
         String cloudinaryUrl = cloudinaryService.uploadImageBytes(imageBytes);
-        log.info("Uploaded to Cloudinary: {}", cloudinaryUrl);
+//        log.info("Uploaded to Cloudinary: {}", cloudinaryUrl);
 
         return cloudinaryUrl;
     }
