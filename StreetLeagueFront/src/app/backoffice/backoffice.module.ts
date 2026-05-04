@@ -13,6 +13,7 @@ import { MenuComponent } from './menu/menu.component';
 import { HeaderComponent } from './header/header.component';
 import { MaterielListComponent } from './materiel/materiel-list/materiel-list.component';
 import { CommandeListComponent } from './commande/commande-list/commande-list.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
  
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { CommandeListComponent } from './commande/commande-list/commande-list.co
     HeaderComponent,
     MaterielListComponent,
     CommandeListComponent,
+    DashboardComponent,
   ],
   imports: [
     CommonModule,

@@ -1,26 +1,55 @@
-import { Component, OnInit } from '@angular/core';
-import { LivraisonService } from '../../services/livraison.service';
-import { AuthService } from '../../services/auth.service';
-import { Livraison, LivraisonStatus } from '../../models/livraison.model';
+import { Component, OnInit, AfterViewChecked } from '@angular/core';
+import { LivraisonService } from 'src/app/services/livraison.service';
+import { AuthService } from 'src/app/services/auth.service';
+import { Livraison, LivraisonStatus } from 'src/app/models/livraison.model';
+import * as polyline from '@mapbox/polyline';
+declare const L: any;
+
+interface StopDTO {
+  ordre: number;
+  livraisonId: number;
+  commandeId: number;
+  adresse: string;
+  latitude: number;
+  longitude: number;
+  statut: string;
+  distanceDepuisPrecedentKm: number;
+  etaMinutesDepuisDepart: number;
+  fraisLivraison: number;
+}
+
+interface TourneeDTO {
+  livreurId: number;
+  livreurNom: string;
+  latDepart: number | null;
+  lonDepart: number | null;
+  stops: StopDTO[];
+  distanceTotaleKm: number;
+  etaTotalMinutes: number;
+  polylines: string[];
+}
 
 @Component({
   selector: 'app-mes-livraisons',
   templateUrl: './mes-livraisons.component.html',
   styleUrls: ['./mes-livraisons.component.css']
 })
-export class MesLivraisonsComponent implements OnInit {
-
+export class MesLivraisonsComponent implements OnInit, AfterViewChecked {
   livraisons: Livraison[] = [];
   filteredLivraisons: Livraison[] = [];
-  userId = 0;
-
-  activeFilter: LivraisonStatus | 'TOUTES' = 'TOUTES';
-  statuts: LivraisonStatus[] = ['PREPAREE', 'EXPEDIEE', 'EN_COURS', 'LIVREE', 'ECHEC'];
-  selectedLivraison: Livraison | null = null;
-
+  selectedLivraison?: Livraison;
   loading = false;
   successMsg = '';
   errorMsg = '';
+  statuts: LivraisonStatus[] = ['PREPAREE', 'ASSIGNEE', 'EXPEDIEE', 'OUT_FOR_DELIVERY', 'LIVREE', 'ECHEC'];
+  activeFilter: LivraisonStatus | 'TOUTES' = 'TOUTES';
+  gpsActive = true;
+  stats = { total: 0, preparees: 0, assignees: 0, enCours: 0, livrees: 0, echecs: 0 };
+  tournee?: TourneeDTO;
+  showTourneeMap = false;
+  tourneeLoading = false;
+  private tourneeMap: any = null;
+  private leafletLoaded = false;
 
   constructor(
     private livraisonService: LivraisonService,
@@ -28,107 +57,218 @@ export class MesLivraisonsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = this.authService.getUserId();
-    if (id) {
-      this.userId = id;
-      this.loadLivraisons();
+    this.loadLivraisons();
+    this.loadLeaflet();
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.showTourneeMap && this.tournee && this.leafletLoaded && !this.tourneeMap) {
+      this.initMap();
     }
+  }
+
+  private loadLeaflet(): void {
+    if ((window as any).L) {
+      this.leafletLoaded = true;
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload = () => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+      this.leafletLoaded = true;
+    };
+    document.head.appendChild(script);
   }
 
   loadLivraisons(): void {
     this.loading = true;
-    this.livraisonService.getAllLivraisons().subscribe({
-      next: (data: any[]) => {
-        this.livraisons = data.filter(l => l.livreur?.id === this.userId);
+    const livreurId = this.authService.getUserId();
+    if (!livreurId) {
+      this.errorMsg = 'Utilisateur non identifié';
+      this.loading = false;
+      return;
+    }
+    this.livraisonService.getLivraisonsByLivreur(livreurId).subscribe({
+      next: (data: Livraison[]) => {
+        this.livraisons = data;
         this.applyFilter();
+        this.computeStats();
         this.loading = false;
       },
       error: () => {
-        this.showError('Erreur lors du chargement des livraisons.');
+        this.errorMsg = 'Erreur chargement livraisons';
         this.loading = false;
       }
     });
   }
 
-  applyFilter(): void {
-    this.filteredLivraisons = this.activeFilter === 'TOUTES'
-      ? [...this.livraisons]
-      : this.livraisons.filter(l => l.statut === this.activeFilter);
+  computeStats(): void {
+    this.stats.total = this.livraisons.length;
+    this.stats.preparees = this.livraisons.filter(l => l.statut === 'PREPAREE').length;
+    this.stats.assignees = this.livraisons.filter(l => l.statut === 'ASSIGNEE').length;
+    this.stats.enCours = this.livraisons.filter(l => l.statut === 'EXPEDIEE' || l.statut === 'OUT_FOR_DELIVERY').length;
+    this.stats.livrees = this.livraisons.filter(l => l.statut === 'LIVREE').length;
+    this.stats.echecs = this.livraisons.filter(l => l.statut === 'ECHEC').length;
   }
 
-  setFilter(f: LivraisonStatus | 'TOUTES'): void {
-    this.activeFilter = f;
+  setFilter(filter: LivraisonStatus | 'TOUTES'): void {
+    this.activeFilter = filter;
     this.applyFilter();
   }
 
-  updateStatus(livraison: any, newStatut: LivraisonStatus): void {
-    if (livraison.statut === newStatut) return;
+  applyFilter(): void {
+    if (this.activeFilter === 'TOUTES') {
+      this.filteredLivraisons = [...this.livraisons];
+    } else {
+      this.filteredLivraisons = this.livraisons.filter(l => l.statut === this.activeFilter);
+    }
+  }
 
-    const dto = {
-      commandeId:     livraison.commandeId,
-      transporteurId: livraison.transporteurId,
-      livreurId:      livraison.livreur?.id ?? null,
-      adresse:        livraison.adresse,
-      fraisLivraison: livraison.fraisLivraison,
-      statut:         newStatut
+  getCountForStatut(statut: LivraisonStatus): number {
+    return this.livraisons.filter(l => l.statut === statut).length;
+  }
+
+  getBadgeClass(statut: string): string {
+    const map: Record<string, string> = {
+      PREPAREE: 'badge-warning',
+      ASSIGNEE: 'badge-info',
+      EXPEDIEE: 'badge-primary',
+      OUT_FOR_DELIVERY: 'badge-purple',
+      LIVREE: 'badge-success',
+      ECHEC: 'badge-danger'
     };
+    return map[statut] || '';
+  }
 
-    this.livraisonService.updateStatus(livraison.id, dto).subscribe({
+  selectLivraison(l: Livraison): void {
+    this.selectedLivraison = this.selectedLivraison?.id === l.id ? undefined : l;
+  }
+
+  updateStatus(l: Livraison, newStatut: LivraisonStatus): void {
+    if (!l.id) {
+      this.errorMsg = 'ID de livraison invalide';
+      return;
+    }
+    this.livraisonService.updateStatus(l.id, { statut: newStatut }).subscribe({
       next: () => {
-        livraison.statut = newStatut;
-
-        // FIX TS2531 : vérification explicite !== null avant accès à .statut
-        const sel = this.selectedLivraison;
-        if (sel !== null && sel.id === livraison.id) {
-          sel.statut = newStatut;
-        }
-
-        this.applyFilter();
-        this.showSuccess(`Livraison #${livraison.id} → ${newStatut}`);
+        l.statut = newStatut;
+        this.computeStats();
+        this.successMsg = `Statut mis à jour : ${newStatut}`;
+        setTimeout(() => this.successMsg = '', 2000);
+        if (this.showTourneeMap) this.chargerTournee();
       },
-      error: (err: any) => {
-        console.error('updateStatus error:', err);
-        this.showError('Erreur lors de la mise à jour.');
+      error: () => this.errorMsg = 'Erreur mise à jour statut'
+    });
+  }
+
+  formatEta(minutes: number): string {
+    const h = Math.floor(minutes / 60);
+    const m = Math.round(minutes % 60);
+    return h > 0 ? `${h}h ${m}min` : `${m} min`;
+  }
+
+  chargerTournee(): void {
+    this.tourneeLoading = true;
+    const livreurId = this.authService.getUserId();
+    if (!livreurId) {
+      this.errorMsg = 'Utilisateur non identifié';
+      this.tourneeLoading = false;
+      return;
+    }
+    this.livraisonService.getTournee(livreurId).subscribe({
+      next: (t: TourneeDTO) => {
+        this.tournee = t;
+        this.showTourneeMap = true;
+        this.tourneeLoading = false;
+      },
+      error: () => {
+        this.errorMsg = 'Impossible de calculer la tournée';
+        this.tourneeLoading = false;
       }
     });
   }
 
-  selectLivraison(l: Livraison): void {
-    this.selectedLivraison = this.selectedLivraison?.id === l.id ? null : l;
+  fermerTournee(): void {
+    this.showTourneeMap = false;
+    this.tournee = undefined;
+    if (this.tourneeMap) {
+      this.tourneeMap.remove();
+      this.tourneeMap = null;
+    }
   }
 
-  get stats() {
-    return {
-      total:     this.livraisons.length,
-      enCours:   this.livraisons.filter(l => l.statut === 'EN_COURS' || l.statut === 'EXPEDIEE').length,
-      livrees:   this.livraisons.filter(l => l.statut === 'LIVREE').length,
-      echecs:    this.livraisons.filter(l => l.statut === 'ECHEC').length,
-      preparees: this.livraisons.filter(l => l.statut === 'PREPAREE').length,
-    };
-  }
+  private initMap(): void {
+    if (!this.tournee || this.tourneeMap) return;
+    const centerLat = this.tournee.latDepart ?? (this.tournee.stops[0]?.latitude ?? 36.8189);
+    const centerLng = this.tournee.lonDepart ?? (this.tournee.stops[0]?.longitude ?? 10.1658); 
 
-  getBadgeClass(statut: LivraisonStatus): string {
-    const map: Record<LivraisonStatus, string> = {
-      PREPAREE: 'dfo-badge-orange',
-      EXPEDIEE: 'dfo-badge-blue',
-      EN_COURS: 'dfo-badge-blue',
-      LIVREE:   'dfo-badge-green',
-      ECHEC:    'dfo-badge-red'
-    };
-    return map[statut] || 'dfo-badge-gray';
-  }
+    this.tourneeMap = L.map('tournee-map').setView([centerLat, centerLng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(this.tourneeMap);
 
-  getStatusBtnClass(statut: LivraisonStatus): string {
-    return `dfo-status-btn active-${statut}`;
-  }
+    // Départ
+    if (this.tournee.latDepart !== null && this.tournee.latDepart !== undefined &&
+        this.tournee.lonDepart !== null && this.tournee.lonDepart !== undefined) {
+      L.marker([this.tournee.latDepart, this.tournee.lonDepart])
+        .bindPopup('🚀 Départ')
+        .addTo(this.tourneeMap);
+    }
 
-  private showSuccess(msg: string): void {
-    this.successMsg = msg; this.errorMsg = '';
-    setTimeout(() => this.successMsg = '', 3500);
-  }
+    // Stops
+    this.tournee.stops.forEach(stop => {
+      L.marker([stop.latitude, stop.longitude])
+        .bindPopup(`<b>Stop #${stop.ordre}</b><br>${stop.adresse}<br>${stop.statut}`)
+        .addTo(this.tourneeMap);
+    });
 
-  private showError(msg: string): void {
-    this.errorMsg = msg; this.successMsg = '';
-    setTimeout(() => this.errorMsg = '', 4000);
+    // Polylignes OSRM
+    let anyPolyline = false;
+    if (this.tournee.polylines && this.tournee.polylines.length) {
+      for (const enc of this.tournee.polylines) {
+        if (enc && enc.length) {
+          try {
+            // ✅ OSRM utilise une précision 5 par défaut
+            const decoded = polyline.decode(enc, 5);
+            // ✅ OSRM retourne déjà [lat, lng]. Leaflet attend le même ordre.
+            const latlngs = decoded.map((p: number[]) => [p[0], p[1]] as [number, number]);
+            
+            L.polyline(latlngs, { color: '#e61920', weight: 4, opacity: 0.9 })
+              .addTo(this.tourneeMap);
+            anyPolyline = true;
+          } catch (e) {
+            console.error('Erreur décodage polyline', e);
+          }
+        }
+      }
+    }
+
+    // Fallback ligne droite
+    if (!anyPolyline) {
+      const points: [number, number][] = [];
+      if (this.tournee.latDepart !== null && this.tournee.latDepart !== undefined &&
+          this.tournee.lonDepart !== null && this.tournee.lonDepart !== undefined) {
+        points.push([this.tournee.latDepart, this.tournee.lonDepart]);
+      }
+      this.tournee.stops.forEach(s => points.push([s.latitude, s.longitude]));
+      if (points.length > 1) {
+        L.polyline(points, { color: 'cyan', weight: 3, dashArray: '5,5' }).addTo(this.tourneeMap);
+      }
+    }
+
+    // Ajuster la vue
+    const allPoints: [number, number][] = [];
+    if (this.tournee.latDepart !== null && this.tournee.latDepart !== undefined &&
+        this.tournee.lonDepart !== null && this.tournee.lonDepart !== undefined) {
+      allPoints.push([this.tournee.latDepart, this.tournee.lonDepart]);
+    }
+    this.tournee.stops.forEach(s => allPoints.push([s.latitude, s.longitude]));
+    if (allPoints.length) this.tourneeMap.fitBounds(allPoints, { padding: [40, 40] });
+
+    setTimeout(() => this.tourneeMap.invalidateSize(), 200);
   }
 }

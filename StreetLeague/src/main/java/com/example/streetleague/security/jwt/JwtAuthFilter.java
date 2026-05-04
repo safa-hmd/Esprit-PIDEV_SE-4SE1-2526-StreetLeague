@@ -29,6 +29,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        // ⭐⭐⭐ CORRECTION CORS FINALE ⭐⭐⭐
+        // Ignorer les requêtes preflight CORS (OPTIONS)
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 1. Lire le header Authorization
         String authHeader = request.getHeader("Authorization");
 
@@ -54,24 +61,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // 5. Si email valide et pas encore authentifié
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // Charger les infos utilisateur depuis la BD
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-            // Valider le token (signature + expiration)
             if (jwtService.isTokenValid(token, userDetails)) {
-
-                // Créer l'objet d'authentification
                 var authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // Stocker dans le SecurityContext → requête considérée comme authentifiée
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
-        // 6. Passer au filtre suivant ou au controller
+        // 6. Passer au filtre suivant
         filterChain.doFilter(request, response);
     }
 }

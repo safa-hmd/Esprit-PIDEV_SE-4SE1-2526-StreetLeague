@@ -2,15 +2,16 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { Livraison, Transporteur } from '../models/livraison.model';
+import { Livraison, StatsAdmin } from '../models/livraison.model';
 
 @Injectable({ providedIn: 'root' })
 export class LivraisonService {
+
   private base = 'http://localhost:8086/StreetLeague/api';
 
   constructor(private http: HttpClient) {}
 
-  // ── Livraisons ────────────────────────────────────────
+  // ── Livraisons CRUD ───────────────────────────────────
   getAllLivraisons(): Observable<Livraison[]> {
     return this.http.get<Livraison[]>(`${this.base}/livraisons`);
   }
@@ -27,35 +28,57 @@ export class LivraisonService {
     return this.http.put<Livraison>(`${this.base}/livraisons/${id}/status`, dto);
   }
 
-  // ── Transporteurs ─────────────────────────────────────
-  getAllTransporteurs(): Observable<Transporteur[]> {
-    return this.http.get<Transporteur[]>(`${this.base}/transporteurs`);
+  // ── Filtre par statut ─────────────────────────────────
+  getLivraisonsByStatut(statut: string): Observable<Livraison[]> {
+    return this.http.get<Livraison[]>(`${this.base}/livraisons/statut/${statut}`);
   }
 
-  createTransporteur(dto: Transporteur): Observable<Transporteur> {
-    return this.http.post<Transporteur>(`${this.base}/transporteurs`, dto);
+  getLivraisonsByLivreur(livreurId: number): Observable<Livraison[]> {
+    return this.http.get<Livraison[]>(`${this.base}/livraisons/livreur/${livreurId}`);
   }
 
-  updateTransporteur(id: number, dto: Transporteur): Observable<Transporteur> {
-    return this.http.put<Transporteur>(`${this.base}/transporteurs/${id}`, dto);
-  }
-
-  deleteTransporteur(id: number): Observable<string> {
-    return this.http.delete(
-      `${this.base}/transporteurs/${id}`,
+  // ── PARTIE 3 : GPS Tracking livreur ──────────────────
+  updateLocation(latitude: number, longitude: number): Observable<string> {
+    return this.http.put(
+      `${this.base}/livreurs/location`,
+      { latitude, longitude },
       { responseType: 'text' }
     );
   }
 
-  // ── Livreurs : GET tous les users puis filtre DELIVERY ─
+  updateLivreurStatus(status: string): Observable<string> {
+    return this.http.put(
+      `${this.base}/livreurs/status?status=${status}`,
+      {},
+      { responseType: 'text' }
+    );
+  }
+
+  // ── PARTIE 8 : Admin Dashboard ────────────────────────
+  getAdminPending(): Observable<Livraison[]> {
+    return this.http.get<Livraison[]>(`${this.base}/admin/livraisons/pending`);
+  }
+
+  getAdminEnCours(): Observable<Livraison[]> {
+    return this.http.get<Livraison[]>(`${this.base}/admin/livraisons/en-cours`);
+  }
+
+  getAdminStats(): Observable<StatsAdmin> {
+    return this.http.get<StatsAdmin>(`${this.base}/admin/stats`);
+  }
+
+  // ── Livreurs (users DELIVERY) ─────────────────────────
   getAllDeliveryUsers(): Observable<any[]> {
     return this.http.get<any[]>(`${this.base}/users`).pipe(
-      // Filtre côté Angular : garde uniquement les users avec rôle DELIVERY
       map((users: any[]) => users.filter(u =>
         u.role === 'DELIVERY' || u.role === 'ROLE_DELIVERY'
       )),
-      // Si /api/users n'existe pas → retourne liste vide sans planter
       catchError(() => of([]))
     );
   }
+
+getTournee(livreurId: number): Observable<any> {
+  return this.http.get(`${this.base}/livraisons/tournee/${livreurId}`);
+}
+
 }

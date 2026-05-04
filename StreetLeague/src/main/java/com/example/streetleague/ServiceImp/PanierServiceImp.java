@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,9 @@ public class PanierServiceImp implements PanierService {
     private final LignePanierRepository lignePanierRepository;
     private final UserRepository userRepository;
     private final MaterielRepository materielRepository;
+    private final PromoService promoService; // ← AJOUTEZ CETTE LIGNE
+    private final PromoEngineService promoEngineService;
+
 
     // 🟢 ADD TO CART
     @Override
@@ -55,15 +59,23 @@ public class PanierServiceImp implements PanierService {
 
     // 🟢 GET CART
     @Override
+
+
     public PanierResponseDTO getUserCart(Long userId) {
 
         Panier panier = panierRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Panier vide"));
 
+        // 🔥 AUTO PROMO TRIGGER
+        User user = panier.getUser();
+
+        promoEngineService.generateWelcomePromo(user);
+        promoEngineService.generateAbandonedCartPromo(user);
+
         List<LignePanierResponseDTO> lignesDTO = new ArrayList<>();
         double total = 0;
 
-        for(LignePanier ligne : panier.getLignes()){
+        for (LignePanier ligne : panier.getLignes()) {
             double sousTotal = ligne.getMateriel().getPrix() * ligne.getQuantite();
             total += sousTotal;
 
@@ -110,5 +122,25 @@ public class PanierServiceImp implements PanierService {
 
         lignePanierRepository.deleteAll(panier.getLignes());
         panier.getLignes().clear();
+    }
+
+    private double calculateTotal(List<CartItemDTO> items) {
+        return items.stream()
+                .mapToDouble(item -> item.getQuantite() * item.getPrixUnitaire())
+                .sum();
+    }
+
+    // Méthode pour extraire les IDs des catégories du panier
+    private List<Long> extractCategoryIds(List<CartItemDTO> items) {
+        return items.stream()
+                .map(CartItemDTO::getCategorieId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+    public PromoValidationDTO validatePromo(String code, Long userId, List<CartItemDTO> items) {
+        double cartTotal = calculateTotal(items);
+        List<Long> categoryIds = extractCategoryIds(items);
+        return promoService.validate(code, userId, cartTotal, categoryIds);
     }
 }

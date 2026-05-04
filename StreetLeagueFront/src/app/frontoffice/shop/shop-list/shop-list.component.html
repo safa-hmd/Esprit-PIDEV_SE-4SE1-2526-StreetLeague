@@ -35,6 +35,47 @@
   <div class="alert alert-success" *ngIf="successMsg">{{ successMsg }}</div>
   <div class="alert alert-error" *ngIf="errorMsg">{{ errorMsg }}</div>
 
+  <!-- 🤖 SECTION IA : RECOMMANDATIONS (Intégrée sans changer votre style) -->
+  <div *ngIf="recommendedMateriels.length > 0 && !loadingRecommendations" style="margin-bottom: 2rem;">
+    <h3 style="font-weight: 800; font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+      🤖 Suggested for you <span style="font-size: 0.75rem; font-weight: 500; color: #888; background: #f5f5f5; padding: 2px 8px; border-radius: 12px;">AI Powered</span>
+    </h3>
+    <!-- Réutilise exactement votre .shop-grid pour conserver le responsive 3/2/1 colonnes -->
+    <div class="shop-grid">
+      <div class="product-card" *ngFor="let m of recommendedMateriels">
+        <div class="product-img">
+          <img *ngIf="m.imageUrl; else emojiRec"
+               [src]="m.imageUrl"
+               [alt]="m.nom"
+               style="width:100%;height:180px;object-fit:cover;">
+          <ng-template #emojiRec><span style="font-size:3rem">🏅</span></ng-template>
+        </div>
+        <div class="product-body">
+          <span class="badge badge-red" style="margin-bottom:0.5rem;display:inline-block;">
+            {{ m.categorieNom || 'Sport' }}
+          </span>
+          <div class="product-name">{{ m.nom }}</div>
+          <p style="font-size:0.82rem;color:#666;margin:0.25rem 0 0.5rem;line-height:1.4;">
+            {{ m.description }}
+          </p>
+          <span class="badge-stock"
+                [ngClass]="{'badge-ok': m.quantiteStock > 10, 'badge-low': m.quantiteStock > 0 && m.quantiteStock <= 10, 'badge-out': m.quantiteStock === 0}">
+            {{ m.quantiteStock > 10 ? 'En stock' : m.quantiteStock > 0 ? 'Stock limité (' + m.quantiteStock + ')' : 'Épuisé' }}
+          </span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.75rem;">
+            <div class="price">{{ m.prix | number:'1.2-2' }} TND</div>
+            <button class="btn btn-primary btn-sm"
+                    [disabled]="m.quantiteStock === 0"
+                    (click)="addToCart(m)">
+              {{ m.quantiteStock > 0 ? '🛒 Add to Cart' : 'Out of Stock' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ✅ FIN SECTION IA -->
+
   <div class="shop-layout">
     <!-- Sidebar filtres catégories -->
     <div class="shop-sidebar">
@@ -66,7 +107,7 @@
                [src]="m.imageUrl"
                [alt]="m.nom"
                style="width:100%;height:180px;object-fit:cover;">
-          <ng-template #emoji><span style="font-size:3rem">🏅</span></ng-template>
+          <ng-template #emoji><span style="font-size:3rem"></span></ng-template>
         </div>
         <div class="product-body">
           <!-- Catégorie badge -->
@@ -87,7 +128,7 @@
             <button class="btn btn-primary btn-sm"
                     [disabled]="m.quantiteStock === 0"
                     (click)="addToCart(m)">
-              {{ m.quantiteStock > 0 ? '🛒 Add to Cart' : 'Out of Stock' }}
+              {{ m.quantiteStock > 0 ? ' Add to Cart' : 'Out of Stock' }}
             </button>
           </div>
         </div>

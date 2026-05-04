@@ -1,0 +1,311 @@
+<style>
+  /* ── Page layout ── */
+  .dash-page{padding:0 0 3rem;}
+  .dash-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;}
+  .dash-title{font-size:1.4rem;font-weight:800;color:#F0F0F0;}
+  .dash-sub{font-size:0.82rem;color:#888;margin-top:0.2rem;}
+  .dash-period{display:flex;gap:0.4rem;}
+  .period-btn{background:rgba(255,255,255,0.05);color:#ccc;border:1px solid #3a3a3a;border-radius:6px;padding:0.4rem 0.9rem;font-size:0.8rem;cursor:pointer;transition:all 0.15s;}
+  .period-btn.active{background:rgba(230,25,32,0.2);color:#ff6b6b;border-color:#E61920;}
+
+  /* ── KPI Cards ── */
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem;}
+  .kpi-card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:1.25rem 1.5rem;}
+  .kpi-label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:#888;font-weight:600;margin-bottom:0.5rem;}
+  .kpi-value{font-size:1.8rem;font-weight:800;color:#F0F0F0;line-height:1;}
+  .kpi-sub{font-size:0.78rem;color:#666;margin-top:0.35rem;}
+  .kpi-badge{display:inline-flex;align-items:center;gap:3px;font-size:0.75rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:20px;margin-top:0.4rem;}
+  .kpi-badge.up{background:rgba(34,197,94,0.15);color:#4ade80;}
+  .kpi-badge.down{background:rgba(239,68,68,0.15);color:#f87171;}
+  .kpi-badge.warn{background:rgba(245,158,11,0.15);color:#fbbf24;}
+
+  /* ── Cards sections ── */
+  .section-card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:1.25rem;margin-bottom:1.25rem;}
+  .section-title{font-size:0.85rem;font-weight:700;color:#F0F0F0;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;}
+  .section-badge{font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:20px;background:rgba(230,25,32,0.15);color:#ff6b6b;font-weight:600;}
+
+  /* ── Grille 2 colonnes ── */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
+
+  /* ── Chart containers ── */
+  .chart-wrap{position:relative;width:100%;}
+  .chart-wrap.h260{height:260px;}
+  .chart-wrap.h220{height:220px;}
+
+  /* ── Cercles proportionnels ── */
+  .bubbles-wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;padding:1rem 0;}
+  .bubble{border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:default;transition:transform 0.2s;flex-shrink:0;}
+  .bubble:hover{transform:scale(1.05);}
+  .bubble-name{font-size:0.65rem;font-weight:700;color:white;text-align:center;padding:0 6px;line-height:1.2;}
+  .bubble-pct{font-size:0.7rem;color:rgba(255,255,255,0.8);margin-top:2px;}
+
+  /* ── Tableau livreurs ── */
+  .perf-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+  .perf-table th{text-align:left;padding:0.5rem 0.75rem;color:#666;font-size:0.7rem;text-transform:uppercase;border-bottom:1px solid #2a2a2a;}
+  .perf-table td{padding:0.65rem 0.75rem;border-bottom:1px solid #1e1e1e;color:#ccc;vertical-align:middle;}
+  .perf-table tr:hover td{background:rgba(255,255,255,0.02);}
+  .progress-bar-bg{background:#2a2a2a;border-radius:4px;height:6px;width:100%;min-width:80px;}
+  .progress-bar-fill{height:6px;border-radius:4px;transition:width 0.6s ease;}
+  .perf-excellent{color:#4ade80;}
+  .perf-bon{color:#fbbf24;}
+  .perf-faible{color:#f87171;}
+  .niveau-badge{display:inline-block;font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:20px;}
+  .niveau-excellent{background:rgba(34,197,94,0.15);color:#4ade80;}
+  .niveau-bon{background:rgba(245,158,11,0.15);color:#fbbf24;}
+  .niveau-faible{background:rgba(239,68,68,0.15);color:#f87171;}
+
+  /* ── Stock critique ── */
+  .stock-list{display:flex;flex-direction:column;gap:8px;}
+  .stock-item{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid #222;}
+  .stock-item:last-child{border:none;}
+  .stock-name{font-size:0.82rem;color:#e0e0e0;}
+  .stock-qty{font-size:0.88rem;font-weight:700;color:#ef4444;}
+
+  /* ── Loading/Error ── */
+  .dash-loading{text-align:center;padding:4rem 2rem;color:#aaa;}
+  .dash-error{background:rgba(239,68,68,0.1);color:#f87171;padding:0.75rem 1rem;border-radius:8px;border:1px solid rgba(239,68,68,0.2);margin-bottom:1rem;font-size:0.88rem;}
+
+  @media(max-width:900px){
+    .kpi-grid{grid-template-columns:repeat(2,1fr);}
+    .grid-2{grid-template-columns:1fr;}
+  }
+  @media(max-width:500px){
+    .kpi-grid{grid-template-columns:1fr;}
+  }
+</style>
+
+<div class="dash-page">
+
+  <!-- ── Header ── -->
+  <div class="dash-header">
+    <div>
+      <div class="dash-title">Dashboard analytique</div>
+      <div class="dash-sub">Statistiques agrégées — {{ selectedJours }} derniers jours</div>
+    </div>
+    <div class="dash-period">
+      <button *ngFor="let p of periodes"
+              class="period-btn"
+              [class.active]="selectedJours === p.value"
+              (click)="onPeriodeChange(p.value)">
+        {{ p.label }}
+      </button>
+      <button class="period-btn" (click)="loadDashboard()" style="color:#888;">
+        ↺
+      </button>
+    </div>
+  </div>
+
+  <div class="dash-error" *ngIf="errorMsg">⚠ {{ errorMsg }}</div>
+
+  <!-- ── Loading ── -->
+  <div class="dash-loading" *ngIf="loading">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="36" height="36"
+         style="animation:spin 1s linear infinite;display:block;margin:0 auto 1rem;color:#E61920;">
+      <path d="M21 12a9 9 0 1 1-6.22-8.56"/>
+    </svg>
+    Chargement des statistiques...
+  </div>
+
+  <div *ngIf="!loading && stats">
+
+    <!-- ══════════ 1. KPI CARDS ══════════ -->
+    <div class="kpi-grid">
+
+      <div class="kpi-card" style="border-left:3px solid #E61920;">
+        <div class="kpi-label">Chiffre d'affaires</div>
+        <div class="kpi-value">{{ stats.caTotalTND | number:'1.0-0' }}
+          <span style="font-size:1rem;color:#888;">TND</span>
+        </div>
+        <div class="kpi-badge" [class.up]="stats.caEvolutionPct >= 0" [class.down]="stats.caEvolutionPct < 0">
+          {{ stats.caEvolutionPct >= 0 ? '▲' : '▼' }} {{ stats.caEvolutionPct | number:'1.1-1' }}%
+        </div>
+        <div class="kpi-sub">vs période précédente</div>
+      </div>
+
+      <div class="kpi-card" style="border-left:3px solid #3b82f6;">
+        <div class="kpi-label">Commandes</div>
+        <div class="kpi-value">{{ stats.nbCommandes }}</div>
+        <div class="kpi-sub" style="color:#4ade80;">
+          {{ stats.livraisonsLivrees }} livrées ·
+          {{ totalLivraisons > 0 ? ((stats.livraisonsLivrees / totalLivraisons) * 100 | number:'1.0-0') : 0 }}%
+        </div>
+      </div>
+
+      <div class="kpi-card" style="border-left:3px solid #22c55e;">
+        <div class="kpi-label">Livreurs actifs</div>
+        <div class="kpi-value">{{ stats.nbLivreursActifs }}</div>
+        <div class="kpi-sub">DISPONIBLE + OCCUPÉ</div>
+      </div>
+
+      <div class="kpi-card"
+           [style.border-left]="stats.nbProduitsStockCritique > 0 ? '3px solid #ef4444' : '3px solid #f59e0b'">
+        <div class="kpi-label">Stock critique</div>
+        <div class="kpi-value" [style.color]="stats.nbProduitsStockCritique > 0 ? '#f87171' : '#F0F0F0'">
+          {{ stats.nbProduitsStockCritique }}
+        </div>
+        <div class="kpi-badge warn" *ngIf="stats.nbProduitsStockCritique > 0">
+          ⚠ Réapprovisionner
+        </div>
+        <div class="kpi-sub" *ngIf="stats.nbProduitsStockCritique === 0" style="color:#4ade80;">
+          Tout est OK
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════ 2. ÉVOLUTION CA + STATUTS ══════════ -->
+    <div class="grid-2">
+
+      <div class="section-card" style="grid-column:1 / -1;">
+        <div class="section-title">
+          Évolution CA & commandes
+          <span class="section-badge">30 derniers jours</span>
+        </div>
+        <div class="chart-wrap h260">
+          <canvas id="chartCA"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="grid-2">
+
+      <!-- Doughnut statuts -->
+      <div class="section-card">
+        <div class="section-title">
+          Répartition livraisons
+          <span class="section-badge">{{ totalLivraisons }} total</span>
+        </div>
+        <div class="chart-wrap h220">
+          <canvas id="chartStatuts"></canvas>
+        </div>
+      </div>
+
+      <!-- Stock critique liste -->
+      <div class="section-card">
+        <div class="section-title">
+          Produits stock critique
+          <span class="section-badge" style="background:rgba(239,68,68,0.15);color:#f87171;">
+            &lt; 5 unités
+          </span>
+        </div>
+        <div class="stock-list" *ngIf="stats.topProduits.length > 0">
+          <div class="stock-item" *ngFor="let p of stats.topProduits">
+            <!-- Affichage uniquement si stock critique (<15) -->
+            <div *ngIf="isStockCritique(p)">
+              <div class="stock-name">{{ p.nom }}</div>
+              <div style="font-size:0.72rem;color:#666;margin-top:1px;">{{ p.quantiteVendue }} vendus / {{ p.pctDuTotal | number:'1.1-1' }}% du CA</div>
+            </div>
+            <div *ngIf="isStockCritique(p)" class="stock-qty">
+              {{ p.stockActuel }} <span style="font-size:0.7rem;font-weight:400;color:#888;">unités</span>
+            </div>
+          </div>
+          <div *ngIf="isAllStockSufficient"
+               style="text-align:center;color:#4ade80;padding:1rem;font-size:0.85rem;">
+            ✓ Tous les produits ont un stock suffisant
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════ 3. TOP PRODUITS ══════════ -->
+    <div class="section-card" style="margin-bottom:1.25rem;">
+      <div class="section-title">
+        Top produits vendus
+        <span class="section-badge">quantité + CA</span>
+      </div>
+      <div class="chart-wrap h260" style="margin-bottom:1.5rem;">
+        <canvas id="chartProduits"></canvas>
+      </div>
+
+      <!-- Cercles proportionnels -->
+      <div style="border-top:1px solid #2a2a2a;padding-top:1.25rem;">
+        <div style="font-size:0.75rem;color:#666;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;font-weight:600;">
+          Taille = part du CA total
+        </div>
+        <div class="bubbles-wrap">
+          <div *ngFor="let p of topProduitsSlice"
+               class="bubble"
+               [style.width.px]="getBubbleSize(p.pctDuTotal)"
+               [style.height.px]="getBubbleSize(p.pctDuTotal)"
+               [style.background]="getBubbleColor(p)"
+               [style.opacity]="0.75 + (p.pctDuTotal / 100) * 0.25"
+               [title]="p.nom + ' — ' + p.pctDuTotal + '% du CA — stock: ' + p.stockActuel">
+            <span class="bubble-name">{{ p.nom.length > 12 ? p.nom.substring(0,12)+'…' : p.nom }}</span>
+            <span class="bubble-pct">{{ p.pctDuTotal | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ 4. PERFORMANCE LIVREURS ══════════ -->
+    <div class="section-card">
+      <div class="section-title">
+        Performance livreurs
+        <span class="section-badge">{{ stats.performanceLivreurs.length }} livreurs</span>
+      </div>
+
+      <div *ngIf="stats.performanceLivreurs.length === 0"
+           style="text-align:center;color:#666;padding:2rem;font-size:0.88rem;">
+        Aucune donnée de livraison sur la période.
+      </div>
+
+      <table class="perf-table" *ngIf="stats.performanceLivreurs.length > 0">
+        <thead>
+          <tr>
+            <th>Livreur</th>
+            <th>Livraisons</th>
+            <th>Taux réussite</th>
+            <th>Temps moyen</th>
+            <th>Score dispatch</th>
+            <th>Niveau</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let l of stats.performanceLivreurs">
+            <td>
+              <div style="font-weight:700;color:#F0F0F0;">{{ l.nom }}</div>
+              <div style="font-size:0.72rem;color:#666;">#{{ l.livreurId }}</div>
+            </td>
+            <td>
+              <div style="color:#F0F0F0;font-weight:600;">{{ l.totalLivraisons }}</div>
+              <div style="font-size:0.72rem;color:#4ade80;">{{ l.livraisonsReussies }} réussies</div>
+            </td>
+            <td style="min-width:140px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill"
+                       [style.width]="getBarWidth(l.tauxReussite)"
+                       [style.background]="l.tauxReussite >= 90 ? '#22c55e' : l.tauxReussite >= 70 ? '#f59e0b' : '#ef4444'">
+                  </div>
+                </div>
+                <span [ngClass]="getNiveauClass(l.niveau)" style="font-weight:700;font-size:0.82rem;min-width:40px;">
+                  {{ l.tauxReussite | number:'1.0-0' }}%
+                </span>
+              </div>
+            </td>
+            <td style="color:#ccc;">
+              {{ l.tempsLivraisonMoyen | number:'1.1-1' }}h
+            </td>
+            <td style="color:#888;font-size:0.8rem;">
+              {{ l.scoreAffectationMoyen | number:'1.2-2' }}
+            </td>
+            <td>
+              <span class="niveau-badge"
+                    [class.niveau-excellent]="l.niveau==='excellent'"
+                    [class.niveau-bon]="l.niveau==='bon'"
+                    [class.niveau-faible]="l.niveau==='faible'">
+                {{ l.niveau }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /!loading && stats -->
+
+</div><!-- /dash-page -->
+
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>

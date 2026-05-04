@@ -6,6 +6,7 @@ import { LivraisonFormComponent } from './livraison/livraison-form/livraison-for
 import { TransporteurListComponent } from './transporteur/transporteur-list/transporteur-list.component';
 import { MaterielListComponent } from './materiel/materiel-list/materiel-list.component'; 
 import { CommandeListComponent } from './commande/commande-list/commande-list.component'; 
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 const routes: Routes = [
   {
@@ -18,6 +19,8 @@ const routes: Routes = [
       { path: 'livraisons/new', component: LivraisonFormComponent },
       { path: 'transporteurs', component: TransporteurListComponent },
       { path: 'commandes', component: CommandeListComponent },
+        { path: 'dashboard', component: DashboardComponent },
+
     ]
   }
 ];

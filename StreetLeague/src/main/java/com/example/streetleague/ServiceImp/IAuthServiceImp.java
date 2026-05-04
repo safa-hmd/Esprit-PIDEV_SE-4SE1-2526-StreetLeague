@@ -32,10 +32,10 @@ public class IAuthServiceImp implements IAuthService {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
     private final JwtService jwtService;
+    private final PromoEngineService promoEngineService;
 
 
-
-    @Override
+   /* @Override
     public User register(RegisterRequest req) {
         // Validation des champs
         if (req.email() == null || req.email().isBlank()) {
@@ -61,6 +61,44 @@ public class IAuthServiceImp implements IAuthService {
                 .build();
 
         return userRepository.save(u);
+    }*/
+
+    @Override
+    public User register(RegisterRequest req) {
+
+        // Validation des champs
+        if (req.email() == null || req.email().isBlank()) {
+            throw new IllegalArgumentException("Email required");
+        }
+
+        if (userRepository.findByEmail(req.email()).isPresent()) {
+            throw new IllegalArgumentException("Email already used");
+        }
+
+        if (req.password() == null || req.password().length() < 6) {
+            throw new IllegalArgumentException("Password must contain at least 6 characters");
+        }
+
+        if (req.role() == null) {
+            throw new IllegalArgumentException("Role required");
+        }
+
+        // Création user
+        User u = User.builder()
+                .fullName(req.fullName() == null ? "Not Available" : req.fullName())
+                .email(req.email())
+                .password(passwordEncoder.encode(req.password()))
+                .role(req.role())
+                .enabled(true)
+                .build();
+
+        // 🔥 SAVE USER
+        User savedUser = userRepository.save(u);
+
+        // 🔥 TRIGGER PROMO ENGINE ICI (IMPORTANT)
+        promoEngineService.generateWelcomePromo(savedUser);
+
+        return savedUser;
     }
 
    /* @Override

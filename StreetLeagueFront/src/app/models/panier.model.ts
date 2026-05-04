@@ -11,6 +11,7 @@ export interface LignePanierResponse {
   prix: number;
   quantite: number;
   sousTotal: number;
+  categorieId?: number; 
 }
  
 export interface PanierResponse {

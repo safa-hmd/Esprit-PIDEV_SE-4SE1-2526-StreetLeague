@@ -1,0 +1,7 @@
+{
+  "/api": {
+    "target": "http://localhost:8086/StreetLeague",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

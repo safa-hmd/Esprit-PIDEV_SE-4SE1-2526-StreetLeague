@@ -1,12 +1,9 @@
 package com.example.streetleague.dto;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
-
-
 
 @Getter
 @Setter
@@ -15,12 +12,15 @@ import java.util.List;
 @Builder
 public class CommandeDTO {
 
-    @NotNull(message = "User est obligatoire")
+    @NotNull
     private Long userId;
 
-    @NotNull(message = "Statut est obligatoire")
     private String statut;
 
-    @NotNull(message = "Lignes de commande sont obligatoires")
     private List<LigneCommandeDTO> lignes;
+
+    // ── PARTIE 9 : GPS client depuis navigateur ──────────
+    private Double latitudeClient;
+    private Double longitudeClient;
+    private String adresseLivraison;
 }

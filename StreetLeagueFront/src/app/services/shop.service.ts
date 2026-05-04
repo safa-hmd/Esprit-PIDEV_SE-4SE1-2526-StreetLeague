@@ -58,4 +58,10 @@ export class ShopService {
       { responseType: 'text' }
     );
   }
+
+// Dans shop.service.ts
+checkoutWithPromo(payload: any): Observable<string> {
+  return this.http.post('/api/shop/checkout-with-promo', payload, { responseType: 'text' });
+} 
+  
 }

@@ -1,0 +1,7 @@
+# ml-api/requirements.txt
+fastapi
+uvicorn
+pydantic
+joblib
+scikit-learn>=1.6.0
+numpy

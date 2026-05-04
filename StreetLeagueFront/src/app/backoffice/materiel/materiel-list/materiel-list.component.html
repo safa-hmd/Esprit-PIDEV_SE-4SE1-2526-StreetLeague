@@ -13,6 +13,67 @@
   .img-preview{width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid #eee;}
   .img-placeholder{width:48px;height:48px;background:#f5f5f5;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:1px solid #eee;}
   .filter-row{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;}
+
+  /* ── Upload zone ── */
+  .upload-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 10px;
+    padding: 1.25rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: #fafafa;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: #e61920;
+    background: #fff5f5;
+  }
+  .upload-zone input[type=file] { display: none; }
+  .upload-zone-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+  .upload-zone-text { font-size: 0.82rem; color: #666; }
+  .upload-zone-text strong { color: #e61920; }
+
+  .img-preview-large {
+    width: 100%;
+    max-height: 160px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    background: #f9f9f9;
+    margin-top: 0.6rem;
+  }
+  .uploading-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #e61920 0%, #ff6b6b 100%);
+    margin-top: 0.5rem;
+    animation: progress-pulse 1s ease-in-out infinite;
+  }
+  @keyframes progress-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .img-source-tabs { display:flex; gap:0.5rem; margin-bottom:0.75rem; }
+  .img-source-tab {
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: white;
+    color: #666;
+    transition: all 0.15s;
+  }
+  .img-source-tab.active {
+    background: #e61920;
+    color: white;
+    border-color: #e61920;
+  }
+  .clear-img-btn {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-size: 0.78rem; color: #999; cursor: pointer;
+    background: none; border: none; padding: 0.2rem 0; margin-top: 0.3rem;
+  }
+  .clear-img-btn:hover { color: #e61920; }
 </style>
 
 <div class="admin-main-inner">
@@ -42,7 +103,7 @@
           <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
         </svg>
       </div>
-      <div><div class="a-stat-val">{{ stats.total }}</div><div class="a-stat-label">Produits</div></div>
+      <div><div class="a-stat-val">{{ stats.total }}</div><div class="a-stat-label">Products</div></div>
     </div>
     <div class="a-stat">
       <div class="a-stat-icon" style="background:rgba(34,197,94,0.12);color:#16a34a;">
@@ -50,7 +111,7 @@
           <path d="M5 8h14M5 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm14 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/>
         </svg>
       </div>
-      <div><div class="a-stat-val">{{ stats.totalStock }}</div><div class="a-stat-label">Unités en stock</div></div>
+      <div><div class="a-stat-val">{{ stats.totalStock }}</div><div class="a-stat-label">Units in Stock</div></div>
     </div>
     <div class="a-stat">
       <div class="a-stat-icon" style="background:rgba(232,92,122,0.15);color:#e85c7a;">
@@ -59,7 +120,7 @@
           <line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
       </div>
-      <div><div class="a-stat-val">{{ stats.rupture }}</div><div class="a-stat-label">En rupture</div></div>
+      <div><div class="a-stat-val">{{ stats.rupture }}</div><div class="a-stat-label">Out of Stock</div></div>
     </div>
     <div class="a-stat">
       <div class="a-stat-icon" style="background:rgba(232,112,64,0.15);color:#e87040;">
@@ -67,17 +128,17 @@
           <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
         </svg>
       </div>
-      <div><div class="a-stat-val">{{ stats.prixMoyen }} TND</div><div class="a-stat-label">Prix moyen</div></div>
+      <div><div class="a-stat-val">{{ stats.prixMoyen }} TND</div><div class="a-stat-label">Average Price</div></div>
     </div>
   </div>
 
   <!-- Tabs -->
   <div class="tab-bar">
     <button class="tab-btn" [class.active]="activeTab === 'materiels'" (click)="activeTab = 'materiels'">
-      📦 Matériels
+      📦 Materials
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'categories'" (click)="activeTab = 'categories'">
-      🏷️ Catégories
+      🏷️ Categories
     </button>
   </div>
 
@@ -140,22 +201,83 @@
           </div>
         </div>
 
-        <!-- Image URL -->
+        <!-- ── Champ Image amélioré ── -->
         <div class="a-form-group">
-          <label class="a-form-label">URL Image <span style="color:#999;font-weight:400;">(optionnel)</span></label>
-          <input type="text" class="a-form-control"
-                 placeholder="https://example.com/image.jpg"
-                 [(ngModel)]="form.imageUrl">
-          <!-- Aperçu image -->
-          <div *ngIf="form.imageUrl" style="margin-top:0.5rem;display:flex;align-items:center;gap:0.5rem;">
-            <img [src]="form.imageUrl" class="img-preview" (error)="form.imageUrl = ''">
-            <span style="font-size:0.78rem;color:#666;">Aperçu</span>
+          <label class="a-form-label">
+            Image
+            <span style="color:#999;font-weight:400;">(optionnel)</span>
+          </label>
+
+          <!-- Onglets : Upload PC / URL -->
+          <div class="img-source-tabs">
+            <button type="button"
+                    class="img-source-tab"
+                    [class.active]="imageSource === 'upload'"
+                    (click)="imageSource = 'upload'">
+              📁 Upload depuis PC
+            </button>
+            <button type="button"
+                    class="img-source-tab"
+                    [class.active]="imageSource === 'url'"
+                    (click)="imageSource = 'url'">
+              🔗 URL externe
+            </button>
           </div>
+
+          <!-- Mode Upload -->
+          <ng-container *ngIf="imageSource === 'upload'">
+            <div class="upload-zone"
+                 [class.drag-over]="isDragOver"
+                 (click)="fileInput.click()"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="isDragOver = false"
+                 (drop)="onDrop($event)">
+              <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)">
+
+              <ng-container *ngIf="!form.imageUrl && !uploadingImage">
+                <div class="upload-zone-icon">🖼️</div>
+                <div class="upload-zone-text">
+                  <strong>Cliquez</strong> ou glissez une image ici<br>
+                  <span style="font-size:0.75rem;color:#aaa;">JPG, PNG, WEBP · max 5 MB</span>
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="uploadingImage">
+                <div class="upload-zone-icon">⏳</div>
+                <div class="upload-zone-text">Upload en cours...</div>
+                <div class="uploading-bar"></div>
+              </ng-container>
+
+              <ng-container *ngIf="form.imageUrl && !uploadingImage">
+                <img [src]="form.imageUrl" class="img-preview-large" (error)="form.imageUrl = ''">
+                <div style="font-size:0.78rem;color:#666;margin-top:0.4rem;">
+                  ✅ Image chargée — cliquez pour changer
+                </div>
+              </ng-container>
+            </div>
+
+            <button *ngIf="form.imageUrl" type="button" class="clear-img-btn" (click)="clearImage($event)">
+              🗑 Supprimer l'image
+            </button>
+          </ng-container>
+
+          <!-- Mode URL -->
+          <ng-container *ngIf="imageSource === 'url'">
+            <input type="text" class="a-form-control"
+                   placeholder="https://example.com/image.jpg"
+                   [(ngModel)]="form.imageUrl">
+            <div *ngIf="form.imageUrl" style="margin-top:0.5rem;">
+              <img [src]="form.imageUrl" class="img-preview-large" (error)="form.imageUrl = ''">
+              <button type="button" class="clear-img-btn" (click)="clearImage($event)">
+                🗑 Supprimer l'image
+              </button>
+            </div>
+          </ng-container>
         </div>
 
         <!-- Actions -->
         <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
-          <button class="a-btn a-btn-primary" (click)="submitForm()">
+          <button class="a-btn a-btn-primary" (click)="submitForm()" [disabled]="uploadingImage">
             {{ editMode ? '💾 Enregistrer' : '✅ Créer le matériel' }}
           </button>
           <button class="a-btn a-btn-ghost" (click)="closeForm()">Annuler</button>
@@ -166,37 +288,30 @@
     <!-- Barre filtres + bouton créer -->
     <div class="a-card">
       <div class="a-card-header" style="justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
-        <span class="a-card-title">Catalogue ({{ filteredMateriels.length }} / {{ materiels.length }})</span>
+        <span class="a-card-title">Catalog ({{ filteredMateriels.length }} / {{ materiels.length }})</span>
         <button class="a-btn a-btn-primary a-btn-sm" (click)="openCreate()">
-          + Ajouter un matériel
+          + Add Material
         </button>
       </div>
 
       <!-- Filtres -->
-      <div class="a-card-body" style="padding:0.75rem 1rem;border-bottom:1px solid #f0f0f0;">
+      <div class="a-card-body" style="padding-bottom:0;">
         <div class="filter-row">
-          <!-- Recherche texte -->
-          <div class="a-search" style="flex:1;min-width:180px;">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-            <input class="a-form-control"
-                   placeholder="Rechercher par nom, description..."
-                   [(ngModel)]="searchTerm"
-                   (input)="applyFilters()">
-          </div>
-          <!-- Filtre catégorie -->
-          <select class="a-form-control" style="width:auto;"
+          <input type="text" class="a-form-control" style="max-width:260px;"
+                 placeholder="🔍 Search by name, description..."
+                 [(ngModel)]="searchTerm"
+                 (input)="applyFilters()">
+          <select class="a-form-control" style="max-width:200px;"
                   [(ngModel)]="selectedCatFilter"
                   (change)="applyFilters()">
-            <option [value]="null">Toutes les catégories</option>
+            <option [value]="null">All categories</option>
             <option *ngFor="let c of categories" [value]="c.id">{{ c.nom }}</option>
           </select>
           <!-- Reset -->
           <button class="a-btn a-btn-ghost a-btn-sm"
                   *ngIf="searchTerm || selectedCatFilter !== null"
                   (click)="searchTerm=''; selectedCatFilter=null; applyFilters()">
-            ✕ Réinitialiser
+            ✕ Reset
           </button>
         </div>
       </div>
@@ -204,7 +319,7 @@
       <!-- Table -->
       <div class="a-card-body" style="padding:0;">
         <div *ngIf="loading" style="text-align:center;padding:2rem;color:#999;">
-          Chargement...
+          Loading...
         </div>
 
         <div class="a-table-wrap" *ngIf="!loading">
@@ -212,9 +327,9 @@
             <thead>
               <tr>
                 <th>Image</th>
-                <th>Nom</th>
-                <th>Catégorie</th>
-                <th>Prix</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
                 <th>Stock</th>
                 <th>Actions</th>
               </tr>
@@ -247,11 +362,11 @@
                 <td>
                   <div style="display:flex;gap:0.4rem;">
                     <button class="a-btn a-btn-ghost a-btn-sm" (click)="openEdit(m)">
-                      ✏️ Modifier
+                      ✏️ Edit
                     </button>
                     <button class="a-btn a-btn-ghost a-btn-sm" style="color:#e61920;"
                             (click)="delete(m)">
-                      🗑 Supprimer
+                      🗑 Delete
                     </button>
                   </div>
                 </td>
@@ -259,11 +374,11 @@
               <tr *ngIf="filteredMateriels.length === 0 && !loading">
                 <td colspan="6" style="text-align:center;padding:2.5rem;color:#999;">
                   <div style="font-size:2rem;margin-bottom:0.5rem;">📦</div>
-                  Aucun matériel trouvé.
+                  No material found.
                   <span *ngIf="!materiels.length">
                     <br>
                     <button class="a-btn a-btn-primary a-btn-sm" style="margin-top:0.75rem;" (click)="openCreate()">
-                      + Créer le premier matériel
+                      + Create first material
                     </button>
                   </span>
                 </td>
@@ -283,12 +398,12 @@
     <!-- Formulaire catégorie -->
     <div class="a-card form-card" *ngIf="showCatForm" style="max-width:480px;margin-bottom:1.5rem;">
       <div class="a-card-header">
-        <span class="a-card-title">{{ editCatMode ? '✏️ Modifier la catégorie' : '➕ Nouvelle catégorie' }}</span>
+        <span class="a-card-title">{{ editCatMode ? '✏️ Edit category' : '➕ New category' }}</span>
         <button class="a-btn a-btn-ghost a-btn-sm" (click)="closeCatForm()">✕</button>
       </div>
       <div class="a-card-body">
         <div class="a-form-group">
-          <label class="a-form-label">Nom <span style="color:#e61920">*</span></label>
+          <label class="a-form-label">Name <span style="color:#e61920">*</span></label>
           <input type="text" class="a-form-control"
                  placeholder="ex: Football, Basketball..."
                  [(ngModel)]="catForm.nom">
@@ -311,9 +426,9 @@
     <!-- Table catégories -->
     <div class="a-card">
       <div class="a-card-header" style="justify-content:space-between;">
-        <span class="a-card-title">Catégories ({{ categories.length }})</span>
+        <span class="a-card-title">Categories ({{ categories.length }})</span>
         <button class="a-btn a-btn-primary a-btn-sm" (click)="openCreateCat()">
-          + Nouvelle catégorie
+          + New category
         </button>
       </div>
       <div class="a-card-body" style="padding:0;">
@@ -322,9 +437,9 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Nom</th>
+                <th>Name</th>
                 <th>Description</th>
-                <th>Nb matériels</th>
+                <th>Nb materials</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -336,23 +451,23 @@
                 </td>
                 <td style="color:#666;font-size:0.88rem;">{{ c.description || '—' }}</td>
                 <td>
-                  <span class="a-badge a-badge-blue">{{ c.nombreMateriels || 0 }} produits</span>
+                  <span class="a-badge a-badge-blue">{{ c.nombreMateriels || 0 }} products</span>
                 </td>
                 <td>
                   <div style="display:flex;gap:0.4rem;">
                     <button class="a-btn a-btn-ghost a-btn-sm" (click)="openEditCat(c)">
-                      ✏️ Modifier
+                      ✏️ Edit
                     </button>
                     <button class="a-btn a-btn-ghost a-btn-sm" style="color:#e61920;"
                             (click)="deleteCat(c)">
-                      🗑 Supprimer
+                      🗑 Delete
                     </button>
                   </div>
                 </td>
               </tr>
               <tr *ngIf="categories.length === 0">
                 <td colspan="5" style="text-align:center;padding:2rem;color:#999;">
-                  Aucune catégorie. Commencez par en créer une.
+                  No category found. Start by creating one.
                 </td>
               </tr>
             </tbody>

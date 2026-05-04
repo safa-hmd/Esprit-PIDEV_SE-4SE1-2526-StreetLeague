@@ -1,37 +1,61 @@
-export type LivraisonStatus = 'PREPAREE' | 'EXPEDIEE' | 'EN_COURS' | 'LIVREE' | 'ECHEC';
+export type LivraisonStatus =
+  | 'PREPAREE'
+  | 'ASSIGNEE'
+  | 'EXPEDIEE'
+  | 'OUT_FOR_DELIVERY'
+  | 'LIVREE'
+  | 'ECHEC';
+
+export type Priorite = 'LOW' | 'NORMAL' | 'HIGH';
+export type LivreurStatus = 'DISPONIBLE' | 'OCCUPE' | 'OFFLINE';
 export type CommandeStatus = 'EN_ATTENTE' | 'VALIDEE' | 'ANNULEE' | 'LIVREE' | 'PREPAREE';
 
-// L'objet User retourné en nested par le backend
-export interface LivreurRef {
-  id: number;
-  fullName: string;
-  email: string;
-  role: string;
-}
-
+// ✅ DTO aplati retourné par le backend — plus d'objet nested
 export interface Livraison {
   id?: number;
-  commandeId: number;
-  transporteurId: number;
 
-  // Backend retourne soit livreurId (flat) soit livreur (nested object)
+  // Commande
+  commandeId?: number;
+
+  // Livreur aplati (plus d'objet livreur nested)
   livreurId?: number;
-  livreur?: LivreurRef;   // ← nested object retourné par Spring
+  livreurNom?: string;
+  livreurEmail?: string;
 
+  // Adresse & GPS
   adresse: string;
+  latitudeClient?: number;
+  longitudeClient?: number;
+
+  // Dates
+  dateCreation?: string;
+  dateAffectation?: string;
+  dateLivraison?: string;
+
+  // Logistique
   fraisLivraison: number;
+  distance?: number;
+  priorite?: Priorite;
+  scoreAffectation?: number;
+
+  // Statut
   statut: LivraisonStatus;
+  nbTentatives?: number;
+  motifEchec?: string;
 }
 
-export interface Transporteur {
-  id?: number;
-  nomSociete: string;
-  telephone?: string;
-  email?: string;
+export interface StatsAdmin {
+  nbLivraisonsEnCours: number;
+  nbLivreursDisponibles: number;
+  livreurLePlusActif: string;
+  tauxLivraisonsReussies: number;
 }
 
 export interface Commande {
   id?: number;
   montantTotal: number;
   statut: CommandeStatus;
+  latitudeClient?: number;
+  longitudeClient?: number;
+  adresseLivraison?: string;
 }

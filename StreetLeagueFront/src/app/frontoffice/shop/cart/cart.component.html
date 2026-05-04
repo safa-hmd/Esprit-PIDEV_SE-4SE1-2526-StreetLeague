@@ -1,6 +1,6 @@
 <style>
   .cart-table{width:100%;border-collapse:collapse;}
-  .cart-table th{text-align:left;padding:0.75rem 1rem;font-size:0.8rem;text-transform:uppercase;color:#888;border-bottom:2px solid #eee;}
+  .cart-table th{text-align:left;padding:0.75rem 1rem;font-size:0.78rem;text-transform:uppercase;color:#888;border-bottom:2px solid #eee;}
   .cart-table td{padding:0.85rem 1rem;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
   .cart-table tr:hover td{background:#fafafa;}
   .cart-total-box{background:white;border:1.5px solid #eee;border-radius:12px;padding:1.5rem;max-width:340px;margin-left:auto;}
@@ -13,90 +13,272 @@
   .empty-cart div{font-size:3rem;margin-bottom:1rem;}
   .btn-danger{background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:0.35rem 0.75rem;cursor:pointer;font-size:0.8rem;}
   .btn-danger:hover{background:#fca5a5;}
+  /* Stepper */
+  .stepper{display:flex;align-items:center;gap:0;margin-bottom:2rem;}
+  .step-item{display:flex;flex-direction:column;align-items:center;gap:0.35rem;flex:1;}
+  .step-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;border:2px solid #eee;background:white;color:#ccc;transition:all 0.2s;}
+  .step-circle.active{background:#e61920;color:white;border-color:#e61920;}
+  .step-circle.done{background:#d1fae5;color:#065f46;border-color:#6ee7b7;}
+  .step-label{font-size:0.72rem;color:#999;text-align:center;font-weight:500;}
+  .step-label.active{color:#e61920;font-weight:700;}
+  .step-label.done{color:#065f46;}
+  .step-connector{height:2px;background:#eee;flex:1;margin-bottom:1.2rem;}
+  .step-connector.done{background:#6ee7b7;}
+  /* Form */
+  .form-group{margin-bottom:1.25rem;}
+  .form-label{display:block;font-size:0.82rem;font-weight:700;color:#444;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.03em;}
+  .form-control{width:100%;padding:0.65rem 0.85rem;border:1.5px solid #ddd;border-radius:8px;font-size:0.9rem;transition:border 0.15s;outline:none;box-sizing:border-box;}
+  .form-control:focus{border-color:#e61920;}
+  /* GPS badge */
+  .gps-badge{display:inline-flex;align-items:center;gap:5px;font-size:0.8rem;padding:0.3rem 0.75rem;border-radius:20px;font-weight:600;}
+  .gps-badge.ok{background:#d1fae5;color:#065f46;}
+  .gps-badge.loading{background:#fef3c7;color:#92400e;}
+  .gps-badge.none{background:#f3f4f6;color:#6b7280;}
+  /* GPS Map */
+  .gps-map-wrapper{margin-top:0.75rem;border-radius:12px;overflow:hidden;border:1.5px solid #d1fae5;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+  #gps-map{width:100%;height:200px;}
+  /* Adresse Map */
+  .address-map-container{border:1.5px solid #ddd;border-radius:12px;overflow:hidden;margin-top:0.6rem;position:relative;}
+  .address-map-container.has-selection{border-color:#e61920;}
+  #address-map{width:100%;height:280px;}
+  .address-map-hint{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.65);color:white;font-size:0.78rem;padding:0.3rem 0.85rem;border-radius:20px;pointer-events:none;white-space:nowrap;z-index:1000;transition:opacity 0.3s;}
+  .address-map-hint.hidden{opacity:0;}
+  .address-selected-badge{display:flex;align-items:center;gap:6px;background:#d1fae5;color:#065f46;border-radius:8px;padding:0.5rem 0.75rem;font-size:0.82rem;font-weight:600;margin-top:0.5rem;border:1px solid #6ee7b7;}
+  /* Recap map */
+  .recap-map-wrapper{margin-top:0.75rem;border-radius:10px;overflow:hidden;border:1.5px solid #eee;}
+  #recap-map{width:100%;height:160px;}
+  /* Dispatch info */
+  .dispatch-info{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;}
+  .dispatch-info p{font-size:0.85rem;color:#1e40af;margin:0;line-height:1.55;}
+  /* Recap */
+  .recap-card{background:#f9f9f9;border:1.5px solid #eee;border-radius:10px;padding:1.25rem;margin-bottom:1rem;}
+  .recap-row{display:flex;justify-content:space-between;padding:0.45rem 0;font-size:0.88rem;border-bottom:1px solid #f0f0f0;}
+  .recap-row:last-child{border:none;}
+  .recap-label{color:#666;}
+  .recap-val{font-weight:600;}
+  /* Done */
+  .done-box{text-align:center;padding:3rem 2rem;}
+  .done-icon{font-size:4rem;margin-bottom:1rem;}
+  .done-title{font-size:1.4rem;font-weight:800;color:#065f46;margin-bottom:0.5rem;}
+  .done-sub{color:#666;font-size:0.9rem;}
+  /* Nav buttons */
+  .nav-btns{display:flex;gap:0.75rem;margin-top:1.5rem;}
+  .btn-back{background:white;border:1.5px solid #ddd;border-radius:8px;padding:0.6rem 1.25rem;font-size:0.88rem;font-weight:600;cursor:pointer;color:#666;}
+  .btn-back:hover{border-color:#ccc;background:#f9f9f9;}
 </style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <div class="page-content">
   <div class="page-header">
     <h1 class="page-title">My Cart</h1>
-    <p class="page-subtitle">Verify your selection before ordering</p>
+    <p class="page-subtitle">Complete your order in a few steps</p>
   </div>
 
+  <!-- Notifications -->
   <div class="alert alert-success" *ngIf="successMsg">{{ successMsg }}</div>
   <div class="alert alert-error" *ngIf="errorMsg">{{ errorMsg }}</div>
 
-  <!-- Loading -->
-  <div *ngIf="loading" style="text-align:center;padding:3rem;color:#999;">
-    Loading the cart...
+  <!-- 🎁 NOTIFICATION IN-APP PROMO -->
+  <div *ngIf="personalOffer && !offerDismissed && step === 'cart'" 
+       class="alert alert-success" 
+       style="display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:0.75rem 1rem;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:0.75rem;flex:1;">
+      <span style="font-size:1.2rem;">🎉</span>
+      <div>
+        <strong style="color:#065f46;">Vous avez une offre personnelle !</strong>
+        <div style="font-size:0.85rem;color:#065f46;margin-top:0.25rem;">
+          Code: <strong>{{ personalOffer.code }}</strong> → 
+          {{ personalOffer.type === 'PERCENTAGE' ? '-' + personalOffer.value + '%' : '-' + personalOffer.value + ' TND' }}
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-shrink:0;margin-top:0.5rem;">
+      <button (click)="applyPersonalOffer()" class="btn btn-primary" style="padding:0.4rem 0.8rem;font-size:0.8rem;">Appliquer</button>
+      <button (click)="dismissOffer()" class="btn btn-back" style="padding:0.4rem 0.8rem;font-size:0.8rem;border-color:#cbd5e1;">Plus tard</button>
+    </div>
   </div>
 
-  <!-- Panier vide -->
-  <div class="empty-cart" *ngIf="!loading && (!panier || panier.lignes.length === 0)">
-    <div>🛒</div>
-    <p>Your cart is empty.</p>
-    <a routerLink="/client/shop" class="btn btn-primary">Continue Shopping</a>
+  <!-- Stepper -->
+  <div class="stepper" *ngIf="step !== 'done'">
+    <div class="step-item">
+      <div class="step-circle" [class.active]="step==='cart'" [class.done]="step==='delivery'||step==='confirm'">
+        <span *ngIf="step==='cart'">1</span><span *ngIf="step!=='cart'">✓</span>
+      </div>
+      <div class="step-label" [class.active]="step==='cart'" [class.done]="step==='delivery'||step==='confirm'">Cart</div>
+    </div>
+    <div class="step-connector" [class.done]="step==='delivery'||step==='confirm'"></div>
+    <div class="step-item">
+      <div class="step-circle" [class.active]="step==='delivery'" [class.done]="step==='confirm'">
+        <span *ngIf="step!=='confirm'">2</span><span *ngIf="step==='confirm'">✓</span>
+      </div>
+      <div class="step-label" [class.active]="step==='delivery'" [class.done]="step==='confirm'">Delivery</div>
+    </div>
+    <div class="step-connector" [class.done]="step==='confirm'"></div>
+    <div class="step-item">
+      <div class="step-circle" [class.active]="step==='confirm'">3</div>
+      <div class="step-label" [class.active]="step==='confirm'">Confirm</div>
+    </div>
   </div>
 
-  <!-- Panier avec articles -->
-  <div *ngIf="!loading && panier && panier.lignes.length > 0">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-      <span style="font-size:0.9rem;color:#666;">{{ panier.lignes.length }} article(s)</span>
-      <button class="btn-danger" (click)="clearCart()">🗑 Clear Cart</button>
+  <!-- STEP 1: CART -->
+  <div *ngIf="step === 'cart'">
+    <div *ngIf="loading" style="text-align:center;padding:3rem;color:#999;">Loading cart...</div>
+
+    <div class="empty-cart" *ngIf="!loading && (!panier || panier.lignes.length === 0)">
+      <div>🛒</div>
+      <p>Your cart is empty.</p>
+      <a routerLink="/client/shop" class="btn btn-primary">Continue Shopping</a>
     </div>
 
-    <div style="background:white;border:1.5px solid #eee;border-radius:12px;overflow:hidden;margin-bottom:1.5rem;">
-      <table class="cart-table">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Unit Price</th>
-            <th>Quantity</th>
-            <th>Subtotal</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let ligne of panier.lignes">
-            <td>
-              <strong>{{ ligne.materielNom }}</strong>
-            </td>
-            <td>{{ ligne.prix | number:'1.2-2' }} TND</td>
-            <td>
-              <span style="background:#f5f5f5;padding:0.25rem 0.75rem;border-radius:6px;font-weight:600;">
-                {{ ligne.quantite }}
-              </span>
-            </td>
-            <td style="font-weight:700;color:#e61920;">
-              {{ ligne.sousTotal | number:'1.2-2' }} TND
-            </td>
-            <td>
-              <button class="btn-danger" (click)="removeItem(ligne.ligneId)">✕</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div *ngIf="!loading && panier && panier.lignes.length > 0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <span style="font-size:0.9rem;color:#666;">{{ panier.lignes.length }} article(s)</span>
+        <button class="btn-danger" (click)="clearCart()">🗑 Clear Cart</button>
+      </div>
+
+      <div style="background:white;border:1.5px solid #eee;border-radius:12px;overflow:hidden;margin-bottom:1.5rem;">
+        <table class="cart-table">
+          <thead>
+            <tr><th>Product</th><th>Unit Price</th><th>Qty</th><th>Subtotal</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ligne of panier.lignes">
+              <td><strong>{{ ligne.materielNom }}</strong></td>
+              <td>{{ ligne.prix | number:'1.2-2' }} TND</td>
+              <td><span style="background:#f5f5f5;padding:0.2rem 0.6rem;border-radius:6px;font-weight:600;">{{ ligne.quantite }}</span></td>
+              <td style="font-weight:700;color:#e61920;">{{ ligne.sousTotal | number:'1.2-2' }} TND</td>
+              <td><button class="btn-danger" (click)="removeItem(ligne.ligneId)">✕</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 🎫 SECTION PROMO CODE -->
+      <div class="cart-total-box" style="margin-bottom:1rem;">
+        <div *ngIf="!appliedPromo" style="margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px dashed #eee;">
+          <label class="form-label" style="font-size:0.75rem;">🎫 Promo Code</label>
+          <div style="display:flex;gap:0.5rem;">
+            <input type="text" class="form-control" [(ngModel)]="promoInput" placeholder="ex: WELCOME10_6" 
+                   [disabled]="promoLoading" style="flex:1;font-size:0.85rem;">
+            <button (click)="applyPromoCode()" [disabled]="!promoInput.trim() || promoLoading"
+                    class="btn btn-primary" style="padding:0.65rem 1rem;font-size:0.85rem;white-space:nowrap;">
+              {{ promoLoading ? '...' : 'Apply' }}
+            </button>
+          </div>
+          <div *ngIf="promoError" style="background:#fee2e2;color:#991b1b;padding:0.5rem 0.75rem;border-radius:6px;font-size:0.85rem;margin-top:0.5rem;">
+            ❌ {{ promoError }}
+          </div>
+        </div>
+        
+        <div *ngIf="appliedPromo" style="background:#d1fae5;color:#065f46;padding:0.5rem 0.75rem;border-radius:6px;font-size:0.85rem;font-weight:600;display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <span>✅ {{ appliedPromo.code }} (-{{ appliedPromo.discountAmount | number:'1.2-2' }} TND)</span>
+          <button (click)="removePromo()" style="background:none;border:none;color:#991b1b;cursor:pointer;font-size:0.8rem;font-weight:600;">Remove</button>
+        </div>
+        
+        <div class="cart-total-row"><span>Subtotal</span><span>{{ panier.total | number:'1.2-2' }} TND</span></div>
+        <div class="cart-total-row" *ngIf="appliedPromo" style="color:#065f46;"><span>Discount</span><span>-{{ appliedPromo.discountAmount | number:'1.2-2' }} TND</span></div>
+        <div class="cart-total-row"><span>Delivery</span><span style="color:#059669;">Calculated next</span></div>
+        <div class="cart-total-row total"><span>Total</span><span>{{ finalTotal | number:'1.2-2' }} TND</span></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:1rem;" (click)="goToDelivery()">Validate Cart →</button>
+        <a routerLink="/client/shop" style="display:block;text-align:center;margin-top:0.75rem;font-size:0.85rem;color:#666;">← Continue Shopping</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STEP 2: DELIVERY -->
+  <div *ngIf="step === 'delivery'" style="max-width:600px;">
+    <div style="background:white;border:1.5px solid #eee;border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;">
+      <h3 style="font-size:1rem;font-weight:800;margin-bottom:1.25rem;color:#111;">Delivery information</h3>
+      <div class="dispatch-info">
+        <p>🤖 <strong>Smart dispatch enabled.</strong> Our system will automatically assign the nearest available delivery person to your order.</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Your GPS position</label>
+        <div>
+          <span class="gps-badge loading" *ngIf="gpsLoading">📡 Detecting location...</span>
+          <span class="gps-badge ok" *ngIf="!gpsLoading && latitudeClient !== null">✅ Position detected</span>
+          <span class="gps-badge none" *ngIf="!gpsLoading && latitudeClient === null">📍 Not available</span>
+        </div>
+        <div class="gps-map-wrapper" *ngIf="!gpsLoading && latitudeClient !== null">
+          <div id="gps-map"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Delivery address <span style="color:#e61920">*</span>
+          <span style="font-weight:400;font-size:0.75rem;color:#888;margin-left:6px;text-transform:none;">— click on the map or type below</span>
+        </label>
+        <div class="address-map-container" [class.has-selection]="adresseSelectionnee">
+          <div id="address-map"></div>
+          <div class="address-map-hint" [class.hidden]="adresseSelectionnee" id="address-map-hint">📍 Click anywhere on the map to drop a pin</div>
+        </div>
+        <div class="address-selected-badge" *ngIf="adresseSelectionnee"><span>📍</span><span>{{ adresseSelectionnee }}</span></div>
+        <input type="text" class="form-control" style="margin-top:0.5rem;" placeholder="Or type an address manually…" [(ngModel)]="adresse" (ngModelChange)="onAdresseManuelle($event)">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Shipping cost (TND)</label>
+        <input type="number" class="form-control" placeholder="ex: 7" [(ngModel)]="fraisLivraison" min="0" step="0.5">
+      </div>
     </div>
 
-    <!-- Total + checkout -->
-    <div class="cart-total-box">
-      <div class="cart-total-row">
-        <span>Sous-total</span>
-        <span>{{ panier.total | number:'1.2-2' }} TND</span>
+    <div class="nav-btns">
+      <button class="btn-back" (click)="backToCart()">← Back to cart</button>
+      <button class="btn btn-primary" (click)="goToConfirm()">Review order →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: CONFIRM -->
+  <div *ngIf="step === 'confirm'" style="max-width:540px;">
+    <h3 style="font-size:1rem;font-weight:800;margin-bottom:1.25rem;color:#111;">Order summary</h3>
+    <div class="recap-card">
+      <p style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em;color:#888;margin-bottom:0.75rem;font-weight:700;">Items</p>
+      <div class="recap-row" *ngFor="let ligne of panier?.lignes">
+        <span class="recap-label">{{ ligne.materielNom }} × {{ ligne.quantite }}</span>
+        <span class="recap-val">{{ ligne.sousTotal | number:'1.2-2' }} TND</span>
       </div>
-      <div class="cart-total-row">
-        <span>Livraison</span>
-        <span style="color:#059669;">Calculée à la commande</span>
+    </div>
+
+    <div class="recap-card">
+      <p style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em;color:#888;margin-bottom:0.75rem;font-weight:700;">Delivery</p>
+      <div class="recap-row"><span class="recap-label">Address</span><span class="recap-val">{{ adresse }}</span></div>
+      <div class="recap-row">
+        <span class="recap-label">GPS position</span>
+        <span class="recap-val" *ngIf="latitudeDelivery !== null" style="color:#059669;">✅ Pin placed on map</span>
+        <span class="recap-val" *ngIf="latitudeDelivery === null" style="color:#888;">Address only (no pin)</span>
       </div>
-      <div class="cart-total-row total">
-        <span>Total</span>
-        <span>{{ panier.total | number:'1.2-2' }} TND</span>
+      <div class="recap-map-wrapper" *ngIf="latitudeDelivery !== null"><div id="recap-map"></div></div>
+      <div class="recap-row" style="margin-top:0.5rem;"><span class="recap-label">Delivery man</span><span class="recap-val" style="color:#059669;">🤖 Auto-assigned</span></div>
+      <div class="recap-row"><span class="recap-label">Shipping cost</span><span class="recap-val">{{ fraisLivraison | number:'1.2-2' }} TND</span></div>
+    </div>
+
+    <div style="background:white;border:1.5px solid #eee;border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;">
+      <div class="recap-row" *ngIf="appliedPromo" style="color:#065f46;"><span class="recap-label">Discount ({{ appliedPromo.code }})</span><span class="recap-val">-{{ appliedPromo.discountAmount | number:'1.2-2' }} TND</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:1.05rem;font-weight:800;">
+        <span>Total order</span>
+        <span style="color:#e61920;">{{ (finalTotal + fraisLivraison) | number:'1.2-2' }} TND</span>
       </div>
-      <button class="btn btn-primary" style="width:100%;margin-top:1rem;" (click)="checkout()">
-        ✅ Order Now
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-back" (click)="backToDelivery()">← Edit delivery</button>
+      <button class="btn btn-primary" [disabled]="loading" (click)="confirmOrder()" style="flex:1;">
+        {{ loading ? 'Processing...' : '✅ Confirm order' }}
       </button>
-      <a routerLink="/client/shop"
-         style="display:block;text-align:center;margin-top:0.75rem;font-size:0.85rem;color:#666;">
-        ← Continue Shopping
-      </a>
+    </div>
+  </div>
+
+  <!-- STEP 4: DONE -->
+  <div class="done-box" *ngIf="step === 'done'">
+    <div class="done-icon">🎉</div>
+    <div class="done-title">Order confirmed!</div>
+    <p class="done-sub" *ngIf="commandeId">Order #{{ commandeId }} placed successfully.</p>
+    <p class="done-sub">A delivery person will be automatically assigned to your order.</p>
+    <div style="display:flex;gap:0.75rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap;">
+      <a routerLink="/client/shop" class="btn btn-primary">Continue Shopping</a>
     </div>
   </div>
 </div>
