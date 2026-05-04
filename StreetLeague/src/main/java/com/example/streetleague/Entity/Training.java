@@ -53,6 +53,7 @@ public class Training {
             joinColumns = @JoinColumn(name = "trainings_id_training"),
             inverseJoinColumns = @JoinColumn(name = "participants_id_user")  // ← nom exact de la colonne User PK
     )
+    @Builder.Default
     private List<User> participants = new ArrayList<>();
 
     // ===== EXPLICIT GETTERS/SETTERS (Lombok not processing) =====

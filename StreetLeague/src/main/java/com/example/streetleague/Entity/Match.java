@@ -28,7 +28,7 @@ public class Match {
 
     Integer scoreTeamA;
     Integer scoreTeamB;
-
+    @Builder.Default
     private boolean statsUpdated = false;
 
     // Team A

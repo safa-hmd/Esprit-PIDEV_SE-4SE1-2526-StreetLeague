@@ -45,6 +45,7 @@ public class PlayerStreak implements Persistable<Long> {
      * PlayerStreak.builder().build().
      */
     @Transient
+    @Builder.Default
     private boolean isNew = true;
 
     @Override
