@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+//@Data
+//@NoArgsConstructor
+//@AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "teams")
@@ -125,5 +125,165 @@ public class Team {
             team.matchesAsTeamB = this.matchesAsTeamB;
             return team;
         }
+    }
+
+    public Long getIdTeam() {
+        return idTeam;
+    }
+
+    public void setIdTeam(Long idTeam) {
+        this.idTeam = idTeam;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSport() {
+        return sport;
+    }
+
+    public void setSport(String sport) {
+        this.sport = sport;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDate getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDate creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public int getVictories() {
+        return victories;
+    }
+
+    public void setVictories(int victories) {
+        this.victories = victories;
+    }
+
+    public int getDefeats() {
+        return defeats;
+    }
+
+    public void setDefeats(int defeats) {
+        this.defeats = defeats;
+    }
+
+    public int getMatches() {
+        return matches;
+    }
+
+    public void setMatches(int matches) {
+        this.matches = matches;
+    }
+
+    public Integer getEloScore() {
+        return eloScore;
+    }
+
+    public void setEloScore(Integer eloScore) {
+        this.eloScore = eloScore;
+    }
+
+    public Level getLevel() {
+        return level;
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
+    }
+
+    public User getCaptain() {
+        return captain;
+    }
+
+    public void setCaptain(User captain) {
+        this.captain = captain;
+    }
+
+    public Set<User> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(Set<User> players) {
+        this.players = players;
+    }
+
+    public List<Training> getTrainings() {
+        return trainings;
+    }
+
+    public void setTrainings(List<Training> trainings) {
+        this.trainings = trainings;
+    }
+
+    public List<Match> getMatchesAsTeamA() {
+        return matchesAsTeamA;
+    }
+
+    public void setMatchesAsTeamA(List<Match> matchesAsTeamA) {
+        this.matchesAsTeamA = matchesAsTeamA;
+    }
+
+    public List<Match> getMatchesAsTeamB() {
+        return matchesAsTeamB;
+    }
+
+    public void setMatchesAsTeamB(List<Match> matchesAsTeamB) {
+        this.matchesAsTeamB = matchesAsTeamB;
+    }
+
+    public User getCoach() {
+        return coach;
+    }
+
+    public void setCoach(User coach) {
+        this.coach = coach;
+    }
+
+    public Team(Long idTeam, String name, String sport, String description, LocalDate creationDate, String city, int victories, int defeats, int matches, Integer eloScore, Level level, User captain, Set<User> players, List<Training> trainings, List<Match> matchesAsTeamA, List<Match> matchesAsTeamB, User coach) {
+        this.idTeam = idTeam;
+        this.name = name;
+        this.sport = sport;
+        this.description = description;
+        this.creationDate = creationDate;
+        this.city = city;
+        this.victories = victories;
+        this.defeats = defeats;
+        this.matches = matches;
+        this.eloScore = eloScore;
+        this.level = level;
+        this.captain = captain;
+        this.players = players;
+        this.trainings = trainings;
+        this.matchesAsTeamA = matchesAsTeamA;
+        this.matchesAsTeamB = matchesAsTeamB;
+        this.coach = coach;
+    }
+
+    public Team() {
+
     }
 }
