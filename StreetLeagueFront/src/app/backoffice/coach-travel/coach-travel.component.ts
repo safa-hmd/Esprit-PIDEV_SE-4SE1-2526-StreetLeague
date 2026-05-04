@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -20,7 +21,7 @@ export class CoachTravelComponent implements OnInit {
   successMessage: string = '';
   myRequests: any[] = [];
 
-  private baseUrl = 'http://localhost:8086/StreetLeague/api/coach/travel';
+  private baseUrl = `${environment.baseUrl}/api/coach/travel`;
 
   constructor(private http: HttpClient) { }
 
@@ -124,3 +125,4 @@ export class CoachTravelComponent implements OnInit {
     return nights * pricePerNight * members;
   }
 }
+

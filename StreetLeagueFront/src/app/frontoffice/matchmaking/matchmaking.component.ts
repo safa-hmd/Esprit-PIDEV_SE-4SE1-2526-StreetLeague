@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 // src/app/frontoffice/matchmaking/matchmaking.component.ts
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -195,7 +196,7 @@ export class MatchmakingComponent implements OnInit {
       `${matchDate.getFullYear()}-${pad(matchDate.getMonth()+1)}-${pad(matchDate.getDate())}` +
       `T${pad(matchDate.getHours())}:${pad(matchDate.getMinutes())}:00`;
 
-    this.http.post('http://localhost:8086/StreetLeague/match/add',
+    this.http.post(`${environment.baseUrl}/match/add`,
       { matchDate: formattedDate, location: this.myLocation }, { params })
       .subscribe({
         next: () => { this.challengeSent = null; this.showSuccessModal(candidate.teamName); },
@@ -238,3 +239,4 @@ export class MatchmakingComponent implements OnInit {
     return SPORT_ICONS[sport?.toUpperCase()] ?? '🏅';
   }
 }
+

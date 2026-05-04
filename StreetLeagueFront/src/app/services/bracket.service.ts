@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -6,7 +7,7 @@ import { BracketResponseDto, BracketType, MatchSlotDto, SubmitResultDto } from '
 @Injectable({ providedIn: 'root' })
 export class BracketService {
 
-  private readonly API = 'http://localhost:8086/StreetLeague/api/brackets';
+  private readonly API = `${environment.baseUrl}/api/brackets`;
 
   constructor(private http: HttpClient) {}
 

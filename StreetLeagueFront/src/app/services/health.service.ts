@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -103,7 +104,7 @@ export interface BmiEntry {
 })
 export class HealthService {
 
-  private baseUrl = 'http://localhost:8086/StreetLeague';
+  private baseUrl = `${environment.baseUrl}`;
   private apiUrl = `${this.baseUrl}/waterReminder`;
   private healthApiUrl = `${this.baseUrl}/health`;
 
@@ -196,3 +197,4 @@ getFitnessReport(userId: number): Observable<FitnessReportDTO> {
   return this.http.get<FitnessReportDTO>(`${this.healthApiUrl}/fitness-report/${userId}`);
 }
 }
+

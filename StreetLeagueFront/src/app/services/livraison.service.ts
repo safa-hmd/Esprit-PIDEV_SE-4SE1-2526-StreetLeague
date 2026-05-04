@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
@@ -6,7 +7,7 @@ import { Livraison, Transporteur } from '../models/livraison.model';
 
 @Injectable({ providedIn: 'root' })
 export class LivraisonService {
-  private base = 'http://localhost:8086/StreetLeague/livraisons';
+  private base = `${environment.baseUrl}/livraisons`;
 
   constructor(private http: HttpClient) {}
 

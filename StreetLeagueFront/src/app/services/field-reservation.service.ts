@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -7,9 +8,9 @@ import { FieldScheduleEntry } from 'src/app/models/field-reservation.model';
 @Injectable({ providedIn: 'root' })
 export class FieldReservationService {
 
-  private reservationApi = 'http://localhost:8086/StreetLeague/api/reservations';
-  private fieldApi      = 'http://localhost:8086/StreetLeague/api/fields';
-  private pricingApi = 'http://localhost:8086/StreetLeague/api/pricing';
+  private reservationApi = `${environment.baseUrl}/api/reservations`;
+  private fieldApi      = `${environment.baseUrl}/api/fields`;
+  private pricingApi = `${environment.baseUrl}/api/pricing`;
 
 
   constructor(private http: HttpClient) {}
@@ -101,7 +102,7 @@ export class FieldReservationService {
 // ── PAYMENTS ──────────────────────────────────────────────────────────────
 
 
-private readonly paymentApi = 'http://localhost:8086/StreetLeague/api/payments';
+private readonly paymentApi = `${environment.baseUrl}/api/payments`;
 
 // Admin — initier manuellement (normalement automatique)
 initiatePayment(reservationId: number): Observable<Payment> {

@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -46,7 +47,7 @@ export class SelectRoleComponent implements OnInit {
     this.errorMessage = '';
 
     this.http.post<any>(
-      'http://localhost:8086/StreetLeague/auth/complete-google-register',
+      `${environment.baseUrl}/auth/complete-google-register`,
       {
         email:    this.email,
         fullName: this.fullName,

@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -12,7 +13,7 @@ export interface Commande {
 
 @Injectable({ providedIn: 'root' })
 export class CommandeService {
-  private base = 'http://localhost:8086/StreetLeague/api';
+  private base = `${environment.baseUrl}/api`;
 
   constructor(private http: HttpClient) {}
 

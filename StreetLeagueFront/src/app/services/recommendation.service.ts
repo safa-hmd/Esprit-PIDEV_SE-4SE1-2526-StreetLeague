@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, from, of, switchMap } from 'rxjs';
@@ -31,7 +32,7 @@ export interface SlotDto {
 export class RecommendationService {
 
   // ✅ Single source of truth for API base URL
-  private readonly BASE = 'http://localhost:8086/StreetLeague/api/recommend';
+  private readonly BASE = `${environment.baseUrl}/api/recommend`;
 
   constructor(private http: HttpClient) {}
 

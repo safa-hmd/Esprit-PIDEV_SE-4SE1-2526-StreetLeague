@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Chart, registerables } from 'chart.js';
@@ -331,7 +332,7 @@ export class NewsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getImageUrl(postId: number): string {
-    return `http://localhost:8086/StreetLeague/posts/image/${postId}`;
+    return `${environment.baseUrl}/posts/image/${postId}`;
   }
 
   private initStatsChart(): void {

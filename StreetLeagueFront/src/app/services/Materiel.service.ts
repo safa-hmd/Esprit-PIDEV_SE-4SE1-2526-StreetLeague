@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -5,7 +6,7 @@ import { Materiel, Category } from '../models/materiel.model';
 
 @Injectable({ providedIn: 'root' })
 export class MaterielService {
-  private base = 'http://localhost:8086/StreetLeague/api';
+  private base = `${environment.baseUrl}/api`;
 
   constructor(private http: HttpClient) {}
 

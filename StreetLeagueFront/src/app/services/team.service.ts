@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 // src/app/services/team.service.ts
 
 import { Injectable } from '@angular/core';
@@ -9,7 +10,7 @@ import { LeaderboardDto } from '../models/leaderboard.model';
 @Injectable({ providedIn: 'root' })
 export class TeamService {
 
-  private base = 'http://localhost:8086/StreetLeague/team';
+  private base = `${environment.baseUrl}/team`;
 
   constructor(private http: HttpClient) {}
 

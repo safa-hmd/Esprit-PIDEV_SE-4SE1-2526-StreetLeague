@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
@@ -8,7 +9,7 @@ describe('UserService', () => {
   let service:  UserService;
   let httpMock: HttpTestingController;
 
-  const base = 'http://localhost:8086/StreetLeague/user';
+  const base = `${environment.baseUrl}/user`;
 
   const mockProfile: UserProfile = {
       fullName: 'Alice Martin',

@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -6,7 +7,7 @@ import { AddToCartDTO, PanierResponse } from '../models/panier.model';
 
 @Injectable({ providedIn: 'root' })
 export class ShopService {
-  private base = 'http://localhost:8086/StreetLeague/api';
+  private base = `${environment.baseUrl}/api`;
 
   constructor(private http: HttpClient) {}
 

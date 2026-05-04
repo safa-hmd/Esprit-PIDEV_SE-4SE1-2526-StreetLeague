@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -14,7 +15,7 @@ import {
 })
 export class DashboardService {
 
-  private api = 'http://localhost:8086/StreetLeague/api/dashboard';
+  private api = `${environment.baseUrl}/api/dashboard`;
 
   constructor(private http: HttpClient) {}
 

@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { HealthDashboardService, WaterReminderResponse } from './healthdashboard.service';
@@ -58,7 +59,7 @@ describe('HealthDashboardService', () => {
         done();
       });
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/waterReminder/getAll');
+      const req = httpMock.expectOne(`${environment.baseUrl}/waterReminder/getAll`);
       expect(req.request.method).toBe('GET');
       req.flush(mockReminders);
     });
@@ -84,7 +85,7 @@ describe('HealthDashboardService', () => {
         done();
       });
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/waterReminder/getAll');
+      const req = httpMock.expectOne(`${environment.baseUrl}/waterReminder/getAll`);
       req.flush(mockReminders);
     });
 
@@ -95,7 +96,7 @@ describe('HealthDashboardService', () => {
         done();
       });
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/waterReminder/getAll');
+      const req = httpMock.expectOne(`${environment.baseUrl}/waterReminder/getAll`);
       req.flush([]);
     });
 
@@ -108,7 +109,7 @@ describe('HealthDashboardService', () => {
         }
       );
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/waterReminder/getAll');
+      const req = httpMock.expectOne(`${environment.baseUrl}/waterReminder/getAll`);
       req.flush('Server error', { status: 500, statusText: 'Server Error' });
     });
 
@@ -121,7 +122,7 @@ describe('HealthDashboardService', () => {
         }
       );
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/waterReminder/getAll');
+      const req = httpMock.expectOne(`${environment.baseUrl}/waterReminder/getAll`);
       req.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
     });
 
@@ -153,7 +154,7 @@ describe('HealthDashboardService', () => {
         done();
       });
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/waterReminder/getAll');
+      const req = httpMock.expectOne(`${environment.baseUrl}/waterReminder/getAll`);
       req.flush(mockReminders);
     });
 
@@ -162,9 +163,10 @@ describe('HealthDashboardService', () => {
         done();
       });
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/waterReminder/getAll');
-      expect(req.request.url).toBe('http://localhost:8086/StreetLeague/waterReminder/getAll');
+      const req = httpMock.expectOne(`${environment.baseUrl}/waterReminder/getAll`);
+      expect(req.request.url).toBe(`${environment.baseUrl}/waterReminder/getAll`);
       req.flush([]);
     });
   });
 });
+

@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HealthService, WaterReminderDTO, GoalDTO, RewardDTO, UserBadge, DietRequestDTO, DietResponseDTO,FitnessReportDTO } from '../../services/health.service';
 import { AuthService } from '../../services/auth.service';
@@ -98,7 +99,7 @@ ngOnInit() {
     this.initHealthData(userId);
   } else {
     // ✅ Fallback via /user/profile (utilise le JWT automatiquement)
-    this.http.get<any>('http://localhost:8086/StreetLeague/user/profile').subscribe({
+    this.http.get<any>(`${environment.baseUrl}/user/profile`).subscribe({
       next: (profile) => {
         this.currentUserId = profile.idUser;
         this.initHealthData(profile.idUser);

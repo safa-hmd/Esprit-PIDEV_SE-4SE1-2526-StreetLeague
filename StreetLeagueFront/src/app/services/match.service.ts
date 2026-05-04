@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 // src/app/services/match.service.ts
 
 import { Injectable } from '@angular/core';
@@ -8,7 +9,7 @@ import { MatchRequest, MatchResponse, MatchUpdateRequest } from '../models/match
 @Injectable({ providedIn: 'root' })
 export class MatchService {
 
-  private base = 'http://localhost:8086/StreetLeague/match';
+  private base = `${environment.baseUrl}/match`;
 
   constructor(private http: HttpClient) {}
 

@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -29,7 +30,7 @@ export interface AuthResponse {
 })
 export class AuthService {
 
-  private baseUrl = 'http://localhost:8086/StreetLeague'; // ✅ port + context path corrects
+  private baseUrl = `${environment.baseUrl}`; // ✅ port + context path corrects
 
   constructor(private http: HttpClient) {}
 
@@ -108,14 +109,14 @@ getToken(): string | null {
 
   loginWithGoogle(): void {
   window.location.href = 
-    'http://localhost:8086/StreetLeague/oauth2/authorization/google';
+    `${environment.baseUrl}/oauth2/authorization/google`;
 }
 
 
 
 forgotPassword(email: string): Observable<string> {
   return this.http.post(
-    `http://localhost:8086/StreetLeague/auth/forgot-password`,
+    `${environment.baseUrl}/auth/forgot-password`,
     { email },
     { responseType: 'text' }
   );
@@ -123,7 +124,7 @@ forgotPassword(email: string): Observable<string> {
 
 resetPassword(token: string, newPassword: string): Observable<string> {
   return this.http.post(
-    `http://localhost:8086/StreetLeague/auth/reset-password`,
+    `${environment.baseUrl}/auth/reset-password`,
     { token, newPassword },
     { responseType: 'text' }
   );
@@ -148,3 +149,4 @@ getCurrentUserId(): number {
   }
 
 }
+

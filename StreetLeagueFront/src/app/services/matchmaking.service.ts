@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 // src/app/services/matchmaking.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -6,7 +7,7 @@ import { MatchCandidate } from '../models/match-candidate.model';
 
 @Injectable({ providedIn: 'root' })
 export class MatchmakingService {
-  private readonly API = 'http://localhost:8086/StreetLeague/api';
+  private readonly API = `${environment.baseUrl}/api`;
 
   constructor(private http: HttpClient) {}
 
@@ -60,9 +61,11 @@ export class MatchmakingService {
       `${pad(matchDate.getMinutes())}:00`;
 
     return this.http.post(
-      `http://localhost:8086/StreetLeague/match/add`,
+      `${environment.baseUrl}/match/add`,
       { matchDate: formattedDate, location },
       { params }
     );
   }
 }
+
+

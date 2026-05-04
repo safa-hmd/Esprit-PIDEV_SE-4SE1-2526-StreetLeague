@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -45,7 +46,7 @@ export interface WaterLogResponse {
 
 @Injectable({ providedIn: 'root' })
 export class HealthDashboardService {
-  private apiUrl = 'http://localhost:8086/StreetLeague';
+  private apiUrl = `${environment.baseUrl}`;
 
   constructor(private http: HttpClient) {}
 
@@ -69,3 +70,4 @@ export class HealthDashboardService {
     return this.http.get<WaterLogResponse[]>(`${this.apiUrl}/health/water-logs/${userId}`);
   }
 }
+

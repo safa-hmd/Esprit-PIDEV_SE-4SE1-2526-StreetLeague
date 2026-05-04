@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TravelService } from '../../services/travel.service';
@@ -17,7 +18,7 @@ export class AccommodationRequestsComponent implements OnInit {
   selectedRequest: any = null;
   adminComment: string = '';
 
-  private baseUrl = 'http://localhost:8086/StreetLeague';
+  private baseUrl = `${environment.baseUrl}`;
 
   // KPI Getters
   get pendingCount(): number {
@@ -194,3 +195,4 @@ export class AccommodationRequestsComponent implements OnInit {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 }
+

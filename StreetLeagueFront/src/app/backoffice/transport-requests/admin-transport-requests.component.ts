@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TravelService } from '../../services/travel.service';
@@ -50,7 +51,7 @@ export class AdminTransportRequestsComponent implements OnInit {
     return sum;
   }
 
-  private baseUrl = 'http://localhost:8086/StreetLeague';
+  private baseUrl = `${environment.baseUrl}`;
 
   constructor(
     private travelService: TravelService,
@@ -255,4 +256,5 @@ export class AdminTransportRequestsComponent implements OnInit {
     return new Date(dateString).toLocaleString();
   }
 }
+
 

@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 // src/app/services/match-history.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -7,8 +8,8 @@ import { MatchHistoryDto, MatchResponse, MatchStatus } from '../models/match-his
 @Injectable({ providedIn: 'root' })
 export class MatchHistoryService {
 
-  private base    = 'http://localhost:8086/StreetLeague/matches-history';
-  private baseMatch = 'http://localhost:8086/StreetLeague/matches';
+  private base    = `${environment.baseUrl}/matches-history`;
+  private baseMatch = `${environment.baseUrl}/matches`;
 
   constructor(private http: HttpClient) {}
 

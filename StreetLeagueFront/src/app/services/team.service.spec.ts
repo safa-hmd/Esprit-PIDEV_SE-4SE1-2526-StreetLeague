@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { TestBed } from '@angular/core/testing';
 import { TeamService } from './team.service';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -6,7 +7,7 @@ describe('TeamService', () => {
   let service:  TeamService;
   let httpMock: HttpTestingController;
 
-  const base = 'http://localhost:8086/StreetLeague/team';
+  const base = `${environment.baseUrl}/team`;
 
   const mockTeam = {
     idTeam: 1, name: 'Thunder FC', sport: 'Soccer',

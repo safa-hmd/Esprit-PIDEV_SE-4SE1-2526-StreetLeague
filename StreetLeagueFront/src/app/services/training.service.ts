@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 // src/app/services/training.service.ts
 
 import { Injectable } from '@angular/core';
@@ -8,7 +9,7 @@ import { TrainingRequest, TrainingResponse, TrainingUpdateRequest } from '../mod
 @Injectable({ providedIn: 'root' })
 export class TrainingService {
 
-  private base = 'http://localhost:8086/StreetLeague/training';
+  private base = `${environment.baseUrl}/training`;
 
   constructor(private http: HttpClient) {}
 

@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
@@ -11,7 +12,7 @@ export interface ScheduleResponse {
 @Injectable({ providedIn: 'root' })
 export class ScheduleService {
 
-  private readonly API = 'http://localhost:8086/StreetLeague/api/schedule';
+  private readonly API = `${environment.baseUrl}/api/schedule`;
 
   constructor(private http: HttpClient) {}
 

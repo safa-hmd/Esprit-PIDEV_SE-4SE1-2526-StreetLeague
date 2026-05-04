@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { FieldReservationService } from './field-reservation.service';
@@ -6,8 +7,8 @@ describe('FieldReservationService', () => {
   let service: FieldReservationService;
   let httpMock: HttpTestingController;
 
-  const reservationApi = 'http://localhost:8086/StreetLeague/api/reservations';
-  const fieldApi = 'http://localhost:8086/StreetLeague/api/fields';
+  const reservationApi = `${environment.baseUrl}/api/reservations`;
+  const fieldApi = `${environment.baseUrl}/api/fields`;
 
   const mockReservation: any = {
     id: 1,

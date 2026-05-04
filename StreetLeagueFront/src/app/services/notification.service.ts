@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 
 // src/app/services/notification.service.ts
 import { Injectable } from '@angular/core';
@@ -7,7 +8,7 @@ import { NotificationResponse } from '../models/notification.model';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private base = 'http://localhost:8086/StreetLeague/notification';
+  private base = `${environment.baseUrl}/notification`;
 
 
   constructor(private http: HttpClient) {}
@@ -60,4 +61,5 @@ getRedirectTarget(id: number): Observable<{redirectTo: string, message: string}>
   );
 }
 }
+
 

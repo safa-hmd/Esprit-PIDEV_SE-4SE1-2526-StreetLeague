@@ -3,9 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UserProfile, UpdateProfileRequest, ChangePasswordRequest } from '../models/user.model';
 
+import { environment } from 'src/environments/environment';
+
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private api = 'http://localhost:8086/StreetLeague/user';
+  private api = `${environment.baseUrl}/user`;
 
   constructor(private http: HttpClient) {}
 

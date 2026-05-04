@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TravelService } from '../../services/travel.service';
@@ -28,7 +29,7 @@ export class CoachAccommodationComponent implements OnInit {
   successMessage: string = '';
   errorMessage: string = '';
 
-  private baseUrl = 'http://localhost:8086/StreetLeague';
+  private baseUrl = `${environment.baseUrl}`;
 
   constructor(
     private travelService: TravelService,

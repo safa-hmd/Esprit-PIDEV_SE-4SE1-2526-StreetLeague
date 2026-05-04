@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { LivraisonService } from './livraison.service';
@@ -7,7 +8,7 @@ describe('LivraisonService', () => {
   let service: LivraisonService;
   let httpMock: HttpTestingController;
 
-  const BASE = 'http://localhost:8086/StreetLeague/api';
+  const BASE = `${environment.baseUrl}/api`;
 
   // ── Données fictives ────────────────────────────────────
   const fakeLivraison: Livraison = {

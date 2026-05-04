@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { PostService } from './post.service';
@@ -36,7 +37,7 @@ describe('PostService', () => {
         done();
       });
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/posts/getAll');
+      const req = httpMock.expectOne(`${environment.baseUrl}/posts/getAll`);
       expect(req.request.method).toBe('GET');
       req.flush(mockPosts);
     });
@@ -50,7 +51,7 @@ describe('PostService', () => {
         }
       );
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/posts/getAll');
+      const req = httpMock.expectOne(`${environment.baseUrl}/posts/getAll`);
       req.flush('Server error', { status: 500, statusText: 'Server Error' });
     });
   });
@@ -67,7 +68,7 @@ describe('PostService', () => {
         done();
       });
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/posts/add');
+      const req = httpMock.expectOne(`${environment.baseUrl}/posts/add`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body instanceof FormData).toBeTruthy();
       req.flush(mockResponse);
@@ -82,7 +83,7 @@ describe('PostService', () => {
         done();
       });
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/posts/add');
+      const req = httpMock.expectOne(`${environment.baseUrl}/posts/add`);
       expect(req.request.body.get('title')).toBe(title);
       expect(req.request.body.get('description')).toBe(description);
       expect(req.request.body.get('image')).toBe(mockFile);
@@ -100,7 +101,7 @@ describe('PostService', () => {
         }
       );
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/posts/add');
+      const req = httpMock.expectOne(`${environment.baseUrl}/posts/add`);
       req.flush('Bad request', { status: 400, statusText: 'Bad Request' });
     });
   });
@@ -114,7 +115,7 @@ describe('PostService', () => {
         done();
       });
 
-      const req = httpMock.expectOne(`http://localhost:8086/StreetLeague/posts/delete/${postId}`);
+      const req = httpMock.expectOne(`${environment.baseUrl}/posts/delete/${postId}`);
       expect(req.request.method).toBe('DELETE');
       req.flush(null);
     });
@@ -128,7 +129,7 @@ describe('PostService', () => {
         }
       );
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/posts/delete/999');
+      const req = httpMock.expectOne(`${environment.baseUrl}/posts/delete/999`);
       req.flush('Not found', { status: 404, statusText: 'Not Found' });
     });
   });
@@ -144,7 +145,7 @@ describe('PostService', () => {
         done();
       });
 
-      const req = httpMock.expectOne(`http://localhost:8086/StreetLeague/posts/update/${postId}`);
+      const req = httpMock.expectOne(`${environment.baseUrl}/posts/update/${postId}`);
       expect(req.request.method).toBe('PUT');
       expect(req.request.body).toEqual(updatedPost);
       req.flush(mockResponse);
@@ -158,7 +159,7 @@ describe('PostService', () => {
         done();
       });
 
-      const req = httpMock.expectOne(`http://localhost:8086/StreetLeague/posts/update/${postId}`);
+      const req = httpMock.expectOne(`${environment.baseUrl}/posts/update/${postId}`);
       expect(req.request.body.title).toBe('New Title');
       expect(req.request.body.description).toBe('New Desc');
       req.flush({ id: postId });
@@ -174,7 +175,7 @@ describe('PostService', () => {
         done();
       });
 
-      const req = httpMock.expectOne(`http://localhost:8086/StreetLeague/posts/like/${postId}`);
+      const req = httpMock.expectOne(`${environment.baseUrl}/posts/like/${postId}`);
       expect(req.request.method).toBe('POST');
       req.flush({ success: true });
     });
@@ -188,8 +189,10 @@ describe('PostService', () => {
         }
       );
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/posts/like/999');
+      const req = httpMock.expectOne(`${environment.baseUrl}/posts/like/999`);
       req.flush('Not found', { status: 404, statusText: 'Not Found' });
     });
   });
 });
+
+

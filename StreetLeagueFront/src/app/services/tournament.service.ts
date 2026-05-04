@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 // src/app/services/tournament.service.ts
 import { Injectable }             from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -14,8 +15,8 @@ import {
 @Injectable({ providedIn: 'root' })
 export class TournamentService {
 
-  private readonly API  = 'http://localhost:8086/StreetLeague/api/tournaments';
-  private readonly REG  = 'http://localhost:8086/StreetLeague/api/registrations';
+  private readonly API  = `${environment.baseUrl}/api/tournaments`;
+  private readonly REG  = `${environment.baseUrl}/api/registrations`;
 
   private filtersSubject = new BehaviorSubject<TournamentFilters>({ search: '', sport: '', status: '' });
   filters$ = this.filtersSubject.asObservable();

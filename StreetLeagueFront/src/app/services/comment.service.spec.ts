@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 /*import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { CommentService } from './comment.service';
@@ -37,7 +38,7 @@ describe('CommentService', () => {
         done();
       });
 
-      const req = httpMock.expectOne(`http://localhost:8086/StreetLeague/comments/post/${postId}`);
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/post/${postId}`);
       expect(req.request.method).toBe('GET');
       req.flush(mockComments);
     });
@@ -51,7 +52,7 @@ describe('CommentService', () => {
         done();
       });
 
-      const req = httpMock.expectOne(`http://localhost:8086/StreetLeague/comments/post/${postId}`);
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/post/${postId}`);
       req.flush([]);
     });
 
@@ -64,7 +65,7 @@ describe('CommentService', () => {
         }
       );
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/comments/post/1');
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/post/1`);
       req.flush('Server error', { status: 500, statusText: 'Server Error' });
     });
 
@@ -75,7 +76,7 @@ describe('CommentService', () => {
         done();
       });
 
-      const req = httpMock.expectOne(`http://localhost:8086/StreetLeague/comments/post/${postId}`);
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/post/${postId}`);
       expect(req.request.url).toContain(`/comments/post/${postId}`);
       req.flush([]);
     });
@@ -91,7 +92,7 @@ describe('CommentService', () => {
         done();
       });
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/comments/add');
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/add`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(commentData);
       req.flush(mockResponse);
@@ -104,7 +105,7 @@ describe('CommentService', () => {
         done();
       });
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/comments/add');
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/add`);
       expect(req.request.body.content).toBe('Test comment');
       expect(req.request.body.postId).toBe(5);
       req.flush({ id: 1 });
@@ -121,7 +122,7 @@ describe('CommentService', () => {
         }
       );
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/comments/add');
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/add`);
       req.flush('Invalid comment', { status: 400, statusText: 'Bad Request' });
     });
 
@@ -136,7 +137,7 @@ describe('CommentService', () => {
         }
       );
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/comments/add');
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/add`);
       req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
     });
   });
@@ -152,7 +153,7 @@ describe('CommentService', () => {
         done();
       });
 
-      const req = httpMock.expectOne(`http://localhost:8086/StreetLeague/comments/update/${commentId}`);
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/update/${commentId}`);
       expect(req.request.method).toBe('PUT');
       expect(req.request.body).toEqual(updatedData);
       req.flush(mockResponse);
@@ -166,7 +167,7 @@ describe('CommentService', () => {
         done();
       });
 
-      const req = httpMock.expectOne(`http://localhost:8086/StreetLeague/comments/update/${commentId}`);
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/update/${commentId}`);
       expect(req.request.body.content).toBe('Modified text');
       expect(req.request.body.postId).toBe(3);
       req.flush({ id: commentId });
@@ -183,7 +184,7 @@ describe('CommentService', () => {
         }
       );
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/comments/update/999');
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/update/999`);
       req.flush('Not found', { status: 404, statusText: 'Not Found' });
     });
 
@@ -195,7 +196,7 @@ describe('CommentService', () => {
         done();
       });
 
-      const req = httpMock.expectOne(`http://localhost:8086/StreetLeague/comments/update/${commentId}`);
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/update/${commentId}`);
       expect(req.request.url).toContain(`/comments/update/${commentId}`);
       req.flush({ id: commentId });
     });
@@ -210,7 +211,7 @@ describe('CommentService', () => {
         done();
       });
 
-      const req = httpMock.expectOne(`http://localhost:8086/StreetLeague/comments/delete/${commentId}`);
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/delete/${commentId}`);
       expect(req.request.method).toBe('DELETE');
       req.flush(null);
     });
@@ -224,7 +225,7 @@ describe('CommentService', () => {
         }
       );
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/comments/delete/999');
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/delete/999`);
       req.flush('Not found', { status: 404, statusText: 'Not Found' });
     });
 
@@ -235,7 +236,7 @@ describe('CommentService', () => {
         done();
       });
 
-      const req = httpMock.expectOne(`http://localhost:8086/StreetLeague/comments/delete/${commentId}`);
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/delete/${commentId}`);
       expect(req.request.method).toBe('DELETE');
       req.flush({});
     });
@@ -249,8 +250,10 @@ describe('CommentService', () => {
         }
       );
 
-      const req = httpMock.expectOne('http://localhost:8086/StreetLeague/comments/delete/1');
+      const req = httpMock.expectOne(`${environment.baseUrl}/comments/delete/1`);
       req.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
     });
   });
 });*/
+
+

@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 // src/app/services/performance-streak.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
@@ -69,7 +70,7 @@ export interface PlayerStatsDto {
 @Injectable({ providedIn: 'root' })
 export class PerformanceStreakService {
 
-  private base = 'http://localhost:8086/StreetLeague/api/performance';
+  private base = `${environment.baseUrl}/api/performance`;
 
   constructor(private http: HttpClient) {}
 
