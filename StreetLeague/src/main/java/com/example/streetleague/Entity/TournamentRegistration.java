@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tournament_registrations")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+//@Getter
+//@Setter
+//@NoArgsConstructor
+//@AllArgsConstructor
 @Builder
 public class TournamentRegistration {
 
@@ -47,5 +47,65 @@ public class TournamentRegistration {
         if (this.status == null) {
             this.status = RegistrationStatus.PENDING;
         }
+    }
+
+    public TournamentRegistration() {
+    }
+
+    public TournamentRegistration(Long id, Tournament tournament, User player, Team team, RegistrationStatus status, LocalDateTime registeredAt) {
+        this.id = id;
+        this.tournament = tournament;
+        this.player = player;
+        this.team = team;
+        this.status = status;
+        this.registeredAt = registeredAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
+    }
+
+    public User getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(User player) {
+        this.player = player;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
+    }
+
+    public RegistrationStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(RegistrationStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getRegisteredAt() {
+        return registeredAt;
+    }
+
+    public void setRegisteredAt(LocalDateTime registeredAt) {
+        this.registeredAt = registeredAt;
     }
 }

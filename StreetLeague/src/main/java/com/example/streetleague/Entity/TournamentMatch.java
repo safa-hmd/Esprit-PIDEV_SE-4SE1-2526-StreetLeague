@@ -6,10 +6,10 @@ import lombok.*;
 
 @Entity
 @Table(name = "tournament_matches")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+//@Getter
+//@Setter
+//@NoArgsConstructor
+//@AllArgsConstructor
 @Builder
 public class TournamentMatch {
 
@@ -70,4 +70,127 @@ public class TournamentMatch {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private TournamentMatchStatus status = TournamentMatchStatus.PENDING;
+
+    public TournamentMatch() {
+    }
+
+    public TournamentMatch(Long id, Tournament tournament, Match match, int round, int position, BracketType bracketType, User player1, User player2, TournamentMatch nextMatch, String nextMatchSlot, Team winnerTeam, User winnerPlayer, TournamentMatchStatus status) {
+        this.id = id;
+        this.tournament = tournament;
+        this.match = match;
+        this.round = round;
+        this.position = position;
+        this.bracketType = bracketType;
+        this.player1 = player1;
+        this.player2 = player2;
+        this.nextMatch = nextMatch;
+        this.nextMatchSlot = nextMatchSlot;
+        this.winnerTeam = winnerTeam;
+        this.winnerPlayer = winnerPlayer;
+        this.status = status;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
+    }
+
+    public Match getMatch() {
+        return match;
+    }
+
+    public void setMatch(Match match) {
+        this.match = match;
+    }
+
+    public int getRound() {
+        return round;
+    }
+
+    public void setRound(int round) {
+        this.round = round;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public BracketType getBracketType() {
+        return bracketType;
+    }
+
+    public void setBracketType(BracketType bracketType) {
+        this.bracketType = bracketType;
+    }
+
+    public User getPlayer1() {
+        return player1;
+    }
+
+    public void setPlayer1(User player1) {
+        this.player1 = player1;
+    }
+
+    public User getPlayer2() {
+        return player2;
+    }
+
+    public void setPlayer2(User player2) {
+        this.player2 = player2;
+    }
+
+    public TournamentMatch getNextMatch() {
+        return nextMatch;
+    }
+
+    public void setNextMatch(TournamentMatch nextMatch) {
+        this.nextMatch = nextMatch;
+    }
+
+    public String getNextMatchSlot() {
+        return nextMatchSlot;
+    }
+
+    public void setNextMatchSlot(String nextMatchSlot) {
+        this.nextMatchSlot = nextMatchSlot;
+    }
+
+    public Team getWinnerTeam() {
+        return winnerTeam;
+    }
+
+    public void setWinnerTeam(Team winnerTeam) {
+        this.winnerTeam = winnerTeam;
+    }
+
+    public User getWinnerPlayer() {
+        return winnerPlayer;
+    }
+
+    public void setWinnerPlayer(User winnerPlayer) {
+        this.winnerPlayer = winnerPlayer;
+    }
+
+    public TournamentMatchStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TournamentMatchStatus status) {
+        this.status = status;
+    }
 }

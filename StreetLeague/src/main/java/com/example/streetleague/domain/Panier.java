@@ -11,10 +11,10 @@ import java.util.List;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+//@Getter
+//@Setter
+//@NoArgsConstructor
+//@AllArgsConstructor
 @Builder
 @Table(name = "paniers")
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -33,4 +33,37 @@ public class Panier {
     @OneToMany(mappedBy = "panier", cascade = CascadeType.ALL)
             @JsonIgnore
     List<LignePanier> lignes;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<LignePanier> getLignes() {
+        return lignes;
+    }
+
+    public void setLignes(List<LignePanier> lignes) {
+        this.lignes = lignes;
+    }
+
+    public Panier(Long id, User user, List<LignePanier> lignes) {
+        this.id = id;
+        this.user = user;
+        this.lignes = lignes;
+    }
+
+    public Panier() {
+    }
 }
