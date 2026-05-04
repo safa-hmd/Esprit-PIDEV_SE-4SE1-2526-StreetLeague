@@ -180,11 +180,11 @@ public class AnomalyAlertScheduler {
                 }
 
             } catch (Exception e) {
-                log.error(
+                /*log.error(
                         "❌ Erreur analyse horaire {} : {}",
                         player.getFullName(),
                         e.getMessage()
-                );
+                );*/
             }
         }
     }
