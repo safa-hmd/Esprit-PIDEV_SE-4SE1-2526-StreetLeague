@@ -6,26 +6,30 @@ on:
 
 jobs:
 
-# =========================
-# 1. BUILD BACKEND
-# =========================
+  # =========================
+  # 1. BACKEND BUILD
+  # =========================
   backend:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up JDK
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
           cache: maven
 
-      - name: Build Spring Boot
+      - name: Clean + Build Spring Boot
         run: |
           cd StreetLeague
           mvn clean package -DskipTests
+
+      - name: Find JAR
+        run: ls StreetLeague/target/
 
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
@@ -34,36 +38,45 @@ jobs:
           path: StreetLeague/target/*.jar
 
 
-# =========================
-# 2. BUILD FRONTEND
-# =========================
+  # =========================
+  # 2. FRONTEND BUILD
+  # =========================
   frontend:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - name: Setup Node 18
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install & Build Angular
+      - name: Install dependencies
         run: |
           cd StreetLeagueFront
           npm install
-          npm run build --configuration production
+
+      - name: Build Angular production
+        run: |
+          cd StreetLeagueFront
+          npm run build -- --configuration production
+
+      - name: Check dist output
+        run: ls StreetLeagueFront/dist/
+
 
       - name: Upload frontend artifact
         uses: actions/upload-artifact@v4
         with:
           name: frontend
-          path: StreetLeagueFront/dist/
+          path: StreetLeagueFront/dist/**
 
 
-# =========================
-# 3. DEPLOY
-# =========================
+  # =========================
+  # 3. DEPLOY TO AZURE
+  # =========================
   deploy:
     needs: [backend, frontend]
     runs-on: ubuntu-latest
@@ -83,17 +96,19 @@ jobs:
           path: frontend
 
 
+      # ================= Backend deploy
       - name: Deploy Backend to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "streetleaguebackend"
+          app-name: streetleaguebackend
           publish-profile: ${{ secrets.AZURE_BACKEND_PUBLISH_PROFILE }}
           package: backend/*.jar
 
 
+      # ================= Frontend deploy
       - name: Deploy Frontend to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "streetleaguefrontend"
+          app-name: streetleaguefrontend
           publish-profile: ${{ secrets.AZURE_FRONTEND_PUBLISH_PROFILE }}
-          package: frontend/
+          package: frontend
