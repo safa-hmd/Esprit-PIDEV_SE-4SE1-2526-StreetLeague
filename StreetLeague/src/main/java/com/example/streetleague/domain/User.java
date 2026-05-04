@@ -28,6 +28,10 @@ public class User {
     @Column(name = "id")
     Long idUser;
 
+    public Long getIdUser() {
+        return idUser;
+    }
+
     @Column(nullable = false)
     String fullName;
 
