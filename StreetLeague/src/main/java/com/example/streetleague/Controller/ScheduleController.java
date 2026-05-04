@@ -6,7 +6,6 @@ import com.example.streetleague.Repository.MatchRepository;
 import com.example.streetleague.Repository.TrainingRepository;
 import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.domain.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/schedule")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class ScheduleController {
 
@@ -35,6 +33,14 @@ public class ScheduleController {
     private final UserRepository    userRepository;
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+    public ScheduleController(RestTemplate restTemplate, MatchRepository matchRepository, TrainingRepository trainingRepository, FieldRepository fieldRepository, UserRepository userRepository) {
+        this.restTemplate = restTemplate;
+        this.matchRepository = matchRepository;
+        this.trainingRepository = trainingRepository;
+        this.fieldRepository = fieldRepository;
+        this.userRepository = userRepository;
+    }
 
     // ════════════════════════════════════════════════════════════════
     // GET /api/schedule/{userId}/week?lat=36.8&lng=10.1
@@ -282,13 +288,6 @@ public class ScheduleController {
 
     /**
      * Find field coordinates by matching location text against field names/locations in DB.
-     *
-     * Strategy (best-match wins):
-     *  1. Exact substring match (original behaviour)
-     *  2. Any significant word (≥ 3 chars) from locationText found in field name/location
-     *  3. Any significant word from field name/location found in locationText
-     *
-     * This handles cases like locationText="Sousse Park" matching a field named "Stade de Sousse".
      */
     private Double[] findFieldCoordsByName(String locationText) {
         if (locationText == null || locationText.isBlank())

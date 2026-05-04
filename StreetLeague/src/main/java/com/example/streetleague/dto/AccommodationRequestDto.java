@@ -1,16 +1,8 @@
 package com.example.streetleague.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
+import java.util.Objects;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class AccommodationRequestDto {
     private Long accommodationId;
     private List<Long> memberIds;
@@ -19,26 +11,61 @@ public class AccommodationRequestDto {
     private String coachName;
     private Double totalAmount;
 
-    // ===== EXPLICIT GETTERS/SETTERS (Lombok not processing) =====
-    public Long getAccommodationId() { return this.accommodationId; }
+    public AccommodationRequestDto() {
+    }
+
+    public AccommodationRequestDto(Long accommodationId, List<Long> memberIds, Long tournamentId, Long coachId, String coachName, Double totalAmount) {
+        this.accommodationId = accommodationId;
+        this.memberIds = memberIds;
+        this.tournamentId = tournamentId;
+        this.coachId = coachId;
+        this.coachName = coachName;
+        this.totalAmount = totalAmount;
+    }
+
+    public Long getAccommodationId() { return accommodationId; }
     public void setAccommodationId(Long accommodationId) { this.accommodationId = accommodationId; }
 
-    public List<Long> getMemberIds() { return this.memberIds; }
+    public List<Long> getMemberIds() { return memberIds; }
     public void setMemberIds(List<Long> memberIds) { this.memberIds = memberIds; }
 
-    public Long getTournamentId() { return this.tournamentId; }
+    public Long getTournamentId() { return tournamentId; }
     public void setTournamentId(Long tournamentId) { this.tournamentId = tournamentId; }
 
-    public Long getCoachId() { return this.coachId; }
+    public Long getCoachId() { return coachId; }
     public void setCoachId(Long coachId) { this.coachId = coachId; }
 
-    public String getCoachName() { return this.coachName; }
+    public String getCoachName() { return coachName; }
     public void setCoachName(String coachName) { this.coachName = coachName; }
 
-    public Double getTotalAmount() { return this.totalAmount; }
+    public Double getTotalAmount() { return totalAmount; }
     public void setTotalAmount(Double totalAmount) { this.totalAmount = totalAmount; }
 
-    // ===== STATIC BUILDER HELPER =====
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AccommodationRequestDto that = (AccommodationRequestDto) o;
+        return Objects.equals(accommodationId, that.accommodationId) && Objects.equals(memberIds, that.memberIds) && Objects.equals(tournamentId, that.tournamentId) && Objects.equals(coachId, that.coachId) && Objects.equals(coachName, that.coachName) && Objects.equals(totalAmount, that.totalAmount);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(accommodationId, memberIds, tournamentId, coachId, coachName, totalAmount);
+    }
+
+    @Override
+    public String toString() {
+        return "AccommodationRequestDto{" +
+                "accommodationId=" + accommodationId +
+                ", memberIds=" + memberIds +
+                ", tournamentId=" + tournamentId +
+                ", coachId=" + coachId +
+                ", coachName='" + coachName + '\'' +
+                ", totalAmount=" + totalAmount +
+                '}';
+    }
+
     public static AccommodationRequestDtoBuilder builder() {
         return new AccommodationRequestDtoBuilder();
     }
@@ -51,45 +78,15 @@ public class AccommodationRequestDto {
         private String coachName;
         private Double totalAmount;
 
-        public AccommodationRequestDtoBuilder accommodationId(Long accommodationId) {
-            this.accommodationId = accommodationId;
-            return this;
-        }
-
-        public AccommodationRequestDtoBuilder memberIds(List<Long> memberIds) {
-            this.memberIds = memberIds;
-            return this;
-        }
-
-        public AccommodationRequestDtoBuilder tournamentId(Long tournamentId) {
-            this.tournamentId = tournamentId;
-            return this;
-        }
-
-        public AccommodationRequestDtoBuilder coachId(Long coachId) {
-            this.coachId = coachId;
-            return this;
-        }
-
-        public AccommodationRequestDtoBuilder coachName(String coachName) {
-            this.coachName = coachName;
-            return this;
-        }
-
-        public AccommodationRequestDtoBuilder totalAmount(Double totalAmount) {
-            this.totalAmount = totalAmount;
-            return this;
-        }
+        public AccommodationRequestDtoBuilder accommodationId(Long accommodationId) { this.accommodationId = accommodationId; return this; }
+        public AccommodationRequestDtoBuilder memberIds(List<Long> memberIds) { this.memberIds = memberIds; return this; }
+        public AccommodationRequestDtoBuilder tournamentId(Long tournamentId) { this.tournamentId = tournamentId; return this; }
+        public AccommodationRequestDtoBuilder coachId(Long coachId) { this.coachId = coachId; return this; }
+        public AccommodationRequestDtoBuilder coachName(String coachName) { this.coachName = coachName; return this; }
+        public AccommodationRequestDtoBuilder totalAmount(Double totalAmount) { this.totalAmount = totalAmount; return this; }
 
         public AccommodationRequestDto build() {
-            AccommodationRequestDto dto = new AccommodationRequestDto();
-            dto.setAccommodationId(accommodationId);
-            dto.setMemberIds(memberIds);
-            dto.setTournamentId(tournamentId);
-            dto.setCoachId(coachId);
-            dto.setCoachName(coachName);
-            dto.setTotalAmount(totalAmount);
-            return dto;
+            return new AccommodationRequestDto(accommodationId, memberIds, tournamentId, coachId, coachName, totalAmount);
         }
     }
 }

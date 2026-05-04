@@ -7,7 +7,6 @@ import com.example.streetleague.dto.ChallengeRequest;
 import com.example.streetleague.dto.MatchRequest;
 import com.example.streetleague.dto.MatchResponse;
 import com.example.streetleague.dto.MatchUpdateRequest;
-import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +14,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@AllArgsConstructor
 @CrossOrigin("*")
 @RequestMapping("match")
 public class MatchController {
 
-    ImatchService  imatchService;
-    UserRepository userRepository;
+    private final ImatchService imatchService;
+    private final UserRepository userRepository;
+
+    public MatchController(ImatchService imatchService, UserRepository userRepository) {
+        this.imatchService = imatchService;
+        this.userRepository = userRepository;
+    }
 
     // POST /match/add?teamAId=1&teamBId=2&email=captain@mail.com
     @PostMapping("/add")
@@ -69,7 +72,6 @@ public class MatchController {
         return imatchService.ShowMatch(idMatch);
     }
 
-
     // Dans MatchController.java — AJOUTER cette méthode uniquement
     @PostMapping("add-by-email")
     public ResponseEntity<MatchResponse> addMatchByEmail(
@@ -86,7 +88,6 @@ public class MatchController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-
     // PUT /match/{matchId}/respond?captainId=2&accept=true
     @PutMapping("{matchId}/respond")
     public ResponseEntity<MatchResponse> respondToMatch(
@@ -95,7 +96,6 @@ public class MatchController {
             @RequestParam boolean accept) {
         return ResponseEntity.ok(imatchService.respondToMatch(matchId, captainId, accept));
     }
-
 
     // MatchController.java
     @PostMapping("/challenge")

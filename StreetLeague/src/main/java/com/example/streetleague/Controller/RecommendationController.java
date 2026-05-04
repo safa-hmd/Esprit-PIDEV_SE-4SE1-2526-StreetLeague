@@ -1,7 +1,6 @@
 package com.example.streetleague.Controller;
 
 import com.example.streetleague.Repository.FieldRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -12,15 +11,19 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/recommend")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class RecommendationController {
 
     @Value("${flask.api.url}")
     private String flaskUrl;
 
-    private final RestTemplate    restTemplate;
+    private final RestTemplate restTemplate;
     private final FieldRepository fieldRepository;
+
+    public RecommendationController(RestTemplate restTemplate, FieldRepository fieldRepository) {
+        this.restTemplate = restTemplate;
+        this.fieldRepository = fieldRepository;
+    }
 
     // ════════════════════════════════════════════════════════════════
     // GET /api/recommend/fields/{userId}?lat=36.8&lng=10.1

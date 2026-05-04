@@ -5,7 +5,6 @@ import com.example.streetleague.Repository.TournamentRepository;
 import com.example.streetleague.ServiceInterface.ITournamentService;
 import com.example.streetleague.dto.TournamentDto;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +14,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/tournaments")
 @CrossOrigin(origins = "*")
-@RequiredArgsConstructor
 public class TournamentController {
 
     private final ITournamentService tournamentService;
     private final TournamentRepository tournamentRepository;
+
+    public TournamentController(ITournamentService tournamentService, TournamentRepository tournamentRepository) {
+        this.tournamentService = tournamentService;
+        this.tournamentRepository = tournamentRepository;
+    }
 
     // ===== ADMIN =====
 

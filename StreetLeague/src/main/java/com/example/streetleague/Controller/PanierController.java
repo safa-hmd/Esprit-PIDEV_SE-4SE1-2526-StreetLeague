@@ -3,16 +3,18 @@ package com.example.streetleague.Controller;
 import com.example.streetleague.ServiceInterface.PanierService;
 import com.example.streetleague.dto.*;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/panier")
-@RequiredArgsConstructor
 @CrossOrigin("*")
 public class PanierController {
 
     private final PanierService panierService;
+
+    public PanierController(PanierService panierService) {
+        this.panierService = panierService;
+    }
 
     @PostMapping("/add")
     public String addToCart(@Valid @RequestBody AddToCartDTO dto){

@@ -3,19 +3,15 @@ package com.example.streetleague.Controller;
 import com.example.streetleague.Repository.TeamRepository;
 import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceInterface.IteamService;
-import com.example.streetleague.domain.Role;
 import com.example.streetleague.domain.User;
 import com.example.streetleague.dto.LeaderboardDto;
 import com.example.streetleague.dto.TeamRequest;
 import com.example.streetleague.dto.TeamResponse;
-import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
-@AllArgsConstructor
 @CrossOrigin(origins = {
         "http://localhost:4200",
         "https://streetleaguefrontend.azurewebsites.net"
@@ -23,9 +19,15 @@ import java.util.Map;
 @RequestMapping("/team")
 public class TeamController {
 
-    IteamService   teamService;
-    UserRepository userRepository;
-    TeamRepository teamRepository;
+    private final IteamService teamService;
+    private final UserRepository userRepository;
+    private final TeamRepository teamRepository;
+
+    public TeamController(IteamService teamService, UserRepository userRepository, TeamRepository teamRepository) {
+        this.teamService = teamService;
+        this.userRepository = userRepository;
+        this.teamRepository = teamRepository;
+    }
 
     // POST /team/add?email=captain@mail.com
     @PostMapping("/add")

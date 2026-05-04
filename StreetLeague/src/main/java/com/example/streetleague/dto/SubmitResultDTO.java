@@ -1,9 +1,8 @@
 package com.example.streetleague.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import java.util.Objects;
 
-//@Data
 public class SubmitResultDTO {
 
     @NotNull
@@ -15,6 +14,16 @@ public class SubmitResultDTO {
     // Optionnel : scores pour le Match
     private Integer scoreA;
     private Integer scoreB;
+
+    public SubmitResultDTO() {
+    }
+
+    public SubmitResultDTO(Long winnerId, Boolean winnerIsTeam, Integer scoreA, Integer scoreB) {
+        this.winnerId = winnerId;
+        this.winnerIsTeam = winnerIsTeam;
+        this.scoreA = scoreA;
+        this.scoreB = scoreB;
+    }
 
     public Long getWinnerId() {
         return winnerId;
@@ -46,5 +55,48 @@ public class SubmitResultDTO {
 
     public void setScoreB(Integer scoreB) {
         this.scoreB = scoreB;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SubmitResultDTO that = (SubmitResultDTO) o;
+        return Objects.equals(winnerId, that.winnerId) && Objects.equals(winnerIsTeam, that.winnerIsTeam) && Objects.equals(scoreA, that.scoreA) && Objects.equals(scoreB, that.scoreB);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(winnerId, winnerIsTeam, scoreA, scoreB);
+    }
+
+    @Override
+    public String toString() {
+        return "SubmitResultDTO{" +
+                "winnerId=" + winnerId +
+                ", winnerIsTeam=" + winnerIsTeam +
+                ", scoreA=" + scoreA +
+                ", scoreB=" + scoreB +
+                '}';
+    }
+
+    public static SubmitResultDTOBuilder builder() {
+        return new SubmitResultDTOBuilder();
+    }
+
+    public static class SubmitResultDTOBuilder {
+        private Long winnerId;
+        private Boolean winnerIsTeam;
+        private Integer scoreA;
+        private Integer scoreB;
+
+        public SubmitResultDTOBuilder winnerId(Long winnerId) { this.winnerId = winnerId; return this; }
+        public SubmitResultDTOBuilder winnerIsTeam(Boolean winnerIsTeam) { this.winnerIsTeam = winnerIsTeam; return this; }
+        public SubmitResultDTOBuilder scoreA(Integer scoreA) { this.scoreA = scoreA; return this; }
+        public SubmitResultDTOBuilder scoreB(Integer scoreB) { this.scoreB = scoreB; return this; }
+
+        public SubmitResultDTO build() {
+            return new SubmitResultDTO(winnerId, winnerIsTeam, scoreA, scoreB);
+        }
     }
 }

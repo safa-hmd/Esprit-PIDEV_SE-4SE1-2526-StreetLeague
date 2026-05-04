@@ -6,8 +6,6 @@ import com.example.streetleague.ServiceInterface.waterReminderService;
 import com.example.streetleague.dto.WaterReminderResponseDTO;
 import com.example.streetleague.dto.waterReminderDTO;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +13,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/waterReminder")
 public class WaterReminderController {
+
     private final waterReminderService waterReminderService;
     private final WaterReminderRepository waterReminderRepository;
 
+    public WaterReminderController(waterReminderService waterReminderService, WaterReminderRepository waterReminderRepository) {
+        this.waterReminderService = waterReminderService;
+        this.waterReminderRepository = waterReminderRepository;
+    }
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('PLAYER')")
@@ -46,11 +48,13 @@ public class WaterReminderController {
         waterReminderService.deletewaterReminder(id);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/getAll")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<WaterReminderResponseDTO>> getAllReminders() {
         return ResponseEntity.ok(waterReminderService.getAllReminders());
     }
+
     @GetMapping("/byUser/{userId}")
     @PreAuthorize("hasRole('PLAYER')")
     public ResponseEntity<waterReminder> getReminderByUser(@PathVariable Long userId) {

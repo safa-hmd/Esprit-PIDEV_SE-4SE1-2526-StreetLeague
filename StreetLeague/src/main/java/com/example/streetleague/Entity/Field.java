@@ -1,8 +1,6 @@
 package com.example.streetleague.Entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,7 +38,6 @@ public class Field {
     // ---- Relations ----
 
     @OneToMany(mappedBy = "field", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private List<FieldReservation> reservations = new ArrayList<>();
 
     @Column(name = "latitude")

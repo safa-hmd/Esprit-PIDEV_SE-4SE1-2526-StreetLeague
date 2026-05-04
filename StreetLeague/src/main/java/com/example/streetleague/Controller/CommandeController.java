@@ -4,7 +4,6 @@ import com.example.streetleague.ServiceInterface.CommandeService;
 import com.example.streetleague.domain.Commande;
 import com.example.streetleague.dto.CommandeDTO;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +11,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/commandes")
-@RequiredArgsConstructor
 @CrossOrigin("*")
 public class CommandeController {
 
     private final CommandeService commandeService;
+
+    public CommandeController(CommandeService commandeService) {
+        this.commandeService = commandeService;
+    }
 
     @PostMapping
     public ResponseEntity<Commande> create(@Valid @RequestBody CommandeDTO dto) {

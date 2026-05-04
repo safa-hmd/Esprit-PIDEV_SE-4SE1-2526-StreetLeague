@@ -1,17 +1,9 @@
 package com.example.streetleague.schedule;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 
-//@Data
-@Builder
-//@NoArgsConstructor
-//@AllArgsConstructor
 public class FieldScheduleEntryDto {
 
     // "RESERVATION" ou "TOURNAMENT"
@@ -39,6 +31,21 @@ public class FieldScheduleEntryDto {
 
     // INDIVIDUAL/TEAM — null si réservation
     private String tournamentType;
+
+    public FieldScheduleEntryDto() {
+    }
+
+    public FieldScheduleEntryDto(String type, LocalDate date, LocalTime startTime, LocalTime endTime, String sport, String label, String status, Long eventId, String tournamentType) {
+        this.type = type;
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.sport = sport;
+        this.label = label;
+        this.status = status;
+        this.eventId = eventId;
+        this.tournamentType = tournamentType;
+    }
 
     public String getType() {
         return type;
@@ -112,19 +119,56 @@ public class FieldScheduleEntryDto {
         this.tournamentType = tournamentType;
     }
 
-    public FieldScheduleEntryDto(String type, LocalDate date, LocalTime startTime, LocalTime endTime, String sport, String label, String status, Long eventId, String tournamentType) {
-        this.type = type;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.sport = sport;
-        this.label = label;
-        this.status = status;
-        this.eventId = eventId;
-        this.tournamentType = tournamentType;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FieldScheduleEntryDto that = (FieldScheduleEntryDto) o;
+        return Objects.equals(type, that.type) && Objects.equals(date, that.date) && Objects.equals(startTime, that.startTime) && Objects.equals(endTime, that.endTime) && Objects.equals(eventId, that.eventId);
     }
 
-    public FieldScheduleEntryDto() {
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, date, startTime, endTime, eventId);
+    }
 
+    @Override
+    public String toString() {
+        return "FieldScheduleEntryDto{" +
+                "type='" + type + '\'' +
+                ", date=" + date +
+                ", label='" + label + '\'' +
+                ", status='" + status + '\'' +
+                '}';
+    }
+
+    public static FieldScheduleEntryDtoBuilder builder() {
+        return new FieldScheduleEntryDtoBuilder();
+    }
+
+    public static class FieldScheduleEntryDtoBuilder {
+        private String type;
+        private LocalDate date;
+        private LocalTime startTime;
+        private LocalTime endTime;
+        private String sport;
+        private String label;
+        private String status;
+        private Long eventId;
+        private String tournamentType;
+
+        public FieldScheduleEntryDtoBuilder type(String type) { this.type = type; return this; }
+        public FieldScheduleEntryDtoBuilder date(LocalDate date) { this.date = date; return this; }
+        public FieldScheduleEntryDtoBuilder startTime(LocalTime startTime) { this.startTime = startTime; return this; }
+        public FieldScheduleEntryDtoBuilder endTime(LocalTime endTime) { this.endTime = endTime; return this; }
+        public FieldScheduleEntryDtoBuilder sport(String sport) { this.sport = sport; return this; }
+        public FieldScheduleEntryDtoBuilder label(String label) { this.label = label; return this; }
+        public FieldScheduleEntryDtoBuilder status(String status) { this.status = status; return this; }
+        public FieldScheduleEntryDtoBuilder eventId(Long eventId) { this.eventId = eventId; return this; }
+        public FieldScheduleEntryDtoBuilder tournamentType(String tournamentType) { this.tournamentType = tournamentType; return this; }
+
+        public FieldScheduleEntryDto build() {
+            return new FieldScheduleEntryDto(type, date, startTime, endTime, sport, label, status, eventId, tournamentType);
+        }
     }
 }

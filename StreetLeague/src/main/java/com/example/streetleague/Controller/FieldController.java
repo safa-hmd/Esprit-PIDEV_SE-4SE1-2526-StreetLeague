@@ -4,7 +4,6 @@ import com.example.streetleague.ServiceInterface.IFieldService;
 import com.example.streetleague.Entity.SportType;
 import com.example.streetleague.dto.FieldDto;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +13,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/fields")
 @CrossOrigin(origins = "*")
-@RequiredArgsConstructor
 public class FieldController {
 
     private final IFieldService fieldService;
+
+    public FieldController(IFieldService fieldService) {
+        this.fieldService = fieldService;
+    }
 
     // ===== ADMIN =====
 
@@ -67,8 +69,6 @@ public class FieldController {
     }
 
 
-
-
     /// //
     // Géocoder un terrain par son id
     @PostMapping("/{id}/geocode")
@@ -116,5 +116,4 @@ public class FieldController {
     public ResponseEntity<List<FieldDto>> getWithGps() {
         return ResponseEntity.ok(fieldService.getAllFieldsWithGps());
     }
-
 }

@@ -2,7 +2,6 @@ package com.example.streetleague.Controller;
 
 import com.example.streetleague.ServiceInterface.ITournamentRegistrationService;
 import com.example.streetleague.dto.TournamentRegistrationDto;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +11,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/registrations")
 @CrossOrigin(origins = "*")
-@RequiredArgsConstructor
 public class TournamentRegistrationController {
 
     private final ITournamentRegistrationService registrationService;
+
+    public TournamentRegistrationController(ITournamentRegistrationService registrationService) {
+        this.registrationService = registrationService;
+    }
 
     // ===== PLAYER : inscription =====
 
@@ -64,6 +66,7 @@ public class TournamentRegistrationController {
             @PathVariable Long teamId) {
         return ResponseEntity.ok(registrationService.getRegistrationsByTeam(teamId));
     }
+
     @GetMapping("/player/{playerId}/teams")
     public ResponseEntity<List<TournamentRegistrationDto>> getTeamRegistrationsByPlayer(
             @PathVariable Long playerId) {
@@ -79,6 +82,7 @@ public class TournamentRegistrationController {
         registrationService.deleteRegistration(id);
         return ResponseEntity.noContent().build();
     }
+
     @PatchMapping("/{id}/accept")
     public ResponseEntity<TournamentRegistrationDto> accept(@PathVariable Long id) {
         return ResponseEntity.ok(registrationService.acceptRegistration(id));
@@ -88,5 +92,4 @@ public class TournamentRegistrationController {
     public ResponseEntity<TournamentRegistrationDto> reject(@PathVariable Long id) {
         return ResponseEntity.ok(registrationService.rejectRegistration(id));
     }
-
 }

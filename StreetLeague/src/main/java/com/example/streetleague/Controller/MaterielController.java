@@ -3,7 +3,6 @@ package com.example.streetleague.Controller;
 import com.example.streetleague.ServiceInterface.MaterielService;
 import com.example.streetleague.dto.MaterielDTO;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,10 +10,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/materiels")
-@RequiredArgsConstructor
 public class MaterielController {
 
     private final MaterielService materielService;
+
+    public MaterielController(MaterielService materielService) {
+        this.materielService = materielService;
+    }
 
     @PostMapping
     public ResponseEntity<MaterielDTO> create(@Valid @RequestBody MaterielDTO dto) {

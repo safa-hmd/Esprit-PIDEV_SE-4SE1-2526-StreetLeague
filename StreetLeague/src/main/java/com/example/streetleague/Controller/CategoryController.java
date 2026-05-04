@@ -3,7 +3,6 @@ package com.example.streetleague.Controller;
 import com.example.streetleague.ServiceInterface.CategoryService;
 import com.example.streetleague.dto.CategoryDTO;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,10 +10,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@RequiredArgsConstructor
 public class CategoryController {
 
     private final CategoryService categoryService;
+
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
 
     @PostMapping
     public ResponseEntity<CategoryDTO> create(@Valid @RequestBody CategoryDTO dto) {

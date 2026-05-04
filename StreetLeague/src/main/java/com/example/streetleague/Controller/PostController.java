@@ -6,15 +6,14 @@ import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceImp.AIImageService;
 import com.example.streetleague.ServiceInterface.PostService;
 import com.example.streetleague.dto.postDTO;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,19 +21,26 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-@Slf4j
 @RestController
-@AllArgsConstructor
 @RequestMapping("/posts")
 public class PostController {
+
+    private static final Logger log = LoggerFactory.getLogger(PostController.class);
 
     private final PostService postService;
     private final PostRepository postRepository;
     private final AIImageService aiImageService;
     private final SimpMessagingTemplate messagingTemplate;
     private final UserRepository userRepository;
+
+    public PostController(PostService postService, PostRepository postRepository, AIImageService aiImageService, SimpMessagingTemplate messagingTemplate, UserRepository userRepository) {
+        this.postService = postService;
+        this.postRepository = postRepository;
+        this.aiImageService = aiImageService;
+        this.messagingTemplate = messagingTemplate;
+        this.userRepository = userRepository;
+    }
 
     @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
@@ -64,8 +70,6 @@ public class PostController {
             @RequestParam(defaultValue = "5") int size,
             @RequestHeader(value = "X-User-Id", required = false) Long userId
     ) {
-
-
         return postService.getPosts(page, size)
                 .map(post -> {
                     postDTO dto = new postDTO(
@@ -87,10 +91,6 @@ public class PostController {
                     }
 
                     dto.setLiked(liked);
-//                    System.out.println("POST ID: " + post.getId());
-//                    System.out.println("USER ID: " + userId);
-//                    System.out.println("LIKED BY USERS: " + liked);
-
                     dto.setCreatedAt(post.getCreatedAt() != null ? post.getCreatedAt().toString() : null);
                     dto.setUpdatedAt(post.getUpdatedAt() != null ? post.getUpdatedAt().toString() : null);
                     return dto;

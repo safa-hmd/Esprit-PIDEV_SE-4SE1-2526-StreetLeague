@@ -4,7 +4,6 @@ import com.example.streetleague.ServiceInterface.IUserService;
 import com.example.streetleague.dto.ChangePasswordRequest;
 import com.example.streetleague.dto.UpdateProfileRequest;
 import com.example.streetleague.dto.UserProfileResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,10 +11,13 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping("/user")
-@RequiredArgsConstructor
 public class UserController {
 
     private final IUserService userService;
+
+    public UserController(IUserService userService) {
+        this.userService = userService;
+    }
 
     // GET /user/profile  → retourne le profil de l'utilisateur connecté
     @GetMapping("/profile")
@@ -30,6 +32,7 @@ public class UserController {
             @RequestBody UpdateProfileRequest request) {
         return ResponseEntity.ok(userService.updateProfile(principal.getName(), request));
     }
+
     @PutMapping("/change-password")
     public ResponseEntity<String> changePassword(
             Principal principal,

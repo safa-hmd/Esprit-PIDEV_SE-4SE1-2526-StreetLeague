@@ -4,7 +4,6 @@ import com.example.streetleague.Entity.MatchStatus;
 import com.example.streetleague.ServiceInterface.ImatchHistoryService;
 import com.example.streetleague.dto.MatchHistoryDto;
 import com.example.streetleague.dto.MatchResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +17,13 @@ import java.util.List;
         "http://localhost:4200",
         "https://streetleaguefrontend.azurewebsites.net"
 })
-@RequiredArgsConstructor
 public class MatchHistoryController {
 
     private final ImatchHistoryService matchHistoryService;
+
+    public MatchHistoryController(ImatchHistoryService matchHistoryService) {
+        this.matchHistoryService = matchHistoryService;
+    }
 
     // JPQL : filtres optionnels status + période
     @GetMapping("/enriched")

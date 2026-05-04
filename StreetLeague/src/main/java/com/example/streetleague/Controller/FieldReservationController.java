@@ -3,7 +3,6 @@ package com.example.streetleague.Controller;
 import com.example.streetleague.ServiceInterface.IFieldReservationService;
 import com.example.streetleague.dto.FieldReservationDto;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +13,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/reservations")
 @CrossOrigin(origins = "*")
-@RequiredArgsConstructor
 public class FieldReservationController {
 
     private final IFieldReservationService reservationService;
+
+    public FieldReservationController(IFieldReservationService reservationService) {
+        this.reservationService = reservationService;
+    }
 
     // ===== PLAYER =====
 

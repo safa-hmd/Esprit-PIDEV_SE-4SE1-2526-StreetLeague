@@ -6,20 +6,23 @@ import com.example.streetleague.domain.User;
 import com.example.streetleague.dto.TrainingRequest;
 import com.example.streetleague.dto.TrainingResponse;
 import com.example.streetleague.dto.TrainingUpdateRequest;
-import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@AllArgsConstructor
 @CrossOrigin("*")
 @RequestMapping("training")
 public class TrainingController {
 
-    ItrainingService trainingService;
-    UserRepository   userRepository;
+    private final ItrainingService trainingService;
+    private final UserRepository userRepository;
+
+    public TrainingController(ItrainingService trainingService, UserRepository userRepository) {
+        this.trainingService = trainingService;
+        this.userRepository = userRepository;
+    }
 
     // POST /training/add?teamId=1&email=coach@mail.com
     @PostMapping("add")

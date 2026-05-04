@@ -4,7 +4,6 @@ import com.example.streetleague.ServiceInterface.TransporteurService;
 import com.example.streetleague.domain.Transporteur;
 import com.example.streetleague.dto.TransporteurDTO;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +11,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/transporteurs")
-@RequiredArgsConstructor
 @CrossOrigin("*")
 public class TransporteurController {
 
     private final TransporteurService transporteurService;
+
+    public TransporteurController(TransporteurService transporteurService) {
+        this.transporteurService = transporteurService;
+    }
 
     @PostMapping
     public ResponseEntity<Transporteur> create(@Valid @RequestBody TransporteurDTO dto) {

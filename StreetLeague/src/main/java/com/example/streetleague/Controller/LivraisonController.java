@@ -4,7 +4,6 @@ import com.example.streetleague.ServiceInterface.LivraisonService;
 import com.example.streetleague.domain.Livraison;
 import com.example.streetleague.dto.LivraisonDTO;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +11,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/livraisons")
-@RequiredArgsConstructor
 @CrossOrigin("*")
 public class LivraisonController {
 
     private final LivraisonService livraisonService;
+
+    public LivraisonController(LivraisonService livraisonService) {
+        this.livraisonService = livraisonService;
+    }
 
     @PostMapping
     public ResponseEntity<Livraison> create(@Valid @RequestBody LivraisonDTO dto) {

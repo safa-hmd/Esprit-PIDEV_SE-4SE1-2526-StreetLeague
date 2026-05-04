@@ -1,17 +1,11 @@
 package com.example.streetleague.dto;
 
 import com.example.streetleague.Entity.TravelRequestStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class TravelRequestResponseDto {
     private Long id;
     private Long teamId;
@@ -28,56 +22,97 @@ public class TravelRequestResponseDto {
     private Double totalAmount;
     private LocalDateTime createdAt;
 
-    @com.fasterxml.jackson.annotation.JsonProperty("selectedMemberIds")
-    private java.util.List<Long> selectedMemberIds;
+    @JsonProperty("selectedMemberIds")
+    private List<Long> selectedMemberIds;
 
-    // ===== EXPLICIT GETTERS/SETTERS =====
-    public Long getId() { return this.id; }
+    public TravelRequestResponseDto() {
+    }
+
+    public TravelRequestResponseDto(Long id, Long teamId, String teamName, String teamCity, TournamentDto tournament, TransportDto transport, AccommodationDto accommodation, TravelRequestStatus status, Boolean sameCity, Boolean accommodationRequired, String adminComment, Double individualPrice, Double totalAmount, LocalDateTime createdAt, List<Long> selectedMemberIds) {
+        this.id = id;
+        this.teamId = teamId;
+        this.teamName = teamName;
+        this.teamCity = teamCity;
+        this.tournament = tournament;
+        this.transport = transport;
+        this.accommodation = accommodation;
+        this.status = status;
+        this.sameCity = sameCity;
+        this.accommodationRequired = accommodationRequired;
+        this.adminComment = adminComment;
+        this.individualPrice = individualPrice;
+        this.totalAmount = totalAmount;
+        this.createdAt = createdAt;
+        this.selectedMemberIds = selectedMemberIds;
+    }
+
+    public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Long getTeamId() { return this.teamId; }
+    public Long getTeamId() { return teamId; }
     public void setTeamId(Long teamId) { this.teamId = teamId; }
 
-    public String getTeamName() { return this.teamName; }
+    public String getTeamName() { return teamName; }
     public void setTeamName(String teamName) { this.teamName = teamName; }
 
-    public String getTeamCity() { return this.teamCity; }
+    public String getTeamCity() { return teamCity; }
     public void setTeamCity(String teamCity) { this.teamCity = teamCity; }
 
-    public TournamentDto getTournament() { return this.tournament; }
+    public TournamentDto getTournament() { return tournament; }
     public void setTournament(TournamentDto tournament) { this.tournament = tournament; }
 
-    public TransportDto getTransport() { return this.transport; }
+    public TransportDto getTransport() { return transport; }
     public void setTransport(TransportDto transport) { this.transport = transport; }
 
-    public AccommodationDto getAccommodation() { return this.accommodation; }
+    public AccommodationDto getAccommodation() { return accommodation; }
     public void setAccommodation(AccommodationDto accommodation) { this.accommodation = accommodation; }
 
-    public TravelRequestStatus getStatus() { return this.status; }
+    public TravelRequestStatus getStatus() { return status; }
     public void setStatus(TravelRequestStatus status) { this.status = status; }
 
-    public Boolean getSameCity() { return this.sameCity; }
+    public Boolean getSameCity() { return sameCity; }
     public void setSameCity(Boolean sameCity) { this.sameCity = sameCity; }
 
-    public Boolean getAccommodationRequired() { return this.accommodationRequired; }
+    public Boolean getAccommodationRequired() { return accommodationRequired; }
     public void setAccommodationRequired(Boolean accommodationRequired) { this.accommodationRequired = accommodationRequired; }
 
-    public String getAdminComment() { return this.adminComment; }
+    public String getAdminComment() { return adminComment; }
     public void setAdminComment(String adminComment) { this.adminComment = adminComment; }
 
-    public Double getIndividualPrice() { return this.individualPrice; }
+    public Double getIndividualPrice() { return individualPrice; }
     public void setIndividualPrice(Double individualPrice) { this.individualPrice = individualPrice; }
 
-    public Double getTotalAmount() { return this.totalAmount; }
+    public Double getTotalAmount() { return totalAmount; }
     public void setTotalAmount(Double totalAmount) { this.totalAmount = totalAmount; }
 
-    public LocalDateTime getCreatedAt() { return this.createdAt; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public java.util.List<Long> getSelectedMemberIds() { return this.selectedMemberIds; }
-    public void setSelectedMemberIds(java.util.List<Long> selectedMemberIds) { this.selectedMemberIds = selectedMemberIds; }
+    public List<Long> getSelectedMemberIds() { return selectedMemberIds; }
+    public void setSelectedMemberIds(List<Long> selectedMemberIds) { this.selectedMemberIds = selectedMemberIds; }
 
-    // ===== STATIC BUILDER HELPER =====
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TravelRequestResponseDto that = (TravelRequestResponseDto) o;
+        return Objects.equals(id, that.id) && Objects.equals(teamId, that.teamId) && Objects.equals(teamName, that.teamName) && Objects.equals(status, that.status);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, teamId, teamName, status);
+    }
+
+    @Override
+    public String toString() {
+        return "TravelRequestResponseDto{" +
+                "id=" + id +
+                ", teamName='" + teamName + '\'' +
+                ", status=" + status +
+                '}';
+    }
+
     public static TravelRequestResponseDtoBuilder builder() {
         return new TravelRequestResponseDtoBuilder();
     }
@@ -97,7 +132,7 @@ public class TravelRequestResponseDto {
         private Double individualPrice;
         private Double totalAmount;
         private LocalDateTime createdAt;
-        private java.util.List<Long> selectedMemberIds;
+        private List<Long> selectedMemberIds;
 
         public TravelRequestResponseDtoBuilder id(Long id) { this.id = id; return this; }
         public TravelRequestResponseDtoBuilder teamId(Long teamId) { this.teamId = teamId; return this; }
@@ -113,26 +148,10 @@ public class TravelRequestResponseDto {
         public TravelRequestResponseDtoBuilder individualPrice(Double individualPrice) { this.individualPrice = individualPrice; return this; }
         public TravelRequestResponseDtoBuilder totalAmount(Double totalAmount) { this.totalAmount = totalAmount; return this; }
         public TravelRequestResponseDtoBuilder createdAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
-        public TravelRequestResponseDtoBuilder selectedMemberIds(java.util.List<Long> selectedMemberIds) { this.selectedMemberIds = selectedMemberIds; return this; }
+        public TravelRequestResponseDtoBuilder selectedMemberIds(List<Long> selectedMemberIds) { this.selectedMemberIds = selectedMemberIds; return this; }
 
         public TravelRequestResponseDto build() {
-            TravelRequestResponseDto dto = new TravelRequestResponseDto();
-            dto.setId(id);
-            dto.setTeamId(teamId);
-            dto.setTeamName(teamName);
-            dto.setTeamCity(teamCity);
-            dto.setTournament(tournament);
-            dto.setTransport(transport);
-            dto.setAccommodation(accommodation);
-            dto.setStatus(status);
-            dto.setSameCity(sameCity);
-            dto.setAccommodationRequired(accommodationRequired);
-            dto.setAdminComment(adminComment);
-            dto.setIndividualPrice(individualPrice);
-            dto.setTotalAmount(totalAmount);
-            dto.setCreatedAt(createdAt);
-            dto.setSelectedMemberIds(selectedMemberIds);
-            return dto;
+            return new TravelRequestResponseDto(id, teamId, teamName, teamCity, tournament, transport, accommodation, status, sameCity, accommodationRequired, adminComment, individualPrice, totalAmount, createdAt, selectedMemberIds);
         }
     }
 }
