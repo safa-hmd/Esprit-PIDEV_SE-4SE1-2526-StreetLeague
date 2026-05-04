@@ -51,7 +51,7 @@ public class BracketgeneratorserviceImpl {
         if (confirmed.size() < 2)
             throw new IllegalArgumentException("Au moins 2 participants confirmés requis.");
 
-        boolean isTeam = true; // By default assuming team-based bracket
+        boolean isTeam = tournament.getTournamentType() == TournamentType.TEAM;
 
         return switch (bracketType) {
             case SINGLE_ELIMINATION -> generateSingleElimination(tournament, confirmed, isTeam);
@@ -104,21 +104,21 @@ public class BracketgeneratorserviceImpl {
                     tm.setWinnerPlayer(regA.getPlayer());
                 }
             } else {
-            if (isTeam) {
-                Match match = new Match();
-                match.setMatchDate(matchDate);
-                match.setLocation(fieldLocation);
-                match.setStatus(MatchStatus.SCHEDULED);
-                match.setTeamA(regA.getTeam());
-                match.setTeamB(regB.getTeam());
-                tm.setMatch(match);          // ← seulement pour TEAM
-            } else {
-                tm.setPlayer1(regA.getPlayer());
-                tm.setPlayer2(regB.getPlayer());
-                // pas de Match JPA pour INDIVIDUAL
+                if (isTeam) {
+                    Match match = new Match();
+                    match.setMatchDate(matchDate);
+                    match.setLocation(fieldLocation);
+                    match.setStatus(MatchStatus.SCHEDULED);
+                    match.setTeamA(regA.getTeam());
+                    match.setTeamB(regB.getTeam());
+                    tm.setMatch(match);          // ← seulement pour TEAM
+                } else {
+                    tm.setPlayer1(regA.getPlayer());
+                    tm.setPlayer2(regB.getPlayer());
+                    // pas de Match JPA pour INDIVIDUAL
+                }
+                matchDate = matchDate.plusDays(1);
             }
-            matchDate = matchDate.plusDays(1);
-        }
 
             currentRound.add(tm);
         }

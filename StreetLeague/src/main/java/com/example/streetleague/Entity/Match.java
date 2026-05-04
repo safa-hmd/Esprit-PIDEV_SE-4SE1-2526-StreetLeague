@@ -25,6 +25,7 @@ public class Match {
     String location;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 20)
     MatchStatus status;
 
     Integer scoreTeamA;

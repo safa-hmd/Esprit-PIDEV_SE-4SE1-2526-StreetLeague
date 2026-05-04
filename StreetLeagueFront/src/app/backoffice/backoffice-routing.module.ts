@@ -46,6 +46,7 @@ import { LivraisonFormComponent } from './livraison/livraison-form/livraison-for
 import { LivraisonListComponent } from './livraison/livraison-list/livraison-list.component';
 import { MaterielListComponent } from './materiel/materiel-list/materiel-list.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
+import { BracketComponent } from './bracket/bracket.component';
 
 const routes: Routes = [
   {
@@ -106,7 +107,8 @@ const routes: Routes = [
       { path: 'transporteurs', component: TransporteurListComponent },
       { path: 'commandes', component: CommandeListComponent },
 
-                  { path: 'profile', component: PlayerProfileComponent },
+      { path: 'profile', component: PlayerProfileComponent },
+      { path: 'tournaments/:id/bracket', component: BracketComponent },
     ]
   }
 ];

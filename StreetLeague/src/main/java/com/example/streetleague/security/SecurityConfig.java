@@ -115,6 +115,10 @@ public class SecurityConfig {
 //                        .requestMatchers("/training/*/join", "/training/*/leave").hasRole("PLAYER")
                                 .requestMatchers("/training/**").permitAll()
                         .requestMatchers("/api/pricing/**").permitAll()
+                                .requestMatchers("/api/registrations/**").permitAll()
+                                .requestMatchers("/api/brackets/**").permitAll()
+
+
 
                         // Endpoints publics (login, register, forgot/reset password)
 

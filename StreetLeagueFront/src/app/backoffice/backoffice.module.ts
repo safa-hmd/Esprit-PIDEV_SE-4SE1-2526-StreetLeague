@@ -28,6 +28,7 @@ import { TransporteurListComponent } from './transporteur/transporteur-list/tran
 import { LivraisonFormComponent } from './livraison/livraison-form/livraison-form.component';
 import { LivraisonListComponent } from './livraison/livraison-list/livraison-list.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
+import { BracketComponent } from './bracket/bracket.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { PlayerProfileComponent } from './player-profile/player-profile.componen
     MaterielListComponent,
     CommandeListComponent,
     PlayerProfileComponent,
+    BracketComponent
   ],
 
   imports: [                          // ✅ MANQUAIT COMPLÈTEMENT

@@ -1,5 +1,7 @@
 package com.example.streetleague.Controller;
 
+import com.example.streetleague.Repository.MatchRepository;
+import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.ServiceImp.EmailService;
 import com.example.streetleague.ServiceInterface.IAuthService;
 import com.example.streetleague.dto.*;
@@ -15,6 +17,7 @@ public class AuthController {
 
     private final IAuthService authService;
     private final EmailService emailService;
+    private final UserRepository userRepository;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
@@ -44,6 +47,13 @@ public class AuthController {
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest req) {
         authService.resetPassword(req);
         return ResponseEntity.ok("Mot de passe réinitialisé avec succès");
+    }
+
+    @GetMapping("/getUserId")
+    public Long getUserId(@RequestParam String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getIdUser();
     }
 
 }
