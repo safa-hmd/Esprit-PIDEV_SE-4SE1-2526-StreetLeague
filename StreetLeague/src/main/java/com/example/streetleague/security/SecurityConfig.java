@@ -3,9 +3,7 @@ package com.example.streetleague.security;
 import com.example.streetleague.Repository.UserRepository;
 import com.example.streetleague.security.jwt.JwtAuthFilter;
 import com.example.streetleague.security.jwt.JwtService;
-import com.example.streetleague.Repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,7 +26,6 @@ import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
@@ -36,6 +33,14 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+
+    public SecurityConfig(CustomUserDetailsService userDetailsService, PasswordEncoder passwordEncoder, JwtAuthFilter jwtAuthFilter, UserRepository userRepository, JwtService jwtService) {
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtAuthFilter = jwtAuthFilter;
+        this.userRepository = userRepository;
+        this.jwtService = jwtService;
+    }
 
     @Bean
     public DaoAuthenticationProvider authProvider() {

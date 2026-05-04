@@ -3,7 +3,6 @@ package com.example.streetleague.scheduler;
 import com.example.streetleague.Entity.Payment;
 import com.example.streetleague.Entity.PaymentStatus;
 import com.example.streetleague.Repository.PaymentRepository;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,12 +13,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class PaymentScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentScheduler.class);
 
     private final PaymentRepository paymentRepository;
+
+    public PaymentScheduler(PaymentRepository paymentRepository) {
+        this.paymentRepository = paymentRepository;
+    }
 
     /**
      * Tourne chaque nuit à minuit.
