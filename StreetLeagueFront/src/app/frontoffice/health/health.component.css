@@ -1785,9 +1785,9 @@
   border-bottom: 1px solid #eee;
   flex-shrink: 0;
 
-  h3 { flex: 1; font-size: 16px; font-weight: 500; }
+  
 }
-
+h3 { flex: 1; font-size: 16px; font-weight: 500; }
 .modal-top-actions { display: flex; gap: 8px; }
 
 .btn-refresh {
