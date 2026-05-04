@@ -111,4 +111,5 @@ jobs:
         with:
           app-name: streetleaguefrontend
           publish-profile: ${{ secrets.AZURE_FRONTEND_PUBLISH_PROFILE }}
-          package: frontend
+          package: frontend/street-league-front
+         
