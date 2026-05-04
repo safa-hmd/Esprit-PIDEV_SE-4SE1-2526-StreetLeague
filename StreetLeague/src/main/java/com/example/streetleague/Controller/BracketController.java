@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/brackets")
@@ -98,5 +99,11 @@ public class BracketController {
         return ResponseEntity.ok(
                 matches.stream().map(BracketResponseDTO.MatchSlotDTO::from).toList()
         );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArg(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("message", ex.getMessage()));
     }
 }

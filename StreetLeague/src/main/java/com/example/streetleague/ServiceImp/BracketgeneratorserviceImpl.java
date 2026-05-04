@@ -46,7 +46,8 @@ public class BracketgeneratorserviceImpl {
 
         // Récupérer les inscrits CONFIRMED
         List<TournamentRegistration> confirmed = registrationRepository
-                .findByTournamentIdAndStatus(tournamentId, RegistrationStatus.CONFIRMED);
+                .findByTournamentIdAndStatusIn(tournamentId,
+                        List.of(RegistrationStatus.CONFIRMED, RegistrationStatus.PENDING));
 
         if (confirmed.size() < 2)
             throw new IllegalArgumentException("Au moins 2 participants confirmés requis.");

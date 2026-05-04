@@ -45,6 +45,10 @@ public class Match {
 
     // The captain (PLAYER) who created/sent the match request
     @ManyToOne
-    @JoinColumn(name = "created_by_id", nullable = false)
-    User createdBy;
+    @JoinColumn(name = "created_by_id", nullable = true)
+    private User createdBy;
+
+
+
+
 }

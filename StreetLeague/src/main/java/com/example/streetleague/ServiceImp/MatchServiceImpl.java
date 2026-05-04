@@ -240,12 +240,12 @@ public class MatchServiceImpl implements ImatchService {
     // ─────────────────────────────────────────────────────────────────────
     // READ
     // ─────────────────────────────────────────────────────────────────────
-    @Transactional
-    @Override
-    public List<MatchResponse> ShowMatchs() {
-        return matchRepository.findAll().stream()
-                .map(MatchResponse::fromEntity).toList();
-    }
+//    @Transactional
+//    @Override
+//    public List<MatchResponse> ShowMatchs() {
+//        return matchRepository.findAll().stream()
+//                .map(MatchResponse::fromEntity).toList();
+//    }
 
     @Transactional
     @Override
@@ -254,6 +254,18 @@ public class MatchServiceImpl implements ImatchService {
                 matchRepository.findById(idMatch)
                         .orElseThrow(() -> new RuntimeException("Match not found: " + idMatch)));
     }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MatchResponse> ShowMatchs() {
+        //return matchRepository.findAll().stream()
+        //      .map(MatchResponse::fromEntity).toList();
+
+        return matchRepository.findAllComplete().stream()
+                .map(MatchResponse::fromEntity).toList();
+    }
+
 
     @Transactional
     @Override

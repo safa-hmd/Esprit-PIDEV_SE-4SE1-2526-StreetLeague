@@ -62,7 +62,7 @@ public class TournamentDto {
     private Double prizePool;
 
     private int registeredCount;
-    
+
     // Explicit getters and setters from LOGISTIQUE branch
     public Long getId() { return this.id; }
     public void setId(Long id) { this.id = id; }

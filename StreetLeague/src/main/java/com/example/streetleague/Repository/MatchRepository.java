@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -198,4 +199,7 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
               '1900-01-01')
     """)
     Integer findCurrentUnbeatenStreak(@Param("teamId") Long teamId);
+
+    @Query("SELECT m FROM Match m WHERE m.teamA IS NOT NULL AND m.teamB IS NOT NULL AND m.createdBy IS NOT NULL")
+    List<Match> findAllComplete();
 }
