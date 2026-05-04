@@ -151,7 +151,7 @@ public class PostServiceIMPL implements PostService {
         try {
             cloudinaryService.deleteImage(post.getImageUrl());
         } catch (IOException e) {
-            log.error("Cloudinary delete failed: " + e.getMessage());
+          //  log.error("Cloudinary delete failed: " + e.getMessage());
         }
 
         cache.clear();
@@ -202,7 +202,7 @@ public class PostServiceIMPL implements PostService {
 
             return post;
         } catch (Exception e) {
-            log.error("❌ Error in dislikePost: {}", e.getMessage(), e);
+         //   log.error("❌ Error in dislikePost: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to dislike post: " + e.getMessage());
         }
     }

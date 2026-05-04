@@ -304,7 +304,7 @@ public class MatchServiceImpl implements ImatchService {
                 notificationService.createNotificationForUsers(targets, notifMsg);
 
         } catch (Exception e) {
-            log.warn("Notification failed for match {}: {}", matchId, e.getMessage());
+          //  log.warn("Notification failed for match {}: {}", matchId, e.getMessage());
         }
 
         return MatchResponse.fromEntity(saved);

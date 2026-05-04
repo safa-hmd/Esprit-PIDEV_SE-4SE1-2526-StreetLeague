@@ -88,7 +88,7 @@ public class MatchCloseReminderScheduler {
         List<Match> matches = matchRepository.findMatchesClosingSoonWithTeams(from, to);
 
         if (matches.isEmpty()) {
-            log.debug("⏰ ReminderScheduler : aucun match dans [{} → {}]", from, to);
+           // log.debug("⏰ ReminderScheduler : aucun match dans [{} → {}]", from, to);
             return;
         }
 

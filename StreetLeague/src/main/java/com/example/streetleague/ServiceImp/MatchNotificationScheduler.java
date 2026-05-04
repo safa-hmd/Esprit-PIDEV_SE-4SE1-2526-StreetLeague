@@ -45,7 +45,7 @@ public class MatchNotificationScheduler {
         List<Match> matches = matchRepository.findUpcomingMatchesWithTeamPlayers(from, to);
 
         if (matches.isEmpty()) {
-            log.debug("⏰ MatchNotificationScheduler : aucun match à notifier dans la fenêtre [{} → {}]", from, to);
+          //  log.debug("⏰ MatchNotificationScheduler : aucun match à notifier dans la fenêtre [{} → {}]", from, to);
             return;
         }
 

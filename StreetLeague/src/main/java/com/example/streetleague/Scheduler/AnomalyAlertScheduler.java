@@ -55,7 +55,7 @@ public class AnomalyAlertScheduler {
         // Charger coachs
         List<User> coaches = userRepository.findAllByRole(Role.COACH);
         if (coaches.isEmpty()) {
-            log.warn("⚠️ Aucun coach trouvé.");
+          //  log.warn("⚠️ Aucun coach trouvé.");
             return;
         }
 
@@ -89,18 +89,18 @@ public class AnomalyAlertScheduler {
                             message
                     );
 
-                    log.warn(
+                   /* log.warn(
                             "🚨 ANOMALIE {} — {} : Z={:.2f}, chute EWMA={:.0f}% — {} coach(s) alerté(s).",
                             result.severity().name(),
                             player.getFullName(),
                             result.zScore(),
                             result.ewmaDrop() * 100,
                             coaches.size()
-                    );
+                    );*/
 
                     alertsSent++;
                 }
-                // MEDIUM فقط log
+
                 else if (result.isAnomaly()) {
 //                    log.info(
 //                            "ℹ️ Anomalie MEDIUM — {} : Z={:.2f}",
@@ -110,11 +110,11 @@ public class AnomalyAlertScheduler {
                 }
 
             } catch (Exception e) {
-                log.error(
+              /*  log.error(
                         "❌ Erreur analyse joueur {} : {}",
                         player.getFullName(),
                         e.getMessage()
-                );
+                );*/
             }
         }
 
@@ -172,11 +172,11 @@ public class AnomalyAlertScheduler {
                             message
                     );
 
-                    log.error(
+                   /* log.error(
                             "🔴 CRITIQUE — {} : Z={}",
                             player.getFullName(),
                             result.zScore()
-                    );
+                    );*/
                 }
 
             } catch (Exception e) {

@@ -101,7 +101,7 @@ public class PricingService {
                     PricingResponse.class
             );
         } catch (Exception e) {
-            log.error("Erreur appel Flask : {}", e.getMessage());
+         //   log.error("Erreur appel Flask : {}", e.getMessage());
             // Fallback : retourner le prix de base si Flask est indisponible
             return SuggestedPriceResponse.builder()
                     .suggestedPrice(field.getPricePerHour())
@@ -162,7 +162,7 @@ public class PricingService {
             flaskResponse = restTemplate.postForObject(
                     flaskUrl + "/predict", req, PricingResponse.class);
         } catch (Exception e) {
-            log.error("Flask indisponible : {}", e.getMessage());
+          //  log.error("Flask indisponible : {}", e.getMessage());
             return SuggestedPriceResponse.builder()
                     .suggestedPrice(basePrice)
                     .basePrice(basePrice)
