@@ -71,7 +71,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend
-          path: StreetLeagueFront/dist/street-league-front
+          path: StreetLeagueFront/dist
 
 
   # =========================
@@ -111,5 +111,5 @@ jobs:
         with:
           app-name: streetleaguefrontend
           publish-profile: ${{ secrets.AZURE_FRONTEND_PUBLISH_PROFILE }}
-          package: frontend/street-league-front
+          package: frontend
          
