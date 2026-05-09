@@ -8,19 +8,23 @@ import { Livraison, LivraisonStatus } from '../../../models/livraison.model';
   styleUrls: ['./livraison-list.component.css']
 })
 export class LivraisonListComponent implements OnInit {
+
   livraisons: Livraison[] = [];
   filteredLivraisons: Livraison[] = [];
-  statuts: LivraisonStatus[] = ['PREPAREE', 'EXPEDIEE', 'EN_COURS', 'LIVREE', 'ECHEC'];
+
+  // ✅ Nouveaux statuts sans EN_COURS
+  statuts: LivraisonStatus[] = [
+    'PREPAREE', 'ASSIGNEE', 'EXPEDIEE', 'OUT_FOR_DELIVERY', 'LIVREE', 'ECHEC'
+  ];
+
   searchTerm = '';
   successMsg = '';
-  errorMsg = '';
-  loading = false;
+  errorMsg   = '';
+  loading    = false;
 
   constructor(private livraisonService: LivraisonService) {}
 
-  ngOnInit(): void {
-    this.loadLivraisons();
-  }
+  ngOnInit(): void { this.loadLivraisons(); }
 
   loadLivraisons(): void {
     this.loading = true;
@@ -48,37 +52,41 @@ export class LivraisonListComponent implements OnInit {
 
   updateStatus(livraison: Livraison, newStatut: LivraisonStatus): void {
     this.livraisonService.updateStatus(livraison.id!, {
-      commandeId: livraison.commandeId,
-      transporteurId: livraison.transporteurId,
-      adresse: livraison.adresse,
+      commandeId:     livraison.commandeId,
+      livreurId:      (livraison as any).livreur?.id ?? livraison.livreurId,
+      adresse:        livraison.adresse,
       fraisLivraison: livraison.fraisLivraison,
-      statut: newStatut
+      statut:         newStatut
     }).subscribe({
-      next: () => {
-        this.showSuccess('Statut mis à jour avec succès.');
-        this.loadLivraisons();
-      },
+      next:  () => { this.showSuccess('Statut mis à jour.'); this.loadLivraisons(); },
       error: () => this.showError('Erreur lors de la mise à jour du statut.')
     });
   }
 
+  // ✅ getBadgeClass avec tous les nouveaux statuts
   getBadgeClass(statut: LivraisonStatus): string {
     const map: Record<LivraisonStatus, string> = {
-      PREPAREE: 'a-badge-orange',
-      EXPEDIEE: 'a-badge-blue',
-      EN_COURS: 'a-badge-blue',
-      LIVREE: 'a-badge-green',
-      ECHEC: 'a-badge-red'
+      PREPAREE:         'a-badge-gray',
+      ASSIGNEE:         'a-badge-orange',
+      EXPEDIEE:         'a-badge-blue',
+      OUT_FOR_DELIVERY: 'a-badge-purple',
+      LIVREE:           'a-badge-green',
+      ECHEC:            'a-badge-red'
     };
     return map[statut] || 'a-badge-gray';
   }
 
+  // ✅ Stats sans EN_COURS
   get stats() {
     return {
-      total: this.livraisons.length,
-      enCours: this.livraisons.filter(l => l.statut === 'EN_COURS' || l.statut === 'EXPEDIEE').length,
+      total:   this.livraisons.length,
+      enCours: this.livraisons.filter(l =>
+        l.statut === 'ASSIGNEE' ||
+        l.statut === 'EXPEDIEE' ||
+        l.statut === 'OUT_FOR_DELIVERY'
+      ).length,
       livrees: this.livraisons.filter(l => l.statut === 'LIVREE').length,
-      echec: this.livraisons.filter(l => l.statut === 'ECHEC').length,
+      echec:   this.livraisons.filter(l => l.statut === 'ECHEC').length,
     };
   }
 

@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ShopService } from '../../../services/shop.service';
 import { AuthService } from '../../../services/auth.service';
+import { RecommendationService } from '../../../services/recommendation.service';
 import { Materiel, Category } from '../../../models/materiel.model';
 import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-shop-list',
   templateUrl: './shop-list.component.html',
@@ -13,15 +15,22 @@ export class ShopListComponent implements OnInit {
   filteredMateriels: Materiel[] = [];
   categories: Category[] = [];
   selectedCategorieId: number | null = null;
+  
   cartCount = 0;
   userId: number = 0;
   successMsg = '';
   errorMsg = '';
 
+  //  Propriétés pour l'IA
+  recommendedMateriels: Materiel[] = [];
+  loadingRecommendations = false;
+  private _pendingRecIds: number[] = [];
+
   constructor(
     private shopService: ShopService,
     private authService: AuthService,
-    private router: Router 
+    private recommendationService: RecommendationService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -33,17 +42,34 @@ export class ShopListComponent implements OnInit {
     this.userId = Number(id);
     this.loadMateriels();
     this.loadCategories();
+    this.loadRecommendations(); //  Appel asynchrone à l'API ML
   }
 
   loadMateriels(): void {
-    this.shopService.getAllMateriels().subscribe({
-      next: data => {
-        this.materiels = data;
-        this.filteredMateriels = data;
-      },
-      error: () => this.showError('Erreur lors du chargement des produits.')
-    });
-  }
+  this.shopService.getAllMateriels().subscribe({
+    next: (data) => {
+      console.log('📦 Données brutes reçues du backend:', data);
+      
+      if (!data || data.length === 0) {
+        this.showError('Aucun produit trouvé dans la base.');
+        return;
+      }
+
+      this.materiels = data;
+      this.filteredMateriels = data;
+      
+      // Log des IDs réels de votre DB
+      const realIds = data.map(m => (m as any).id ?? (m as any).materielId ?? (m as any).produitId);
+      console.log('🔢 IDs réels dans Spring Boot:', realIds);
+
+      this.mapRecommendationsToMateriels();
+    },
+    error: (err) => {
+      console.error('❌ Erreur chargement produits:', err);
+      this.showError('Erreur lors du chargement des produits.');
+    }
+  });
+}
 
   loadCategories(): void {
     this.shopService.getAllCategories().subscribe({
@@ -52,6 +78,52 @@ export class ShopListComponent implements OnInit {
     });
   }
 
+  loadRecommendations(): void {
+  this.loadingRecommendations = true;
+  const excludeIds: number[] = [];
+  console.log('🔍 Appel IA pour userId:', this.userId);
+
+  this.recommendationService.getRecommendations(this.userId, excludeIds, 4).subscribe({
+    next: (ids) => {
+      console.log('✅ IDs retournés par FastAPI:', ids);
+      this._pendingRecIds = ids;
+      this.mapRecommendationsToMateriels();
+      this.loadingRecommendations = false;
+    },
+    error: (err) => {
+      console.error('❌ Erreur appel IA:', err);
+      this.loadingRecommendations = false;
+      this.recommendedMateriels = [];
+    }
+  });
+}
+
+  /**
+   * Mappe les IDs retournés par FastAPI vers les objets Materiel complets.
+   * S'exécute dès que les produits OU les IDs IA sont disponibles.
+   */
+ private mapRecommendationsToMateriels(): void {
+  if (!this.materiels || this.materiels.length === 0) return;
+
+  // 1. Identifier les IDs IA qui correspondent VRAIMENT à vos produits EN STOCK
+  const matchedIds = this._pendingRecIds.filter(id =>
+    this.materiels.some(m => Number(m.id) === id && m.quantiteStock > 0)
+  );
+
+  if (matchedIds.length > 0) {
+    // ✅ Cas normal : L'IA a trouvé des correspondances
+    this.recommendedMateriels = this.materiels.filter(m =>
+      matchedIds.includes(Number(m.id))
+    );
+    console.log(`🤖 IA → ${this.recommendedMateriels.length} produit(s) personnalisé(s) affichés.`);
+  } else {
+    // ⚠️ Cas Cold Start / Mismatch : Fallback "Tendances" (Produits populaires/en stock)
+    console.log('⚠️ Cold Start détecté (0 overlap IDs) → Activation du fallback UI');
+    this.recommendedMateriels = this.materiels
+      .filter(m => m.quantiteStock > 0)
+      .slice(0, 4); // Affiche les 4 premiers produits disponibles
+  }
+}
   filterByCategory(categorieId: number | null): void {
     this.selectedCategorieId = categorieId;
     this.filteredMateriels = categorieId
@@ -81,8 +153,8 @@ export class ShopListComponent implements OnInit {
   }
 
   goToCart(): void {
-  this.router.navigate(['/client/cart']);
-}
+    this.router.navigate(['/client/cart']);
+  }
 
   private showSuccess(msg: string): void {
     this.successMsg = msg;

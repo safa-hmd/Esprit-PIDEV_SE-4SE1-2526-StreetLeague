@@ -1,5 +1,6 @@
 package com.example.streetleague.domain;
 
+
 import com.example.streetleague.Entity.*;
 
 import com.example.streetleague.Entity.Comment;
@@ -12,9 +13,19 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp; // ⚠️ Import ajouté
+import java.time.LocalDateTime;                      // ⚠️ Import ajouté
+
 @Entity
-@Getter          // ← @Getter + @Setter au lieu de @Data
-@Setter          // ← @Data cause des conflits avec @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Getter
+@Setter
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -34,6 +45,8 @@ public class User {
     private String email;
 
     @Column(nullable = false)
+
+    @JsonIgnore
     private String password;
 
     @Column(nullable = false)
@@ -44,6 +57,7 @@ public class User {
     private Role role;
 
     @Builder.Default
+
     private boolean enabled = true;
 
     // ── Relations team ────────────────────────────────────────
@@ -109,4 +123,43 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private SpinResult spinResult;
+
+
+
+
+    // ── PARTIE 1 : Champs tracking GPS livreur ──────────
+    @Builder.Default
+    Double latitude = 0.0;
+
+    @Builder.Default
+    Double longitude = 0.0;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    LivreurStatus statusLivreur = LivreurStatus.OFFLINE;
+
+    @Builder.Default
+    int livraisonsEnCours = 0;
+
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    LocalDateTime createdAt;
+
+    // ── Méthodes utilitaires (optionnelles mais recommandées) ──────────
+
+    /**
+     * Vérifie si l'utilisateur est un joueur (PLAYER)
+     */
+    public boolean isPlayer() {
+        return Role.PLAYER.equals(this.role);
+    }
+
+    /**
+     * Vérifie si l'utilisateur est un livreur actif
+     */
+    public boolean isActiveLivreur() {
+        return Role.DELIVERY.equals(this.role) && LivreurStatus.DISPONIBLE.equals(this.statusLivreur);
+    }
 }
+

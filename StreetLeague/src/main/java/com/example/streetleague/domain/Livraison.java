@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Getter
@@ -22,17 +24,10 @@ public class Livraison {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    // ← GARDER @JsonIgnore pour éviter la sérialisation circulaire
-    //   mais exposer l'ID via @JsonProperty
     @JsonIgnore
     @OneToOne
     @JoinColumn(name = "commande_id", nullable = false)
     Commande commande;
-
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "transporteur_id", nullable = false)
-    Transporteur transporteur;
 
     @ManyToOne
     @JoinColumn(name = "livreur_id")
@@ -40,19 +35,48 @@ public class Livraison {
 
     String adresse;
 
-    double fraisLivraison;
+    @Builder.Default
+    Double latitudeClient = 0.0;
+
+    @Builder.Default
+    Double longitudeClient = 0.0;
+
+    @Builder.Default
+    LocalDateTime dateCreation = LocalDateTime.now();
+
+    LocalDateTime dateAffectation;
+    LocalDateTime dateLivraison;
+
+    @Builder.Default
+    double fraisLivraison = 0.0;
+
+    @Builder.Default
+    Double distance = 0.0;
+
+    // ✅ VARCHAR évite le conflit type ENUM MySQL natif
+    @Enumerated(EnumType.STRING)
+    @Column(name = "priorite", columnDefinition = "VARCHAR(20) DEFAULT 'NORMAL'")
+    @Builder.Default
+    Priorite priorite = Priorite.NORMAL;
+
+    @Builder.Default
+    Double scoreAffectation = 0.0;
 
     @Enumerated(EnumType.STRING)
     LivraisonStatus statut;
 
-    // ← AJOUTER ces deux méthodes pour exposer les IDs dans le JSON
+    @Builder.Default
+    int nbTentatives = 0;
+
+    String motifEchec;
+
     @JsonProperty("commandeId")
     public Long getCommandeId() {
         return commande != null ? commande.getId() : null;
     }
 
-    @JsonProperty("transporteurId")
-    public Long getTransporteurId() {
-        return transporteur != null ? transporteur.getId() : null;
+    @JsonProperty("livreurId")
+    public Long getLivreurId() {
+        return livreur != null ? livreur.getIdUser() : null;
     }
 }

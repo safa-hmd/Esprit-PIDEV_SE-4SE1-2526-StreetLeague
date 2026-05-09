@@ -25,6 +25,11 @@ export class MaterielListComponent implements OnInit {
 
   form: Materiel = this.emptyForm();
 
+  // ── Upload image ─────────────────────────────────────
+  imageSource: 'upload' | 'url' = 'upload';
+  uploadingImage = false;
+  isDragOver = false;
+
   // ── État UI ──────────────────────────────────────────
   loading = false;
   successMsg = '';
@@ -88,6 +93,7 @@ export class MaterielListComponent implements OnInit {
     this.editMode = false;
     this.editId = null;
     this.form = this.emptyForm();
+    this.imageSource = 'upload';
     this.showForm = true;
   }
 
@@ -102,8 +108,9 @@ export class MaterielListComponent implements OnInit {
       imageUrl: m.imageUrl || '',
       categorieId: m.categorieId,
     };
+    // Si l'image existante ressemble à une URL externe, ouvrir en mode URL
+    this.imageSource = (m.imageUrl && m.imageUrl.startsWith('http')) ? 'url' : 'upload';
     this.showForm = true;
-    // Scroll vers le formulaire
     setTimeout(() => document.getElementById('materiel-form')?.scrollIntoView({ behavior: 'smooth' }), 100);
   }
 
@@ -142,6 +149,63 @@ export class MaterielListComponent implements OnInit {
   closeForm(): void {
     this.showForm = false;
     this.form = this.emptyForm();
+    this.uploadingImage = false;
+    this.isDragOver = false;
+  }
+
+  // ── Upload image depuis PC ───────────────────────────
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.uploadFile(input.files[0]);
+    }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = true;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+    const file = event.dataTransfer?.files[0];
+    if (file && file.type.startsWith('image/')) {
+      this.uploadFile(file);
+    } else {
+      this.showError('Veuillez déposer un fichier image valide.');
+    }
+  }
+
+  private uploadFile(file: File): void {
+    if (file.size > 5 * 1024 * 1024) {
+      this.showError('L\'image ne doit pas dépasser 5 MB.');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      this.showError('Format non supporté. Utilisez JPG, PNG ou WEBP.');
+      return;
+    }
+
+    this.uploadingImage = true;
+    this.materielService.uploadImage(file).subscribe({
+      next: (response) => {
+        this.form.imageUrl = response.imageUrl;
+        this.uploadingImage = false;
+      },
+      error: () => {
+        this.showError('Erreur lors de l\'upload de l\'image.');
+        this.uploadingImage = false;
+      }
+    });
+  }
+
+  clearImage(event: Event): void {
+    event.stopPropagation();
+    this.form.imageUrl = '';
   }
 
   // ── CRUD Catégories ──────────────────────────────────

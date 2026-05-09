@@ -12,6 +12,7 @@ import { ResetPasswordComponent } from './auth/reset-password/reset-password.com
 import { AdminLoginComponent } from './auth/admin-login/admin-login.component';
 import { PlayerGuard } from './guards/player.guard';
 
+
 const routes: Routes = [
   // ── Front office (joueurs) ──────────────────────────────
   {
@@ -77,6 +78,9 @@ const routes: Routes = [
 
   // ── 404 ─────────────────────────────────────────────────
   { path: '**', component: NotFoundComponent }
+
+   
+
 ];
 
 @NgModule({

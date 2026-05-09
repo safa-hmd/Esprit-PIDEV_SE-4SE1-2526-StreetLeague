@@ -1,0 +1,12 @@
+export interface Stop {
+  livraisonId: number;
+  latitude: number;
+  longitude: number;
+  ordre: number;
+}
+
+export interface Tournee {
+  stops: Stop[];
+  distanceTotaleKm: number;
+  dureeTotaleMin: number;
+}

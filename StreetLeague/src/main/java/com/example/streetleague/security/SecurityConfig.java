@@ -52,6 +52,7 @@ public class SecurityConfig {
     }
 
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
@@ -66,102 +67,102 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()          // ✅ couvre /auth/complete-google-register
-                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
-                        .requestMatchers("/ws-chat/**").permitAll()        // ✅ WebSocket
-                        .requestMatchers("/api/chat/**").permitAll()      // ✅ Chat History
-                        // Lecture publique (listes / détails) — écriture reste soumise à authenticated() plus bas
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/communaute", "/api/communaute/**",
-                                "/api/evenement", "/api/evenement/**",
-                                "/api/contrat", "/api/contrat/**",
-                                "/api/contrat-sponsor", "/api/contrat-sponsor/**"
-                        ).permitAll()
-                        // Ajout des endpoints de test pour sponsoring stats et recherche
-                        .requestMatchers("/api/sponsoring/test/**").permitAll()
-                        .requestMatchers("/api/sponsor/test/**").permitAll()
-                        .requestMatchers("/api/evenement/test/**").permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .requestMatchers("/auth/**").permitAll()          // ✅ couvre /auth/complete-google-register
+                                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                                .requestMatchers("/ws-chat/**").permitAll()        // ✅ WebSocket
+                                .requestMatchers("/api/chat/**").permitAll()      // ✅ Chat History
+                                // Lecture publique (listes / détails) — écriture reste soumise à authenticated() plus bas
+                                .requestMatchers(HttpMethod.GET,
+                                        "/api/communaute", "/api/communaute/**",
+                                        "/api/evenement", "/api/evenement/**",
+                                        "/api/contrat", "/api/contrat/**",
+                                        "/api/contrat-sponsor", "/api/contrat-sponsor/**"
+                                ).permitAll()
+                                // Ajout des endpoints de test pour sponsoring stats et recherche
+                                .requestMatchers("/api/sponsoring/test/**").permitAll()
+                                .requestMatchers("/api/sponsor/test/**").permitAll()
+                                .requestMatchers("/api/evenement/test/**").permitAll()
 
-                        // Front /client (PLAYER, COACH, etc.) : CRUD API métier avec JWT valide
-                        .requestMatchers(HttpMethod.PATCH, "/api/sponsor/*/status").hasRole("ADMIN")
-                        .requestMatchers("/api/sponsor/**").authenticated()
-                        .requestMatchers("/api/sponsoring/**").authenticated()
-                        .requestMatchers("/api/communaute/**").authenticated()
-                        .requestMatchers("/api/contrat/**").authenticated()
-                        .requestMatchers("/api/contrat-sponsor/**").authenticated()
-                        .requestMatchers("/user/profile").authenticated()
-                        .requestMatchers("/api/schedule/**").permitAll()
-                        .requestMatchers("/api/recommend/**", "/notification/**").permitAll()
-                        //.requestMatchers("/matchmaking/**").permitAll()
-                        .requestMatchers("/api/matchmaking/**").permitAll()
-                        .requestMatchers("/api/performance/**").permitAll()
-                        .requestMatchers("/api/fields/**").permitAll()
-                        .requestMatchers("/api/registrations/**").permitAll()
-                        .requestMatchers("/api/tournaments/**").permitAll()
-                        .requestMatchers("/team/**").permitAll()
-                        .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
-                        .requestMatchers("/team/showTeams", "/team/showTeamById/**", "/team/myTeams").permitAll()
-                        .requestMatchers("/team/*/join", "/team/*/leave").hasRole("PLAYER")
-                        //.requestMatchers("/match/add", "/match/update").hasAnyRole("PLAYER", "COACH")
-                        .requestMatchers("/match/**").permitAll()
-                        .requestMatchers("/match/showMatchs", "/match/showMatchById/**").permitAll()
-                        .requestMatchers("/matches-history/**").permitAll()
-                        .requestMatchers("/match/*/respond").permitAll()
-                        .requestMatchers("/matches/search").permitAll()
+                                // Front /client (PLAYER, COACH, etc.) : CRUD API métier avec JWT valide
+                                .requestMatchers(HttpMethod.PATCH, "/api/sponsor/*/status").hasRole("ADMIN")
+                                .requestMatchers("/api/sponsor/**").authenticated()
+                                .requestMatchers("/api/sponsoring/**").authenticated()
+                                .requestMatchers("/api/communaute/**").authenticated()
+                                .requestMatchers("/api/contrat/**").authenticated()
+                                .requestMatchers("/api/contrat-sponsor/**").authenticated()
+                                .requestMatchers("/user/profile").authenticated()
+                                .requestMatchers("/api/schedule/**").permitAll()
+                                .requestMatchers("/api/recommend/**", "/notification/**").permitAll()
+                                //.requestMatchers("/matchmaking/**").permitAll()
+                                .requestMatchers("/api/matchmaking/**").permitAll()
+                                .requestMatchers("/api/performance/**").permitAll()
+                                .requestMatchers("/api/fields/**").permitAll()
+                                .requestMatchers("/api/registrations/**").permitAll()
+                                .requestMatchers("/api/tournaments/**").permitAll()
+                                .requestMatchers("/team/**").permitAll()
+                                .requestMatchers("/team/delete/**").hasAnyRole("PLAYER", "COACH", "ADMIN")
+                                .requestMatchers("/team/showTeams", "/team/showTeamById/**", "/team/myTeams").permitAll()
+                                .requestMatchers("/team/*/join", "/team/*/leave").hasRole("PLAYER")
+                                //.requestMatchers("/match/add", "/match/update").hasAnyRole("PLAYER", "COACH")
+                                .requestMatchers("/match/**").permitAll()
+                                .requestMatchers("/match/showMatchs", "/match/showMatchById/**").permitAll()
+                                .requestMatchers("/matches-history/**").permitAll()
+                                .requestMatchers("/match/*/respond").permitAll()
+                                .requestMatchers("/matches/search").permitAll()
 //                        .requestMatchers("/training/add", "/training/update").hasRole("COACH")
 //                        .requestMatchers("/training/delete/**").hasAnyRole("COACH", "ADMIN")
 //                        .requestMatchers("/training/showTrainings", "/training/showTrainingById/**").permitAll()
 //                        .requestMatchers("/training/*/join", "/training/*/leave").hasRole("PLAYER")
                                 .requestMatchers("/training/**").permitAll()
-                        .requestMatchers("/api/pricing/**").permitAll()
+                                .requestMatchers("/api/pricing/**").permitAll()
                                 .requestMatchers("/api/registrations/**").permitAll()
                                 .requestMatchers(" /api/reservations/**").permitAll()
                                 .requestMatchers("/api/brackets/**").permitAll()
 
 
+                                // Endpoints publics (login, register, forgot/reset password)
 
-                        // Endpoints publics (login, register, forgot/reset password)
+                                //houssem
 
-                        //houssem
-
-                        .requestMatchers("/api/transporteurs/**").permitAll()
-                        .requestMatchers("/livraisons/**").permitAll()
-
+                                .requestMatchers("/api/transporteurs/**").permitAll()
+                                .requestMatchers("/livraisons/**").permitAll()
 
 
-                        // Auth publique
+                                // Auth publique
 
-                        .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/auth/**").permitAll()
 
-                        // WebSocket — DOIT être avant tout autre règle
-                        .requestMatchers("/ws/**").permitAll()
+                                // WebSocket — DOIT être avant tout autre règle
+                                .requestMatchers("/ws/**").permitAll()
 
-                        // Health
-                        .requestMatchers("/health/**").permitAll()
+                                // Health
+                                .requestMatchers("/health/**").permitAll()
 
-                        // Posts
-                        .requestMatchers(HttpMethod.GET,    "/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,   "/posts/like/**").hasRole("PLAYER")
-                        .requestMatchers(HttpMethod.POST,   "/posts/dislike/**").hasRole("PLAYER")
-                        .requestMatchers(HttpMethod.POST,   "/posts/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,    "/posts/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/posts/**").hasRole("ADMIN")
+                                // Posts
+                                .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/posts/like/**").hasRole("PLAYER")
+                                .requestMatchers(HttpMethod.POST, "/posts/dislike/**").hasRole("PLAYER")
+                                .requestMatchers(HttpMethod.POST, "/posts/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/posts/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/posts/**").hasRole("ADMIN")
 
-                        // Comments
-                        .requestMatchers(HttpMethod.GET,    "/comments/**").hasAnyRole("ADMIN", "PLAYER")
-                        .requestMatchers(HttpMethod.POST,   "/comments/**").hasRole("PLAYER")
-                        .requestMatchers(HttpMethod.PUT,    "/comments/**").hasRole("PLAYER")
-                        .requestMatchers(HttpMethod.DELETE, "/comments/**").hasRole("PLAYER")
+                                // Comments
+                                .requestMatchers(HttpMethod.GET, "/comments/**").hasAnyRole("ADMIN", "PLAYER")
+                                .requestMatchers(HttpMethod.POST, "/comments/**").hasRole("PLAYER")
+                                .requestMatchers(HttpMethod.PUT, "/comments/**").hasRole("PLAYER")
+                                .requestMatchers(HttpMethod.DELETE, "/comments/**").hasRole("PLAYER")
 
-                        // Water reminders
-                        .requestMatchers("/water-reminders/**").hasRole("PLAYER")
+                                // Water reminders
+                                .requestMatchers("/water-reminders/**").hasRole("PLAYER")
+
+                                .requestMatchers("/uploads/**").permitAll()
+                                .requestMatchers("/api/promos/**").permitAll()
 
 
+                                // Tout autre endpoint nécessite une authentification
 
-                        // Tout autre endpoint nécessite une authentification
-
-                        .anyRequest().authenticated()
+                                .anyRequest().authenticated()
                 )
                 // ✅ FIX PRINCIPAL : empêche Spring de rediriger les appels REST vers OAuth2/login
                 .exceptionHandling(ex -> ex

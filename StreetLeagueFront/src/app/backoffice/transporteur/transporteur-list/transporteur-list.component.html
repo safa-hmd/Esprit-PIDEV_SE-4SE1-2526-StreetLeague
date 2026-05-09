@@ -15,18 +15,18 @@
   <!-- Formulaire create/edit (inline) -->
   <div class="a-card" *ngIf="showForm" style="max-width:520px;margin-bottom:1.5rem;border:2px solid #e61920;">
     <div class="a-card-header">
-      <span class="a-card-title">{{ editMode ? 'Modifier le transporteur' : 'Nouveau transporteur' }}</span>
+      <span class="a-card-title">{{ editMode ? 'Edit Transporter' : 'Create Transporter' }}</span>
       <button class="a-btn a-btn-ghost a-btn-sm" (click)="closeForm()">✕</button>
     </div>
     <div class="a-card-body">
       <div class="a-form-group">
-        <label class="a-form-label">Nom société <span style="color:#e61920;">*</span></label>
+        <label class="a-form-label">Company Name <span style="color:#e61920;">*</span></label>
         <input type="text" class="a-form-control"
                placeholder="ex: Tunisie Express"
                [(ngModel)]="form.nomSociete">
       </div>
       <div class="a-form-group">
-        <label class="a-form-label">Téléphone</label>
+        <label class="a-form-label">Phone</label>
         <input type="text" class="a-form-control"
                placeholder="ex: +216 71 000 000"
                [(ngModel)]="form.telephone">
@@ -39,9 +39,9 @@
       </div>
       <div style="display:flex;gap:0.75rem;margin-top:1rem;">
         <button class="a-btn a-btn-primary" (click)="submit()">
-          {{ editMode ? '💾 Enregistrer' : '✅ Créer' }}
+          {{ editMode ? '💾 Save' : '✅ Create' }}
         </button>
-        <button class="a-btn a-btn-ghost" (click)="closeForm()">Annuler</button>
+        <button class="a-btn a-btn-ghost" (click)="closeForm()">Cancel</button>
       </div>
     </div>
   </div>
@@ -49,21 +49,21 @@
   <!-- Table card -->
   <div class="a-card">
     <div class="a-card-header" style="justify-content:space-between;">
-      <span class="a-card-title">Transporteurs ({{ transporteurs.length }})</span>
+      <span class="a-card-title">Transporters ({{ transporteurs.length }})</span>
       <button class="a-btn a-btn-primary a-btn-sm" (click)="openCreate()">
         + Add Transporter
       </button>
     </div>
     <div class="a-card-body" style="padding:0;">
-      <div *ngIf="loading" style="text-align:center;padding:2rem;color:#999;">Chargement...</div>
+      <div *ngIf="loading" style="text-align:center;padding:2rem;color:#999;">Loading...</div>
 
       <div class="a-table-wrap" *ngIf="!loading">
         <table class="a-table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Nom société</th>
-              <th>Téléphone</th>
+              <th>Company name</th>
+              <th>Phone</th>
               <th>Email</th>
               <th>Actions</th>
             </tr>
@@ -77,7 +77,7 @@
               <td>
                 <div style="display:flex;gap:0.5rem;">
                   <button class="a-btn a-btn-ghost a-btn-sm" (click)="openEdit(t)">
-                    ✏️ Modify
+                    ✏️ Edit
                   </button>
                   <button class="a-btn a-btn-ghost a-btn-sm"
                           style="color:#e61920;"
@@ -89,7 +89,7 @@
             </tr>
             <tr *ngIf="transporteurs.length === 0">
               <td colspan="5" style="text-align:center;padding:2rem;color:#999;">
-                Aucun transporteur. Cliquez sur "Ajouter" pour commencer.
+                No transporter found. Click on "Add Transporter" to get started.
               </td>
             </tr>
           </tbody>

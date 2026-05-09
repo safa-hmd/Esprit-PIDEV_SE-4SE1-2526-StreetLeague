@@ -23,12 +23,17 @@ import { NewsComponent } from './news/news.component';
 import { AdminCommunauteModule } from './communaute/admin-communaute.module';
 import { HomeComponent } from './home/home.component';
 import { CommandeListComponent } from './commande/commande-list/commande-list.component';
+
 import { MaterielListComponent } from './materiel/materiel-list/materiel-list.component';
 import { TransporteurListComponent } from './transporteur/transporteur-list/transporteur-list.component';
 import { LivraisonFormComponent } from './livraison/livraison-form/livraison-form.component';
 import { LivraisonListComponent } from './livraison/livraison-list/livraison-list.component';
 import { PlayerProfileComponent } from './player-profile/player-profile.component';
 import { BracketComponent } from './bracket/bracket.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+
+
+ 
 
 @NgModule({
   declarations: [
@@ -50,8 +55,11 @@ import { BracketComponent } from './bracket/bracket.component';
     TransporteurListComponent,
     MaterielListComponent,
     CommandeListComponent,
+
     PlayerProfileComponent,
-    BracketComponent
+    BracketComponent,
+    DashboardComponent,
+
   ],
 
   imports: [                          // ✅ MANQUAIT COMPLÈTEMENT

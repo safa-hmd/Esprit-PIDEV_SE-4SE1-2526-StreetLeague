@@ -6,13 +6,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.List;
-
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -28,7 +26,7 @@ public class Commande {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-            @JsonIgnore
+    @JsonIgnore
     User user;
 
     double montantTotal;
@@ -37,7 +35,25 @@ public class Commande {
     @Column(nullable = false)
     CommandeStatus statut;
 
+    // ── PARTIE 2 : GPS client pour dispatching ───────────
+    @Builder.Default
+    Double latitudeClient = 0.0;
+
+    @Builder.Default
+    Double longitudeClient = 0.0;
+
+    String adresseLivraison;
+
+    private Long promoCodeId;
+    private double discountAmount = 0.0;
+    @Column(name = "date_creation")
+    LocalDateTime dateCreation;
+
+    @PrePersist
+    protected void onCreate() {
+        this.dateCreation = LocalDateTime.now();
+    }
     @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL)
-            @JsonIgnore
-        List<LigneCommande> lignes;
+    @JsonIgnore
+    List<LigneCommande> lignes;
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
+
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, from, of, switchMap } from 'rxjs';
+import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
 
 export interface FieldRecommendation {
   fieldId:        number;
@@ -25,10 +26,15 @@ export interface SlotDto {
   rec:       string;
   startTime: string;
   endTime:   string;
+
+}
+interface RecommendationResponse {
+  recommendations: number[];
 }
 
 @Injectable({ providedIn: 'root' })
 export class RecommendationService {
+
 
   // ✅ Single source of truth for API base URL
   private readonly BASE = 'http://localhost:8086/StreetLeague/api/recommend';
@@ -110,4 +116,26 @@ export class RecommendationService {
       { headers: this.getHeaders(), params }
     );
   }
+
+  // URL du microservice ML (déjà configuré avec CORS dans app.py)
+  private readonly FASTAPI_URL = 'http://localhost:8000/recommend';
+
+
+
+  /**
+   * Appelle l'API ML et retourne la liste des IDs produits recommandés.
+   * Fallback silencieux si l'API est indisponible (conforme au PDF: "Consommation robuste").
+   */
+  getRecommendations(userId: number, excludeIds: number[] = [], topK: number = 4): Observable<number[]> {
+    const payload = { user_id: userId, top_k: topK, exclude_ids: excludeIds };
+    
+    return this.http.post<RecommendationResponse>(this.FASTAPI_URL, payload).pipe(
+      map(res => res.recommendations),
+      catchError(err => {
+        console.warn('⚠️ ML API unreachable → Fallback empty recommendations', err);
+        return of([]); // Retourne [] au lieu de bloquer l'UI
+      })
+    );
+  }
+
 }

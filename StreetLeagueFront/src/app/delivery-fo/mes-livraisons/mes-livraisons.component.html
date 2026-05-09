@@ -1,10 +1,13 @@
 <!-- Page header -->
 <div class="dfo-page-header">
-  <h1 class="dfo-page-title" style="color: #ffffff;">My Deliveries</h1>
-  <p class="dfo-page-subtitle" style="color: #aaaaaa;">Manage and update your assigned deliveries</p>
+  <h1 class="dfo-page-title" style="color:#ffffff;">My Deliveries</h1>
+  <p class="dfo-page-subtitle" style="color:#aaaaaa;">Manage and update your assigned deliveries</p>
+  <span *ngIf="gpsActive"
+    style="display:inline-flex;align-items:center;gap:5px;font-size:0.78rem;color:#4ade80;background:rgba(74,222,128,0.1);padding:0.2rem 0.6rem;border-radius:20px;margin-top:0.4rem;">
+    📡 GPS Active
+  </span>
 </div>
 
-<!-- Notifications -->
 <div class="dfo-alert dfo-alert-success" *ngIf="successMsg">✅ {{ successMsg }}</div>
 <div class="dfo-alert dfo-alert-error"   *ngIf="errorMsg">❌ {{ errorMsg }}</div>
 
@@ -12,74 +15,116 @@
 <div class="dfo-stat-grid">
   <div class="dfo-stat">
     <div class="dfo-stat-icon" style="background:rgba(78,138,159,0.2);color:#7ec8e3;">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22">
-        <rect x="1" y="3" width="15" height="13"/>
-        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-        <circle cx="5.5" cy="18.5" r="2.5"/>
-        <circle cx="18.5" cy="18.5" r="2.5"/>
-      </svg>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
     </div>
-    <div>
-      <div class="dfo-stat-val" style="color:#F0F0F0;">{{ stats.total }}</div>
-      <div class="dfo-stat-label" style="color:#aaaaaa;">Total assigned</div>
-    </div>
+    <div><div class="dfo-stat-val" style="color:#F0F0F0;">{{ stats.total }}</div><div class="dfo-stat-label" style="color:#aaaaaa;">Total assigned</div></div>
   </div>
-
   <div class="dfo-stat">
     <div class="dfo-stat-icon" style="background:rgba(232,112,64,0.2);color:#f59e6b;">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="12 6 12 12 16 14"/>
-      </svg>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     </div>
-    <div>
-      <div class="dfo-stat-val" style="color:#f59e6b;">{{ stats.preparees }}</div>
-      <div class="dfo-stat-label" style="color:#aaaaaa;">To Prepare</div>
-    </div>
+    <div><div class="dfo-stat-val" style="color:#f59e6b;">{{ stats.preparees }}</div><div class="dfo-stat-label" style="color:#aaaaaa;">To Prepare</div></div>
   </div>
-
   <div class="dfo-stat">
     <div class="dfo-stat-icon" style="background:rgba(59,130,246,0.2);color:#7eb3f7;">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22">
-        <path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/>
-        <rect x="9" y="11" width="14" height="10" rx="2"/>
-        <circle cx="12" cy="20" r="1"/><circle cx="20" cy="20" r="1"/>
-      </svg>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="2"/><circle cx="12" cy="20" r="1"/><circle cx="20" cy="20" r="1"/></svg>
     </div>
-    <div>
-      <div class="dfo-stat-val" style="color:#7eb3f7;">{{ stats.enCours }}</div>
-      <div class="dfo-stat-label" style="color:#aaaaaa;">In Transit</div>
-    </div>
+    <div><div class="dfo-stat-val" style="color:#7eb3f7;">{{ stats.enCours }}</div><div class="dfo-stat-label" style="color:#aaaaaa;">In Transit</div></div>
   </div>
-
   <div class="dfo-stat">
     <div class="dfo-stat-icon" style="background:rgba(34,197,94,0.15);color:#4ade80;">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
+    <div><div class="dfo-stat-val" style="color:#4ade80;">{{ stats.livrees }}</div><div class="dfo-stat-label" style="color:#aaaaaa;">Delivered</div></div>
+  </div>
+  <div class="dfo-stat">
+    <div class="dfo-stat-icon" style="background:rgba(230,25,32,0.2);color:#f87171;">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div><div class="dfo-stat-val" style="color:#f87171;">{{ stats.echecs }}</div><div class="dfo-stat-label" style="color:#aaaaaa;">Failed</div></div>
+  </div>
+</div>
+
+<!-- Bouton tournée optimisée -->
+<div style="margin-bottom:1.25rem;">
+  <button
+    *ngIf="!showTourneeMap"
+    (click)="chargerTournee()"
+    [disabled]="tourneeLoading"
+    style="display:inline-flex;align-items:center;gap:8px;background:#E61920;color:white;border:none;border-radius:8px;padding:0.65rem 1.25rem;font-size:0.88rem;font-weight:700;cursor:pointer;">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16"><path d="M3 12h18M3 6l9-3 9 3M3 18l9 3 9-3"/></svg>
+    {{ tourneeLoading ? 'Calculating route...' : 'Optimize my route (TSP)' }}
+  </button>
+
+  <button
+    *ngIf="showTourneeMap"
+    (click)="fermerTournee()"
+    style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);color:#ccc;border:1px solid #3a3a3a;border-radius:8px;padding:0.65rem 1.25rem;font-size:0.88rem;font-weight:600;cursor:pointer;">
+    ✕ Close route map
+  </button>
+</div>
+
+<!-- Panneau tournée optimisée -->
+<div *ngIf="showTourneeMap && tournee" class="dfo-card" style="margin-bottom:1.5rem;overflow:hidden;">
+
+  <div class="dfo-card-header" style="background:#1a1a1a;border-bottom:1px solid #2a2a2a;">
     <div>
-      <div class="dfo-stat-val" style="color:#4ade80;">{{ stats.livrees }}</div>
-      <div class="dfo-stat-label" style="color:#aaaaaa;">Delivered</div>
+      <span class="dfo-card-title" style="color:#F0F0F0;">
+        Optimized route — {{ tournee.stops.length }} stops
+      </span>
+      <div style="display:flex;gap:1rem;margin-top:0.35rem;font-size:0.8rem;">
+        <span style="color:#4ade80;">
+          <strong>{{ tournee.distanceTotaleKm | number:'1.1-1' }} km</strong> total
+        </span>
+        <span style="color:#7eb3f7;">
+          ~<strong>{{ formatEta(tournee.etaTotalMinutes) }}</strong> estimated
+        </span>
+        <span style="color:#f59e6b;">
+          Nearest Neighbor TSP algorithm
+        </span>
+      </div>
     </div>
   </div>
 
-  <div class="dfo-stat">
-    <div class="dfo-stat-icon" style="background:rgba(230,25,32,0.2);color:#f87171;">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="22" height="22">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
+  <div id="tournee-map" style="width:100%;height:380px;"></div>
+
+  <div style="padding:0;max-height:320px;overflow-y:auto;">
+    <div *ngIf="tournee.stops.length === 0"
+         style="text-align:center;padding:2rem;color:#aaa;font-size:0.9rem;">
+      No active deliveries to route.
     </div>
-    <div>
-      <div class="dfo-stat-val" style="color:#f87171;">{{ stats.echecs }}</div>
-      <div class="dfo-stat-label" style="color:#aaaaaa;">Failed</div>
+
+    <div *ngFor="let stop of tournee.stops"
+         style="display:flex;align-items:center;gap:1rem;padding:0.9rem 1.25rem;border-bottom:1px solid #222;">
+      <div style="width:32px;height:32px;background:#E61920;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:0.85rem;flex-shrink:0;"
+           [style.background]="stop.statut === 'LIVREE' ? '#059669' : '#E61920'">
+        {{ stop.ordre }}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;color:#F0F0F0;font-size:0.88rem;">
+          Delivery #{{ stop.livraisonId }}
+          <span class="dfo-badge" [ngClass]="getBadgeClass(stop.statut)"
+                style="margin-left:6px;font-size:0.7rem;padding:0.15rem 0.5rem;">
+            {{ stop.statut }}
+          </span>
+        </div>
+        <div style="font-size:0.8rem;color:#aaa;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          📍 {{ stop.adresse }}
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:0.82rem;color:#7eb3f7;font-weight:700;">
+          +{{ stop.distanceDepuisPrecedentKm | number:'1.1-1' }} km
+        </div>
+        <div style="font-size:0.75rem;color:#888;margin-top:2px;">
+          ETA {{ formatEta(stop.etaMinutesDepuisDepart) }}
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Filtres rapides -->
+<!-- Filtres -->
 <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;">
   <button class="dfo-status-btn"
           [style.background]="activeFilter === 'TOUTES' ? 'rgba(230,25,32,0.2)' : 'rgba(255,255,255,0.05)'"
@@ -95,30 +140,22 @@
           [style.border-color]="activeFilter !== s ? '#3a3a3a' : ''"
           [style.color]="activeFilter !== s ? '#cccccc' : ''"
           (click)="setFilter(s)">
-    {{ s === 'EN_COURS' ? 'EN COURS' : s }} ({{ livraisons | filterByStatut:s }})
+    {{ s }} ({{ getCountForStatut(s) }})
   </button>
 </div>
 
-<!-- Table principale -->
+<!-- Table livraisons -->
 <div class="dfo-card">
   <div class="dfo-card-header">
-    <span class="dfo-card-title" style="color:#F0F0F0;">
-      Deliveries ({{ filteredLivraisons.length }})
-    </span>
-    <button class="dfo-btn dfo-btn-ghost dfo-btn-sm" (click)="loadLivraisons()"
-            style="color:#cccccc;border-color:#3a3a3a;">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="14" height="14">
-        <polyline points="23 4 23 10 17 10"/>
-        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-      </svg>
+    <span class="dfo-card-title" style="color:#F0F0F0;">Deliveries ({{ filteredLivraisons.length }})</span>
+    <button class="dfo-btn dfo-btn-ghost dfo-btn-sm" (click)="loadLivraisons()" style="color:#cccccc;border-color:#3a3a3a;">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
       Refresh
     </button>
   </div>
 
-  <!-- Loading -->
   <div *ngIf="loading" style="text-align:center;padding:3rem;color:#cccccc;">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
-         width="32" height="32"
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="32" height="32"
          style="animation:spin 1s linear infinite;display:block;margin:0 auto 0.75rem;color:#E61920;">
       <path d="M21 12a9 9 0 1 1-6.22-8.56"/>
     </svg>
@@ -128,159 +165,109 @@
   <div class="dfo-table-wrap" *ngIf="!loading">
     <table class="dfo-table">
       <thead>
-          <tr>
-            <th style="color:#ffffff;background:#161616;font-weight:700;">ID</th>
-            <th style="color:#ffffff;background:#161616;font-weight:700;">Commande</th>
-            <th style="color:#ffffff;background:#161616;font-weight:700;">Adresse</th>
-            <th style="color:#ffffff;background:#161616;font-weight:700;">Frais</th>
-            <th style="color:#ffffff;background:#161616;font-weight:700;">Statut</th>
-            <th style="color:#ffffff;background:#161616;font-weight:700;">Mettre à jour</th>
-            <th style="background:#161616;"></th>
-          </tr>
+        <tr>
+          <th style="color:#fff;background:#161616;font-weight:700;">ID</th>
+          <th style="color:#fff;background:#161616;font-weight:700;">Order</th>
+          <th style="color:#fff;background:#161616;font-weight:700;">Address</th>
+          <th style="color:#fff;background:#161616;font-weight:700;">Distance</th>
+          <th style="color:#fff;background:#161616;font-weight:700;">Fees</th>
+          <th style="color:#fff;background:#161616;font-weight:700;">Status</th>
+          <th style="color:#fff;background:#161616;font-weight:700;">Update</th>
+          <th style="background:#161616;"></th>
+        </tr>
       </thead>
       <tbody>
         <tr *ngFor="let l of filteredLivraisons"
             [style.border-left]="selectedLivraison?.id === l.id ? '3px solid #E61920' : '3px solid transparent'">
-
-          <!-- ID -->
-          <td><strong style="color:#ff6b6b;font-size:0.95rem;">#{{ l.id }}</strong></td>
-
-          <!-- Commande -->
-          <td style="color:#e0e0e0;font-weight:500;">Cmd #{{ l.commandeId }}</td>
-
-          <!-- Adresse -->
+          <td><strong style="color:#ff6b6b;">#{{ l.id }}</strong></td>
+          <td style="color:#e0e0e0;">Cmd #{{ l.commandeId }}</td>
           <td>
-            <div style="max-width:200px;display:flex;align-items:center;gap:5px;">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
-                   width="12" height="12" style="color:#aaaaaa;flex-shrink:0;">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                <circle cx="12" cy="10" r="3"/>
-              </svg>
+            <div style="max-width:180px;display:flex;align-items:center;gap:5px;">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="12" height="12" style="color:#aaa;flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
               <span style="font-size:0.85rem;color:#e0e0e0;">{{ l.adresse }}</span>
             </div>
-          </td>
-
-          <!-- Frais -->
-          <td style="color:#cccccc;font-size:0.85rem;font-weight:600;">
-            {{ l.fraisLivraison | number:'1.2-2' }} TND
-          </td>
-
-          <!-- Statut badge avec meilleure lisibilité -->
+           </td>
+          <td style="color:#ccc;font-size:0.85rem;">{{ l.distance ? (l.distance | number:'1.1-1') + ' km' : '—' }}</td>
+          <td style="color:#ccc;font-size:0.85rem;font-weight:600;">{{ l.fraisLivraison | number:'1.2-2' }} TND</td>
           <td>
-            <span class="dfo-badge" 
-                  [ngClass]="getBadgeClass(l.statut)"
-                  style="font-weight:700;padding:0.3rem 0.8rem;">
-              {{ l.statut === 'EN_COURS' ? 'EN COURS' : l.statut }}
+            <span class="dfo-badge" [ngClass]="getBadgeClass(l.statut)" style="font-weight:700;padding:0.3rem 0.8rem;">
+              {{ l.statut }}
             </span>
-          </td>
-
-          <!-- Boutons update statut avec meilleure lisibilité -->
+           </td>
           <td>
-            <div class="dfo-status-actions" style="gap:0.5rem;">
+            <div class="dfo-status-actions" style="gap:0.3rem;flex-wrap:wrap;">
               <button *ngFor="let s of statuts"
                       class="dfo-status-btn"
                       [ngClass]="'active-' + s"
                       [disabled]="l.statut === s"
-                      [title]="l.statut === s ? 'Statut actuel' : 'Passer à ' + (s === 'EN_COURS' ? 'EN COURS' : s)"
+                      [title]="l.statut === s ? 'Current status' : 'Switch to ' + s"
                       (click)="updateStatus(l, s)"
-                      style="font-weight:600;font-size:0.75rem;padding:0.35rem 0.85rem;">
-                {{ s === 'EN_COURS' ? 'EN COURS' : s }}
+                      style="font-size:0.7rem;padding:0.25rem 0.5rem;">
+                {{ s }}
               </button>
             </div>
-          </td>
-
-          <!-- Détail toggle -->
+           </td>
           <td>
-            <button class="dfo-btn dfo-btn-ghost dfo-btn-sm"
-                    (click)="selectLivraison(l)"
+            <button class="dfo-btn dfo-btn-ghost dfo-btn-sm" (click)="selectLivraison(l)"
                     [style.color]="selectedLivraison?.id === l.id ? '#ff6b6b' : '#cccccc'"
-                    style="border-color:#3a3a3a;font-weight:600;">
-              {{ selectedLivraison?.id === l.id ? '▲ Réduire' : '▼ Détail' }}
+                    style="border-color:#3a3a3a;">
+              {{ selectedLivraison?.id === l.id ? '▲ Hide' : '▼ Detail' }}
             </button>
-          </td>
+           </td>
         </tr>
 
-        <!-- Ligne détail expandable -->
+        <!-- Détail expandable -->
         <ng-container *ngIf="selectedLivraison">
           <tr *ngFor="let l of filteredLivraisons"
               [style.display]="selectedLivraison && selectedLivraison.id === l.id ? 'table-row' : 'none'">
-            <td colspan="7" style="background:#181818;padding:1.5rem;border-top:1px solid #2a2a2a;">
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;">
-
+            <td colspan="8" style="background:#181818;padding:1.5rem;border-top:1px solid #2a2a2a;">
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;">
                 <div>
-                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;
-                               color:#aaaaaa;margin-bottom:0.35rem;font-weight:700;">
-                    Delivery ID
-                  </div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;color:#aaa;margin-bottom:0.35rem;font-weight:700;">Delivery ID</div>
                   <div style="font-weight:700;color:#ff6b6b;font-size:1.1rem;">#{{ l.id }}</div>
                 </div>
-
                 <div>
-                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;
-                               color:#aaaaaa;margin-bottom:0.35rem;font-weight:700;">
-                    Order
-                  </div>
-                  <div style="font-weight:700;color:#ffffff;">#{{ l.commandeId }}</div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;color:#aaa;margin-bottom:0.35rem;font-weight:700;">Order</div>
+                  <div style="font-weight:700;color:#fff;">#{{ l.commandeId }}</div>
                 </div>
-
                 <div>
-                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;
-                               color:#aaaaaa;margin-bottom:0.35rem;font-weight:700;">
-                    Transporteur
-                  </div>
-                  <div style="font-weight:700;color:#ffffff;">#{{ l.transporteurId }}</div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;color:#aaa;margin-bottom:0.35rem;font-weight:700;">Delivery Man</div>
+                  <div style="font-weight:700;color:#fff;">{{ l.livreurNom || '—' }}</div>
                 </div>
-
                 <div>
-                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;
-                               color:#aaaaaa;margin-bottom:0.35rem;font-weight:700;">
-                    Adresse complète
-                  </div>
-                  <div style="font-weight:500;color:#e0e0e0;line-height:1.5;">{{ l.adresse }}</div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;color:#aaa;margin-bottom:0.35rem;font-weight:700;">Distance</div>
+                  <div style="font-weight:700;color:#fff;">{{ l.distance ? (l.distance | number:'1.1-1') + ' km' : '—' }}</div>
                 </div>
-
                 <div>
-                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;
-                               color:#aaaaaa;margin-bottom:0.35rem;font-weight:700;">
-                    Frais de livraison
-                  </div>
-                  <div style="font-weight:700;color:#ffffff;">
-                    {{ l.fraisLivraison | number:'1.2-2' }} TND
-                  </div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;color:#aaa;margin-bottom:0.35rem;font-weight:700;">Full Address</div>
+                  <div style="font-weight:500;color:#e0e0e0;">{{ l.adresse }}</div>
                 </div>
-
                 <div>
-                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;
-                               color:#aaaaaa;margin-bottom:0.35rem;font-weight:700;">
-                    Statut actuel
-                  </div>
-                  <span class="dfo-badge" 
-                        [ngClass]="getBadgeClass(l.statut)"
-                        style="font-weight:700;padding:0.3rem 0.8rem;">
-                    {{ l.statut === 'EN_COURS' ? 'EN COURS' : l.statut }}
-                  </span>
+                  <div style="font-size:0.7rem;text-transform:uppercase;color:#aaa;margin-bottom:0.35rem;font-weight:700;">Fees</div>
+                  <div style="font-weight:700;color:#fff;">{{ l.fraisLivraison | number:'1.2-2' }} TND</div>
                 </div>
-
+                <div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;color:#aaa;margin-bottom:0.35rem;font-weight:700;">Score</div>
+                  <div style="font-weight:700;color:#fff;">{{ l.scoreAffectation ? (l.scoreAffectation | number:'1.2-2') : '—' }}</div>
+                </div>
+                <div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;color:#aaa;margin-bottom:0.35rem;font-weight:700;">Status</div>
+                  <span class="dfo-badge" [ngClass]="getBadgeClass(l.statut)" style="font-weight:700;padding:0.3rem 0.8rem;">{{ l.statut }}</span>
+                </div>
               </div>
             </td>
           </tr>
         </ng-container>
 
-        <!-- Vide -->
         <tr *ngIf="filteredLivraisons.length === 0 && !loading">
-          <td colspan="7" style="text-align:center;padding:3rem;">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"
-                 width="48" height="48"
-                 style="display:block;margin:0 auto 0.75rem;opacity:0.35;color:#cccccc;">
-              <rect x="1" y="3" width="15" height="13"/>
-              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-              <circle cx="5.5" cy="18.5" r="2.5"/>
-              <circle cx="18.5" cy="18.5" r="2.5"/>
+          <td colspan="8" style="text-align:center;padding:3rem;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" width="48" height="48"
+                 style="display:block;margin:0 auto 0.75rem;opacity:0.35;color:#ccc;">
+              <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
             </svg>
-            <div style="font-size:0.9rem;color:#bbbbbb;">
-              {{ activeFilter === 'TOUTES'
-                 ? 'Aucune livraison assignée pour le moment.'
-                 : 'Aucune livraison avec le statut ' + (activeFilter === 'EN_COURS' ? 'EN COURS' : activeFilter) + '.' }}
+            <div style="font-size:0.9rem;color:#bbb;">
+              {{ activeFilter === 'TOUTES' ? 'No deliveries assigned yet.' : 'No delivery with status ' + activeFilter + '.' }}
             </div>
           </td>
         </tr>
@@ -289,6 +276,4 @@
   </div>
 </div>
 
-<style>
-@keyframes spin { to { transform: rotate(360deg); } }
-</style>
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>

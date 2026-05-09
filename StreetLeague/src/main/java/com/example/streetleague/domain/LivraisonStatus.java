@@ -1,10 +1,10 @@
 package com.example.streetleague.domain;
 
-
 public enum LivraisonStatus {
     PREPAREE,
+    ASSIGNEE,
     EXPEDIEE,
-    EN_COURS,
+    OUT_FOR_DELIVERY,
     LIVREE,
     ECHEC
 }

@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { LivraisonService } from '../../../services/livraison.service';
-import { Transporteur } from '../../../models/livraison.model';
+import { HttpClient } from '@angular/common/http';
+
+// ✅ Interface locale — Transporteur supprimé du modèle livraison
+interface Transporteur {
+  id?: number;
+  nomSociete: string;
+  telephone?: string;
+  email?: string;
+}
 
 @Component({
   selector: 'app-transporteur-list',
@@ -8,43 +15,43 @@ import { Transporteur } from '../../../models/livraison.model';
   styleUrls: ['./transporteur-list.component.css']
 })
 export class TransporteurListComponent implements OnInit {
+
+  private base = 'http://localhost:8086/StreetLeague/api/transporteurs';
+
   transporteurs: Transporteur[] = [];
   successMsg = '';
-  errorMsg = '';
-  loading = false;
+  errorMsg   = '';
+  loading    = false;
 
-  // Formulaire (création + édition)
   showForm = false;
   editMode = false;
   editId: number | null = null;
 
   form: Transporteur = { nomSociete: '', telephone: '', email: '' };
 
-  constructor(private livraisonService: LivraisonService) {}
+  constructor(private http: HttpClient) {}
 
-  ngOnInit(): void {
-    this.load();
-  }
+  ngOnInit(): void { this.load(); }
 
   load(): void {
     this.loading = true;
-    this.livraisonService.getAllTransporteurs().subscribe({
-      next: data => { this.transporteurs = data; this.loading = false; },
-      error: () => { this.showError('Erreur chargement transporteurs.'); this.loading = false; }
+    this.http.get<Transporteur[]>(this.base).subscribe({
+      next:  data => { this.transporteurs = data; this.loading = false; },
+      error: ()   => { this.showError('Erreur chargement transporteurs.'); this.loading = false; }
     });
   }
 
   openCreate(): void {
     this.editMode = false;
-    this.editId = null;
-    this.form = { nomSociete: '', telephone: '', email: '' };
+    this.editId   = null;
+    this.form     = { nomSociete: '', telephone: '', email: '' };
     this.showForm = true;
   }
 
   openEdit(t: Transporteur): void {
     this.editMode = true;
-    this.editId = t.id!;
-    this.form = { nomSociete: t.nomSociete, telephone: t.telephone || '', email: t.email || '' };
+    this.editId   = t.id!;
+    this.form     = { nomSociete: t.nomSociete, telephone: t.telephone || '', email: t.email || '' };
     this.showForm = true;
   }
 
@@ -54,13 +61,13 @@ export class TransporteurListComponent implements OnInit {
       return;
     }
     if (this.editMode && this.editId) {
-      this.livraisonService.updateTransporteur(this.editId, this.form).subscribe({
-        next: () => { this.showSuccess('Transporteur mis à jour.'); this.closeForm(); this.load(); },
+      this.http.put<Transporteur>(`${this.base}/${this.editId}`, this.form).subscribe({
+        next:  () => { this.showSuccess('Transporteur mis à jour.'); this.closeForm(); this.load(); },
         error: () => this.showError('Erreur lors de la mise à jour.')
       });
     } else {
-      this.livraisonService.createTransporteur(this.form).subscribe({
-        next: () => { this.showSuccess('Transporteur créé avec succès.'); this.closeForm(); this.load(); },
+      this.http.post<Transporteur>(this.base, this.form).subscribe({
+        next:  () => { this.showSuccess('Transporteur créé.'); this.closeForm(); this.load(); },
         error: () => this.showError('Erreur lors de la création.')
       });
     }
@@ -68,15 +75,15 @@ export class TransporteurListComponent implements OnInit {
 
   delete(id: number, nom: string): void {
     if (!confirm(`Supprimer le transporteur "${nom}" ?`)) return;
-    this.livraisonService.deleteTransporteur(id).subscribe({
-      next: () => { this.showSuccess('Transporteur supprimé.'); this.load(); },
+    this.http.delete(`${this.base}/${id}`, { responseType: 'text' }).subscribe({
+      next:  () => { this.showSuccess('Transporteur supprimé.'); this.load(); },
       error: () => this.showError('Erreur lors de la suppression.')
     });
   }
 
   closeForm(): void {
     this.showForm = false;
-    this.form = { nomSociete: '', telephone: '', email: '' };
+    this.form     = { nomSociete: '', telephone: '', email: '' };
   }
 
   private showSuccess(msg: string): void {

@@ -45,47 +45,35 @@ export interface DashboardSponsorCommunauteDTO {
   moyenneContribution: number;
 }
 
-import { environment } from '../../environments/environment';
-
 @Injectable({
   providedIn: 'root'
 })
 export class AdvancedStatsService {
-  private apiUrl = `${environment.baseUrl}/api`;
+  private readonly base = 'http://localhost:8086/StreetLeague/api';
 
   constructor(private http: HttpClient) {}
 
-  // 1. Contribution totale par community
   getContributionTotaleParCommunaute(): Observable<CommunauteStatsDTO[]> {
-    return this.http.get<CommunauteStatsDTO[]>(`${this.apiUrl}/sponsoring/test/stats/communaute`);
+    return this.http.get<CommunauteStatsDTO[]>(`${this.base}/sponsoring/test/stats/communaute`);
   }
 
-  // 2. Top communities avec seuil
   getTopCommunautesAvecSponsorings(status?: string, seuilMinimum: number = 1): Observable<TopCommunauteDTO[]> {
     let params = new HttpParams().set('seuilMinimum', seuilMinimum.toString());
-    if (status) {
-      params = params.set('status', status);
-    }
-    return this.http.get<TopCommunauteDTO[]>(`${this.apiUrl}/sponsoring/test/stats/top-communautes`, { params });
+    if (status) params = params.set('status', status);
+    return this.http.get<TopCommunauteDTO[]>(`${this.base}/sponsoring/test/stats/top-communautes`, { params });
   }
 
-  // 3. Dashboard Sponsor-Community
   getDashboardSponsorParCommunaute(status?: string): Observable<DashboardSponsorCommunauteDTO[]> {
     let params = new HttpParams();
-    if (status) {
-      params = params.set('status', status);
-    }
-    return this.http.get<DashboardSponsorCommunauteDTO[]>(`${this.apiUrl}/sponsoring/test/stats/dashboard-sponsor`, { params });
+    if (status) params = params.set('status', status);
+    return this.http.get<DashboardSponsorCommunauteDTO[]>(`${this.base}/sponsoring/test/stats/dashboard-sponsor`, { params });
   }
 
-  // 4. Events sans sponsoring
   getEvenementsSansSponsoring(): Observable<EvenementSansSponsoringDTO[]> {
-    return this.http.get<EvenementSansSponsoringDTO[]>(`${this.apiUrl}/evenement/test/stats/sans-sponsoring`);
+    return this.http.get<EvenementSansSponsoringDTO[]>(`${this.base}/evenement/test/stats/sans-sponsoring`);
   }
 
-  // 5. Comparaison contracts vs sponsorings
   getComparaisonContractsVsSponsorings(): Observable<ComparaisonSponsorDTO[]> {
-    return this.http.get<ComparaisonSponsorDTO[]>(`${this.apiUrl}/sponsor/test/stats/comparaison-contrats`);
+    return this.http.get<ComparaisonSponsorDTO[]>(`${this.base}/sponsor/test/stats/comparaison-contrats`);
   }
 }
-

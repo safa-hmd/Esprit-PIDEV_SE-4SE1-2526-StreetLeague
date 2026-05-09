@@ -30,6 +30,13 @@ export class MaterielService {
     return this.http.delete<void>(`${this.base}/materiels/${id}`);
   }
 
+  // ── Upload image depuis PC ─────────────────────────
+  uploadImage(file: File): Observable<{ imageUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ imageUrl: string }>(`${this.base}/materiels/upload-image`, formData);
+  }
+
   // ── Catégories ─────────────────────────────────────
   getAllCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.base}/categories`);

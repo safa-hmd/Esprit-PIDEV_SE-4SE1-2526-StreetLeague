@@ -8,6 +8,8 @@ export interface Commande {
   id: number;
   montantTotal: number;
   statut: CommandeStatus;
+  adresse?: string;
+  nomAcheteur?: string;
 }
 
 @Injectable({ providedIn: 'root' })

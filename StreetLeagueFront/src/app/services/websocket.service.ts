@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Client, Message } from '@stomp/stompjs';
 import * as SockJS from 'sockjs-client';
 import { Observable, Subject } from 'rxjs';
-import { environment } from '../../environments/environment';
 
 if (typeof (window as any).global === 'undefined') {
   (window as any).global = window;
@@ -25,11 +24,13 @@ export interface ChatMessage {
   providedIn: 'root'
 })
 export class WebSocketService {
+
+  private readonly base = 'http://localhost:8086/StreetLeague';
+
   private client: Client;
   private messageSubject: Subject<ChatMessage> = new Subject<ChatMessage>();
   private activeSubscription: any = null;
 
-  // For posts
   private commentSubs: { [postId: number]: any } = {};
   public isConnected = false;
 
@@ -43,7 +44,7 @@ export class WebSocketService {
   constructor(private http: HttpClient) {
     this.client = new Client({
       // @ts-ignore
-      webSocketFactory: () => new SockJS(`${environment.baseUrl}/ws-chat`),
+      webSocketFactory: () => new SockJS(`${this.base}/ws-chat`),
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
@@ -58,7 +59,6 @@ export class WebSocketService {
       console.log('✅ WebSocket connected');
       this.isConnected = true;
 
-      // Automatically subscribe to posts since it's a global topic
       this.client.subscribe('/topic/posts', (msg) => {
         try {
           const data = JSON.parse(msg.body);
@@ -83,7 +83,7 @@ export class WebSocketService {
 
   // ---- CHAT METHODS ----
   getChatHistory(contractId: number): Observable<ChatMessage[]> {
-    return this.http.get<ChatMessage[]>(`${environment.baseUrl}/api/chat/history/${contractId}`);
+    return this.http.get<ChatMessage[]>(`${this.base}/api/chat/history/${contractId}`);
   }
 
   connect(contractId?: number): Observable<ChatMessage> {
@@ -97,7 +97,7 @@ export class WebSocketService {
       } else {
         const oldOnConnect = this.client.onConnect;
         this.client.onConnect = (frame) => {
-          if(oldOnConnect) oldOnConnect(frame);
+          if (oldOnConnect) oldOnConnect(frame);
           this._subscribeToChat(contractId);
         };
       }
@@ -130,15 +130,15 @@ export class WebSocketService {
   }
 
   uploadAudio(formData: FormData): Observable<any> {
-    return this.http.post(`${environment.baseUrl}/api/chat/send-audio`, formData);
+    return this.http.post(`${this.base}/api/chat/send-audio`, formData);
   }
 
   deleteMessage(id: number, contractId: number): Observable<any> {
-    return this.http.delete(`${environment.baseUrl}/api/chat/${id}?contratId=${contractId}`);
+    return this.http.delete(`${this.base}/api/chat/${id}?contratId=${contractId}`);
   }
 
   reactToMessage(id: number, reaction: string, contractId: number): Observable<any> {
-    return this.http.post(`${environment.baseUrl}/api/chat/${id}/react?reaction=${encodeURIComponent(reaction)}&contratId=${contractId}`, {});
+    return this.http.post(`${this.base}/api/chat/${id}/react?reaction=${encodeURIComponent(reaction)}&contratId=${contractId}`, {});
   }
 
   // ---- POST/COMMENT METHODS ----

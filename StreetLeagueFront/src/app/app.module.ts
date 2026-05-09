@@ -30,6 +30,7 @@ registerLocaleData(localeFr);  // ← ajoute avant @NgModule
     ReactiveFormsModule,
     HttpClientModule,
     DeliveryFoModule,
+  
   ],
   providers: [
     {
